@@ -239,10 +239,16 @@
   @media (max-width:552px){.fab-sync{right:25px;}}
   .fab-sync .icon{width:20px;height:20px;}
   .fab-sync .fab-dot{position:absolute;top:3px;right:3px;width:11px;height:11px;border-radius:50%;background:var(--amber);border:2px solid var(--card);display:none;}
-  .fab-sync.pendiente .fab-dot{display:block;}
+  .fab-sync.pendiente .fab-dot{display:flex;}
+  .fab-sync .fab-dot{align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;line-height:1;}
+  .fab-sync.pendiente .fab-dot:not(:empty){min-width:18px;height:18px;width:auto;padding:0 4px;top:-2px;right:-2px;border-radius:99px;}
+  .barra-pendiente{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top, 0px));z-index:900;display:flex;align-items:center;gap:10px;width:max-content;max-width:min(94vw,440px);background:var(--amber);color:#2a1c00;padding:8px 8px 8px 14px;border-radius:14px;font-size:13px;font-weight:600;box-shadow:0 10px 24px -12px rgba(0,0,0,.5);}
+  .barra-pendiente span{flex:1 1 auto;min-width:0;line-height:1.3;}
+  .barra-pendiente button{flex:none;background:#2a1c00;color:#fff;border:0;border-radius:10px;padding:7px 12px;font-family:inherit;font-weight:700;font-size:12.5px;cursor:pointer;}
   .fab-sync.ok{color:var(--teal-deep);}
   .fab-sync.error{border-color:var(--brick);color:var(--brick);}
-  .fab-sync.error .fab-dot{display:block;background:var(--brick);}
+  .fab-sync.error .fab-dot{display:flex;background:var(--brick);}
+  .fab-sync.error .fab-dot:not(:empty){min-width:18px;height:18px;width:auto;padding:0 4px;top:-2px;right:-2px;border-radius:99px;}
   .fab-sync.off{opacity:.55;}
   .fab-sync.girando .icon{animation:girar 1s linear infinite;}
   @keyframes girar{to{transform:rotate(360deg);}}
@@ -472,6 +478,24 @@
   .pc-estado{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:transparent;color:var(--ink-faint);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;}
   .pc-estado.on{background:var(--teal);border-color:var(--teal);color:#fff;}
   .pc-virtual{opacity:.55;font-style:italic;}
+  .ec-sep{text-align:center;color:var(--ink-faint);font-size:12px;margin:2px 0 10px;}
+  .ec-lista{display:flex;flex-direction:column;gap:10px;}
+  .ec-fila{border:1px solid var(--line);border-radius:14px;padding:10px;background:var(--card2);display:flex;flex-direction:column;gap:8px;}
+  .ec-fila.off{opacity:.55;}
+  .ec-top{display:flex;align-items:center;gap:8px;}
+  .ec-chk input{width:20px;height:20px;accent-color:var(--teal);}
+  .ec-fila input:not([type="checkbox"]), .ec-fila select{width:100%;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--paper-soft);font-size:14px;font-family:inherit;color:var(--ink);min-height:40px;}
+  .ec-fila input:focus, .ec-fila select:focus{outline:2px solid var(--teal);outline-offset:1px;}
+  @media (max-width:899px){ .ec-fila input:not([type="checkbox"]), .ec-fila select{font-size:16px;} }
+  .ec-desc{flex:1;min-width:0;font-weight:600;}
+  .ec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .ec-grid > *{min-width:0;}
+  .ec-monto{display:flex;gap:6px;}
+  .ec-monto input{flex:1;min-width:0;}
+  .ec-monto select{width:116px;flex:none;padding-right:6px;}
+  .ec-rate{font-size:12px;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px;}
+  .ec-avisos{font-size:12px;color:var(--amber);font-weight:600;}
+  @media (max-width:420px){ .ec-grid{grid-template-columns:1fr;} }
   .deuda-col{background:var(--card2);border-radius:14px;padding:12px 14px;text-align:center;}
   .deuda-col-name{font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.4px;}
   .deuda-col-amt{font-size:22px;font-weight:800;font-family:'Outfit',sans-serif;margin-top:4px;letter-spacing:-.3px;}
@@ -519,11 +543,11 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '13 · 25 sep 2026 (sincronización segura)';
+const APP_VERSION = '14 · 25 sep 2026 (sin pérdidas, tiempo real, estados de cuenta)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
-const APP_BUILD = 13;
+const APP_BUILD = 14;
 let syncVersionNube = null;
 const Storage = {
   load(){
@@ -535,10 +559,32 @@ const Storage = {
   },
   save(state){
     const raw = JSON.stringify(state);
-    try{ localStorage.setItem(STORAGE_KEY, raw); }
-    catch(e){ memoryStore.data = state; }
+    try{
+      localStorage.setItem(STORAGE_KEY, raw);
+      ultimoGuardadoHuella = huella(raw);
+      // Las huellas de sincronización ahora corresponden a lo que quedó guardado.
+      // (solo si esas huellas son exactamente las de estos datos; si no, al abrir se recalculan)
+      try{ const m = leerMetaSync(); if(m.huellas){ m.paraGuardado = mismasHuellas(m.huellas, huellasDe(state)) ? ultimoGuardadoHuella : null; guardarMetaSync(m); } }catch(e2){}
+      return true;
+    }catch(e){
+      memoryStore.data = state;
+      ultimoGuardadoHuella = null;
+      avisarSinEspacio();
+      return false;
+    }
   }
 };
+let ultimoGuardadoHuella = null;
+function mismasHuellas(a, b){
+  if(!a || !b) return false;
+  const ka = Object.keys(a); if(ka.length !== Object.keys(b).length) return false;
+  return ka.every(k=>a[k]===b[k]);
+}
+let avisoEspacioMostrado = false;
+function avisarSinEspacio(){
+  if(avisoEspacioMostrado) return; avisoEspacioMostrado = true;
+  try{ setTimeout(()=>mostrarToast('Este teléfono no pudo guardar (sin espacio). Tus cambios se suben a la hoja al sincronizar; no cierres la app sin sincronizar.', 'error'), 0); }catch(e){}
+}
 
 /* ============================================================
    ICONS — small inline SVG set, consistent line style
@@ -729,6 +775,7 @@ function migrateState(s){
   if(!Array.isArray(s.pagosTarjeta)) s.pagosTarjeta=[];
   if(!Array.isArray(s.pagosOtros)) s.pagosOtros=[];
   if(!Array.isArray(s.series)) s.series=[];
+  if(!Array.isArray(s.importaciones)) s.importaciones=[];
   if(!Array.isArray(s.porCobrar)) s.porCobrar=[];
   if(!Array.isArray(s.deudasProyectadas)) s.deudasProyectadas=[];
   s.series.forEach(se=>{ if(!Array.isArray(se.omitidos)) se.omitidos=[]; if(!se.plantilla) se.plantilla={}; });
@@ -809,6 +856,7 @@ function defaultSubcats(){
   // vida diario del destino entre subcategorías cuando no hay costos de
   // referencia propios. coberturaKey liga la subcategoría a un tipo de
   // cobertura del destino para poder descontar lo que el programa ya cubre.
+  // _u:-1 = de ejemplo: si la nube ya tiene una con el mismo nombre, se queda la de la nube.
   return [
     {id:uid(), nombre:'Comida & Bebida', icono:'food', peso:28, coberturaKey:'comida', costos:[], gastos:[]},
     {id:uid(), nombre:'Alojamiento', icono:'bed', peso:22, coberturaKey:'alojamiento', costos:[], gastos:[]},
@@ -821,7 +869,7 @@ function defaultSubcats(){
     {id:uid(), nombre:'Comunicación (eSIM/roaming)', icono:'wifi', peso:2, coberturaKey:null, costos:[], gastos:[]},
     {id:uid(), nombre:'Lavandería', icono:'shirt', peso:2, coberturaKey:null, costos:[], gastos:[]},
     {id:uid(), nombre:'Trámites y documentos', icono:'file', peso:1, coberturaKey:null, costos:[], gastos:[]},
-  ];
+  ].map(x=>({...x, _u:-1}));
 }
 function defaultState(){
   return {
@@ -844,11 +892,12 @@ function defaultState(){
     pagosTarjeta:[], // pagos de la tarjeta de crédito de cada una
     pagosOtros:[], // pagos a otras personas que pagaron algo por Jen o Isa
     series:[], // movimientos recurrentes: cada mes se crea uno independiente
+    importaciones:[], // estados de cuenta importados (para poder deshacer)
     porCobrar:[], // Me deben: solo para anotar, no mueve dinero
     deudasProyectadas:[], // Lo que voy a deber a futuro: solo para anotar
     migAbueloFueraDelBote:true,
     destinos:[
-      {id:uid(), nombre:'Split, Croacia', fechaInicio:'2026-08-30', fechaFin:'2026-09-19',
+      {id:uid(), _u:-1, nombre:'Split, Croacia', fechaInicio:'2026-08-30', fechaFin:'2026-09-19',
         cobertura:{alojamiento:'total', desayuno:'total', comida:'total', cena:'total', transporte:'no'},
         costoVidaDia:0, fuenteCosto:'historico', estacionalidad:'media', nivelCosto:'medio', notas:'Programa IVHQ — comida y alojamiento cubiertos.'}
     ],
@@ -874,6 +923,7 @@ if(!state.destinoActualId && state.destinos.length){ state.destinoActualId = sta
 function persist(){
   const cambio = sellarCambios();
   Storage.save(state);
+  guardarCopiaLocal();
   if(cambio){ marcarPendiente(true); programarSync(); }
 }
 
@@ -976,10 +1026,30 @@ let syncTimer = null, syncEnCurso = false, syncOtraVez = false, syncCambiosVer =
    al juntar con el otro teléfono no "reviva".
    ------------------------------------------------------------ */
 const SYNC_META_KEY = 'budgetin_sync_meta_v1';
-function leerMetaSync(){ try{ return JSON.parse(localStorage.getItem(SYNC_META_KEY)||'null') || {huellas:null, pendiente:false, ultima:null}; }catch(e){ return memoryStore.syncMeta || {huellas:null, pendiente:false, ultima:null}; } }
-function guardarMetaSync(m){ try{ localStorage.setItem(SYNC_META_KEY, JSON.stringify(m)); }catch(e){ memoryStore.syncMeta = m; } }
+let metaEnMemoria = false;
+function leerMetaSync(){ if(metaEnMemoria && memoryStore.syncMeta) return JSON.parse(JSON.stringify(memoryStore.syncMeta)); try{ return JSON.parse(localStorage.getItem(SYNC_META_KEY)||'null') || {huellas:null, pendiente:false, ultima:null}; }catch(e){ return memoryStore.syncMeta || {huellas:null, pendiente:false, ultima:null}; } }
+function guardarMetaSync(m){ try{ localStorage.setItem(SYNC_META_KEY, JSON.stringify(m)); metaEnMemoria = false; }catch(e){ memoryStore.syncMeta = JSON.parse(JSON.stringify(m)); metaEnMemoria = true; } }
+// Al abrir: si las huellas guardadas no corresponden a los datos guardados (p. ej. el
+// teléfono se quedó sin espacio a medio guardar), se vuelven a tomar de los datos.
+// Así nunca se "adivina" que algo se borró cuando en realidad no se alcanzó a guardar.
+function verificarHuellasAlIniciar(){
+  try{
+    const meta = leerMetaSync();
+    if(!meta.huellas) return;
+    let raw = null; try{ raw = localStorage.getItem(STORAGE_KEY); }catch(e){}
+    const h = raw ? huella(raw) : null;
+    ultimoGuardadoHuella = h;
+    if(h && meta.paraGuardado === h) return;
+    meta.huellas = huellasDe(state);
+    meta.paraGuardado = h;
+    meta.pendiente = true; if(!meta.pendienteDesde) meta.pendienteDesde = Date.now();
+    guardarMetaSync(meta);
+  }catch(e){}
+}
 function huella(txt){ let h = 5381; for(let i=0;i<txt.length;i++){ h = ((h<<5) + h + txt.charCodeAt(i)) | 0; } return (h>>>0).toString(36) + '.' + txt.length; }
 // Todos los registros con id, con su colección y (para gastos) dónde viven.
+/* <<<MERGE-COMPARTIDO: este bloque se copia tal cual al código de la hoja
+   (Apps Script), para que el teléfono y la hoja junten exactamente igual. */
 function recorrerRegistros(st){
   const out = [];
   const add = (col, arr, loc)=> (arr||[]).forEach(r=>{ if(r && r.id) out.push({k:col+':'+r.id, col, rec:r, loc:loc||''}); });
@@ -993,17 +1063,11 @@ function recorrerRegistros(st){
   add('ahorro', (st.ahorro||{}).movimientos);
   add('fondoCon', (st.fondoGrande||{}).conocidos); add('fondoMov', (st.fondoGrande||{}).movimientos);
   add('destinos', st.destinos);
+  add('importaciones', st.importaciones);
   (st.subcats||[]).forEach(sb=>{ if(sb && sb.id) out.push({k:'subcats:'+sb.id, col:'subcats', rec:sb, loc:''}); });
   return out;
 }
-function textoRegistro(e){
-  const r = e.rec, copia = {};
-  Object.keys(r).forEach(k=>{ if(k==='_u') return; if(e.col==='subcats' && (k==='gastos'||k==='costos')) return; copia[k]=r[k]; });
-  return JSON.stringify(copia) + '|' + e.loc;
-}
-// Ajustes generales (porcentajes, fechas del viaje, metas...) se tratan como un bloque.
-const CLAVES_NO_CONFIG = ['ingresos','subcats','gustosGastos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','rates','ratesMeta','syncUrl','_borrados','_cfgU','efectivoGastos','_syncMarca'];
-// Cada ajuste por separado (así, si Jen cambia uno e Isa otro, se quedan los dos).
+const CLAVES_NO_CONFIG = ['ingresos','subcats','gustosGastos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','rates','ratesMeta','syncUrl','_borrados','_cfgU','efectivoGastos','_syncMarca','_papelera','importaciones'];
 function configDe(st){
   const c = {};
   Object.keys(st).forEach(k=>{ if(!CLAVES_NO_CONFIG.includes(k) && k!=='finanzas' && k!=='ahorro' && k!=='fondoGrande') c[k]=st[k]; });
@@ -1019,56 +1083,6 @@ function huellasDe(st){
   Object.keys(cfg).forEach(k=>{ m['__cfg:'+k] = huella(JSON.stringify(cfg[k]===undefined?null:cfg[k])); });
   return m;
 }
-// La hora de un cambio nunca queda "antes" de lo último que este teléfono ya vio
-// (por si el reloj de un teléfono va atrasado).
-function selloMaximo(st){
-  let mx = 0;
-  recorrerRegistros(st).forEach(e=>{ if(typeof e.rec._u==='number' && e.rec._u>mx) mx = e.rec._u; });
-  Object.values(st._borrados||{}).forEach(v=>{ if(v>mx) mx = v; });
-  const c = st._cfgU; if(typeof c==='number'){ if(c>mx) mx=c; } else if(c) Object.values(c).forEach(v=>{ if(v>mx) mx=v; });
-  return mx;
-}
-// Marca con la hora lo que cambió desde el último guardado. Devuelve si hubo cambios.
-function sellarCambios(){
-  const meta = leerMetaSync();
-  const ahora = Math.max(Date.now(), selloMaximo(state)+1);
-  if(!state._borrados || typeof state._borrados!=='object') state._borrados = {};
-  if(typeof state._cfgU==='number'){ const v = state._cfgU; state._cfgU = {}; Object.keys(configDe(state)).forEach(k=>{ state._cfgU[k]=v; }); }
-  if(!state._cfgU || typeof state._cfgU!=='object') state._cfgU = {};
-  const nuevas = {};
-  let cambio = false;
-  const primeraVez = !meta.huellas;
-  recorrerRegistros(state).forEach(e=>{
-    const h = huella(textoRegistro(e));
-    nuevas[e.k] = h;
-    if(!primeraVez && meta.huellas[e.k]!==h){ e.rec._u = ahora; cambio = true; }
-    if(primeraVez && typeof e.rec._u!=='number') e.rec._u = 0;
-  });
-  const cfg = configDe(state);
-  Object.keys(cfg).forEach(k=>{
-    const hk = '__cfg:'+k, h = huella(JSON.stringify(cfg[k]===undefined?null:cfg[k]));
-    nuevas[hk] = h;
-    if(!primeraVez && meta.huellas[hk]!==undefined && meta.huellas[hk]!==h){ state._cfgU[k] = ahora; cambio = true; }
-    if(!primeraVez && meta.huellas[hk]===undefined && meta.huellas['__config']!==undefined){ /* huellas de la versión anterior: no cuenta como cambio */ }
-  });
-  if(!primeraVez){
-    Object.keys(meta.huellas).forEach(k=>{ if(!k.startsWith('__c') && !(k in nuevas)){ state._borrados[k] = ahora; cambio = true; } });
-  }
-  meta.huellas = nuevas;
-  guardarMetaSync(meta);
-  if(cambio) syncCambiosVer++;
-  return cambio;
-}
-function rebasarHuellas(){ const meta = leerMetaSync(); meta.huellas = huellasDe(state); guardarMetaSync(meta); }
-function marcarPendiente(v){ const meta = leerMetaSync(); meta.pendiente = !!v; guardarMetaSync(meta); pintarBotonSync(); }
-function hayPendiente(){ return !!leerMetaSync().pendiente; }
-
-/* ------------------------------------------------------------
-   JUNTAR dos copias (este teléfono + la nube), registro por registro:
-   gana la versión editada más recientemente; lo borrado (con fecha más
-   nueva que la última edición) se queda borrado. Nunca se reemplaza una
-   copia completa por otra.
-   ------------------------------------------------------------ */
 function mergeStates(L, R){
   const bor = {};
   [R._borrados||{}, L._borrados||{}].forEach(b=>Object.keys(b).forEach(k=>{ if(!bor[k] || b[k]>bor[k]) bor[k]=b[k]; }));
@@ -1113,6 +1127,7 @@ function mergeStates(L, R){
   // Subcategorías y destinos repetidos por nombre (p. ej. los de ejemplo de un navegador
   // nuevo): se quedan una sola vez y lo que tenían se muda a la que queda.
   const remap = {};
+  const enNube = new Set(recorrerRegistros(R).map(e=>e.k));
   const unicosPorNombre = (col, clave)=>{
     const lista = elegidos.filter(e=>e.col===col);
     const porNombre = new Map();
@@ -1120,7 +1135,8 @@ function mergeStates(L, R){
       const n = clave(e.rec); const otro = porNombre.get(n);
       if(!otro){ porNombre.set(n, e); return; }
       const uA = otro.rec._u||0, uB = e.rec._u||0;
-      const queda = uA!==uB ? (uA>uB?otro:e) : (otro.rec.id < e.rec.id ? otro : e);
+      const rA = enNube.has(otro.k), rB = enNube.has(e.k);
+      const queda = uA!==uB ? (uA>uB?otro:e) : (rA!==rB ? (rA?otro:e) : (otro.rec.id < e.rec.id ? otro : e));
       const sale = queda===otro ? e : otro;
       porNombre.set(n, queda);
       remap[sale.rec.id] = queda.rec.id;
@@ -1183,12 +1199,236 @@ function mergeStates(L, R){
   });
   base._borrados = bor;
   base._cfgU = cfgU;
+  // Papelera: se juntan las de los dos lados (90 días); lo que se recuperó ya no está en la papelera.
+  const pap = {};
+  const limitePap = Date.now() - 90*24*3600*1000;
+  [R._papelera||{}, L._papelera||{}].forEach(pp=>Object.keys(pp).forEach(k=>{ const e = pp[k]; if(!e || !(e.t>=limitePap)) return; if(!pap[k] || e.t>pap[k].t) pap[k] = e; }));
+  const vivos = new Set(recorrerRegistros(base).map(e=>e.k));
+  Object.keys(pap).forEach(k=>{ if(vivos.has(k)) delete pap[k]; });
+  base._papelera = pap;
+  base.importaciones = de('importaciones').map(e=>e.rec);
   if(base.destinoActualId) base.destinoActualId = destinoDe(base.destinoActualId);
   base.syncUrl = L.syncUrl;
   delete base._syncMarca;
   return base;
 }
+// Juntar una copia de respaldo: además de juntar, lo que está en la copia y aquí se
+// había borrado vuelve (con una hora más nueva que el borrado, para que no se vuelva
+// a borrar al sincronizar). Nada de lo que hay ahora se quita.
+function juntarRescatando(actual, copia){
+  let t = Date.now();
+  [actual, copia].forEach(st=>{
+    recorrerRegistros(st).forEach(e=>{ if(typeof e.rec._u==='number' && e.rec._u>=t) t = e.rec._u+1; });
+    Object.values(st._borrados||{}).forEach(v=>{ if(typeof v==='number' && v>=t) t = v+1; });
+  });
+  const a = JSON.parse(JSON.stringify(actual));
+  const c = JSON.parse(JSON.stringify(copia));
+  if(!a._borrados || typeof a._borrados!=='object') a._borrados = {};
+  if(!c._borrados || typeof c._borrados!=='object') c._borrados = {};
+  const vivos = new Set(recorrerRegistros(a).map(e=>e.k));
+  const nombreDe = (col, r)=>col+'|'+String(r.nombre||'').trim().toLowerCase();
+  const nombresVivos = new Set(recorrerRegistros(a).filter(e=>e.col==='subcats'||e.col==='destinos').map(e=>nombreDe(e.col, e.rec)));
+  // Una subcategoría de la copia que ya existe aquí con el mismo nombre (pero otro id) es la misma:
+  // lo que tenga adentro se muda a la de aquí y la de aquí se queda como está.
+  const idVivo = {};
+  recorrerRegistros(a).forEach(e=>{ if(e.col==='subcats') idVivo[nombreDe('subcats', e.rec)] = e.rec.id; });
+  (c.subcats||[]).forEach(sb=>{
+    const vivo = idVivo[nombreDe('subcats', sb)];
+    if(vivo && vivo!==sb.id && !vivos.has('subcats:'+sb.id)){
+      const viejo = sb.id; sb.id = vivo; sb._u = -1;
+      (c.series||[]).forEach(se=>{ if(se.subId===viejo) se.subId = vivo; });
+    }
+  });
+  let rescatados = 0;
+  recorrerRegistros(c).forEach(e=>{
+    if(vivos.has(e.k)) return;
+    // No se rescatan: ejemplos, cosas "de fábrica" (_u<0) ni subcategorías/destinos que ya existen con ese nombre.
+    if(e.rec._ejemplo || (e.rec.plantilla && e.rec.plantilla._ejemplo) || (typeof e.rec._u==='number' && e.rec._u<0)) return;
+    if((e.col==='subcats'||e.col==='destinos') && nombresVivos.has(e.col+'|'+String(e.rec.nombre||'').trim().toLowerCase())) return;
+    const borrado = a._borrados[e.k]!==undefined;
+    if(borrado){ e.rec._u = t; delete a._borrados[e.k]; rescatados++; }
+    delete c._borrados[e.k];
+  });
+  const datos = mergeStates(c, a);
+  datos.syncUrl = actual.syncUrl;
+  return {datos, rescatados};
+}
+/* MERGE-COMPARTIDO>>> */
+function textoRegistro(e){
+  const r = e.rec, copia = {};
+  Object.keys(r).forEach(k=>{ if(k==='_u') return; if(e.col==='subcats' && (k==='gastos'||k==='costos')) return; copia[k]=r[k]; });
+  return JSON.stringify(copia) + '|' + e.loc;
+}
+// Ajustes generales (porcentajes, fechas del viaje, metas...) se tratan como un bloque.
+// Cada ajuste por separado (así, si Jen cambia uno e Isa otro, se quedan los dos).
+// La hora de un cambio nunca queda "antes" de lo último que este teléfono ya vio
+// (por si el reloj de un teléfono va atrasado).
+function selloMaximo(st){
+  let mx = 0;
+  recorrerRegistros(st).forEach(e=>{ if(typeof e.rec._u==='number' && e.rec._u>mx) mx = e.rec._u; });
+  Object.values(st._borrados||{}).forEach(v=>{ if(v>mx) mx = v; });
+  const c = st._cfgU; if(typeof c==='number'){ if(c>mx) mx=c; } else if(c) Object.values(c).forEach(v=>{ if(v>mx) mx=v; });
+  return mx;
+}
+// Marca con la hora lo que cambió desde el último guardado. Devuelve si hubo cambios.
+// Copia de cómo era cada registro en el último guardado (para mandar a la papelera lo que se borra).
+let registrosPrevios = new Map();
+function recordarRegistros(){
+  registrosPrevios = new Map();
+  recorrerRegistros(state).forEach(e=>{ registrosPrevios.set(e.k, {col:e.col, loc:e.loc, txt:JSON.stringify(e.rec)}); });
+}
+function sellarCambios(){
+  const meta = leerMetaSync();
+  const ahora = Math.max(Date.now(), selloMaximo(state)+1);
+  if(!state._borrados || typeof state._borrados!=='object') state._borrados = {};
+  if(!state._papelera || typeof state._papelera!=='object') state._papelera = {};
+  if(typeof state._cfgU==='number'){ const v = state._cfgU; state._cfgU = {}; Object.keys(configDe(state)).forEach(k=>{ state._cfgU[k]=v; }); }
+  if(!state._cfgU || typeof state._cfgU!=='object') state._cfgU = {};
+  const nuevas = {};
+  const cambiados = [];
+  const primeraVez = !meta.huellas;
+  recorrerRegistros(state).forEach(e=>{
+    const h = huella(textoRegistro(e));
+    nuevas[e.k] = h;
+    if(!primeraVez && meta.huellas[e.k]!==h){
+      if(sellosFijos.has(e.rec)){ e.rec._u = sellosFijos.get(e.rec); sellosFijos.delete(e.rec); } // mes creado/actualizado solo, sin editar
+      else {
+        e.rec._u = ahora;
+        // Un ejemplo que editaste ya es un dato tuyo.
+        if(meta.huellas[e.k]!==undefined){
+          if(e.rec._ejemplo) delete e.rec._ejemplo; if(e.rec.plantilla && e.rec.plantilla._ejemplo) delete e.rec.plantilla._ejemplo;
+          // Cambió la plantilla de algo "cada mes": se anota desde cuándo, para que los meses que el
+          // otro teléfono haya creado con la plantilla vieja se actualicen al juntar.
+          if(e.col==='series'){
+            const prev = registrosPrevios.get(e.k); let pv = null; try{ pv = prev ? JSON.parse(prev.txt) : null; }catch(err){}
+            if(pv && JSON.stringify(pv.plantilla||null)!==JSON.stringify(e.rec.plantilla||null) && (pv.plantillaU||0)===(e.rec.plantillaU||0)){
+              e.rec.plantillaU = ahora;
+              const yms = registrosDeSerie(e.rec).map(r=>r.serieYM).filter(Boolean).sort();
+              e.rec.plantillaYM = yms.length ? yms[yms.length-1] : e.rec.desde;
+            }
+          }
+          nuevas[e.k] = huella(textoRegistro(e));
+        }
+      }
+      cambiados.push(e.k);
+    }
+    if(primeraVez && typeof e.rec._u!=='number') e.rec._u = 0;
+  });
+  const cfg = configDe(state);
+  Object.keys(cfg).forEach(k=>{
+    const hk = '__cfg:'+k, h = huella(JSON.stringify(cfg[k]===undefined?null:cfg[k]));
+    nuevas[hk] = h;
+    if(!primeraVez && meta.huellas[hk]!==undefined && meta.huellas[hk]!==h){ state._cfgU[k] = ahora; cambiados.push(hk); }
+  });
+  if(!primeraVez){
+    Object.keys(meta.huellas).forEach(k=>{
+      if(k.startsWith('__c') || (k in nuevas)) return;
+      state._borrados[k] = ahora; cambiados.push(k);
+      const prev = registrosPrevios.get(k);
+      if(prev){ try{ state._papelera[k] = {col:prev.col, loc:prev.loc, rec:JSON.parse(prev.txt), t:ahora, por: perfil||''}; }catch(err){} }
+    });
+  }
+  meta.huellas = nuevas;
+  meta.paraGuardado = null; // se confirma cuando Storage.save guarda los datos
+  if(cambiados.length){
+    const set = new Set(meta.pendientes||[]); cambiados.forEach(k=>set.add(k));
+    meta.pendientes = [...set];
+    if(!meta.pendienteDesde) meta.pendienteDesde = Date.now();
+  }
+  guardarMetaSync(meta);
+  recordarRegistros();
+  if(cambiados.length) syncCambiosVer++;
+  return cambiados.length>0;
+}
+function rebasarHuellas(){ const meta = leerMetaSync(); meta.huellas = huellasDe(state); meta.paraGuardado = ultimoGuardadoHuella && huella(JSON.stringify(state))===ultimoGuardadoHuella ? ultimoGuardadoHuella : null; guardarMetaSync(meta); recordarRegistros(); }
+function marcarPendiente(v){
+  const meta = leerMetaSync();
+  meta.pendiente = !!v;
+  if(!v){ meta.pendientes = []; meta.pendienteDesde = null; }
+  else if(!meta.pendienteDesde) meta.pendienteDesde = Date.now();
+  guardarMetaSync(meta); pintarBotonSync();
+}
+function cuantosPendientes(){ const m = leerMetaSync(); const n = (m.pendientes||[]).length; return n || (m.pendiente ? 1 : 0); }
+function hayPendiente(){ return cuantosPendientes()>0; }
+// "Firma" de los datos: si la del teléfono y la de la nube son iguales, no hay nada que subir.
+function firmaDatos(st){
+  const h = huellasDe(st);
+  const partes = Object.keys(h).sort().map(k=>k+'='+h[k]);
+  const bor = st._borrados||{}; Object.keys(bor).sort().forEach(k=>partes.push('x:'+k));
+  return huella(partes.join('\n'));
+}
+// Este teléfono (para saber quién sincronizó).
+const DISPOSITIVO_KEY = 'budgetin_dispositivo_v1';
+function miDispositivo(){
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(DISPOSITIVO_KEY)||'null'); }catch(e){}
+  if(!d || !d.id){
+    const ua = (typeof navigator!=='undefined' && navigator.userAgent) || '';
+    const equipo = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Macintosh/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Navegador';
+    const nav = /CriOS|Chrome/.test(ua) && !/Edg/.test(ua) ? 'Chrome' : /Firefox|FxiOS/.test(ua) ? 'Firefox' : /Edg/.test(ua) ? 'Edge' : /Safari/.test(ua) ? 'Safari' : '';
+    d = {id: uid(), nombre: equipo + (nav ? ' · '+nav : '')};
+    try{ localStorage.setItem(DISPOSITIVO_KEY, JSON.stringify(d)); }catch(e){}
+  }
+  return d;
+}
+// Copias diarias guardadas en este teléfono (últimos 14 días).
+const COPIAS_KEY = 'budgetin_copias_v1'; // (versión anterior: ya no se usa; se borra para liberar espacio)
+try{ localStorage.removeItem(COPIAS_KEY); }catch(e){}
+const COPIAS_DB = 'budgetin_copias';
+let copiasMemoria = {};
+let ultimaCopiaTs = 0;
+function idbCopias(){
+  return new Promise((ok, mal)=>{
+    try{
+      if(typeof indexedDB==='undefined' || !indexedDB) return mal(new Error('sin indexedDB'));
+      const rq = indexedDB.open(COPIAS_DB, 1);
+      rq.onupgradeneeded = ()=>{ try{ rq.result.createObjectStore('copias'); }catch(e){} };
+      rq.onsuccess = ()=>ok(rq.result);
+      rq.onerror = ()=>mal(rq.error || new Error('idb'));
+    }catch(e){ mal(e); }
+  });
+}
+// Copias diarias guardadas en este teléfono (últimos 14 días), aparte de los datos.
+function guardarCopiaLocal(){
+  if(Date.now() - ultimaCopiaTs < 5*60*1000) return;
+  ultimaCopiaTs = Date.now();
+  const dia = todayISO();
+  let copia;
+  try{ copia = {ts: Date.now(), data: JSON.parse(JSON.stringify(state))}; }catch(e){ return; }
+  copiasMemoria[dia] = copia;
+  Object.keys(copiasMemoria).sort().reverse().slice(14).forEach(k=>{ delete copiasMemoria[k]; });
+  idbCopias().then(db=>{
+    try{
+      const tx = db.transaction('copias', 'readwrite');
+      const st = tx.objectStore('copias');
+      st.put(copia, dia);
+      const rq = st.getAllKeys();
+      rq.onsuccess = ()=>{ (rq.result||[]).map(String).sort().reverse().slice(14).forEach(k=>st.delete(k)); };
+      tx.oncomplete = ()=>db.close(); tx.onerror = ()=>db.close();
+    }catch(e){ try{ db.close(); }catch(e2){} }
+  }).catch(()=>{});
+}
+async function leerCopiasLocales(){
+  try{
+    const db = await idbCopias();
+    return await new Promise((ok)=>{
+      const out = {};
+      try{
+        const rq = db.transaction('copias', 'readonly').objectStore('copias').openCursor();
+        rq.onsuccess = ()=>{ const c = rq.result; if(c){ out[c.key] = c.value; c.continue(); } else { db.close(); ok(Object.keys(out).length ? out : {...copiasMemoria}); } };
+        rq.onerror = ()=>{ db.close(); ok({...copiasMemoria}); };
+      }catch(e){ ok({...copiasMemoria}); }
+    });
+  }catch(e){ return {...copiasMemoria}; }
+}
 
+// fetch con tiempo límite: si la red se queda colgada, la sincronización no se traba para siempre.
+function fetchSync(url, opts, ms){
+  const o = {...(opts||{})};
+  let t = null;
+  if(typeof AbortController!=='undefined'){ const ac = new AbortController(); o.signal = ac.signal; t = setTimeout(()=>{ try{ ac.abort(); }catch(e){} }, ms||45000); }
+  return fetch(url, o).finally(()=>{ if(t) clearTimeout(t); });
+}
 function nubeEsMasNueva(payload){
   const b = payload && Number(payload.appBuild);
   if(b && b > APP_BUILD){ syncVersionNube = b; syncEstado = { estado:'version', ultimaVez: syncEstado.ultimaVez }; pintarBotonSync(); return true; }
@@ -1200,7 +1440,10 @@ function programarSync(ms){
   syncTimer = setTimeout(()=>{ sincronizar(); }, ms==null ? 800 : ms);
 }
 function programarSyncPush(){ programarSync(); } // nombre anterior
-// Baja la copia de la nube, la junta con la de este teléfono y sube el resultado.
+function urlSync(extra){ const u = state.syncUrl||''; return extra ? u + (u.includes('?')?'&':'?') + extra : u; }
+let ultimaNubeVista = null;   // updatedAt de la hoja la última vez que la leímos o escribimos
+function nombreQuien(q){ return q==='isa' ? 'Isa' : q==='jen' ? 'Jen' : 'el otro teléfono'; }
+// Baja la copia de la nube, la junta con la de este teléfono y SOLO sube si hay algo nuevo.
 // Si alguien subió algo mientras tanto, lo vuelve a intentar (hasta 3 veces).
 async function sincronizar(){
   if(!state.syncUrl) return false;
@@ -1210,12 +1453,15 @@ async function sincronizar(){
   syncEstado = { estado:'sincronizando', ultimaVez: syncEstado.ultimaVez };
   pintarBotonSync();
   const verInicio = syncCambiosVer;
+  const pendientesInicio = new Set(leerMetaSync().pendientes||[]);
+  let cambiosDeNube = 0, quienNube = null, dispNube = null;
   try{
     for(let intento=0; intento<3; intento++){
-      const res = await fetch(state.syncUrl, {cache:'no-store'});
+      const res = await fetchSync(state.syncUrl, {cache:'no-store'});
       if(!res.ok) throw new Error('No se pudo leer la hoja ('+res.status+')');
       let payload;
       try{ payload = await res.json(); }catch(e){ throw new Error('La hoja no respondió bien. Revisa la URL /exec.'); }
+      if(payload && payload.ok===false && payload.error) throw new Error('La hoja respondió con un error: '+payload.error);
       if(nubeEsMasNueva(payload)){ render(); return false; }
       const nube = payload && payload.data ? migrateState(payload.data) : null;
       // Primera vez que este teléfono se junta con la nube: los valores de ejemplo
@@ -1227,6 +1473,7 @@ async function sincronizar(){
       }
       sellarCambios(); // lo último que hiciste aquí queda con su hora
       const antes = JSON.stringify(state);
+      const huellasAntes = huellasDe(state);
       if(nube){
         const url = state.syncUrl;
         state = mergeStates(state, nube);
@@ -1234,14 +1481,30 @@ async function sincronizar(){
         Storage.save(state);
         rebasarHuellas();
         if(generarRecurrentes()>0){ sellarCambios(); Storage.save(state); }
+        // ¿Cuántas cosas llegaron del otro teléfono?
+        const huellasDespues = huellasDe(state);
+        cambiosDeNube = 0;
+        new Set([...Object.keys(huellasAntes), ...Object.keys(huellasDespues)]).forEach(k=>{ if(huellasAntes[k]!==huellasDespues[k]) cambiosDeNube++; });
+        quienNube = payload.quien || null; dispNube = payload.dispositivoId || null;
       }
       if(JSON.stringify(state)!==antes) render();
+      // Si la nube ya tiene exactamente lo mismo, no se escribe nada.
+      if(nube && firmaDatos(state)===firmaDatos(nube)){
+        ultimaNubeVista = payload.updatedAt || ultimaNubeVista;
+        terminarSyncOk(pendientesInicio, verInicio, payload.updatedAt || new Date().toISOString());
+        avisarCambiosDeNube(cambiosDeNube, quienNube, dispNube);
+        return true;
+      }
       const ahoraISO = new Date().toISOString();
       const marca = uid();
-      const body = JSON.stringify({ updatedAt: ahoraISO, baseUpdatedAt: (payload && payload.updatedAt) || null, appBuild: APP_BUILD, data: Object.assign({}, state, {_syncMarca: marca}) });
-      const r2 = await fetch(state.syncUrl, { method:'POST', body, keepalive: body.length < 30000 });
+      const disp = miDispositivo();
+      const body = JSON.stringify({ updatedAt: ahoraISO, baseUpdatedAt: (payload && payload.updatedAt) || null, appBuild: APP_BUILD,
+        quien: perfil||'', dispositivo: disp.nombre, dispositivoId: disp.id, cambios: pendientesInicio.size,
+        data: Object.assign({}, state, {_syncMarca: marca}) });
+      const r2 = await fetchSync(state.syncUrl, { method:'POST', body, keepalive: body.length < 30000 }, 60000);
       let resp = null;
       try{ resp = await r2.json(); }catch(e){ resp = null; }
+      if(resp && resp.version){ syncVersionNube = Number(resp.minBuild)||APP_BUILD+1; syncEstado = {estado:'version', ultimaVez: syncEstado.ultimaVez}; render(); return false; }
       if(resp && resp.conflict) continue; // el otro teléfono subió algo justo ahora: juntar otra vez
       if(!r2.ok || !resp || resp.ok!==true){
         if(!resp && body.length > 49000) throw new Error('Tus datos ya no caben en la hoja con el código viejo. Pega el código nuevo de Apps Script (sin límite) y vuelve a intentar.');
@@ -1250,15 +1513,17 @@ async function sincronizar(){
       // Con el código viejo de la hoja no hay aviso de choque: se revisa que lo subido sea lo que quedó.
       if(!resp.updatedAt){
         try{
-          const r3 = await fetch(state.syncUrl, {cache:'no-store'});
+          const r3 = await fetchSync(state.syncUrl, {cache:'no-store'});
           const p3 = await r3.json();
           if(!p3 || !p3.data || p3.data._syncMarca !== marca) continue; // alguien subió encima: juntar otra vez
+          ultimaNubeVista = p3.updatedAt || null;
         }catch(e){ /* si no se pudo revisar, se deja como subido */ }
+      } else {
+        ultimaNubeVista = resp.updatedAt;
+        if(resp.extra){ ultimaNubeVista = null; syncOtraVez = true; } // la hoja juntó algo del otro teléfono: bajarlo enseguida
       }
-      if(syncCambiosVer===verInicio) marcarPendiente(false);
-      const meta = leerMetaSync(); meta.ultima = ahoraISO; guardarMetaSync(meta);
-      syncEstado = { estado:'ok', ultimaVez: ahoraISO };
-      syncError = '';
+      terminarSyncOk(pendientesInicio, verInicio, ahoraISO);
+      avisarCambiosDeNube(cambiosDeNube, quienNube, dispNube);
       return true;
     }
     throw new Error('El otro teléfono estaba subiendo al mismo tiempo. Intenta otra vez.');
@@ -1272,6 +1537,38 @@ async function sincronizar(){
     if(syncOtraVez){ syncOtraVez = false; programarSync(300); }
   }
 }
+function terminarSyncOk(pendientesInicio, verInicio, cuandoISO){
+  const meta = leerMetaSync();
+  meta.pendientes = (meta.pendientes||[]).filter(k=>!pendientesInicio.has(k));
+  if(syncCambiosVer===verInicio) meta.pendientes = [];
+  if(!meta.pendientes.length){ meta.pendiente = false; meta.pendienteDesde = null; }
+  meta.ultima = cuandoISO;
+  guardarMetaSync(meta);
+  syncEstado = { estado:'ok', ultimaVez: cuandoISO };
+  syncError = '';
+  guardarCopiaLocal();
+}
+function avisarCambiosDeNube(n, quien, dispId){
+  if(!n) return;
+  const mismo = dispId && dispId === miDispositivo().id;
+  if(mismo) return;
+  const de = quien ? nombreQuien(quien) + (quien===perfil ? ' (otro dispositivo)' : '') : 'el otro teléfono';
+  mostrarToast('Se agregaron '+n+' '+(n===1?'cambio':'cambios')+' de '+de+'.', 'ok');
+}
+// Revisión ligera cada 30 s mientras la app está en pantalla: si la hoja cambió, junta en automático.
+async function revisarNube(){
+  if(!state.syncUrl || syncEnCurso || (syncVersionNube && syncVersionNube>APP_BUILD)) return;
+  if(typeof document!=='undefined' && document.visibilityState==='hidden') return;
+  if(hayPendiente()){ sincronizar(); return; }
+  try{
+    const r = await fetchSync(urlSync('v=1'), {cache:'no-store'}, 20000);
+    const p = await r.json();
+    if(!p) return;
+    if(nubeEsMasNueva(p)){ render(); return; }
+    if(p.updatedAt && p.updatedAt === ultimaNubeVista) return;
+    sincronizar();
+  }catch(e){ /* sin internet: se intenta en la siguiente vuelta */ }
+}
 // Compatibilidad con nombres anteriores.
 async function sincronizarAhora(){ return sincronizar(); }
 async function pushToCloud(){ return sincronizar(); }
@@ -1282,17 +1579,38 @@ function estadoBotonSync(){
   if(!state.syncUrl) return {cls:'off', txt:'Sin configurar'};
   if(syncEstado.estado==='sincronizando') return {cls:'girando', txt:'Sincronizando…'};
   if(syncEstado.estado==='version') return {cls:'error', txt:'Actualiza la app'};
-  if(syncEstado.estado==='error') return {cls:'error', txt:'No se pudo sincronizar'};
-  if(hayPendiente()) return {cls:'pendiente', txt:'Cambios sin subir'};
+  if(syncEstado.estado==='error'){ const n = cuantosPendientes(); return {cls:'error', txt:'No se pudo sincronizar'+(n?' · '+n+' '+(n===1?'cambio':'cambios')+' sin subir':''), n}; }
+  const n = cuantosPendientes();
+  if(n) return {cls:'pendiente', txt: n+' '+(n===1?'cambio':'cambios')+' sin subir', n};
   return {cls:'ok', txt:'Sincronizado'};
 }
 function pintarBotonSync(){
   const b = document.getElementById('fabSync');
-  if(!b) return;
   const e = estadoBotonSync();
-  b.className = 'fab-sync '+e.cls;
-  b.setAttribute('aria-label', e.txt);
-  b.title = e.txt;
+  if(b){
+    b.className = 'fab-sync '+e.cls;
+    b.setAttribute('aria-label', e.txt);
+    b.title = e.txt;
+    const dot = b.querySelector('.fab-dot'); if(dot) dot.textContent = e.n ? (e.n>99?'99+':String(e.n)) : '';
+  }
+  pintarBarraPendiente();
+}
+// Aviso fijo si hay cambios sin subir por más de un minuto.
+function pintarBarraPendiente(){
+  if(typeof document==='undefined' || !document.body) return;
+  const meta = leerMetaSync();
+  const n = cuantosPendientes();
+  const mostrar = !!(state.syncUrl && n && meta.pendienteDesde && (Date.now()-meta.pendienteDesde) > 60*1000 && syncEstado.estado!=='sincronizando' && syncEstado.estado!=='version');
+  let bar = document.getElementById('barraPendiente');
+  if(!mostrar){ if(bar) bar.hidden = true; return; }
+  if(!bar){
+    bar = document.createElement('div'); bar.id='barraPendiente'; bar.className='barra-pendiente';
+    bar.innerHTML = '<span></span><button type="button">Sincronizar</button>';
+    bar.querySelector('button').addEventListener('click', tocarBotonSync);
+    document.body.appendChild(bar);
+  }
+  bar.querySelector('span').textContent = 'Tienes '+n+' '+(n===1?'cambio':'cambios')+' sin subir'+(syncEstado.estado==='error'?' (sin conexión con la hoja)':'')+'.';
+  bar.hidden = false;
 }
 let toastTimer = null;
 function mostrarToast(txt, tipo){
@@ -1302,12 +1620,12 @@ function mostrarToast(txt, tipo){
   t.textContent = txt;
   t.hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>{ t.hidden = true; }, 3200);
+  toastTimer = setTimeout(()=>{ t.hidden = true; }, 3600);
 }
 async function tocarBotonSync(){
   if(!state.syncUrl){ mostrarToast('Primero pon la URL de tu Google Sheet en Configuración.', 'error'); activeTab='config'; render(); return; }
   const ok = await sincronizar();
-  if(ok) mostrarToast('Sincronizado · '+new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}), 'ok');
+  if(ok){ const t = document.getElementById('toast'); if(!t || t.hidden) mostrarToast('Sincronizado · '+new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}), 'ok'); }
   else if(syncEstado.estado==='version') mostrarToast('El otro teléfono tiene una versión más nueva. Cierra y vuelve a abrir la app.', 'error');
   else if(syncEstado.estado==='error') mostrarToast(syncError || 'No se pudo sincronizar. Revisa tu internet.', 'error');
 }
@@ -1487,7 +1805,7 @@ function ahorroSaldoMXN(){
    tipo: 'ingreso' | 'gasto' (categorías) | 'efectivo' | 'personal' |
          'cobro' (me deben) | 'proyeccion' (voy a deber)
    ============================================================ */
-function camposNoPlantilla(){ return ['id','fecha','serieId','serieYM','montoMXN','rateMXN','montoEUR','rateEUR','cubreDesde','cubreHasta','estado','fechaCobro','fechaPago','mes','recurrente','ingresoId','virtual','_u']; }
+function camposNoPlantilla(){ return ['id','fecha','serieId','serieYM','montoMXN','rateMXN','montoEUR','rateEUR','cubreDesde','cubreHasta','estado','fechaCobro','fechaPago','mes','recurrente','ingresoId','virtual','_u','importId']; }
 function plantillaDe(rec){
   const p = {};
   Object.keys(rec).forEach(k=>{ if(!camposNoPlantilla().includes(k)) p[k] = rec[k]; });
@@ -1554,10 +1872,16 @@ function yaTocaOcurrencia(se, ym){
   if(se.tipo==='ingreso' || se.tipo==='cobro' || se.tipo==='proyeccion') return ym <= mesActual();
   return fechaOcurrencia(se, ym) <= todayISO();
 }
+// Meses creados (o actualizados) en automático: llevan la hora de la última vez que se
+// cambió la plantilla ("este mes y los siguientes"), no la de ahora. Así, si el otro
+// teléfono editó ese mes, gana su edición; y un mes hecho con una plantilla vieja
+// pierde contra la plantilla nueva.
+const sellosFijos = new WeakMap();
 function crearOcurrencia(se, ym){
   const p = JSON.parse(JSON.stringify(se.plantilla||{}));
   const fecha = fechaOcurrencia(se, ym);
-  const base = {...p, id:se.id+'-'+ym, fecha, serieId:se.id, serieYM:ym}; // id fijo: si los dos teléfonos crean el mismo mes, es el mismo registro
+  const base = {...p, id:se.id+'-'+ym, fecha, serieId:se.id, serieYM:ym, _u: Number(se.plantillaU)||0}; // id fijo: si los dos teléfonos crean el mismo mes, es el mismo registro
+  sellosFijos.set(base, base._u);
   const rate = ym < mesActual() && se.rateMXN ? se.rateMXN : null; // meses pasados: tipo de cambio de cuando se registró
   if(se.tipo==='ingreso'){
     Object.assign(base, {mes: ym, recurrente:false}, stampRates(Number(p.montoBruto)||0, p.moneda||'MXN', rate));
@@ -1576,8 +1900,30 @@ function crearOcurrencia(se, ym){
 }
 // Crea los meses que ya tocan y todavía no existen. Idempotente: si el otro
 // teléfono ya lo creó (sincronización), no se duplica.
+// Meses que se crearon con una plantilla vieja (p. ej. en el otro teléfono antes de que
+// le llegara el cambio "este mes y los siguientes") toman la plantilla nueva.
+function refrescarMesesDeSerie(){
+  let n = 0;
+  (state.series||[]).forEach(se=>{
+    const pu = Number(se.plantillaU)||0;
+    if(!pu || !se.plantillaYM || !se.plantilla) return;
+    registrosDeSerie(se).forEach(r=>{
+      if(!r.serieYM || r.serieYM <= se.plantillaYM) return;
+      if((typeof r._u==='number' ? r._u : 0) >= pu) return; // ya es de la plantilla nueva o se editó después
+      const keep = {id:r.id, fecha:fechaOcurrencia(se, r.serieYM), serieId:r.serieId, serieYM:r.serieYM, mes:r.mes, estado:r.estado, fechaCobro:r.fechaCobro, fechaPago:r.fechaPago, tipo:r.tipo};
+      Object.keys(r).forEach(k=>{ if(!(k in keep)) delete r[k]; });
+      Object.assign(r, JSON.parse(JSON.stringify(se.plantilla)), keep);
+      const monto = Number(se.tipo==='ingreso'?r.montoBruto:r.monto)||0;
+      Object.assign(r, stampRates(monto, r.moneda||'MXN', r.serieYM < mesActual() && se.rateMXN ? se.rateMXN : null));
+      Object.keys(keep).forEach(k=>{ if(keep[k]===undefined) delete r[k]; });
+      r._u = pu; sellosFijos.set(r, pu);
+      n++;
+    });
+  });
+  return n;
+}
 function generarRecurrentes(){
-  let creados = 0;
+  let creados = refrescarMesesDeSerie();
   const limite = mesActual();
   (state.series||[]).forEach(se=>{
     if(!se.desde) return;
@@ -1648,6 +1994,8 @@ function guardarRecurrencia(prefix, rec, tipo, extra){
     if(alcance==='siguientes'){
       const fechaEsperada = fechaOcurrencia(se, ym);
       se.plantilla = plantillaDe(rec);
+      se.plantillaU = Math.max(Date.now(), selloMaximo(state)+1); // desde cuándo vale esta plantilla
+      se.plantillaYM = ym;                                        // y para los meses después de este
       if(rec.fecha !== fechaEsperada){ // solo si de verdad cambiaste la fecha
         se.dia = diaDe(rec.fecha);
         if(tipo==='ingreso') se.offset = difMeses(ym, ymDe(rec.fecha)||ym);
@@ -2421,7 +2769,7 @@ function renderTabs(){
 
 function renderFab(){
   const e = estadoBotonSync();
-  return `<button class="fab-sync ${e.cls}" id="fabSync" aria-label="${e.txt}" title="${e.txt}">${ico('repeat')}<span class="fab-dot"></span></button>
+  return `<button class="fab-sync ${e.cls}" id="fabSync" aria-label="${e.txt}" title="${e.txt}">${ico('repeat')}<span class="fab-dot">${e.n ? (e.n>99?'99+':e.n) : ''}</span></button>
   <button class="fab" data-open="gasto">${ico('plus')}</button>`;
 }
 function renderInicio(){
@@ -2572,13 +2920,13 @@ function renderDeudasCard(){
         ${d.detalle.map(x=> x.esPago ? `
           <div class="exp-line" style="padding:7px 0;">
             ${micoHtml(iconoMov({tipo:'pago-entre'}),'sm')}
-            <div class="desc"><div class="n">${x.nota}</div><div class="d">${fmtDate(x.fecha)} · pago · <span class="who-txt">${nombrePersona(x.de)} → ${nombrePersona(x.a)}</span></div></div>
+            <div class="desc"><div class="n">${escHtml(x.nota)}</div><div class="d">${fmtDate(x.fecha)} · pago · <span class="who-txt">${nombrePersona(x.de)} → ${nombrePersona(x.a)}</span></div></div>
             <div class="amt income">${nombrePersona(x.de)} pagó ${fmt(x.monto,x.moneda||'MXN')}${x.moneda && x.moneda!=='MXN' ? `<span class="est">≈ ${fmt(x.montoMXN,'MXN')}</span>`:''}</div>
             <button class="mov-edit-btn" data-mov-edit="pago-entre|${x.id}|">${ico('edit','icon-sm')}</button>
           </div>` : `
           <div class="exp-line" style="padding:7px 0;">
             ${micoHtml(x.subNombre==='Gustos' ? iconoMov({tipo:'gasto-gustos'}) : iconoMov({tipo:'gasto-generales', subNombre:x.subNombre}),'sm')}
-            <div class="desc"><div class="n">${x.nota}</div><div class="d">${fmtDate(x.fecha)} · ${x.subNombre} · ${x.viaAbuelo?'Tarjeta del Abuelo':'puso '+(x.pagadoPor==='isa'?'Isa':'Jen')}</div></div>
+            <div class="desc"><div class="n">${escHtml(x.nota)}</div><div class="d">${fmtDate(x.fecha)} · ${escHtml(x.subNombre)} · ${x.viaAbuelo?'Tarjeta del Abuelo':'puso '+(x.pagadoPor==='isa'?'Isa':'Jen')}</div></div>
             <div class="amt gasto">${x.deudor==='jen'?'Jen':'Isa'} debe ${fmt(x.mitad,'MXN')}</div>
           </div>`).join('')}
       </div>` : ''}
@@ -3380,7 +3728,7 @@ function renderMovLine(m){
   return `
   <div class="exp-line">
     ${micoHtml(iconoMov(m))}
-    <div class="desc"><div class="n">${escHtml(m.nota||m.subNombre||'Movimiento')}</div><div class="d">${fmtDate(m.fecha)}${m.tipo==='pago-entre'?' · <span class="who-txt">'+quienTxt(m)+'</span>':quienTxt(m)}${mesTxt}${lineaEstancia(m)} <span class="type-tag">${tipoLabel}</span>${m.serieId && m.tipo!=='ingreso'?' <span class="type-tag">cada mes</span>':''}${v.nota?` <span class="type-tag">${v.nota}</span>`:''}</div></div>
+    <div class="desc"><div class="n">${escHtml(m.nota||m.subNombre||'Movimiento')}</div><div class="d">${fmtDate(m.fecha)}${m.tipo==='pago-entre'?' · <span class="who-txt">'+quienTxt(m)+'</span>':quienTxt(m)}${mesTxt}${lineaEstancia(m)} <span class="type-tag">${tipoLabel}</span>${m.serieId && m.tipo!=='ingreso'?' <span class="type-tag">cada mes</span>':''}${v.nota?` <span class="type-tag">${escHtml(v.nota)}</span>`:''}</div></div>
     <div class="amt ${isIncome?'income':'gasto'}">${isIncome?'+':'−'}${fmt(v.monto,v.moneda)}
       ${v.moneda && v.moneda!=='MXN' ? `<span class="est">≈ ${fmt(v.montoMXN,'MXN')}</span>` : ''}
     </div>
@@ -3627,6 +3975,7 @@ function renderMovimientos(){
     ${chips.map(([id,label])=>`<button class="chip ${movFiltro===id?'on':''}" data-mov-chip="${id}">${label}</button>`).join('')}
   </div>
   <input type="text" class="mov-search" id="movSearch" placeholder="Buscar por nota o fuente..." value="${movBusqueda}">
+  <button class="btn btn-outline btn-block" id="abrirImportarEstado" style="margin-bottom:12px;">${ico('file','icon-sm')} Importar estado de cuenta</button>
   ${resumenCard}
   <div class="card">
     <div class="card-title"><h2>Movimientos</h2>${botonAgregarMov()}</div>
@@ -3934,6 +4283,12 @@ function renderAjustesInline(){
       <button class="btn btn-outline btn-sm" id="syncNowBtn" ${state.syncUrl?'':'disabled'}>${ico('trend','icon-sm')} Sincronizar ahora</button>
     </div>
     <div class="small-note" style="margin-top:8px;">¿No la tienes configurada? Pídeme el instructivo paso a paso — se hace una sola vez con una hoja de Google gratuita, y luego pones la misma URL en el teléfono de Isa.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
+      <button class="btn btn-outline btn-sm" id="verHistorialSync">${ico('clock','icon-sm')} Historial de sincronización</button>
+      <button class="btn btn-outline btn-sm" id="verCopias">${ico('file','icon-sm')} Restaurar una copia</button>
+      <button class="btn btn-outline btn-sm" id="verPapelera">${ico('trash','icon-sm')} Papelera (${Object.keys(state._papelera||{}).length})</button>
+    </div>
+    <div class="small-note" style="margin-top:6px;">Este dispositivo: ${escHtml(miDispositivo().nombre)}</div>
   </div>
   <button class="btn btn-outline btn-block" id="exportExcel" style="margin-bottom:10px;">${ico('trend','icon-sm')} Exportar gastos a Excel</button>
   <button class="btn btn-outline btn-block" id="exportData" style="margin-bottom:10px;">${ico('file','icon-sm')} Exportar datos (copia de respaldo)</button>
@@ -4060,14 +4415,14 @@ function openAhorro(editId){
       <div class="field"><label>Monto (MXN)</label><input type="number" id="montoRetiro" placeholder="0" value="${ex?ex.monto:''}"></div>
       <div class="field"><label>Fecha</label><input type="date" id="fechaRetiro" value="${ex?ex.fecha:todayISO()}"></div>
     </div>
-    <div class="field"><label>Nota</label><input type="text" id="notaRetiro" placeholder="Detalle breve" value="${ex&&ex.nota?ex.nota:''}"></div>
+    <div class="field"><label>Nota</label><input type="text" id="notaRetiro" placeholder="Detalle breve" value="${ex&&ex.nota?escHtml(ex.nota):''}"></div>
     <button class="btn btn-danger btn-block" id="doRetiro">${ex?'Guardar cambios':'Registrar retiro'}</button>
     <div class="divider"></div>
     <div class="section-label" style="margin:0 4px 8px;">Movimientos</div>
     ${movimientos.length ? movimientos.slice().reverse().map(m=>`
       <div class="exp-line">
         <div class="who" style="background:${m.tipo==='deposito'?'var(--teal-soft)':'var(--brick-soft)'};color:${m.tipo==='deposito'?'var(--teal-deep)':'var(--brick)'}">${m.tipo==='deposito'?'+':'−'}</div>
-        <div class="desc"><div class="n">${m.tipo==='deposito'?'Depósito automático':labelMotivo(m.motivo)}</div><div class="d">${fmtDate(m.fecha)}${m.nota?' · '+m.nota:''}</div></div>
+        <div class="desc"><div class="n">${m.tipo==='deposito'?'Depósito automático':labelMotivo(m.motivo)}</div><div class="d">${fmtDate(m.fecha)}${m.nota?' · '+escHtml(m.nota):''}</div></div>
         <div class="amt ${m.tipo==='deposito'?'income':'gasto'}">${m.tipo==='deposito'?'+':'−'}${fmt(m.monto,'MXN')}</div>
         ${m.tipo==='retiro' ? `<button class="mov-edit-btn" data-edit-retiro="${m.id}">${ico('edit','icon-sm')}</button><button class="subrow-btn" data-del-retiro="${m.id}">${ico('trash','icon-sm')}</button>` : ''}
       </div>`).join('') : emptyMini('Aún no hay movimientos.')}
@@ -4179,7 +4534,7 @@ function openGasto(cat, subId, editRef, pagoPreset){
       <div class="small-note" style="margin-top:6px;">Se reparte a la mitad — la otra persona le queda debiendo su parte.</div>
     </div>
     ${renderTipoCambioField('gasto',monedaInicial)}
-    <div class="field"><label>Nota</label><input type="text" id="gastoNota" placeholder="Ej. cena, camión, entrada museo..." value="${existing&&existing.nota?existing.nota:''}"></div>
+    <div class="field"><label>Nota</label><input type="text" id="gastoNota" placeholder="Ej. cena, camión, entrada museo..." value="${existing&&existing.nota?escHtml(existing.nota):''}"></div>
     ${renderRecurrenciaField('gasto', existing, 'gasto')}
     <div id="gastoDeficitWarning"></div>
     <button class="btn btn-primary btn-block" id="doGasto">${existing?'Guardar cambios':'Guardar gasto'}</button>
@@ -4274,7 +4629,7 @@ function openGastoEfectivo(editRef){
     </div>
     <div class="field"><label>Fecha</label><input type="date" id="cashFecha" value="${existing?existing.fecha:todayISO()}"></div>
     ${renderTipoCambioField('cash',monedaInicial)}
-    <div class="field"><label>Nota</label><input type="text" id="cashNota" placeholder="Ej. helado, mercadito..." value="${existing&&existing.nota?existing.nota:''}"></div>
+    <div class="field"><label>Nota</label><input type="text" id="cashNota" placeholder="Ej. helado, mercadito..." value="${existing&&existing.nota?escHtml(existing.nota):''}"></div>
     ${renderRecurrenciaField('cash', existing, 'efectivo')}
     <button class="btn btn-primary btn-block" id="doGastoEfectivo">${existing?'Guardar cambios':'Guardar'}</button>
   `);
@@ -4382,7 +4737,7 @@ function openPagoEntre(personaClick, editId){
     ${renderTipoCambioField('pe', moneda)}
     <div class="field"><label id="peSaleLbl">¿De qué cuenta sale? (${nombrePersona(de)})</label><select id="peSale">${opts(de, sale)}</select></div>
     <div class="field"><label id="peEntraLbl">¿A qué cuenta le llega? (${nombrePersona(a)})</label><select id="peEntra">${opts(a, entra)}</select></div>
-    <div class="field"><label>Nota (opcional)</label><input type="text" id="peNota" placeholder="Ej. transferencia Revolut" value="${ex&&ex.notaLibre?ex.notaLibre:''}"></div>
+    <div class="field"><label>Nota (opcional)</label><input type="text" id="peNota" placeholder="Ej. transferencia Revolut" value="${ex&&ex.notaLibre?escHtml(ex.notaLibre):''}"></div>
     <button class="btn btn-primary btn-block" id="doPagoEntre">${ex?'Guardar cambios':'Guardar pago'}</button>
   `);
   if(ex && ex.rateMXN){ const r=document.getElementById('peRate'); if(r) r.value = ex.rateMXN; }
@@ -4418,7 +4773,7 @@ function openPagoTarjeta(persona, editId){
     </div>
     <div class="field"><label>Fecha</label><input type="date" id="ptFecha" value="${ex?ex.fecha:todayISO()}"></div>
     ${renderTipoCambioField('pt', moneda)}
-    <div class="field"><label>Nota (opcional)</label><input type="text" id="ptNota" placeholder="Ej. pago mensual" value="${ex&&ex.notaLibre?ex.notaLibre:''}"></div>
+    <div class="field"><label>Nota (opcional)</label><input type="text" id="ptNota" placeholder="Ej. pago mensual" value="${ex&&ex.notaLibre?escHtml(ex.notaLibre):''}"></div>
     <button class="btn btn-primary btn-block" id="doPagoTarjeta">${ex?'Guardar cambios':'Guardar pago'}</button>
   `);
   if(ex && ex.rateMXN){ const r=document.getElementById('ptRate'); if(r) r.value = ex.rateMXN; }
@@ -4527,7 +4882,7 @@ function abrirImportar(texto){
     ${sheetHeader('Importar respaldo')}
     <div class="small-note" style="margin-bottom:14px;">El respaldo tiene ${n} registros. ¿Qué hago con ellos?</div>
     <button class="btn btn-primary btn-block" data-importar="juntar" style="margin-bottom:10px;">Juntar con lo que ya tengo (recomendado)</button>
-    <div class="small-note" style="margin:-4px 0 14px;">Agrega lo del respaldo sin borrar nada de lo que tienes. Si un registro existe en los dos, se queda la versión más reciente.</div>
+    <div class="small-note" style="margin:-4px 0 14px;">Agrega lo del respaldo (también lo que se había borrado desde entonces) sin borrar nada de lo que tienes. Si un registro existe en los dos, se queda la versión más reciente.</div>
     <button class="btn btn-outline btn-block" data-importar="reemplazar" style="color:var(--brick);margin-bottom:6px;">Reemplazar todo por el respaldo</button>
     <div class="small-note">Borra lo que no esté en el respaldo, también en el otro teléfono al sincronizar.</div>
   `);
@@ -4544,6 +4899,7 @@ function openImportarOpciones(){
     <button class="btn btn-outline btn-block" id="importArchivoBtn">Elegir un archivo de respaldo (.json)</button>
   `);
 }
+let rescatadosUltimaCopia = 0;
 function aplicarImportar(modo){
   if(!importPendiente) return;
   const datos = migrateState(JSON.parse(JSON.stringify(importPendiente)));
@@ -4556,12 +4912,632 @@ function aplicarImportar(modo){
     Storage.save(state); rebasarHuellas(); marcarPendiente(true); programarSync(300);
   } else {
     sellarCambios();
-    state = mergeStates(state, datos); state.syncUrl = url;
+    const r = juntarRescatando(state, datos);
+    state = r.datos; state.syncUrl = url;
+    rescatadosUltimaCopia = r.rescatados;
     Storage.save(state); rebasarHuellas(); marcarPendiente(true); programarSync(300);
   }
   importPendiente = null;
   closeSheet(); render();
-  mostrarToast(modo==='reemplazar' ? 'Respaldo cargado (reemplazó todo).' : 'Respaldo juntado con tus datos.', 'ok');
+  mostrarToast(modo==='reemplazar' ? 'Respaldo cargado (reemplazó todo).' : ('Respaldo juntado con tus datos.' + (rescatadosUltimaCopia ? ' Se recuperaron '+rescatadosUltimaCopia+' registros que estaban borrados.' : '')), 'ok');
+}
+
+/* ============================================================
+   IMPORTAR ESTADO DE CUENTA — texto pegado, CSV/TXT, PDF o Excel.
+   Todo se lee dentro del teléfono: nada se manda a ningún lado.
+   Convención interna: monto con signo, negativo = sale dinero (gasto).
+   ============================================================ */
+const EC_BANCOS = [['auto','Detectar solo'],['wise','Wise'],['revolut','Revolut'],['nu','Nu'],['didi','DiDi'],['amex','American Express'],['otro','Otro banco']];
+const EC_NOMBRE_BANCO = {auto:'Estado de cuenta', wise:'Wise', revolut:'Revolut', nu:'Nu', didi:'DiDi', amex:'American Express', otro:'Otro banco'};
+const EC_CUENTA_DEF = {wise:'debito', revolut:'debito', nu:'credito', didi:'credito', amex:'credito', otro:'debito', auto:'debito'};
+const EC_CARGO_POSITIVO = {nu:true, didi:true, amex:true}; // en tarjetas de crédito los cargos vienen sin signo
+let ecEstado = null;
+function sinAcentos(t){ return String(t==null?'':t).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(); }
+const MESES_EC = {ene:1,jan:1,enero:1,january:1,feb:2,febrero:2,february:2,mar:3,marzo:3,march:3,abr:4,apr:4,abril:4,april:4,may:5,mayo:5,jun:6,junio:6,june:6,jul:7,julio:7,july:7,ago:8,aug:8,agosto:8,august:8,sep:9,sept:9,set:9,septiembre:9,setiembre:9,september:9,oct:10,octubre:10,october:10,nov:11,noviembre:11,november:11,dic:12,dec:12,diciembre:12,december:12};
+// "1,234.56" · "1.234,56" · "-12.00" · "(12.00)" · "12.00-" · "$ 1,234.56" → número con signo
+function ecParseMonto(txt){
+  let t = String(txt==null?'':txt).trim();
+  if(!t) return null;
+  let neg = /^\(.*\)$/.test(t) || /^[\-−–]/.test(t) || /[\-−–]\s*$/.test(t) || /^[+]?\s*[\-−–]\s*[$€£]/.test(t) || /[$€£]\s*[\-−–]/.test(t);
+  const d = t.replace(/[^0-9.,]/g,'');
+  if(!/\d/.test(d)) return null;
+  const lp = d.lastIndexOf('.'), lc = d.lastIndexOf(',');
+  let dec = null;
+  if(lp>=0 && lc>=0) dec = lp>lc ? '.' : ',';
+  else if(lc>=0) dec = /,\d{1,2}$/.test(d) ? ',' : null;
+  else if(lp>=0) dec = /^\d{1,3}(\.\d{3})+$/.test(d) ? null : '.';
+  const n = dec==='.' ? d.replace(/,/g,'') : dec===',' ? d.replace(/\./g,'').replace(',','.') : d.replace(/[.,]/g,'');
+  const v = parseFloat(n);
+  if(!isFinite(v)) return null;
+  return neg ? -v : v;
+}
+function ecArmarFecha(y, m, d){
+  y = Number(y); m = Number(m); d = Number(d);
+  if(!(m>=1 && m<=12 && d>=1 && d<=31)) return null;
+  const hoy = new Date();
+  if(!y){ y = hoy.getFullYear(); const f = new Date(y, m-1, d); if(f - hoy > 31*24*3600*1000) y--; }
+  else if(y<100) y += 2000;
+  if(y<2000 || y>2100) return null;
+  return y+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+}
+// Busca una fecha en el texto. orden: 'dmy' (México/Europa) o 'mdy' (EE. UU.).
+function ecParseFecha(txt, orden, soloAlInicio){
+  const t = sinAcentos(txt).trim();
+  const ini = soloAlInicio ? '^\\s*' : '';
+  let m;
+  if((m = t.match(new RegExp(ini+'(\\d{4})[-/.](\\d{1,2})[-/.](\\d{1,2})')))) return ecArmarFecha(m[1], m[2], m[3]);
+  if((m = t.match(new RegExp(ini+'(\\d{1,2})[-/.](\\d{1,2})[-/.](\\d{2,4})(?!\\d)')))) return orden==='mdy' ? ecArmarFecha(m[3], m[1], m[2]) : ecArmarFecha(m[3], m[2], m[1]);
+  if((m = t.match(new RegExp(ini+'(\\d{1,2})(?:\\s+de)?[\\s\\-/.]+([a-z]{3,10})\\.?(?:(?:\\s+de)?[\\s\\-/.,]+(\\d{4}|\\d{2}(?![\\d.,])))?')))){ const mes = MESES_EC[m[2]] || MESES_EC[m[2].slice(0,3)]; if(mes) return ecArmarFecha(m[3], mes, m[1]); }
+  if((m = t.match(new RegExp(ini+'([a-z]{3,10})\\.?\\s+(\\d{1,2}),?(?:\\s+(\\d{4}))?(?![\\d.,])')))){ const mes = MESES_EC[m[1]] || MESES_EC[m[1].slice(0,3)]; if(mes) return ecArmarFecha(m[3], mes, m[2]); }
+  if(soloAlInicio && (m = t.match(/^\s*(\d{1,2})[\/-](\d{1,2})(?![\/\-.,]?\d)/))) return orden==='mdy' ? ecArmarFecha(null, m[1], m[2]) : ecArmarFecha(null, m[2], m[1]);
+  return null;
+}
+function ecOrdenFechas(textos){
+  let dmy = 0, mdy = 0;
+  textos.forEach(t=>{ const m = String(t).match(/(\d{1,2})[-/.](\d{1,2})[-/.]\d{2,4}/); if(m){ if(+m[1]>12) dmy++; if(+m[2]>12) mdy++; } });
+  if(mdy!==dmy) return mdy>dmy ? 'mdy' : 'dmy';
+  // Ambiguo (todos los días ≤ 12): se queda el orden que no pone movimientos en el futuro.
+  const manana = new Date(Date.now()+36*3600*1000).toISOString().slice(0,10);
+  const futuras = (o)=>textos.filter(t=>{ const m = String(t).match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?!\d)/); if(!m) return false; const f = o==='mdy' ? ecArmarFecha(m[3], m[1], m[2]) : ecArmarFecha(m[3], m[2], m[1]); return f && f>manana; }).length;
+  const fD = futuras('dmy'), fM = futuras('mdy');
+  if(fD!==fM) return fD > fM ? 'mdy' : 'dmy';
+  // Si tampoco, el orden que junta los movimientos en menos días (un estado de cuenta cubre ~1 mes).
+  const rango = (o)=>{ const fs = textos.map(t=>{ const m = String(t).match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?!\d)/); return m ? (o==='mdy' ? ecArmarFecha(m[3], m[1], m[2]) : ecArmarFecha(m[3], m[2], m[1])) : null; }).filter(Boolean).sort(); return fs.length ? (new Date(fs[fs.length-1]) - new Date(fs[0])) : 0; };
+  return rango('mdy') < rango('dmy') ? 'mdy' : 'dmy';
+}
+function ecDetectarMoneda(t, def){
+  const s = String(t||'');
+  if(/€|\bEUR\b/i.test(s)) return 'EUR';
+  if(/\bUSD\b|US\$/i.test(s)) return 'USD';
+  if(/\bGBP\b|£/.test(s)) return 'GBP';
+  if(/\bMXN\b|MN\b/.test(s)) return 'MXN';
+  return def || 'MXN';
+}
+function ecDetectarBanco(texto){
+  const t = sinAcentos(String(texto||'').slice(0, 1500));
+  if(/revolut/.test(t) || /started date.*completed date|fecha de inicio.*fecha de finalizacion/.test(t)) return 'revolut';
+  if(/transferwise|\bwise\b|source amount \(after fees\)/.test(t)) return 'wise';
+  if(/american express|\bamex\b|card member|titular de la tarjeta|appears on your statement as|extended details/.test(t)) return 'amex';
+  if(/didi ?card|tarjeta didi|didi.{0,30}estado de cuenta/.test(t)) return 'didi';
+  if(/nu mexico|nubank|\bnu\b.*(tarjeta|cuenta)|cuenta nu|tarjeta nu/.test(t)) return 'nu';
+  if(/\bdidi\b/.test(t) && !/didi food|didi rides/.test(t)) return 'didi';
+  return 'otro';
+}
+// CSV con comillas; separador , ; tab o |
+function ecCSV(texto){
+  const lineas = String(texto||'').replace(/\r\n?/g,'\n').split('\n');
+  const primera = lineas.find(l=>l.trim()) || '';
+  const cuenta = (c)=>primera.split(c).length-1;
+  const sep = [',',';','\t','|'].sort((a,b)=>cuenta(b)-cuenta(a))[0];
+  const filas = []; let fila = [], campo = '', comillas = false;
+  const txt = String(texto||'').replace(/\r\n?/g,'\n');
+  for(let i=0;i<txt.length;i++){
+    const ch = txt[i];
+    if(comillas){ if(ch==='"'){ if(txt[i+1]==='"'){ campo+='"'; i++; } else comillas=false; } else campo+=ch; }
+    else if(ch==='"') comillas = true;
+    else if(ch===sep){ fila.push(campo); campo=''; }
+    else if(ch==='\n'){ fila.push(campo); filas.push(fila); fila=[]; campo=''; }
+    else campo += ch;
+  }
+  if(campo || fila.length){ fila.push(campo); filas.push(fila); }
+  return filas.filter(f=>f.some(c=>String(c).trim()));
+}
+const EC_COLS = {
+  fecha:['completed date','fecha de finalizacion','fecha de completado','started date','fecha de inicio','date','fecha','created on','finished on','fecha operacion','fecha de operacion','fecha de transaccion','transaction date','posting date','fecha movimiento','fecha de compra','fecha de cargo'],
+  desc:['description','descripcion','concepto','detalle','merchant','comercio','establecimiento','payee name','descripcion del movimiento','movimiento','appears on your statement as','referencia','reference'],
+  monto:['amount','importe','monto','cantidad','valor','amount (mxn)','importe (mxn)'],
+  cargo:['cargo','cargos','debe','retiro','retiros','debit','debits','withdrawal','withdrawals','money out','paid out'],
+  abono:['abono','abonos','haber','deposito','depositos','credit','credits','deposit','deposits','money in','paid in'],
+  moneda:['currency','divisa','moneda'],
+  fee:['fee','comision','comisiones'],
+  estado:['state','estado','status'],
+  tipo:['type','tipo'],
+  direccion:['direction','direccion'],
+  srcAmt:['source amount (after fees)'], srcCur:['source currency'], dstAmt:['target amount (after fees)'], dstCur:['target currency'], srcName:['source name'], dstName:['target name']
+};
+function ecMapaColumnas(encabezado){
+  const h = encabezado.map(c=>sinAcentos(c).trim());
+  const mapa = {};
+  Object.keys(EC_COLS).forEach(k=>{ for(const nom of EC_COLS[k]){ const i = h.indexOf(nom); if(i>=0){ mapa[k]=i; break; } } });
+  return mapa;
+}
+function ecParseCSV(texto, banco, monedaDef){
+  const filas = ecCSV(texto);
+  let hi = -1, mapa = null;
+  for(let i=0;i<Math.min(filas.length, 12);i++){ const m = ecMapaColumnas(filas[i]); if(m.fecha!==undefined && (m.monto!==undefined || m.cargo!==undefined || m.abono!==undefined || m.srcAmt!==undefined)){ hi=i; mapa=m; break; } }
+  if(hi<0) return null;
+  const cuerpo = filas.slice(hi+1);
+  const orden = banco==='amex' && /card member/i.test(filas[hi].join(',')) ? 'mdy' : ecOrdenFechas(cuerpo.map(f=>f[mapa.fecha]||''));
+  const cargoPositivo = !!EC_CARGO_POSITIVO[banco];
+  const out = []; let omitidos = 0;
+  cuerpo.forEach(f=>{
+    const g = (k)=> mapa[k]!==undefined ? String(f[mapa[k]]==null?'':f[mapa[k]]).trim() : '';
+    const estado = sinAcentos(g('estado'));
+    if(estado && /revert|declin|fail|cancel|rechaz|pending|pendiente|refund|reembols|devuelt/.test(estado)){ omitidos++; return; }
+    const fecha = ecParseFecha(g('fecha'), orden);
+    if(!fecha){ omitidos++; return; }
+    let desc = g('desc'), monto = null, moneda = g('moneda') ? g('moneda').toUpperCase().slice(0,3) : '', neutral = false;
+    const tipoFila = sinAcentos(g('tipo'));
+    if(mapa.direccion!==undefined){ // Wise (formato nuevo)
+      const dir = sinAcentos(g('direccion'));
+      const quien = dir==='in' ? g('srcName') : g('dstName');
+      desc = [quien, desc].filter(Boolean).join(' · ');
+      if(dir==='in'){ monto = Math.abs(ecParseMonto(g('dstAmt'))||0); moneda = g('dstCur'); }
+      else { monto = -Math.abs(ecParseMonto(g('srcAmt'))||0); moneda = g('srcCur'); if(dir==='neutral') neutral = true; }
+    } else if(mapa.cargo!==undefined || mapa.abono!==undefined){
+      const c = ecParseMonto(g('cargo')), a = ecParseMonto(g('abono'));
+      if(c) monto = -Math.abs(c); else if(a) monto = Math.abs(a);
+    } else {
+      monto = ecParseMonto(g('monto'));
+      if(monto!==null && cargoPositivo) monto = -monto;
+      const fee = ecParseMonto(g('fee'));
+      if(monto!==null && fee) monto = monto - Math.abs(fee);
+    }
+    if(monto===null || !monto){ omitidos++; return; }
+    if(/issued by/i.test(desc)) desc = desc.replace(/^.*issued by\s*/i,'');
+    moneda = String(moneda||'').trim().toUpperCase();
+    if(!/^[A-Z]{3}$/.test(moneda)) moneda = monedaDef || 'MXN';
+    out.push({fecha, desc: desc || '(sin descripción)', montoSigno: monto, moneda, tipoBanco: tipoFila, neutral});
+  });
+  // Archivo de tarjeta de crédito sin banco reconocido: casi todo positivo = los cargos vienen sin signo.
+  const soloMonto = mapa.monto!==undefined && mapa.cargo===undefined && mapa.abono===undefined && mapa.direccion===undefined;
+  const positivos = out.filter(r=>r.montoSigno>0).length;
+  const pagoNegativo = out.some(r=>r.montoSigno<0 && /pago|payment|gracias|thank you/.test(sinAcentos(r.desc)));
+  if(soloMonto && banco==='otro' && out.length>=2 && (positivos >= out.length*0.66 || (pagoNegativo && positivos > out.length-positivos))){
+    out.forEach(r=>{ r.montoSigno = -r.montoSigno; });
+    return {filas: out, omitidos, invertido: true};
+  }
+  return {filas: out, omitidos};
+}
+const EC_SALTAR = /saldo anterior|saldo inicial|saldo final|saldo al corte|saldo actual|saldo promedio|total de|totales|pago minimo|pago para no generar|fecha limite|fecha de corte|limite de credito|credito disponible|subtotal|resumen|periodo del|previous balance|new balance|minimum payment|closing date|payment due|opening balance|closing balance/;
+const EC_ABONO = /\babono\b|deposito|pago recibido|su pago|gracias por su pago|payment received|reembolso|devolucion|bonificacion|cashback|refund|transferencia recibida|spei recibido|received|recibido de|\bcr\b|money in|nomina|salario|transfer from|payment from|money added|transferencia de\b|deposito de|interes(es)? ganado|interest earned/;
+function ecParseTexto(texto, banco, monedaDef){
+  const lineas = String(texto||'').replace(/\r\n?/g,'\n').split('\n').map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean);
+  const orden = ecOrdenFechas(lineas);
+  const cargoPositivo = !!EC_CARGO_POSITIVO[banco];
+  const reMonto = /\(?[-−+]?\s?(?:[$€£]\s?)?[-−]?(?:\d{1,3}(?: \d{3})+,\d{2}|\d[\d.,]*[.,]\d{2})(?!\d)\)?-?/g;
+  const cand = [];
+  lineas.forEach(l=>{
+    const f = ecParseFecha(l.slice(0, 32), orden, true);
+    if(f) cand.push({fecha:f, texto:l});
+    else if(cand.length && !(cand[cand.length-1].texto.match(reMonto)||[]).length && (cand[cand.length-1].extra||0)<2){ cand[cand.length-1].texto += ' ' + l; cand[cand.length-1].extra = (cand[cand.length-1].extra||0)+1; }
+  });
+  const out = []; let omitidos = 0;
+  cand.forEach(c=>{
+    const s = sinAcentos(c.texto);
+    if(EC_SALTAR.test(s)){ omitidos++; return; }
+    // Quitar la(s) fecha(s) del inicio para no confundirlas con montos
+    let resto = c.texto.replace(/^\s*[A-Za-zÁÉÍÓÚáéíóú]{3,10}\.?\s+\d{1,2},?(\s+\d{4})?(?![\d.,])\s*/,'');
+    if(resto===c.texto) resto = c.texto.replace(/^\s*(\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}([-/.]\d{2,4})?|\d{1,2}(\s+de)?[\s\-/.]+[A-Za-zÁÉÍÓÚáéíóú]{3,10}\.?((\s+de)?[\s\-/.,]+\d{2,4})?)\s*/,'');
+    resto = resto.replace(/^\s*(\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}([-/.]\d{2,4})?|\d{1,2}(\s+de)?[\s\-/.]+[A-Za-zÁÉÍÓÚáéíóú]{3,10}\.?((\s+de)?[\s\-/.,]+\d{2,4})?|[A-Za-zÁÉÍÓÚáéíóú]{3,10}\.?\s+\d{1,2},?(\s+\d{4})?(?![\d.,]))\s+/,''); // segunda fecha (operación / cargo)
+    // Todos los montos de la línea, con su moneda si viene junto (EUR 12.50 · 12.50 EUR · €12.50).
+    const MON = {'€':'EUR','£':'GBP','EUR':'EUR','USD':'USD','MXN':'MXN','GBP':'GBP','MN':'MXN'};
+    const montos = [...resto.matchAll(reMonto)].map(m=>{
+      const antes = resto.slice(Math.max(0, m.index-18), m.index), despues = resto.slice(m.index+m[0].length, m.index+m[0].length+6);
+      const cod = (antes.match(/(EUR|USD|MXN|GBP|MN|€|£)\s*\(?\s*$/i) || despues.match(/^\s*\)?\s*(EUR|USD|MXN|GBP|MN|€|£)\b/i) || m[0].match(/(€|£)/) || [])[1];
+      return {t:m[0], i:m.index, cur: cod ? MON[cod.toUpperCase()] || MON[cod] : null, tc: /(\bt\.?\s?c\.?|tipo de cambio|exchange rate|\brate|@)\s*:?\s*$/i.test(antes)};
+    }).filter(x=>!x.tc);
+    if(!montos.length){ omitidos++; return; }
+    // Si hay un monto en otra moneda Y uno en la moneda de la cuenta, se usa el de la cuenta (lo que de verdad te cobraron).
+    const extranjeros = montos.filter(x=>x.cur && x.cur!==monedaDef);
+    const locales = montos.filter(x=>(!x.cur || x.cur===monedaDef) && (cargoPositivo || x.cur===monedaDef || /\$/.test(x.t)));
+    const usarLocal = extranjeros.length>0 && locales.length>0;
+    const pool = usarLocal ? locales : montos;
+    // Tarjeta de crédito: el cargo es el último monto de la línea. Débito: el primero (el último suele ser el saldo).
+    const elegido = cargoPositivo ? pool[pool.length-1] : pool[0];
+    const tok = elegido.t;
+    let v = ecParseMonto(tok);
+    if(v===null || !v){ omitidos++; return; }
+    const explicitoNeg = v<0, explicitoPos = /^\s*\+/.test(tok);
+    const esAbono = EC_ABONO.test(s);
+    let signo;
+    if(cargoPositivo) signo = (explicitoNeg || esAbono || explicitoPos) ? +1 : -1;
+    else signo = explicitoNeg ? -1 : ((explicitoPos || esAbono) ? +1 : -1);
+    let desc = resto;
+    montos.forEach(m=>{ desc = desc.replace(m.t, ' '); });
+    desc = desc.replace(/\b(MXN|EUR|USD|GBP|MN|CR)\b|[€£]/g,' ').replace(/(\bt\.?\s?c\.?|tipo de cambio|exchange rate)\s*:?\s*[\d.,]*/gi,' ').replace(/\(\s*\)|\(\s*$/g,' ').replace(/\s+/g,' ').replace(/^[\s\-–·|:(]+|[\s\-–·|:(]+$/g,'').trim();
+    let moneda = elegido.cur || (extranjeros.length ? monedaDef : ecDetectarMoneda(c.texto, monedaDef));
+    if(usarLocal) desc += ' · ' + Math.abs(ecParseMonto(extranjeros[0].t)||0).toFixed(2) + ' ' + extranjeros[0].cur;
+    out.push({fecha:c.fecha, desc: desc || '(sin descripción)', montoSigno: signo*Math.abs(v), moneda, tipoBanco:'', neutral:false});
+  });
+  return {filas: out, omitidos};
+}
+// Categoría sugerida por la descripción
+const EC_CATEGORIAS = [
+  ['Comida & Bebida', /konzum|lidl|spar\b|tommy|plodine|kaufland|studenac|eurospin|carrefour|mercadona|aldi|conad|coop\b|billa|oxxo|7.?eleven|walmart|soriana|chedraui|la comer|superama|restaur|cafe|coffee|\bbar\b|pizza|burger|mcdonald|kfc|starbucks|bakery|pekara|panaderia|uber ?eats|didi ?food|rappi|glovo|wolt|bolt ?food|supermarket|supermercado|market|mercado|food|comida|taco|sushi|gelat|heladeria/],
+  ['Alojamiento', /airbnb|booking\.com|booking|hostel|hotel|hostelworld|flatio|novasol|vrbo|apartman|apartment|agoda|expedia/],
+  ['Transporte entre ciudades', /ryanair|easyjet|wizz|vueling|iberia|lufthansa|croatia airlines|aeromexico|volaris|viva ?aerobus|flixbus|arriva|getbybus|trenitalia|italo|renfe|\bsbb\b|omio|jadrolinija|krilo|ferry|blablacar|airline|aeropuerto|airport|trainline|ado\b/],
+  ['Transporte local', /\buber\b(?! ?eats)|\bbolt\b(?! ?food)|cabify|\bdidi\b(?! ?food)|taxi|metro\b|autobus|\bbus\b|promet|tram|lime\b|tier\b|parking|estacionamiento|gasolina|pemex|shell/],
+  ['Actividades y tours', /museum|museo|\btour|ticket|entrada|excursion|getyourguide|viator|tiqets|parque|park/],
+  ['Salud y cuidado personal', /farmacia|pharmacy|ljekarna|apoteka|doctor|clinic|clinica|hospital|dentist|dentista|similares|benavides|guadalajara farm/],
+  ['Comunicación (eSIM/roaming)', /esim|airalo|nomad|holafly|vodafone|telcel|telekom|movistar|at&t|\ba1\b|orange/],
+  ['Lavandería', /laundry|lavanderia|praonica/],
+  ['Trámites y documentos', /visa\b|embassy|embajada|consulado|passport|pasaporte|\bsat\b|seguro|insurance|worldpackers/],
+  ['Compras / souvenirs', /zara|h&m|souvenir|amazon|\bshop\b|store|tienda|primark|\bdm\b|decathlon|mango|liverpool|palacio de hierro|mercado libre|shein/],
+];
+const EC_GUSTOS = /netflix|spotify|cine|cinema|concert|concierto|disney|hbo|max\b|prime video|apple\.com\/bill|youtube/;
+const EC_ATM = /\batm\b|cajero|cash withdrawal|retiro en cajero|retiro de efectivo|disposicion de efectivo|bankomat/;
+const EC_ENTRE = /top.?up|recarga|transfer to|transferencia a (mi|tu|cuenta propia)|entre cuentas|to eur\b|to mxn\b|exchanged|conversion|converted|cambio de divisa|\bwise\b|revolut|pago a (tu|la) tarjeta|pago tarjeta|pago tdc/;
+function ecSugerirCategoria(desc){
+  const d = sinAcentos(desc);
+  if(EC_GUSTOS.test(d)) return 'gustos';
+  for(const [nombre, re] of EC_CATEGORIAS){ if(re.test(d)){ const sb = state.subcats.find(x=>sinAcentos(x.nombre)===sinAcentos(nombre)); if(sb) return sb.id; } }
+  return '';
+}
+function ecEsDuplicado(fila){
+  const f = new Date(fila.fecha+'T00:00:00');
+  return collectMovimientos().some(m=>{
+    if(!m.fecha || (m.moneda||'MXN')!==fila.moneda) return false;
+    if(Math.abs(Math.abs(Number(m.monto)||0) - fila.monto) > 0.009) return false;
+    return Math.abs(new Date(m.fecha+'T00:00:00') - f) <= 36*3600*1000;
+  });
+}
+// Convierte lo leído en renglones para revisar.
+function ecPrepararFilas(leidas, banco){
+  const cuentaDef = EC_CUENTA_DEF[banco] || 'debito';
+  return leidas.map((r, i)=>{
+    const d = sinAcentos(r.desc + ' ' + (r.tipoBanco||''));
+    const fila = {i, fecha:r.fecha, desc:r.desc, monto: Math.round(Math.abs(r.montoSigno)*100)/100, moneda: r.moneda||'MXN', tipo: r.montoSigno<0 ? 'gasto' : 'ingreso', incluir:true, avisos:[], cat:'', quien:'yo', cuenta:'', rate:null, rateEditado:false};
+    if(EC_ATM.test(d)){ fila.tipo='retiro'; fila.incluir=false; fila.avisos.push('Retiro de cajero: se puede registrar como retiro a efectivo'); }
+    else if(r.neutral || EC_ENTRE.test(d) || /topup|exchange|transfer/.test(sinAcentos(r.tipoBanco||''))){
+      if(fila.tipo==='ingreso' && cuentaDef==='credito'){ fila.tipo='pagoTarjeta'; fila.avisos.push('Pago a la tarjeta: va como pago de tarjeta, no como ingreso'); }
+      else fila.avisos.push('Parece un movimiento entre tus cuentas');
+      fila.incluir=false;
+    } else if(fila.tipo==='ingreso' && cuentaDef==='credito' && /reembolso|devolucion|refund|bonificacion|cashback/.test(d)){
+      fila.incluir=false; fila.avisos.push('Devolución a la tarjeta: si la marcas, baja lo que debes de la tarjeta (también puedes borrar el gasto original)');
+    } else if(fila.tipo==='ingreso' && cuentaDef==='credito'){
+      fila.tipo='pagoTarjeta'; fila.incluir=false; fila.avisos.push('Pago a la tarjeta: va como pago de tarjeta, no como ingreso');
+    }
+    if(fila.tipo==='gasto'){ fila.cat = ecSugerirCategoria(r.desc); if(!fila.cat){ fila.cat = (state.subcats[0]||{}).id||'gustos'; fila.avisos.push('Revisa la categoría'); } }
+    if(ecEsDuplicado(fila)){ fila.incluir=false; fila.avisos.unshift('Posible duplicado: ya tienes uno igual'); }
+    if(!(fila.moneda in (state.rates||{}))){ fila.incluir=false; fila.avisos.push('Moneda '+fila.moneda+' no está en la app: cámbiala antes de importar'); }
+    if(fila.moneda==='MXN') fila.rate = 1; else if(fila.fecha===todayISO()) fila.rate = rateSnapshotFor(fila.moneda);
+    return fila;
+  });
+}
+function ecLeerTexto(texto, bancoElegido, monedaDef){
+  const banco = bancoElegido==='auto' ? ecDetectarBanco(texto) : bancoElegido;
+  const mon = monedaDef || ({nu:'MXN', didi:'MXN', amex:'MXN'}[banco]) || 'MXN';
+  let r = ecParseCSV(texto, banco, mon);
+  const credito = r && r.invertido;
+  if(!r || !r.filas.length) r = ecParseTexto(texto, banco, mon);
+  const filas = ecPrepararFilas(r.filas, credito ? 'amex' : banco);
+  return {banco, filas, omitidos: r.omitidos, invertido: !!credito};
+}
+// Bibliotecas para PDF y Excel: se cargan solo cuando se adjunta uno (necesita internet esa vez).
+const EC_LIBS = { pdf:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', pdfWorker:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js', xlsx:'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js' };
+const ecScripts = {};
+function ecCargarScript(url){
+  if(!ecScripts[url]) ecScripts[url] = new Promise((ok, mal)=>{ const s = document.createElement('script'); s.src = url; s.onload = ()=>ok(); s.onerror = ()=>{ delete ecScripts[url]; mal(new Error('sin internet')); }; document.head.appendChild(s); });
+  return ecScripts[url];
+}
+async function ecTextoDePDF(buffer){
+  await ecCargarScript(EC_LIBS.pdf);
+  const lib = window.pdfjsLib;
+  lib.GlobalWorkerOptions.workerSrc = EC_LIBS.pdfWorker;
+  const pdf = await lib.getDocument({data: buffer}).promise;
+  const lineas = [];
+  for(let p=1; p<=pdf.numPages; p++){
+    const pag = await pdf.getPage(p);
+    const tc = await pag.getTextContent();
+    const grupos = [];
+    tc.items.forEach(it=>{ if(!it.str || !it.str.trim()) return; const y = it.transform[5], x = it.transform[4]; let g = grupos.find(g=>Math.abs(g.y-y)<=2.5); if(!g){ g = {y, items:[]}; grupos.push(g); } g.items.push({x, s:it.str}); });
+    grupos.sort((a,b)=>b.y-a.y).forEach(g=>{ lineas.push(g.items.sort((a,b)=>a.x-b.x).map(i=>i.s).join(' ')); });
+  }
+  return lineas.join('\n');
+}
+async function ecTextoDeExcel(buffer){
+  await ecCargarScript(EC_LIBS.xlsx);
+  const wb = window.XLSX.read(buffer, {type:'array', cellDates:true, dateNF:'yyyy-mm-dd'});
+  return wb.SheetNames.map(n=>window.XLSX.utils.sheet_to_csv(wb.Sheets[n], {FS:',', RS:'\n', rawNumbers:true, dateNF:'yyyy-mm-dd'})).join('\n');
+}
+async function ecLeerArchivo(file){
+  const nombre = (file.name||'').toLowerCase();
+  if(/\.pdf$/.test(nombre) || file.type==='application/pdf') return ecTextoDePDF(await file.arrayBuffer());
+  if(/\.(xlsx|xls|ods)$/.test(nombre)) return ecTextoDeExcel(await file.arrayBuffer());
+  return await file.text();
+}
+// ---------- Pantallas ----------
+function openImportarEstado(){
+  const imps = (state.importaciones||[]).slice().sort((a,b)=>(b.creado||0)-(a.creado||0)).slice(0,6);
+  openSheet(`
+    ${sheetHeader('Importar estado de cuenta')}
+    <div class="small-note" style="margin-bottom:12px;">Se lee dentro de tu teléfono, no se manda a ningún lado. Antes de guardar vas a poder revisar cada movimiento.</div>
+    <div class="field-row">
+      <div class="field"><label>Banco</label><select id="ecBanco">${EC_BANCOS.map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select></div>
+      <div class="field"><label>Moneda si no se indica</label><select id="ecMoneda">${currencyOptions('MXN')}</select></div>
+    </div>
+    <div class="field"><label>Pega aquí el texto del estado de cuenta</label>
+      <textarea id="ecTexto" rows="7" placeholder="Copia los movimientos del PDF, de la app del banco o de un archivo CSV y pégalos aquí" style="width:100%;font-family:monospace;font-size:12px;"></textarea></div>
+    <button class="btn btn-primary btn-block" id="ecLeerTexto" style="margin-bottom:12px;">Leer movimientos del texto</button>
+    <div class="ec-sep">o</div>
+    <input type="file" id="ecArchivo" accept=".txt,.csv,.tsv,.pdf,.xlsx,.xls,.ods,text/plain,text/csv,application/pdf" hidden>
+    <button class="btn btn-outline btn-block" id="ecAdjuntar">${ico('file','icon-sm')} Adjuntar archivo (PDF, Excel, CSV o texto)</button>
+    <div class="small-note" id="ecEstadoLectura" style="margin-top:8px;">Para PDF y Excel la app necesita internet la primera vez que abre uno.</div>
+    ${imps.length ? `<h3 class="pc-sub">Importaciones anteriores</h3>${imps.map(im=>`<div class="exp-line" style="padding:7px 0;"><div class="desc"><div class="n">${escHtml(EC_NOMBRE_BANCO[im.banco]||im.banco||'Estado de cuenta')} · ${Number(im.n)||0} movimientos</div><div class="d">${fmtDate(im.fecha)} · ${nombrePersona(im.persona)}</div></div><button class="btn btn-outline btn-sm" data-deshacer-imp="${im.id}">Deshacer</button></div>`).join('')}` : ''}
+  `);
+  const $ = (id)=>document.getElementById(id);
+  const leer = (texto, nombreArchivo)=>{
+    const r = ecLeerTexto(texto, $('ecBanco').value, $('ecMoneda').value);
+    if(!r.filas.length){ $('ecEstadoLectura').textContent = 'No encontré movimientos (con fecha y monto) en ese texto. Revisa que incluya las líneas de los movimientos.'; return; }
+    ecEstado = {banco:r.banco, persona:perfil, cuenta: r.invertido ? 'credito' : (EC_CUENTA_DEF[r.banco]||'debito'), otroNombre:'', filas:r.filas, omitidos:r.omitidos, archivo:nombreArchivo||'', invertido: !!r.invertido};
+    openRevisionEstado();
+    ecCargarTasas();
+  };
+  $('ecLeerTexto').addEventListener('click', ()=>{ const t = $('ecTexto').value; if(!t.trim()){ mostrarToast('Primero pega el texto del estado de cuenta.', 'error'); return; } leer(t); });
+  $('ecAdjuntar').addEventListener('click', ()=>$('ecArchivo').click());
+  $('ecArchivo').addEventListener('change', async ()=>{
+    const f = $('ecArchivo').files && $('ecArchivo').files[0]; if(!f) return;
+    $('ecEstadoLectura').textContent = 'Leyendo '+f.name+'…';
+    try{ leer(await ecLeerArchivo(f), f.name); }
+    catch(e){ $('ecEstadoLectura').textContent = /internet/.test(e.message||'') ? 'Para leer PDF o Excel se necesita internet la primera vez. Conéctate o pega el texto.' : 'No pude leer ese archivo. Prueba copiando y pegando el texto.'; }
+  });
+  document.querySelectorAll('[data-deshacer-imp]').forEach(el=>el.addEventListener('click', ()=>{ const n = deshacerImportacion(el.getAttribute('data-deshacer-imp')); mostrarToast('Se quitaron '+n+' movimientos de esa importación (quedan en la papelera).', 'ok'); openImportarEstado(); }));
+}
+function ecCuentasPara(persona){
+  const out = [['bote','Tarjeta del bote ('+nombreBudget(persona)+')']];
+  if(persona==='jen') out.push(['abuelo','Tarjeta del Abuelo']);
+  out.push(['debito','Tarjeta de débito'], ['credito','Tarjeta de crédito'], ['efectivo','Efectivo'], ['otro','Otra persona (alguien más lo pagó)']);
+  return out;
+}
+function ecResumen(){
+  const sel = ecEstado.filas.filter(f=>f.incluir);
+  const g = sel.filter(f=>f.tipo==='gasto').length, i = sel.filter(f=>f.tipo==='ingreso').length, o = sel.length-g-i;
+  return `${ecEstado.invertido ? 'Parece un estado de tarjeta de crédito: los cargos se tomaron como gastos (si no, usa "Invertir"). ' : ''}${ecEstado.filas.length} leídos · <b>${sel.length} para importar</b> (${g} gastos, ${i} ingresos${o?', '+o+' otros':''})${ecEstado.omitidos?' · '+ecEstado.omitidos+' líneas sin movimiento ignoradas':''}`;
+}
+function openRevisionEstado(){
+  const e = ecEstado;
+  const cuentas = ecCuentasPara(e.persona);
+  const catOpts = (sel)=>state.subcats.map(sb=>`<option value="${sb.id}" ${sb.id===sel?'selected':''}>${escHtml(sb.nombre)}</option>`).join('') + `<option value="gustos" ${sel==='gustos'?'selected':''}>Gustos</option>`;
+  openSheet(`
+    ${sheetHeader('Revisar movimientos · '+(EC_NOMBRE_BANCO[e.banco]||'Estado de cuenta'))}
+    <div class="field-row">
+      <div class="field"><label>¿De quién es la cuenta?</label><select id="ecPersona"><option value="jen" ${e.persona==='jen'?'selected':''}>Jen</option><option value="isa" ${e.persona==='isa'?'selected':''}>Isa</option></select></div>
+      <div class="field"><label>¿A qué cuenta va?</label><select id="ecCuenta">${cuentas.map(([k,l])=>`<option value="${k}" ${k===e.cuenta?'selected':''}>${l}</option>`).join('')}</select></div>
+    </div>
+    <div class="field" id="ecOtroWrap" style="${e.cuenta==='otro'?'':'display:none'}"><label>¿Quién lo pagó?</label><input type="text" id="ecOtro" value="${escHtml(e.otroNombre||'')}"></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+      <button class="btn btn-outline btn-sm" id="ecTodos">Marcar todos</button>
+      <button class="btn btn-outline btn-sm" id="ecNinguno">Ninguno</button>
+      <button class="btn btn-outline btn-sm" id="ecInvertir">Invertir gastos/ingresos</button>
+    </div>
+    <div class="small-note" id="ecResumen" style="margin-bottom:10px;">${ecResumen()}</div>
+    <div class="ec-lista">
+    ${e.filas.map(f=>`
+      <div class="ec-fila ${f.incluir?'':'off'}" data-ec-fila="${f.i}">
+        <div class="ec-top">
+          <label class="ec-chk"><input type="checkbox" data-ec="incluir" ${f.incluir?'checked':''}></label>
+          <input type="text" data-ec="desc" value="${escHtml(f.desc)}" class="ec-desc">
+        </div>
+        <div class="ec-grid">
+          <input type="date" data-ec="fecha" value="${f.fecha}">
+          <div class="ec-monto"><input type="number" step="0.01" data-ec="monto" value="${f.monto}"><select data-ec="moneda">${currencyOptions(f.moneda)}</select></div>
+          <select data-ec="tipo">
+            <option value="gasto" ${f.tipo==='gasto'?'selected':''}>Gasto</option>
+            <option value="ingreso" ${f.tipo==='ingreso'?'selected':''}>Ingreso</option>
+            <option value="retiro" ${f.tipo==='retiro'?'selected':''}>Retiro a efectivo</option>
+            <option value="pagoTarjeta" ${f.tipo==='pagoTarjeta'?'selected':''}>Pago de tarjeta de crédito</option>
+          </select>
+          ${f.tipo==='gasto' ? `<select data-ec="cat">${catOpts(f.cat)}</select>
+          <select data-ec="quien"><option value="yo" ${f.quien==='yo'?'selected':''}>Solo ${nombrePersona(e.persona)}</option><option value="ambas" ${f.quien==='ambas'?'selected':''}>Ambas (a medias)</option></select>` : ''}
+          <select data-ec="cuenta"><option value="">Cuenta: igual que arriba</option>${cuentas.map(([k,l])=>`<option value="${k}" ${k===f.cuenta?'selected':''}>${l}</option>`).join('')}</select>
+          ${f.moneda!=='MXN' ? `<label class="ec-rate">Tipo de cambio <input type="number" step="0.0001" data-ec="rate" value="${f.rate==null?'':f.rate}" placeholder="buscando…"></label>` : ''}
+        </div>
+        ${f.avisos.length ? `<div class="ec-avisos">${f.avisos.map(a=>escHtml(a)).join(' · ')}</div>` : ''}
+      </div>`).join('')}
+    </div>
+    <button class="btn btn-primary btn-block" id="ecGuardar" style="margin-top:12px;">Importar los marcados</button>
+  `);
+  const $ = (id)=>document.getElementById(id);
+  $('ecPersona').addEventListener('change', ()=>{ ecEstado.persona = $('ecPersona').value; if(ecEstado.persona!=='jen' && ecEstado.cuenta==='abuelo') ecEstado.cuenta='credito'; openRevisionEstado(); });
+  $('ecCuenta').addEventListener('change', ()=>{ ecEstado.cuenta = $('ecCuenta').value; $('ecOtroWrap').style.display = ecEstado.cuenta==='otro' ? '' : 'none'; });
+  $('ecOtro').addEventListener('input', ()=>{ ecEstado.otroNombre = $('ecOtro').value; });
+  $('ecTodos').addEventListener('click', ()=>{ ecEstado.filas.forEach(f=>f.incluir=true); openRevisionEstado(); });
+  $('ecNinguno').addEventListener('click', ()=>{ ecEstado.filas.forEach(f=>f.incluir=false); openRevisionEstado(); });
+  $('ecInvertir').addEventListener('click', ()=>{ ecEstado.filas.forEach(f=>{ if(f.tipo==='gasto'){ f.tipo='ingreso'; } else if(f.tipo==='ingreso'){ f.tipo='gasto'; if(!f.cat) f.cat = ecSugerirCategoria(f.desc) || (state.subcats[0]||{}).id || 'gustos'; } }); openRevisionEstado(); });
+  document.querySelectorAll('[data-ec-fila]').forEach(filaEl=>{
+    const f = ecEstado.filas[Number(filaEl.getAttribute('data-ec-fila'))];
+    filaEl.querySelectorAll('[data-ec]').forEach(inp=>{
+      const campo = inp.getAttribute('data-ec');
+      inp.addEventListener('change', ()=>{
+        if(campo==='incluir'){ f.incluir = inp.checked; filaEl.classList.toggle('off', !f.incluir); }
+        else if(campo==='monto'){ f.monto = Math.abs(Number(inp.value)||0); }
+        else if(campo==='rate'){ f.rate = Number(inp.value)||null; f.rateEditado = true; }
+        else f[campo] = inp.value;
+        if(campo==='tipo' && f.tipo==='gasto' && !f.cat) f.cat = ecSugerirCategoria(f.desc) || (state.subcats[0]||{}).id || 'gustos';
+        if(campo==='tipo' || campo==='moneda'){ if(campo==='moneda'){ f.rate = f.moneda==='MXN' ? 1 : null; f.rateEditado=false; ecCargarTasas(); } openRevisionEstado(); return; }
+        const r = document.getElementById('ecResumen'); if(r) r.innerHTML = ecResumen();
+      });
+    });
+  });
+  $('ecGuardar').addEventListener('click', ()=>{
+    const n = guardarImportacionEstado();
+    if(n===null) return;
+    closeSheet(); render();
+    mostrarToast('Se importaron '+n+' movimientos. Puedes deshacerlo desde "Importar estado de cuenta".', 'ok');
+  });
+}
+// Tipo de cambio de la fecha de cada movimiento (en segundo plano).
+async function ecCargarTasas(){
+  if(!ecEstado) return;
+  const est = ecEstado;
+  const pend = est.filas.filter(f=>f.moneda!=='MXN' && !f.rateEditado && f.rate==null);
+  const cache = {};
+  for(const f of pend){
+    const k = f.moneda+'|'+f.fecha;
+    if(!(k in cache)) cache[k] = f.fecha===todayISO() ? rateSnapshotFor(f.moneda) : await fetchRateHistorico(f.moneda, f.fecha);
+    if(ecEstado!==est) return;
+    f.rate = cache[k] || rateSnapshotFor(f.moneda);
+    const inp = document.querySelector(`[data-ec-fila="${f.i}"] [data-ec="rate"]`); if(inp && !f.rateEditado) inp.value = Number(f.rate).toFixed(4);
+  }
+}
+function guardarImportacionEstado(){
+  const e = ecEstado; if(!e) return null;
+  const sel = e.filas.filter(f=>f.incluir && f.monto>0);
+  if(!sel.length){ mostrarToast('No hay movimientos marcados para importar.', 'error'); return null; }
+  if(sel.some(f=>(f.cuenta||e.cuenta)==='otro') && !String(e.otroNombre||'').trim()){ mostrarToast('Escribe quién lo pagó (cuenta "Otra persona").', 'error'); return null; }
+  const importId = uid();
+  const persona = e.persona;
+  let n = 0;
+  sel.forEach(f=>{
+    const cuenta = f.cuenta || e.cuenta;
+    const stamp = stampRates(f.monto, f.moneda, f.moneda==='MXN' ? 1 : (f.rate || null));
+    const nota = f.desc;
+    const base = {id:uid(), monto:f.monto, moneda:f.moneda, fecha:f.fecha, nota, importId, ...stamp};
+    if(f.tipo==='gasto'){
+      const g = {...base};
+      if(cuenta==='abuelo'){ g.quien='abuelo'; g.pagadoCon='bote'; g.pagadoPor=null; g.repartoAbuelo = f.quien==='ambas' ? 'ambas' : 'jen'; }
+      else { g.quien = f.quien==='ambas' ? 'ambas' : persona; g.pagadoPor = f.quien==='ambas' ? persona : null; g.pagadoCon = cuenta==='otro' ? 'otro' : cuenta; if(cuenta==='otro') g.otroNombre = String(e.otroNombre).trim(); }
+      if(f.cat==='gustos') state.gustosGastos.push(g);
+      else { const sb = state.subcats.find(x=>x.id===f.cat) || state.subcats[0]; if(sb) sb.gastos.push(g); else state.gustosGastos.push(g); }
+      n++;
+    } else if(f.tipo==='ingreso'){
+      if(cuenta==='credito'){ state.pagosTarjeta.push({id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde:'otra', nota:'Pago/abono a tarjeta de crédito · '+nota, notaLibre:nota, importId, ...stamp}); n++; return; }
+      if(cuenta==='abuelo' || cuenta==='otro') return; // un abono a una tarjeta ajena no es dinero tuyo
+      const destino = cuenta==='bote' ? 'bote' : cuenta==='efectivo' ? 'efectivo' : 'debito';
+      state.ingresos.push({id:base.id, persona, fuente:nota, montoBruto:f.monto, moneda:f.moneda, fecha:f.fecha, mes: ymDe(f.fecha), destino, ahorroAuto:false, ahorroAutoMonto:0, recurrente:false, importId, ...stamp});
+      n++;
+    } else if(f.tipo==='retiro'){
+      const cuentaRet = ['bote','debito','abuelo'].includes(cuenta) ? cuenta : 'otra';
+      state.efectivoMovimientos.push({id:base.id, persona, tipo:'retiro', monto:f.monto, moneda:f.moneda, fecha:f.fecha, cuenta:cuentaRet, origen:'', nota:'Retiro · '+nota, importId, ...stamp});
+      n++;
+    } else if(f.tipo==='pagoTarjeta'){
+      const desde = cuenta==='debito' ? 'debito' : cuenta==='bote' ? 'bote' : 'otra';
+      state.pagosTarjeta.push({id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde, nota:'Pago tarjeta de crédito · '+nota, notaLibre:nota, importId, ...stamp});
+      n++;
+    }
+  });
+  if(!Array.isArray(state.importaciones)) state.importaciones = [];
+  state.importaciones.push({id:importId, fecha:todayISO(), creado:Date.now(), banco:e.banco, persona, cuenta:e.cuenta, n, archivo:e.archivo||''});
+  ecEstado = null;
+  persist();
+  return n;
+}
+function deshacerImportacion(importId){
+  let n = 0;
+  const quitar = (arr)=>{ for(let i=arr.length-1;i>=0;i--){ const r = arr[i]; if(r && r.importId===importId){
+    // Si ese movimiento ya era el primer mes de algo "cada mes", ese mes no se vuelve a crear solo.
+    if(r.serieId && r.serieYM){ const se = (state.series||[]).find(x=>x.id===r.serieId); if(se){ if(!Array.isArray(se.omitidos)) se.omitidos = []; if(!se.omitidos.includes(r.serieYM)) se.omitidos.push(r.serieYM); } }
+    arr.splice(i,1); n++; } } };
+  quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta);
+  state.subcats.forEach(sb=>quitar(sb.gastos));
+  state.importaciones = (state.importaciones||[]).filter(im=>im.id!==importId);
+  persist(); render();
+  return n;
+}
+
+/* ------------------------------------------------------------
+   PAPELERA, HISTORIAL Y COPIAS — nada se pierde.
+   ------------------------------------------------------------ */
+const NOMBRE_COL = {ingresos:'Ingreso', gastos:'Gasto', costos:'Costo de referencia', efectivo:'Efectivo', pagosEntre:'Pago entre nosotras', pagosTarjeta:'Pago de tarjeta', pagosOtros:'Pago a otra persona', series:'Serie recurrente', porCobrar:'Me deben', proyecciones:'Deuda a futuro', finGan:'Ingreso a débito', finGas:'Gasto con tarjeta', ahorro:'Retiro de ahorro', fondoCon:'Gasto grande conocido', fondoMov:'Fondo de gastos grandes', destinos:'Destino', subcats:'Subcategoría', importaciones:'Importación'};
+function describirRegistro(col, r){
+  const txt = r.nota || r.fuente || r.concepto || r.nombre || (r.plantilla && (r.plantilla.nota || r.plantilla.fuente || r.plantilla.concepto)) || '';
+  const monto = r.monto!=null ? r.monto : (r.montoBruto!=null ? r.montoBruto : (r.plantilla ? (r.plantilla.monto!=null?r.plantilla.monto:r.plantilla.montoBruto) : null));
+  return {tipo: NOMBRE_COL[col]||col, txt, monto, moneda: r.moneda || (r.plantilla&&r.plantilla.moneda) || 'MXN', fecha: r.fecha || ''};
+}
+// Vuelve a poner un registro en su lugar.
+function reinsertar(col, loc, rec){
+  const f = (pp)=>{ if(!state.finanzas[pp]) state.finanzas[pp] = {inicial:0,ganancias:[],gastos:[],credito:{limite:0}}; return state.finanzas[pp]; };
+  if(col==='ingresos') state.ingresos.push(rec);
+  else if(col==='gastos'){ if(loc==='gustos') state.gustosGastos.push(rec); else { const sb = state.subcats.find(x=>'sub:'+x.id===loc) || state.subcats[0]; if(sb) sb.gastos.push(rec); else state.gustosGastos.push(rec); } }
+  else if(col==='costos'){ const sb = state.subcats.find(x=>x.id===loc) || state.subcats[0]; if(sb){ if(!Array.isArray(sb.costos)) sb.costos=[]; sb.costos.push(rec); } }
+  else if(col==='efectivo') state.efectivoMovimientos.push(rec);
+  else if(col==='pagosEntre') state.pagosEntre.push(rec);
+  else if(col==='pagosTarjeta') state.pagosTarjeta.push(rec);
+  else if(col==='pagosOtros') state.pagosOtros.push(rec);
+  else if(col==='series') state.series.push(rec);
+  else if(col==='porCobrar') state.porCobrar.push(rec);
+  else if(col==='proyecciones') state.deudasProyectadas.push(rec);
+  else if(col==='finGan') f(loc).ganancias.push(rec);
+  else if(col==='finGas') f(loc).gastos.push(rec);
+  else if(col==='ahorro') state.ahorro.movimientos.push(rec);
+  else if(col==='fondoCon') state.fondoGrande.conocidos.push(rec);
+  else if(col==='fondoMov') state.fondoGrande.movimientos.push(rec);
+  else if(col==='destinos') state.destinos.push(rec);
+  else if(col==='subcats') state.subcats.push({...rec, gastos:[], costos:[]});
+  else if(col==='importaciones'){ if(!Array.isArray(state.importaciones)) state.importaciones=[]; state.importaciones.push(rec); }
+  else return false;
+  return true;
+}
+function recuperarDePapelera(k){
+  const e = (state._papelera||{})[k];
+  if(!e) return false;
+  if(recorrerRegistros(state).some(x=>x.k===k)){ delete state._papelera[k]; persist(); render(); return true; }
+  const rec = JSON.parse(JSON.stringify(e.rec));
+  if(!reinsertar(e.col, e.loc, rec)) return false;
+  delete state._papelera[k];
+  // La marca de borrado se deja: así la hora del registro recuperado queda DESPUÉS
+  // del borrado (aunque el reloj del otro teléfono vaya adelantado) y no se vuelve a borrar.
+  persist();
+  render();
+  mostrarToast('Recuperado: '+(describirRegistro(e.col, e.rec).txt || NOMBRE_COL[e.col] || 'registro'), 'ok');
+  return true;
+}
+function openPapelera(){
+  const pap = state._papelera||{};
+  const lista = Object.keys(pap).map(k=>({k, ...pap[k]})).sort((a,b)=>b.t-a.t);
+  openSheet(`
+    ${sheetHeader('Papelera')}
+    <div class="small-note" style="margin-bottom:12px;">Todo lo que se borra en cualquiera de los dos teléfonos se queda aquí 90 días. Tócalo para recuperarlo.</div>
+    ${lista.length ? lista.map(x=>{ const d = describirRegistro(x.col, x.rec||{}); return `
+      <div class="exp-line" style="padding:8px 0;">
+        <div class="desc"><div class="n">${escHtml(d.txt || d.tipo)}</div><div class="d">${d.tipo}${d.fecha?' · '+fmtDate(d.fecha):''} · borrado ${new Date(x.t).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}${x.por?' por '+nombreQuien(x.por):''}</div></div>
+        ${d.monto!=null ? `<div class="amt">${fmt(Number(d.monto)||0, d.moneda)}</div>` : ''}
+        <button class="btn btn-outline btn-sm" data-recuperar="${escHtml(x.k)}">Recuperar</button>
+      </div>`; }).join('') : '<div class="small-note">La papelera está vacía.</div>'}
+  `);
+}
+async function openHistorialSync(){
+  openSheet(`${sheetHeader('Historial de sincronización')}<div id="histSyncBody" class="small-note">Cargando…</div>`);
+  const cont = ()=>document.getElementById('histSyncBody');
+  const meta = leerMetaSync();
+  const local = `<div class="small-note" style="margin-bottom:10px;">Este dispositivo (${escHtml(miDispositivo().nombre)}): última sincronización ${meta.ultima ? new Date(meta.ultima).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'aún no'}.</div>`;
+  if(!state.syncUrl){ if(cont()) cont().innerHTML = local + 'Sin configurar.'; return; }
+  try{
+    const r = await fetch(urlSync('historial=1'), {cache:'no-store'});
+    const p = await r.json();
+    if(!cont()) return;
+    if(!p || !Array.isArray(p.filas)){ cont().innerHTML = local + 'Para ver quién sincronizó y cuándo, pega el código nuevo de Apps Script (versión 3) en tu Google Sheet.'; return; }
+    cont().innerHTML = local + (p.filas.length ? p.filas.map(f=>`
+      <div class="exp-line" style="padding:7px 0;">
+        <div class="desc"><div class="n">${escHtml(nombreQuien(f.quien))} · ${escHtml(f.dispositivo||'')}</div><div class="d">${escHtml(f.fecha||'')} · ${Number(f.cambios)||0} ${Number(f.cambios)===1?'cambio':'cambios'} · versión ${escHtml(String(f.appBuild||''))}</div></div>
+      </div>`).join('') : 'Todavía no hay subidas registradas.');
+  }catch(e){ if(cont()) cont().innerHTML = local + 'No se pudo leer el historial. Revisa tu internet.'; }
+}
+let copiasAbiertas = {};
+async function openCopias(){
+  const copias = await leerCopiasLocales();
+  copiasAbiertas = copias;
+  const dias = Object.keys(copias).sort().reverse();
+  openSheet(`
+    ${sheetHeader('Restaurar una copia')}
+    <div class="small-note" style="margin-bottom:12px;">Al restaurar, la copia se <b>junta</b> con lo que tienes: agrega lo que falte (también lo que se borró después) y no borra nada.</div>
+    <h3 class="pc-sub" style="margin-top:0;">Copias en este teléfono</h3>
+    ${dias.length ? dias.map(d=>`<div class="exp-line" style="padding:7px 0;"><div class="desc"><div class="n">${fmtDate(d)}</div><div class="d">${new Date(copias[d].ts).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})} · ${recorrerRegistros(copias[d].data||{}).filter(e=>!['subcats','destinos','costos'].includes(e.col)).length} registros</div></div><button class="btn btn-outline btn-sm" data-copia-local="${d}">Juntar</button></div>`).join('') : '<div class="small-note">Aún no hay copias en este teléfono.</div>'}
+    <h3 class="pc-sub">Copias en la hoja</h3>
+    <div id="copiasNube" class="small-note">${state.syncUrl ? 'Cargando…' : 'Sin configurar.'}</div>
+  `);
+  if(!state.syncUrl) return;
+  try{
+    const r = await fetch(urlSync('historial=1'), {cache:'no-store'});
+    const p = await r.json();
+    const c = document.getElementById('copiasNube'); if(!c) return;
+    if(!p || !Array.isArray(p.filas)){ c.textContent = 'Pega el código nuevo de Apps Script (versión 3) para ver aquí las copias de la hoja.'; return; }
+    c.innerHTML = p.filas.length ? p.filas.map(f=>`<div class="exp-line" style="padding:7px 0;"><div class="desc"><div class="n">${escHtml(f.fecha||'')}</div><div class="d">${escHtml(nombreQuien(f.quien))} · ${escHtml(f.dispositivo||'')}</div></div><button class="btn btn-outline btn-sm" data-copia-nube="${Number(f.fila)}">Juntar</button></div>`).join('') : 'Todavía no hay copias en la hoja.';
+    c.querySelectorAll('[data-copia-nube]').forEach(el=>el.addEventListener('click', ()=>juntarCopiaNube(Number(el.getAttribute('data-copia-nube')))));
+  }catch(e){ const c = document.getElementById('copiasNube'); if(c) c.textContent = 'No se pudo leer la hoja. Revisa tu internet.'; }
+}
+function juntarCopia(datos){
+  if(!datos || !Array.isArray(datos.subcats)){ mostrarToast('Esa copia no se pudo leer.', 'error'); return; }
+  importPendiente = datos;
+  aplicarImportar('juntar');
+}
+async function juntarCopiaNube(fila){
+  try{
+    const r = await fetch(urlSync('fila='+fila), {cache:'no-store'});
+    const p = await r.json();
+    juntarCopia(p && p.data);
+  }catch(e){ mostrarToast('No se pudo leer esa copia. Revisa tu internet.', 'error'); }
 }
 
 function openPersonalMov(persona, tipo, editRef, cuentaPreset){
@@ -4587,7 +5563,7 @@ function openPersonalMov(persona, tipo, editRef, cuentaPreset){
     </div>
     <div class="field"><label>Fecha</label><input type="date" id="pmFecha" value="${existing?existing.fecha:todayISO()}"></div>
     ${renderTipoCambioField('pm',monedaInicial)}
-    <div class="field"><label>Nota</label><input type="text" id="pmNota" placeholder="${tipo==='ganancia'?'Ej. trabajo freelance, regalo...':'Ej. algo solo para mí'}" value="${existing&&existing.nota?existing.nota:''}"></div>
+    <div class="field"><label>Nota</label><input type="text" id="pmNota" placeholder="${tipo==='ganancia'?'Ej. trabajo freelance, regalo...':'Ej. algo solo para mí'}" value="${existing&&existing.nota?escHtml(existing.nota):''}"></div>
     ${tipo==='gasto' ? renderRecurrenciaField('pm', existing, 'personal') : ''}
     <button class="btn btn-primary btn-block" id="doPersonalMov">${existing?'Guardar cambios':'Guardar'}</button>
   `);
@@ -4951,6 +5927,10 @@ function wireEvents(){
     lector.onload = ()=>{ abrirImportar(String(lector.result||'')); importFile.value=''; };
     lector.readAsText(f);
   });
+  const aie = document.getElementById('abrirImportarEstado'); if(aie) aie.addEventListener('click', openImportarEstado);
+  const vh = document.getElementById('verHistorialSync'); if(vh) vh.addEventListener('click', openHistorialSync);
+  const vc = document.getElementById('verCopias'); if(vc) vc.addEventListener('click', openCopias);
+  const vp = document.getElementById('verPapelera'); if(vp) vp.addEventListener('click', openPapelera);
   const exportExcelBtn = document.getElementById('exportExcel');
   if(exportExcelBtn) exportExcelBtn.addEventListener('click', exportarGastosCSV);
 }
@@ -4959,6 +5939,8 @@ function wireSheetEvents(){
   const closeBtn = document.getElementById('closeSheetBtn');
   if(closeBtn) closeBtn.addEventListener('click', closeSheet);
   document.querySelectorAll('[data-importar]').forEach(el=>{ el.addEventListener('click', ()=>aplicarImportar(el.getAttribute('data-importar'))); });
+  document.querySelectorAll('[data-recuperar]').forEach(el=>{ el.addEventListener('click', ()=>{ recuperarDePapelera(el.getAttribute('data-recuperar')); if(document.getElementById('overlay')) openPapelera(); }); });
+  document.querySelectorAll('[data-copia-local]').forEach(el=>{ el.addEventListener('click', ()=>{ const c = copiasAbiertas[el.getAttribute('data-copia-local')]; juntarCopia(c && c.data); }); });
   const impTxtBtn = document.getElementById('importTextoBtn');
   if(impTxtBtn) impTxtBtn.addEventListener('click', ()=>{ const t = (document.getElementById('importTexto')||{}).value||''; if(!t.trim()){ mostrarToast('Primero pega el texto del respaldo.', 'error'); return; } abrirImportar(t.trim()); });
   const impArchBtn = document.getElementById('importArchivoBtn');
@@ -5642,6 +6624,8 @@ function wireSheetEvents(){
 
 // (Los préstamos del Fondo a Generales ahora se calculan en vivo: prestamoFondoVivoMXN.)
 
+verificarHuellasAlIniciar();
+recordarRegistros();
 render();
 // Intenta traer el tipo de cambio real al abrir. Si no hay internet
 // (Wifi débil en el camino, o el sandbox de Claude lo bloquea), la app
@@ -5653,18 +6637,22 @@ fetchLiveRates(false).then(ok=>{ if(ok) render(); });
 // intentar cada vez que el teléfono recupera conexión.
 // Al abrir: junta con la nube (nunca reemplaza). Al volver el internet y
 // al salir de la app, sube lo que falte.
+recordarRegistros();
 if(state.syncUrl) sincronizar();
+// Revisa la hoja cada 30 s mientras la app está en pantalla (solo lee; junta en automático si hay algo nuevo).
+setInterval(revisarNube, 30000);
+setInterval(pintarBarraPendiente, 10000);
 // Si la app está abierta en otra pestaña del mismo teléfono y guardó algo, esta
 // toma esos datos (así una pestaña vieja no borra lo que hizo la otra).
 window.addEventListener('storage', (e)=>{
   if(e.key!==STORAGE_KEY || !e.newValue) return;
-  try{ const nuevo = migrateState(JSON.parse(e.newValue)); if(nuevo){ const url = state.syncUrl; state = nuevo; if(!state.syncUrl) state.syncUrl = url; render(); } }catch(err){}
+  try{ const nuevo = migrateState(JSON.parse(e.newValue)); if(nuevo){ const url = state.syncUrl; state = nuevo; if(!state.syncUrl) state.syncUrl = url; recordarRegistros(); render(); } }catch(err){}
 });
 window.addEventListener('online', ()=>{ if(state.syncUrl) sincronizar(); });
 document.addEventListener('visibilitychange', ()=>{
   if(!state.syncUrl) return;
   if(document.visibilityState==='hidden' && hayPendiente()) sincronizar();
-  if(document.visibilityState==='visible') sincronizar();
+  if(document.visibilityState==='visible') revisarNube();
 });
 window.addEventListener('pagehide', ()=>{ if(state.syncUrl && hayPendiente()) sincronizar(); });
 
