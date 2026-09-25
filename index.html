@@ -231,6 +231,25 @@
     cursor:pointer;z-index:998;
   }
   @media (max-width:552px){.fab{right:20px;}}
+  .fab-sync{
+    position:fixed;bottom:calc(20px + 56px + 12px + env(safe-area-inset-bottom, 12px));right:calc(50% - 260px + 16px + 5px);
+    width:46px;height:46px;border-radius:50%;background:var(--card);color:var(--ink);border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px -8px rgba(0,0,0,.35);cursor:pointer;z-index:998;
+  }
+  @media (max-width:552px){.fab-sync{right:25px;}}
+  .fab-sync .icon{width:20px;height:20px;}
+  .fab-sync .fab-dot{position:absolute;top:3px;right:3px;width:11px;height:11px;border-radius:50%;background:var(--amber);border:2px solid var(--card);display:none;}
+  .fab-sync.pendiente .fab-dot{display:block;}
+  .fab-sync.ok{color:var(--teal-deep);}
+  .fab-sync.error{border-color:var(--brick);color:var(--brick);}
+  .fab-sync.error .fab-dot{display:block;background:var(--brick);}
+  .fab-sync.off{opacity:.55;}
+  .fab-sync.girando .icon{animation:girar 1s linear infinite;}
+  @keyframes girar{to{transform:rotate(360deg);}}
+  @media (prefers-reduced-motion: reduce){.fab-sync.girando .icon{animation:none;}}
+  .fab-sync:focus-visible,.fab:focus-visible{outline:3px solid var(--ink);outline-offset:2px;}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom, 12px));max-width:min(92vw,420px);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:12px;font-size:13.5px;font-weight:600;z-index:1000;box-shadow:0 10px 24px -10px rgba(0,0,0,.5);text-align:center;}
+  .toast.error{background:var(--brick);color:#fff;}
   /* Wrappers neutros en móvil: no cambian el flujo actual */
   .rail{display:contents;}
   /* Cuando la barra fija ya está pegada arriba, pinta el fondo HACIA ARRIBA
@@ -313,6 +332,7 @@
     .main .card div[style*="height:190px"]{height:240px !important;}
     .main .card div[style*="height:180px"]{height:220px !important;}
     .fab{right:30px;bottom:30px;width:60px;height:60px;}
+    .fab-sync{right:37px;bottom:102px;}
   }
   @media (min-width:1200px){
     .main .appcontent.tab-inicio{column-count:3;}
@@ -499,11 +519,11 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '12.1 · 25 sep 2026 (íconos a color)';
+const APP_VERSION = '13 · 25 sep 2026 (sincronización segura)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
-const APP_BUILD = 12;
+const APP_BUILD = 13;
 let syncVersionNube = null;
 const Storage = {
   load(){
@@ -851,7 +871,11 @@ function defaultState(){
 
 let state = migrateState(Storage.load()) || defaultState();
 if(!state.destinoActualId && state.destinos.length){ state.destinoActualId = state.destinos[0].id; }
-function persist(){ Storage.save(state); programarSyncPush(); }
+function persist(){
+  const cambio = sellarCambios();
+  Storage.save(state);
+  if(cambio){ marcarPendiente(true); programarSync(); }
+}
 
 /* ------------------------------------------------------------
    Carga las cantidades que ya platicamos como punto de partida —
@@ -864,10 +888,10 @@ function cargarValoresIniciales(){
   const fecha = state.primerIngresoOficial || '2026-09-19';
   // Ingreso de mamá para Jen, con ahorro automático de 5000 MXN — recurrente cada mes
   const ing1 = {id:uid(), persona:'jen', fuente:'Mamá', montoBruto:25000, moneda:'MXN', fecha, mes:fecha.slice(0,7), destino:'bote', ahorroAuto:true, ahorroAutoMonto:5000, ...stampRates(25000,'MXN',null)};
-  state.ingresos.push(ing1); hacerRecurrente(ing1, 'ingreso', null, null);
+  ing1._ejemplo = true; state.ingresos.push(ing1); hacerRecurrente(ing1, 'ingreso', null, null).plantilla._ejemplo = true;
   // Ingreso de Isa — recurrente cada mes
   const ing2 = {id:uid(), persona:'isa', fuente:'Isa', montoBruto:20000, moneda:'MXN', fecha, mes:fecha.slice(0,7), destino:'bote', ahorroAuto:false, ahorroAutoMonto:0, ...stampRates(20000,'MXN',null)};
-  state.ingresos.push(ing2); hacerRecurrente(ing2, 'ingreso', null, null);
+  ing2._ejemplo = true; state.ingresos.push(ing2); hacerRecurrente(ing2, 'ingreso', null, null).plantilla._ejemplo = true;
 
   // Costo de vida estimado de Split (editable — ajústalo con lo que vayan viendo)
   const split = state.destinos.find(d=>d.nombre.includes('Split'));
@@ -940,76 +964,353 @@ function convertToEUR(amount, cur){
    No es edición colaborativa en tiempo real — es "el otro teléfono
    ve tus cambios la próxima vez que abre o sincroniza la app".
    ============================================================ */
-let syncEstado = { estado:'sin-configurar', ultimaVez:null }; // 'sin-configurar'|'ok'|'error'|'sincronizando'
-let syncDebounceTimer = null;
-let syncedAtLocal = null; // marca del último push/pull exitoso, para no re-jalar lo que ya subimos nosotros mismos
+let syncEstado = { estado:'sin-configurar', ultimaVez:null }; // 'sin-configurar'|'ok'|'error'|'sincronizando'|'version'
+let syncError = '';
+let syncTimer = null, syncEnCurso = false, syncOtraVez = false, syncCambiosVer = 0;
 
-function programarSyncPush(){
-  if(!state.syncUrl) return;
-  clearTimeout(syncDebounceTimer);
-  syncDebounceTimer = setTimeout(()=>{ pushToCloud(); }, 2500);
+/* ------------------------------------------------------------
+   SELLOS POR REGISTRO. Cada registro (gasto, ingreso, pago, etc.)
+   guarda _u = cuándo cambió por última vez en ESTE teléfono. Se detecta
+   solo comparando una "huella" de cada registro con la del último
+   guardado. Lo que se borra queda anotado en state._borrados para que
+   al juntar con el otro teléfono no "reviva".
+   ------------------------------------------------------------ */
+const SYNC_META_KEY = 'budgetin_sync_meta_v1';
+function leerMetaSync(){ try{ return JSON.parse(localStorage.getItem(SYNC_META_KEY)||'null') || {huellas:null, pendiente:false, ultima:null}; }catch(e){ return memoryStore.syncMeta || {huellas:null, pendiente:false, ultima:null}; } }
+function guardarMetaSync(m){ try{ localStorage.setItem(SYNC_META_KEY, JSON.stringify(m)); }catch(e){ memoryStore.syncMeta = m; } }
+function huella(txt){ let h = 5381; for(let i=0;i<txt.length;i++){ h = ((h<<5) + h + txt.charCodeAt(i)) | 0; } return (h>>>0).toString(36) + '.' + txt.length; }
+// Todos los registros con id, con su colección y (para gastos) dónde viven.
+function recorrerRegistros(st){
+  const out = [];
+  const add = (col, arr, loc)=> (arr||[]).forEach(r=>{ if(r && r.id) out.push({k:col+':'+r.id, col, rec:r, loc:loc||''}); });
+  add('ingresos', st.ingresos);
+  (st.subcats||[]).forEach(sb=>{ add('gastos', sb.gastos, 'sub:'+sb.id); add('costos', sb.costos, sb.id); });
+  add('gastos', st.gustosGastos, 'gustos');
+  add('efectivo', st.efectivoMovimientos);
+  add('pagosEntre', st.pagosEntre); add('pagosTarjeta', st.pagosTarjeta); add('pagosOtros', st.pagosOtros);
+  add('series', st.series); add('porCobrar', st.porCobrar); add('proyecciones', st.deudasProyectadas);
+  ['jen','isa'].forEach(pp=>{ const f = (st.finanzas||{})[pp]||{}; add('finGan', f.ganancias, pp); add('finGas', f.gastos, pp); });
+  add('ahorro', (st.ahorro||{}).movimientos);
+  add('fondoCon', (st.fondoGrande||{}).conocidos); add('fondoMov', (st.fondoGrande||{}).movimientos);
+  add('destinos', st.destinos);
+  (st.subcats||[]).forEach(sb=>{ if(sb && sb.id) out.push({k:'subcats:'+sb.id, col:'subcats', rec:sb, loc:''}); });
+  return out;
 }
+function textoRegistro(e){
+  const r = e.rec, copia = {};
+  Object.keys(r).forEach(k=>{ if(k==='_u') return; if(e.col==='subcats' && (k==='gastos'||k==='costos')) return; copia[k]=r[k]; });
+  return JSON.stringify(copia) + '|' + e.loc;
+}
+// Ajustes generales (porcentajes, fechas del viaje, metas...) se tratan como un bloque.
+const CLAVES_NO_CONFIG = ['ingresos','subcats','gustosGastos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','rates','ratesMeta','syncUrl','_borrados','_cfgU','efectivoGastos','_syncMarca'];
+// Cada ajuste por separado (así, si Jen cambia uno e Isa otro, se quedan los dos).
+function configDe(st){
+  const c = {};
+  Object.keys(st).forEach(k=>{ if(!CLAVES_NO_CONFIG.includes(k) && k!=='finanzas' && k!=='ahorro' && k!=='fondoGrande') c[k]=st[k]; });
+  ['jen','isa'].forEach(pp=>{ const f=(st.finanzas||{})[pp]||{}; c['_fin_'+pp] = {inicial:f.inicial, credito:f.credito}; });
+  c._fondo = (st.fondoGrande||{}).overrideManual;
+  return c;
+}
+function selloCfg(st, k){ const c = st._cfgU; if(typeof c==='number') return c; return (c && typeof c[k]==='number') ? c[k] : 0; }
+function huellasDe(st){
+  const m = {};
+  recorrerRegistros(st).forEach(e=>{ m[e.k] = huella(textoRegistro(e)); });
+  const cfg = configDe(st);
+  Object.keys(cfg).forEach(k=>{ m['__cfg:'+k] = huella(JSON.stringify(cfg[k]===undefined?null:cfg[k])); });
+  return m;
+}
+// La hora de un cambio nunca queda "antes" de lo último que este teléfono ya vio
+// (por si el reloj de un teléfono va atrasado).
+function selloMaximo(st){
+  let mx = 0;
+  recorrerRegistros(st).forEach(e=>{ if(typeof e.rec._u==='number' && e.rec._u>mx) mx = e.rec._u; });
+  Object.values(st._borrados||{}).forEach(v=>{ if(v>mx) mx = v; });
+  const c = st._cfgU; if(typeof c==='number'){ if(c>mx) mx=c; } else if(c) Object.values(c).forEach(v=>{ if(v>mx) mx=v; });
+  return mx;
+}
+// Marca con la hora lo que cambió desde el último guardado. Devuelve si hubo cambios.
+function sellarCambios(){
+  const meta = leerMetaSync();
+  const ahora = Math.max(Date.now(), selloMaximo(state)+1);
+  if(!state._borrados || typeof state._borrados!=='object') state._borrados = {};
+  if(typeof state._cfgU==='number'){ const v = state._cfgU; state._cfgU = {}; Object.keys(configDe(state)).forEach(k=>{ state._cfgU[k]=v; }); }
+  if(!state._cfgU || typeof state._cfgU!=='object') state._cfgU = {};
+  const nuevas = {};
+  let cambio = false;
+  const primeraVez = !meta.huellas;
+  recorrerRegistros(state).forEach(e=>{
+    const h = huella(textoRegistro(e));
+    nuevas[e.k] = h;
+    if(!primeraVez && meta.huellas[e.k]!==h){ e.rec._u = ahora; cambio = true; }
+    if(primeraVez && typeof e.rec._u!=='number') e.rec._u = 0;
+  });
+  const cfg = configDe(state);
+  Object.keys(cfg).forEach(k=>{
+    const hk = '__cfg:'+k, h = huella(JSON.stringify(cfg[k]===undefined?null:cfg[k]));
+    nuevas[hk] = h;
+    if(!primeraVez && meta.huellas[hk]!==undefined && meta.huellas[hk]!==h){ state._cfgU[k] = ahora; cambio = true; }
+    if(!primeraVez && meta.huellas[hk]===undefined && meta.huellas['__config']!==undefined){ /* huellas de la versión anterior: no cuenta como cambio */ }
+  });
+  if(!primeraVez){
+    Object.keys(meta.huellas).forEach(k=>{ if(!k.startsWith('__c') && !(k in nuevas)){ state._borrados[k] = ahora; cambio = true; } });
+  }
+  meta.huellas = nuevas;
+  guardarMetaSync(meta);
+  if(cambio) syncCambiosVer++;
+  return cambio;
+}
+function rebasarHuellas(){ const meta = leerMetaSync(); meta.huellas = huellasDe(state); guardarMetaSync(meta); }
+function marcarPendiente(v){ const meta = leerMetaSync(); meta.pendiente = !!v; guardarMetaSync(meta); pintarBotonSync(); }
+function hayPendiente(){ return !!leerMetaSync().pendiente; }
+
+/* ------------------------------------------------------------
+   JUNTAR dos copias (este teléfono + la nube), registro por registro:
+   gana la versión editada más recientemente; lo borrado (con fecha más
+   nueva que la última edición) se queda borrado. Nunca se reemplaza una
+   copia completa por otra.
+   ------------------------------------------------------------ */
+function mergeStates(L, R){
+  const bor = {};
+  [R._borrados||{}, L._borrados||{}].forEach(b=>Object.keys(b).forEach(k=>{ if(!bor[k] || b[k]>bor[k]) bor[k]=b[k]; }));
+  // Borrados de hace más de 6 meses ya no hacen falta.
+  const limiteBor = Date.now() - 183*24*3600*1000;
+  Object.keys(bor).forEach(k=>{ if(bor[k] < limiteBor) delete bor[k]; });
+  // Base: la copia de la nube; cada ajuste se toma de donde se cambió más recientemente
+  // (si empatan, gana la nube: así los dos teléfonos llegan al mismo resultado).
+  const base = JSON.parse(JSON.stringify(R));
+  const cfgLv = configDe(L), cfgRv = configDe(R), cfgU = {};
+  new Set([...Object.keys(cfgLv), ...Object.keys(cfgRv)]).forEach(k=>{
+    const uL = selloCfg(L,k), uR = selloCfg(R,k);
+    const usarL = uL > uR || !(k in cfgRv);
+    cfgU[k] = Math.max(uL, uR);
+    if(!usarL) return;
+    const v = cfgLv[k] === undefined ? undefined : JSON.parse(JSON.stringify(cfgLv[k]));
+    if(k.startsWith('_fin_')){ const pp = k.slice(5); if(!base.finanzas) base.finanzas={}; if(!base.finanzas[pp]) base.finanzas[pp]={inicial:0,ganancias:[],gastos:[],credito:{limite:0}}; if(v){ base.finanzas[pp].inicial = v.inicial; base.finanzas[pp].credito = v.credito; } }
+    else if(k==='_fondo'){ if(!base.fondoGrande) base.fondoGrande={overrideManual:null,conocidos:[],movimientos:[]}; base.fondoGrande.overrideManual = v===undefined?null:v; }
+    else if(v===undefined) delete base[k]; else base[k] = v;
+  });
+  // tipo de cambio: el más reciente
+  const tRL = Date.parse((L.ratesMeta||{}).updatedAt||'')||0, tRR = Date.parse((R.ratesMeta||{}).updatedAt||'')||0;
+  const src = tRL >= tRR ? L : R;
+  base.rates = JSON.parse(JSON.stringify(src.rates||base.rates||{}));
+  base.ratesMeta = JSON.parse(JSON.stringify(src.ratesMeta||base.ratesMeta||{}));
+  // elegir cada registro
+  const pick = new Map();
+  const considerar = (e)=>{
+    const u = typeof e.rec._u==='number' ? e.rec._u : 0;
+    if(bor[e.k]!==undefined && bor[e.k] >= u) return;
+    const act = pick.get(e.k);
+    if(!act || u > (typeof act.rec._u==='number'?act.rec._u:0)) pick.set(e.k, e);
+  };
+  // Primero la nube: si las dos versiones tienen la misma hora, se queda la de la nube.
+  recorrerRegistros(R).forEach(considerar);
+  recorrerRegistros(L).forEach(considerar);
+  const elegidos = [...pick.values()].map(e=>({...e, rec: JSON.parse(JSON.stringify(e.rec))}));
+  // Series: los meses borrados ("solo este mes") de los dos teléfonos se juntan.
+  const omit = {};
+  [...recorrerRegistros(L), ...recorrerRegistros(R)].forEach(e=>{ if(e.col==='series' && Array.isArray(e.rec.omitidos)) (omit[e.k] = omit[e.k] || new Set()); if(e.col==='series') (e.rec.omitidos||[]).forEach(m=>omit[e.k].add(m)); });
+  elegidos.forEach(e=>{ if(e.col==='series' && omit[e.k]) e.rec.omitidos = [...omit[e.k]].sort(); });
+  // Subcategorías y destinos repetidos por nombre (p. ej. los de ejemplo de un navegador
+  // nuevo): se quedan una sola vez y lo que tenían se muda a la que queda.
+  const remap = {};
+  const unicosPorNombre = (col, clave)=>{
+    const lista = elegidos.filter(e=>e.col===col);
+    const porNombre = new Map();
+    lista.forEach(e=>{
+      const n = clave(e.rec); const otro = porNombre.get(n);
+      if(!otro){ porNombre.set(n, e); return; }
+      const uA = otro.rec._u||0, uB = e.rec._u||0;
+      const queda = uA!==uB ? (uA>uB?otro:e) : (otro.rec.id < e.rec.id ? otro : e);
+      const sale = queda===otro ? e : otro;
+      porNombre.set(n, queda);
+      remap[sale.rec.id] = queda.rec.id;
+      const i = elegidos.indexOf(sale); if(i>=0) elegidos.splice(i,1);
+      bor[sale.k] = Math.max(Date.now(), (sale.rec._u||0)+1);
+    });
+  };
+  unicosPorNombre('subcats', r=>String(r.nombre||'').trim().toLowerCase());
+  unicosPorNombre('destinos', r=>String(r.nombre||'').trim().toLowerCase()+'|'+(r.fechaInicio||''));
+  const destinoDe = (id)=>{ let x = id, n = 0; while(remap[x] && n++<10) x = remap[x]; return x; };
+  elegidos.forEach(e=>{
+    if(e.col==='gastos' && e.loc.startsWith('sub:')) e.loc = 'sub:'+destinoDe(e.loc.slice(4));
+    if(e.col==='costos') e.loc = destinoDe(e.loc);
+    if(e.col==='series' && e.rec.subId) e.rec.subId = destinoDe(e.rec.subId);
+  });
+  const de = (col)=>elegidos.filter(e=>e.col===col);
+  // reconstruir colecciones
+  base.subcats = de('subcats').map(e=>({...e.rec, gastos:[], costos:[]}));
+  base.gustosGastos = [];
+  de('gastos').forEach(e=>{
+    if(e.loc==='gustos') base.gustosGastos.push(e.rec);
+    else { const sb = base.subcats.find(x=>'sub:'+x.id===e.loc) || base.subcats[0]; if(sb) sb.gastos.push(e.rec); else base.gustosGastos.push(e.rec); }
+  });
+  de('costos').forEach(e=>{ const sb = base.subcats.find(x=>x.id===e.loc) || base.subcats[0]; if(sb) sb.costos.push(e.rec); });
+  base.ingresos = de('ingresos').map(e=>e.rec);
+  base.efectivoMovimientos = de('efectivo').map(e=>e.rec);
+  base.pagosEntre = de('pagosEntre').map(e=>e.rec);
+  base.pagosTarjeta = de('pagosTarjeta').map(e=>e.rec);
+  base.pagosOtros = de('pagosOtros').map(e=>e.rec);
+  base.series = de('series').map(e=>e.rec);
+  base.porCobrar = de('porCobrar').map(e=>e.rec);
+  base.deudasProyectadas = de('proyecciones').map(e=>e.rec);
+  base.destinos = de('destinos').map(e=>e.rec);
+  if(!base.finanzas) base.finanzas = {};
+  ['jen','isa'].forEach(pp=>{
+    if(!base.finanzas[pp]) base.finanzas[pp] = {inicial:0, ganancias:[], gastos:[], credito:{limite:0}};
+    base.finanzas[pp].ganancias = de('finGan').filter(e=>e.loc===pp).map(e=>e.rec);
+    base.finanzas[pp].gastos = de('finGas').filter(e=>e.loc===pp).map(e=>e.rec);
+  });
+  if(!base.ahorro) base.ahorro = {movimientos:[]};
+  base.ahorro.movimientos = de('ahorro').map(e=>e.rec);
+  if(!base.fondoGrande) base.fondoGrande = {overrideManual:null, conocidos:[], movimientos:[]};
+  base.fondoGrande.conocidos = de('fondoCon').map(e=>e.rec);
+  base.fondoGrande.movimientos = de('fondoMov').map(e=>e.rec);
+  // Si los dos teléfonos crearon el mismo mes de una serie, se queda uno.
+  const ahora = Date.now();
+  const vistos = new Map();
+  recorrerRegistros(base).forEach(e=>{
+    if(!e.rec.serieId || !e.rec.serieYM || e.col==='series') return;
+    const k = e.col+'|'+e.rec.serieId+'|'+e.rec.serieYM;
+    const otro = vistos.get(k);
+    if(!otro){ vistos.set(k, e); return; }
+    const uO = otro.rec._u||0, uE = e.rec._u||0;
+    const quitar = uO!==uE ? (uO>uE ? e : otro) : ((otro.rec.id < e.rec.id) ? e : otro); // gana la edición más nueva; si empatan, el mismo resultado en los dos teléfonos
+    const queda = quitar===e ? otro : e;
+    vistos.set(k, queda);
+    bor[quitar.k] = Math.max(ahora, (quitar.rec._u||0)+1);
+    const arrs = [base.ingresos, base.gustosGastos, base.efectivoMovimientos, base.porCobrar, base.deudasProyectadas, ...base.subcats.map(x=>x.gastos), base.finanzas.jen.gastos, base.finanzas.isa.gastos];
+    arrs.forEach(a=>{ const i = a.indexOf(quitar.rec); if(i>=0) a.splice(i,1); });
+  });
+  base._borrados = bor;
+  base._cfgU = cfgU;
+  if(base.destinoActualId) base.destinoActualId = destinoDe(base.destinoActualId);
+  base.syncUrl = L.syncUrl;
+  delete base._syncMarca;
+  return base;
+}
+
 function nubeEsMasNueva(payload){
   const b = payload && Number(payload.appBuild);
-  if(b && b > APP_BUILD){ syncVersionNube = b; syncEstado = { estado:'version', ultimaVez: syncEstado.ultimaVez }; return true; }
+  if(b && b > APP_BUILD){ syncVersionNube = b; syncEstado = { estado:'version', ultimaVez: syncEstado.ultimaVez }; pintarBotonSync(); return true; }
   return false;
 }
-async function pushToCloud(){
+function programarSync(ms){
+  if(!state.syncUrl) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(()=>{ sincronizar(); }, ms==null ? 800 : ms);
+}
+function programarSyncPush(){ programarSync(); } // nombre anterior
+// Baja la copia de la nube, la junta con la de este teléfono y sube el resultado.
+// Si alguien subió algo mientras tanto, lo vuelve a intentar (hasta 3 veces).
+async function sincronizar(){
   if(!state.syncUrl) return false;
   if(syncVersionNube && syncVersionNube > APP_BUILD) return false;
+  if(syncEnCurso){ syncOtraVez = true; return false; }
+  syncEnCurso = true;
   syncEstado = { estado:'sincronizando', ultimaVez: syncEstado.ultimaVez };
+  pintarBotonSync();
+  const verInicio = syncCambiosVer;
   try{
-    // Antes de subir, revisa que el otro teléfono no use una versión más nueva.
-    try{
-      const chk = await fetch(state.syncUrl);
-      if(chk && chk.ok){ const pl = await chk.json(); if(nubeEsMasNueva(pl)){ render(); return false; } }
-    }catch(e){ /* si no se pudo revisar, se intenta subir igual */ }
-    const now = new Date().toISOString();
-    const res = await fetch(state.syncUrl, {
-      method:'POST',
-      body: JSON.stringify({ updatedAt: now, appBuild: APP_BUILD, data: state })
-    });
-    if(!res.ok) throw new Error('push failed');
-    syncedAtLocal = now;
-    syncEstado = { estado:'ok', ultimaVez: now };
-    return true;
-  }catch(e){
-    syncEstado = { estado:'error', ultimaVez: syncEstado.ultimaVez };
-    return false;
-  }
-}
-async function pullFromCloud(forzarAunqueIgual){
-  if(!state.syncUrl) return false;
-  try{
-    const res = await fetch(state.syncUrl);
-    if(!res.ok) throw new Error('pull failed');
-    const payload = await res.json();
-    if(!payload || !payload.data || !payload.updatedAt) return false;
-    if(nubeEsMasNueva(payload)) return false;
-    // si la nube tiene algo más nuevo que lo último que sincronizamos, lo adoptamos
-    if(forzarAunqueIgual || !syncedAtLocal || payload.updatedAt > syncedAtLocal){
-      const syncUrlActual = state.syncUrl; // preservar la config de sync aunque venga vieja en la nube
-      state = migrateState(payload.data) || state;
-      state.syncUrl = syncUrlActual;
-      syncedAtLocal = payload.updatedAt;
-      Storage.save(state);
-      syncEstado = { estado:'ok', ultimaVez: payload.updatedAt };
+    for(let intento=0; intento<3; intento++){
+      const res = await fetch(state.syncUrl, {cache:'no-store'});
+      if(!res.ok) throw new Error('No se pudo leer la hoja ('+res.status+')');
+      let payload;
+      try{ payload = await res.json(); }catch(e){ throw new Error('La hoja no respondió bien. Revisa la URL /exec.'); }
+      if(nubeEsMasNueva(payload)){ render(); return false; }
+      const nube = payload && payload.data ? migrateState(payload.data) : null;
+      // Primera vez que este teléfono se junta con la nube: los valores de ejemplo
+      // que cargó (ingresos de Mamá/Isa) no se suman a los datos reales.
+      if(nube && !leerMetaSync().ultima && recorrerRegistros(nube).some(e=>!['subcats','destinos','costos'].includes(e.col))){
+        const ejSeries = new Set((state.series||[]).filter(se=>se.plantilla && se.plantilla._ejemplo).map(se=>se.id));
+        state.ingresos = state.ingresos.filter(i=>!i._ejemplo && !ejSeries.has(i.serieId));
+        state.series = (state.series||[]).filter(se=>!ejSeries.has(se.id));
+      }
+      sellarCambios(); // lo último que hiciste aquí queda con su hora
+      const antes = JSON.stringify(state);
+      if(nube){
+        const url = state.syncUrl;
+        state = mergeStates(state, nube);
+        state.syncUrl = url;
+        Storage.save(state);
+        rebasarHuellas();
+        if(generarRecurrentes()>0){ sellarCambios(); Storage.save(state); }
+      }
+      if(JSON.stringify(state)!==antes) render();
+      const ahoraISO = new Date().toISOString();
+      const marca = uid();
+      const body = JSON.stringify({ updatedAt: ahoraISO, baseUpdatedAt: (payload && payload.updatedAt) || null, appBuild: APP_BUILD, data: Object.assign({}, state, {_syncMarca: marca}) });
+      const r2 = await fetch(state.syncUrl, { method:'POST', body, keepalive: body.length < 30000 });
+      let resp = null;
+      try{ resp = await r2.json(); }catch(e){ resp = null; }
+      if(resp && resp.conflict) continue; // el otro teléfono subió algo justo ahora: juntar otra vez
+      if(!r2.ok || !resp || resp.ok!==true){
+        if(!resp && body.length > 49000) throw new Error('Tus datos ya no caben en la hoja con el código viejo. Pega el código nuevo de Apps Script (sin límite) y vuelve a intentar.');
+        throw new Error(resp && resp.error ? 'La hoja no guardó: '+resp.error : 'La hoja no confirmó que guardó.');
+      }
+      // Con el código viejo de la hoja no hay aviso de choque: se revisa que lo subido sea lo que quedó.
+      if(!resp.updatedAt){
+        try{
+          const r3 = await fetch(state.syncUrl, {cache:'no-store'});
+          const p3 = await r3.json();
+          if(!p3 || !p3.data || p3.data._syncMarca !== marca) continue; // alguien subió encima: juntar otra vez
+        }catch(e){ /* si no se pudo revisar, se deja como subido */ }
+      }
+      if(syncCambiosVer===verInicio) marcarPendiente(false);
+      const meta = leerMetaSync(); meta.ultima = ahoraISO; guardarMetaSync(meta);
+      syncEstado = { estado:'ok', ultimaVez: ahoraISO };
+      syncError = '';
       return true;
     }
-    syncEstado = { estado:'ok', ultimaVez: syncEstado.ultimaVez || payload.updatedAt };
-    return false;
+    throw new Error('El otro teléfono estaba subiendo al mismo tiempo. Intenta otra vez.');
   }catch(e){
     syncEstado = { estado:'error', ultimaVez: syncEstado.ultimaVez };
+    syncError = (e && e.message) || 'No se pudo sincronizar';
     return false;
+  }finally{
+    syncEnCurso = false;
+    pintarBotonSync();
+    if(syncOtraVez){ syncOtraVez = false; programarSync(300); }
   }
 }
-async function sincronizarAhora(){
-  if(!state.syncUrl) return;
-  const cambioLocal = await pullFromCloud(false);
-  if(cambioLocal) render();
-  await pushToCloud();
-}
+// Compatibilidad con nombres anteriores.
+async function sincronizarAhora(){ return sincronizar(); }
+async function pushToCloud(){ return sincronizar(); }
+async function pullFromCloud(){ const antes = JSON.stringify(state); await sincronizar(); return JSON.stringify(state)!==antes; }
 
+// Botón de sincronizar (arriba del +): se actualiza sin redibujar la pantalla.
+function estadoBotonSync(){
+  if(!state.syncUrl) return {cls:'off', txt:'Sin configurar'};
+  if(syncEstado.estado==='sincronizando') return {cls:'girando', txt:'Sincronizando…'};
+  if(syncEstado.estado==='version') return {cls:'error', txt:'Actualiza la app'};
+  if(syncEstado.estado==='error') return {cls:'error', txt:'No se pudo sincronizar'};
+  if(hayPendiente()) return {cls:'pendiente', txt:'Cambios sin subir'};
+  return {cls:'ok', txt:'Sincronizado'};
+}
+function pintarBotonSync(){
+  const b = document.getElementById('fabSync');
+  if(!b) return;
+  const e = estadoBotonSync();
+  b.className = 'fab-sync '+e.cls;
+  b.setAttribute('aria-label', e.txt);
+  b.title = e.txt;
+}
+let toastTimer = null;
+function mostrarToast(txt, tipo){
+  let t = document.getElementById('toast');
+  if(!t){ t = document.createElement('div'); t.id='toast'; document.body.appendChild(t); }
+  t.className = 'toast '+(tipo||'');
+  t.textContent = txt;
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.hidden = true; }, 3200);
+}
+async function tocarBotonSync(){
+  if(!state.syncUrl){ mostrarToast('Primero pon la URL de tu Google Sheet en Configuración.', 'error'); activeTab='config'; render(); return; }
+  const ok = await sincronizar();
+  if(ok) mostrarToast('Sincronizado · '+new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}), 'ok');
+  else if(syncEstado.estado==='version') mostrarToast('El otro teléfono tiene una versión más nueva. Cierra y vuelve a abrir la app.', 'error');
+  else if(syncEstado.estado==='error') mostrarToast(syncError || 'No se pudo sincronizar. Revisa tu internet.', 'error');
+}
 
 // Tipo de cambio HISTÓRICO: cuántos MXN valía 1 unidad de `moneda` en la
 // fecha dada. Usa Frankfurter (mismo dominio ya en la lista blanca de red).
@@ -1186,7 +1487,7 @@ function ahorroSaldoMXN(){
    tipo: 'ingreso' | 'gasto' (categorías) | 'efectivo' | 'personal' |
          'cobro' (me deben) | 'proyeccion' (voy a deber)
    ============================================================ */
-function camposNoPlantilla(){ return ['id','fecha','serieId','serieYM','montoMXN','rateMXN','montoEUR','rateEUR','cubreDesde','cubreHasta','estado','fechaCobro','fechaPago','mes','recurrente','ingresoId','virtual']; }
+function camposNoPlantilla(){ return ['id','fecha','serieId','serieYM','montoMXN','rateMXN','montoEUR','rateEUR','cubreDesde','cubreHasta','estado','fechaCobro','fechaPago','mes','recurrente','ingresoId','virtual','_u']; }
 function plantillaDe(rec){
   const p = {};
   Object.keys(rec).forEach(k=>{ if(!camposNoPlantilla().includes(k)) p[k] = rec[k]; });
@@ -1256,7 +1557,7 @@ function yaTocaOcurrencia(se, ym){
 function crearOcurrencia(se, ym){
   const p = JSON.parse(JSON.stringify(se.plantilla||{}));
   const fecha = fechaOcurrencia(se, ym);
-  const base = {...p, id:uid(), fecha, serieId:se.id, serieYM:ym};
+  const base = {...p, id:se.id+'-'+ym, fecha, serieId:se.id, serieYM:ym}; // id fijo: si los dos teléfonos crean el mismo mes, es el mismo registro
   const rate = ym < mesActual() && se.rateMXN ? se.rateMXN : null; // meses pasados: tipo de cambio de cuando se registró
   if(se.tipo==='ingreso'){
     Object.assign(base, {mes: ym, recurrente:false}, stampRates(Number(p.montoBruto)||0, p.moneda||'MXN', rate));
@@ -1283,8 +1584,10 @@ function generarRecurrentes(){
     const fin = se.hasta && se.hasta<limite ? se.hasta : limite;
     if(se.desde>fin) return;
     const existentes = new Set(registrosDeSerie(se).map(r=>r.serieYM));
+    const colSerie = {ingreso:'ingresos', gasto:'gastos', efectivo:'efectivo', personal:'finGas', cobro:'porCobrar', proyeccion:'proyecciones'}[se.tipo];
     mesesEntre(se.desde, fin).forEach(ym=>{
       if(existentes.has(ym) || (se.omitidos||[]).includes(ym) || !yaTocaOcurrencia(se, ym)) return;
+      if(state._borrados && state._borrados[colSerie+':'+se.id+'-'+ym]) return; // ese mes se borró en algún teléfono
       if(crearOcurrencia(se, ym)) creados++;
     });
   });
@@ -1992,8 +2295,8 @@ let syncInicialListo = true;   // false mientras se espera la primera descarga d
 let generadosSinSubir = false;
 function render(){
   if(generarRecurrentes()>0){
-    Storage.save(state);
-    if(syncInicialListo) programarSyncPush(); else generadosSinSubir = true;
+    if(syncInicialListo) persist();
+    else { sellarCambios(); Storage.save(state); marcarPendiente(true); generadosSinSubir = true; }
   }
   const app = document.getElementById('app');
   if(!perfil){
@@ -2117,7 +2420,9 @@ function renderTabs(){
 }
 
 function renderFab(){
-  return `<button class="fab" data-open="gasto">${ico('plus')}</button>`;
+  const e = estadoBotonSync();
+  return `<button class="fab-sync ${e.cls}" id="fabSync" aria-label="${e.txt}" title="${e.txt}">${ico('repeat')}<span class="fab-dot"></span></button>
+  <button class="fab" data-open="gasto">${ico('plus')}</button>`;
 }
 function renderInicio(){
   const cats = [
@@ -3617,11 +3922,12 @@ function renderAjustesInline(){
       ${state.syncUrl
         ? (syncEstado.estado==='ok' ? `Conectado · última sincronización: ${syncEstado.ultimaVez? new Date(syncEstado.ultimaVez).toLocaleString('es-MX',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : 'aún no'}`
           : syncEstado.estado==='version' ? `El otro teléfono usa una versión más nueva (${syncVersionNube}). Actualiza esta app antes de sincronizar.`
-          : syncEstado.estado==='error' ? 'No se pudo conectar — revisa tu internet o la URL'
+          : syncEstado.estado==='error' ? ('No se pudo sincronizar: '+escHtml(syncError||'revisa tu internet o la URL'))
           : syncEstado.estado==='sincronizando' ? 'Sincronizando…'
-          : 'Configurado, aún sin sincronizar')
+          : 'Configurado, aún sin sincronizar') + (hayPendiente() ? ' · <b>hay cambios sin subir</b>' : '')
         : 'Sin configurar — ambos teléfonos necesitan la misma URL para verse entre sí.'}
     </div>
+    <div class="small-note" style="margin-bottom:8px;">Al sincronizar se juntan los registros de los dos teléfonos: no se pierde lo que cada una registró. También puedes usar el botón redondo arriba del +.</div>
     <div class="field"><label>URL de sincronización (Google Apps Script)</label><input type="text" id="syncUrlInput" value="${state.syncUrl||''}" placeholder="https://script.google.com/macros/s/.../exec"></div>
     <div class="row-between">
       <button class="btn btn-outline btn-sm" id="saveSyncUrl">Guardar URL</button>
@@ -3630,7 +3936,9 @@ function renderAjustesInline(){
     <div class="small-note" style="margin-top:8px;">¿No la tienes configurada? Pídeme el instructivo paso a paso — se hace una sola vez con una hoja de Google gratuita, y luego pones la misma URL en el teléfono de Isa.</div>
   </div>
   <button class="btn btn-outline btn-block" id="exportExcel" style="margin-bottom:10px;">${ico('trend','icon-sm')} Exportar gastos a Excel</button>
-  <button class="btn btn-outline btn-block" id="exportData" style="margin-bottom:16px;">${ico('file','icon-sm')} Exportar datos (copia de respaldo)</button>
+  <button class="btn btn-outline btn-block" id="exportData" style="margin-bottom:10px;">${ico('file','icon-sm')} Exportar datos (copia de respaldo)</button>
+  <button class="btn btn-outline btn-block" id="importData" style="margin-bottom:16px;">${ico('file','icon-sm')} Importar respaldo</button>
+  <input type="file" id="importFile" accept=".json,application/json" hidden>
   <div class="small-note" style="text-align:center;margin-bottom:16px;">Versión ${APP_VERSION}</div>
   `;
 }
@@ -4205,6 +4513,57 @@ function toggleEstadoPC(lista, id){
   persist(); render();
 }
 
+let importPendiente = null;
+function abrirImportar(texto){
+  let datos = null;
+  try{ datos = JSON.parse(texto); }catch(e){ datos = null; }
+  if(datos && datos.data && datos.data.subcats) datos = datos.data; // por si es una copia de la hoja
+  if(!datos || typeof datos!=='object' || !Array.isArray(datos.subcats) || !Array.isArray(datos.ingresos)){
+    mostrarToast('Ese archivo no parece un respaldo de Budgetin.', 'error'); return;
+  }
+  importPendiente = datos;
+  const n = recorrerRegistros(migrateState(JSON.parse(JSON.stringify(datos)))).filter(e=>e.col!=='subcats' && e.col!=='destinos' && e.col!=='costos').length;
+  openSheet(`
+    ${sheetHeader('Importar respaldo')}
+    <div class="small-note" style="margin-bottom:14px;">El respaldo tiene ${n} registros. ¿Qué hago con ellos?</div>
+    <button class="btn btn-primary btn-block" data-importar="juntar" style="margin-bottom:10px;">Juntar con lo que ya tengo (recomendado)</button>
+    <div class="small-note" style="margin:-4px 0 14px;">Agrega lo del respaldo sin borrar nada de lo que tienes. Si un registro existe en los dos, se queda la versión más reciente.</div>
+    <button class="btn btn-outline btn-block" data-importar="reemplazar" style="color:var(--brick);margin-bottom:6px;">Reemplazar todo por el respaldo</button>
+    <div class="small-note">Borra lo que no esté en el respaldo, también en el otro teléfono al sincronizar.</div>
+  `);
+}
+// Importar: desde un archivo o pegando el texto (p. ej. la celda B2 del
+// historial de versiones del Google Sheet).
+function openImportarOpciones(){
+  openSheet(`
+    ${sheetHeader('Importar respaldo')}
+    <div class="field"><label>Pega aquí el respaldo</label>
+      <textarea id="importTexto" rows="6" placeholder="Pega el texto del respaldo, por ejemplo el de la celda B2 del Google Sheet" style="width:100%;font-family:monospace;font-size:12px;"></textarea>
+    </div>
+    <button class="btn btn-primary btn-block" id="importTextoBtn" style="margin-bottom:10px;">Continuar con el texto pegado</button>
+    <button class="btn btn-outline btn-block" id="importArchivoBtn">Elegir un archivo de respaldo (.json)</button>
+  `);
+}
+function aplicarImportar(modo){
+  if(!importPendiente) return;
+  const datos = migrateState(JSON.parse(JSON.stringify(importPendiente)));
+  const url = state.syncUrl;
+  if(modo==='reemplazar'){
+    state = datos; state.syncUrl = url;
+    persist(); // lo que ya no está queda marcado como borrado; lo del respaldo queda como lo más nuevo
+    recorrerRegistros(state).forEach(e=>{ e.rec._u = Date.now(); }); state._cfgU = Date.now();
+    Object.keys(state._borrados||{}).forEach(k=>{ if(recorrerRegistros(state).some(e=>e.k===k)) delete state._borrados[k]; });
+    Storage.save(state); rebasarHuellas(); marcarPendiente(true); programarSync(300);
+  } else {
+    sellarCambios();
+    state = mergeStates(state, datos); state.syncUrl = url;
+    Storage.save(state); rebasarHuellas(); marcarPendiente(true); programarSync(300);
+  }
+  importPendiente = null;
+  closeSheet(); render();
+  mostrarToast(modo==='reemplazar' ? 'Respaldo cargado (reemplazó todo).' : 'Respaldo juntado con tus datos.', 'ok');
+}
+
 function openPersonalMov(persona, tipo, editRef, cuentaPreset){
   const nombre = persona==='isa' ? 'Isa' : 'Jen';
   const key = tipo==='ganancia' ? 'ganancias' : 'gastos';
@@ -4311,6 +4670,8 @@ function renderTipoCambioField(prefix, monedaInicial){
    EVENT WIRING
    ============================================================ */
 function wireEvents(){
+  const fabSync = document.getElementById('fabSync');
+  if(fabSync) fabSync.addEventListener('click', tocarBotonSync);
   const perfilSwitchBtn = document.getElementById('perfilSwitchBtn');
   if(perfilSwitchBtn) perfilSwitchBtn.addEventListener('click', ()=>{
     setPerfil(perfil==='isa' ? 'jen' : 'isa');
@@ -4564,14 +4925,14 @@ function wireEvents(){
   const saveSyncUrl = document.getElementById('saveSyncUrl');
   if(saveSyncUrl) saveSyncUrl.addEventListener('click', ()=>{
     state.syncUrl = document.getElementById('syncUrlInput').value.trim();
-    syncedAtLocal = null;
-    persist();
+    Storage.save(state);
     render();
+    if(state.syncUrl) tocarBotonSync();
   });
   const syncNowBtn = document.getElementById('syncNowBtn');
   if(syncNowBtn) syncNowBtn.addEventListener('click', async ()=>{
     syncNowBtn.textContent = 'Sincronizando...';
-    await sincronizarAhora();
+    await tocarBotonSync();
     render();
   });
   const exportBtn = document.getElementById('exportData');
@@ -4580,6 +4941,16 @@ function wireEvents(){
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href=url; a.download='respaldo-presupuesto.json'; a.click();
   });
+  const importBtn = document.getElementById('importData');
+  const importFile = document.getElementById('importFile');
+  if(importBtn) importBtn.addEventListener('click', openImportarOpciones);
+  if(importFile) importFile.addEventListener('change', ()=>{
+    const f = importFile.files && importFile.files[0];
+    if(!f) return;
+    const lector = new FileReader();
+    lector.onload = ()=>{ abrirImportar(String(lector.result||'')); importFile.value=''; };
+    lector.readAsText(f);
+  });
   const exportExcelBtn = document.getElementById('exportExcel');
   if(exportExcelBtn) exportExcelBtn.addEventListener('click', exportarGastosCSV);
 }
@@ -4587,6 +4958,11 @@ function wireEvents(){
 function wireSheetEvents(){
   const closeBtn = document.getElementById('closeSheetBtn');
   if(closeBtn) closeBtn.addEventListener('click', closeSheet);
+  document.querySelectorAll('[data-importar]').forEach(el=>{ el.addEventListener('click', ()=>aplicarImportar(el.getAttribute('data-importar'))); });
+  const impTxtBtn = document.getElementById('importTextoBtn');
+  if(impTxtBtn) impTxtBtn.addEventListener('click', ()=>{ const t = (document.getElementById('importTexto')||{}).value||''; if(!t.trim()){ mostrarToast('Primero pega el texto del respaldo.', 'error'); return; } abrirImportar(t.trim()); });
+  const impArchBtn = document.getElementById('importArchivoBtn');
+  if(impArchBtn) impArchBtn.addEventListener('click', ()=>{ const f = document.getElementById('importFile'); if(f) f.click(); });
   document.querySelectorAll('[data-borrar-alcance]').forEach(el=>{
     el.addEventListener('click', ()=>{
       const ref = JSON.parse(document.getElementById('borrarRef').value.replace(/&apos;/g,"'"));
@@ -5275,17 +5651,22 @@ fetchLiveRates(false).then(ok=>{ if(ok) render(); });
 // Si hay sincronización configurada, jala lo último de la nube al abrir
 // (por si Isa/Jen guardaron algo desde el otro teléfono), y vuelve a
 // intentar cada vez que el teléfono recupera conexión.
-if(state.syncUrl){
-  syncInicialListo = false;
-  pullFromCloud(false).then(cambio=>{
-    syncInicialListo = true;
-    if(cambio) render();
-    if(generadosSinSubir){ generadosSinSubir = false; programarSyncPush(); }
-  });
-}
-window.addEventListener('online', ()=>{
-  if(state.syncUrl) sincronizarAhora().then(()=>render());
+// Al abrir: junta con la nube (nunca reemplaza). Al volver el internet y
+// al salir de la app, sube lo que falte.
+if(state.syncUrl) sincronizar();
+// Si la app está abierta en otra pestaña del mismo teléfono y guardó algo, esta
+// toma esos datos (así una pestaña vieja no borra lo que hizo la otra).
+window.addEventListener('storage', (e)=>{
+  if(e.key!==STORAGE_KEY || !e.newValue) return;
+  try{ const nuevo = migrateState(JSON.parse(e.newValue)); if(nuevo){ const url = state.syncUrl; state = nuevo; if(!state.syncUrl) state.syncUrl = url; render(); } }catch(err){}
 });
+window.addEventListener('online', ()=>{ if(state.syncUrl) sincronizar(); });
+document.addEventListener('visibilitychange', ()=>{
+  if(!state.syncUrl) return;
+  if(document.visibilityState==='hidden' && hayPendiente()) sincronizar();
+  if(document.visibilityState==='visible') sincronizar();
+});
+window.addEventListener('pagehide', ()=>{ if(state.syncUrl && hayPendiente()) sincronizar(); });
 
 // PWA: registra el service worker para que la app cargue sin internet
 // una vez que ya la abriste al menos una vez (con conexión).
