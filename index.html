@@ -271,6 +271,19 @@
   /* ===== v15 ===== */
   .appcontent{padding-bottom:150px !important;}
   .card-title .hint{white-space:nowrap;flex-shrink:0;}
+  .sc-grupo{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--ink-soft);margin:10px 0 2px;}
+  .grupo-lbl{display:flex;align-items:center;gap:6px;}
+  .grupo-lbl span{margin-left:auto;font-weight:700;color:var(--ink-soft);text-transform:none;letter-spacing:0;}
+  .icon-xs{width:14px;height:14px;flex-shrink:0;}
+  .chip-ico{display:inline-flex;align-items:center;gap:5px;}
+  .chip-ico .icon-xs{opacity:.7;}
+  .chip-ico.on .icon-xs{opacity:1;}
+  .seg-ico button{display:inline-flex;align-items:center;justify-content:center;gap:5px;}
+  .seg-ico .ft-ingreso .icon-xs{color:var(--teal-deep);}
+  .seg-ico .ft-gasto .icon-xs{color:var(--brick);}
+  .filtros-panel label .icon-xs{vertical-align:-2px;opacity:.75;}
+  .reparto-wrap{margin-top:8px;padding:10px;border-radius:12px;background:var(--paper-soft);}
+  .seg.seg-sm button{padding:6px 8px;font-size:12.5px;}
   .deuda-cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
   .deuda-col{min-width:0;padding-left:8px;padding-right:8px;}
   .deuda-cols{container-type:inline-size;}
@@ -342,6 +355,15 @@
   .det-actions .btn{flex:1;justify-content:center;}
   .deuda-col.on{outline:2px solid var(--teal);outline-offset:-2px;}
   .nos-item .desc{cursor:pointer;}
+  .cqp-pasar{display:block;margin-left:auto;font-size:11.5px;padding:2px 0 0;}
+  .prev-ic{display:inline-flex;align-items:center;gap:6px;}
+  .prev-ic.ok .icon-xs{color:var(--teal-deep);}
+  .prev-ic.parcial .icon-xs{color:var(--amber, #d49a1a);}
+  .nos-libre{background:var(--paper-soft);border-radius:12px;padding:10px 12px;margin:0 0 12px;}
+  .nos-libre label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+  .nos-libre-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .nos-libre-row input{flex:1;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:16px;}
+  .nos-libre-row select{padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);}
   .nos-chk input{width:20px;height:20px;accent-color:var(--teal);}
   .nos-item.saldado{opacity:.6;}
   .nos-parcial{display:flex;align-items:center;gap:8px;margin:-2px 0 8px 30px;font-size:12px;color:var(--ink-soft);}
@@ -656,11 +678,11 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '15 · 28 sep 2026 (Budget total, Nosotras, suscripciones, Arq)';
+const APP_VERSION = '16 · 28 sep 2026 (pagos de ambas, pagar cualquier cantidad, traspasos, presupuesto esencial)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
-const APP_BUILD = 15;
+const APP_BUILD = 16;
 // Versión mínima del código de la hoja (Apps Script) que sabe juntar las colecciones nuevas.
 const SCRIPT_MIN = 31;
 let syncVersionNube = null;
@@ -737,6 +759,8 @@ const ICONS = {
   banknote:'<rect x="2.5" y="7" width="19" height="10" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M5.5 9.5v0M18.5 14.5v0"/>',
   passport:'<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="10" r="3.3"/><path d="M8.7 10h6.6"/><path d="M12 6.7c-1.2 1-1.2 5.6 0 6.6M12 6.7c1.2 1 1.2 5.6 0 6.6"/><path d="M9 17h6"/>',
   cocktail:'<path d="M4 4.5h16L12 13z"/><path d="M12 13v7"/><path d="M8 20h8"/><path d="M15 4.5l3-2.5"/><circle cx="9" cy="7" r=".2" fill="currentColor"/>',
+  arrin:'<path d="M12 19V5"/><path d="M6 11l6-6 6 6"/>',
+  arrout:'<path d="M12 5v14"/><path d="M6 13l6 6 6-6"/>',
   swap:'<path d="M4 8h14.5"/><path d="M15 4.5 18.5 8 15 11.5"/><path d="M20 16H5.5"/><path d="M9 12.5 5.5 16 9 19.5"/>',
   handcoin:'<circle cx="15.5" cy="6.5" r="3.2"/><path d="M2.5 14h3.2l3-1.4h4.1a1.6 1.6 0 0 1 0 3.2H9.6"/><path d="M5.7 20.5l1.8-1.3h6.9l5.5-4.2a1.5 1.5 0 0 0-1.9-2.3l-3.3 2.3"/>',
   calendar:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17"/><path d="M8 3v4M16 3v4"/><path d="M8 13.5h3v3H8z"/>',
@@ -1917,11 +1941,12 @@ function brutoIngresoMXN(ing){ return typeof ing.montoMXN==='number' ? ing.monto
 function ahorroDeIngresoMXN(ing){ return ing.ahorroAuto ? Math.min(ing.ahorroAutoMonto||0, brutoIngresoMXN(ing)) : 0; }
 function netoIngresoMXN(ing){ return brutoIngresoMXN(ing) - ahorroDeIngresoMXN(ing); }
 // Ingreso neto AL BOTE de cada una en un mes (por defecto el actual).
-function ingresosNetos(ym){
+function ingresosNetos(ym, sinTraspasos){
   ym = ym || mesActual();
   let jen=0, isa=0, ahorroAuto=0;
   state.ingresos.forEach(ing=>{
     if(!esDestinoBote(ing.destino) || !ingresoAplicaEnMes(ing, ym)) return;
+    if(sinTraspasos && esTraspaso(ing)) return;
     const neto = netoIngresoMXN(ing);
     if(ing.persona==='jen') jen += neto; else isa += neto;
     ahorroAuto += ahorroDeIngresoMXN(ing);
@@ -1929,7 +1954,7 @@ function ingresosNetos(ym){
   return {jenNetoMXN:jen, isaNetoMXN:isa, ahorroAutoMXN:ahorroAuto};
 }
 function aportacionPct(){
-  const {jenNetoMXN, isaNetoMXN} = ingresosNetos();
+  const {jenNetoMXN, isaNetoMXN} = ingresosNetos(null, true);
   const total = jenNetoMXN+isaNetoMXN;
   if(total<=0) return {jen:50, isa:50};
   return {jen: (jenNetoMXN/total)*100, isa:(isaNetoMXN/total)*100};
@@ -1957,7 +1982,19 @@ function ahorroSaldoMXN(){
   // retiros (cualquier "deposito" viejo que haya quedado ahí de una
   // versión anterior se ignora aquí a propósito, para no contar doble).
   const retiros = state.ahorro.movimientos.filter(m=>m.tipo==='retiro').reduce((a,m)=>a+m.monto,0);
-  return depositos - retiros - retirosEfectivoMXN('ahorro');
+  return depositos - retiros - retirosEfectivoMXN('ahorro') - traspasosMXN('ahorro');
+}
+/* v16 — TRASPASOS: sacar del ahorro o del sobrante de meses pasados y pasarlo a
+   otra cuenta. Se guardan como un ingreso marcado "traspaso" (entra a la cuenta
+   destino y, si es el bote, cuenta para el Budget de ese mes) y se restan del
+   apartado de donde salieron. No son ingresos nuevos: no cuentan en "Ingresos
+   por fuente" ni en la aportación. */
+function esTraspaso(i){ return !!(i && (i.traspaso==='ahorro' || i.traspaso==='sobrante')); }
+function traspasosMXN(origen, hastaISO, antesDeYM, excluirId){
+  return state.ingresos.filter(i=>i.traspaso===origen && i.id!==excluirId
+      && (!hastaISO || (i.fecha||'') <= hastaISO)
+      && (!antesDeYM || ymDe(i.fecha||'') < antesDeYM))
+    .reduce((a,i)=>a+brutoIngresoMXN(i),0);
 }
 /* ============================================================
    RECURRENTES. Una serie (state.series) es la "receta" de algo que se
@@ -2378,6 +2415,31 @@ function pagadorFisico(g){
   if(g.quien==='ambas') return g.pagadoPor || 'jen';
   return g.quien;
 }
+// v16: parte del gasto que puso cada una (0..1). Con "Ambas" pagaron las dos:
+// 50/50 o personalizado (parteJen). Con una sola persona, 1 o 0.
+function parteJenDe(g){ const f = Number(g && g.parteJen); return isFinite(f) && g.parteJen!==null && g.parteJen!=='' ? Math.min(1, Math.max(0, f)) : 0.5; }
+function partePago(g, persona){
+  if(!g || g.quien==='abuelo') return 0;
+  if(g.quien==='ambas' && g.pagadoPor==='ambas') return persona==='jen' ? parteJenDe(g) : 1 - parteJenDe(g);
+  return pagadorFisico(g)===persona ? 1 : 0;
+}
+// Quién le debe a quién por un gasto de ambas: {acreedor, deudor, monto} o null.
+function deudaDeGastoAmbas(g){
+  if(!g || g.quien!=='ambas') return null;
+  const total = mxnOf(g); if(!(total>0)) return null;
+  if(g.pagadoPor==='jen' || g.pagadoPor==='isa') return {acreedor:g.pagadoPor, deudor:otraPersona(g.pagadoPor), monto: total/2};
+  if(g.pagadoPor==='ambas'){
+    const dif = total*(parteJenDe(g) - 0.5); // >0: Jen puso de más
+    if(Math.abs(dif) < 0.005) return null;
+    return dif>0 ? {acreedor:'jen', deudor:'isa', monto:dif} : {acreedor:'isa', deudor:'jen', monto:-dif};
+  }
+  return null;
+}
+function textoPagadoPor(g){
+  if(!g || g.quien!=='ambas') return '';
+  if(g.pagadoPor==='ambas'){ const pj = parteJenDe(g); return Math.abs(pj-0.5)<0.0001 ? 'Las dos, 50/50' : `Las dos · Jen ${fmt((Number(g.monto)||0)*pj, g.moneda||'MXN')} · Isa ${fmt((Number(g.monto)||0)*(1-pj), g.moneda||'MXN')}`; }
+  return g.pagadoPor ? nombrePersona(g.pagadoPor) : 'Sin definir';
+}
 function saldoEfectivo(persona, moneda){
   let s = 0;
   (state.efectivoMovimientos||[]).forEach(m=>{
@@ -2391,7 +2453,7 @@ function saldoEfectivo(persona, moneda){
     if(g.pagadoCon!=='efectivo') return;
     if((g.moneda||'EUR')!==moneda) return;
     if(g.quien==='abuelo') return;
-    if(pagadorFisico(g)===persona) s -= Number(g.monto)||0;
+    s -= (Number(g.monto)||0) * partePago(g, persona);
   });
   // pagos entre nosotras en efectivo (en su propia moneda)
   (state.pagosEntre||[]).forEach(p=>{
@@ -2418,7 +2480,7 @@ function monedasEfectivo(persona){
   const set = new Set();
   (state.efectivoMovimientos||[]).forEach(m=>{ if(m.persona===persona) set.add(m.moneda); });
   const cats = [...state.subcats.flatMap(x=>x.gastos), ...state.gustosGastos];
-  cats.forEach(g=>{ if(g.pagadoCon==='efectivo' && g.quien!=='abuelo' && pagadorFisico(g)===persona) set.add(g.moneda||'EUR'); });
+  cats.forEach(g=>{ if(g.pagadoCon==='efectivo' && partePago(g, persona)>0) set.add(g.moneda||'EUR'); });
   (state.pagosEntre||[]).forEach(p=>{ if((p.a===persona && p.entra==='efectivo') || (p.de===persona && p.sale==='efectivo')) set.add(p.moneda||'MXN'); });
   state.ingresos.forEach(i=>{ if(i.persona===persona && i.destino==='efectivo' && ocurrenciasIngreso(i).length) set.add(i.moneda||'MXN'); });
   return [...set];
@@ -2476,13 +2538,12 @@ function deudasPendientes(){
       detalle.push({ id:g.id, fecha:g.fecha, nota:g.nota||g.subNombre||'Gasto compartido', subNombre:g.subNombre, mitad:mitadAb, pagadoPor:'jen', viaAbuelo:true, deudor:'isa' });
       return;
     }
-    if(g.quien!=='ambas') return;
-    if(!g.pagadoPor || (g.pagadoPor!=='jen' && g.pagadoPor!=='isa')) return; // sin saber quién puso el dinero no se puede calcular
-    const mitad = mxnOf(g)/2;
-    if(mitad<=0) return;
-    if(g.pagadoPor==='jen'){ isaLeDebeAJen += mitad; }
+    const dd = deudaDeGastoAmbas(g); // sin saber quién puso el dinero no se puede calcular
+    if(!dd) return;
+    const mitad = dd.monto;
+    if(dd.acreedor==='jen'){ isaLeDebeAJen += mitad; }
     else { jenLeDebeAIsa += mitad; }
-    detalle.push({ id:g.id, fecha:g.fecha, nota:g.nota||g.subNombre||'Gasto compartido', subNombre:g.subNombre, mitad, pagadoPor:g.pagadoPor, deudor: g.pagadoPor==='jen'?'isa':'jen' });
+    detalle.push({ id:g.id, fecha:g.fecha, nota:g.nota||g.subNombre||'Gasto compartido', subNombre:g.subNombre, mitad, pagadoPor:dd.acreedor, deudor: dd.deudor });
   });
   // Pagos entre nosotras: lo que una ya le pagó a la otra baja su deuda.
   let pagadoJenAIsa = 0, pagadoIsaAJen = 0;
@@ -2531,7 +2592,7 @@ function saldoDebitoMXN(persona){
   const inicialMXN = Number(f.inicial)||0; // el inicial se guarda ya en MXN
   const ganancias = f.ganancias.reduce((a,g)=>a+mxnOf(g),0);
   const gastos = f.gastos.filter(g=>g.cuenta!=='credito').reduce((a,g)=>a+mxnOf(g),0);
-  const cats = gastosCategoria().filter(g=>esDebito(g.pagadoCon) && g.quien!=='abuelo' && pagadorFisico(g)===persona).reduce((a,g)=>a+mxnOf(g),0);
+  const cats = gastosCategoria().filter(g=>esDebito(g.pagadoCon)).reduce((a,g)=>a+mxnOf(g)*partePago(g, persona),0);
   const pagosEntre = (state.pagosEntre||[]).reduce((a,p)=>{
     const m = mxnOf(p);
     if(p.a===persona && esDebito(p.entra)) a += m;
@@ -2547,7 +2608,7 @@ function creditoUtilizadoMXN(persona){
   const f = state.finanzas[persona];
   if(!f) return 0;
   const gastos = f.gastos.filter(g=>g.cuenta==='credito').reduce((a,g)=>a+mxnOf(g),0);
-  const cats = gastosCategoria().filter(g=>g.pagadoCon==='credito' && g.quien!=='abuelo' && pagadorFisico(g)===persona).reduce((a,g)=>a+mxnOf(g),0);
+  const cats = gastosCategoria().filter(g=>g.pagadoCon==='credito').reduce((a,g)=>a+mxnOf(g)*partePago(g, persona),0);
   const pagos = (state.pagosTarjeta||[]).filter(p=>p.persona===persona).reduce((a,p)=>a+mxnOf(p),0);
   return gastos + cats - pagos;
 }
@@ -2563,8 +2624,9 @@ function deudasOtros(persona){
   const map = {};
   const fila = (nombre)=>{ const k = claveOtro(nombre); if(!map[k]) map[k] = {clave:k, nombre:String(nombre||'').trim()||'Otra persona', deuda:0, pagado:0, gastos:[], pagos:[]}; return map[k]; };
   gastosCategoria().forEach(g=>{
-    if(g.pagadoCon!=='otro' || g.quien==='abuelo' || pagadorFisico(g)!==persona) return;
-    const f = fila(nombreOtroDe(g)); f.deuda += mxnOf(g); f.gastos.push(g);
+    const parte = g.pagadoCon==='otro' ? partePago(g, persona) : 0;
+    if(!(parte>0)) return;
+    const f = fila(nombreOtroDe(g)); f.deuda += mxnOf(g)*parte; f.gastos.push(g);
   });
   (state.pagosOtros||[]).forEach(p=>{
     if(p.persona!==persona) return;
@@ -3055,7 +3117,7 @@ function renderInicioVerMas(){
   const {jen,isa} = aportacionPct();
   const ym = mesActual();
   let jenPuso = 0, isaPuso = 0;
-  gastosCategoria().forEach(g=>{ if(g.quien!=='ambas') return; const m = montoEnMesMXN(g, ym); if(g.pagadoPor==='isa') isaPuso += m; else if(g.pagadoPor==='jen') jenPuso += m; });
+  gastosCategoria().forEach(g=>{ if(g.quien!=='ambas' || !g.pagadoPor) return; const m = montoEnMesMXN(g, ym); jenPuso += m*partePago(g,'jen'); isaPuso += m*partePago(g,'isa'); });
   const totAmbas = jenPuso + isaPuso;
   const pj = totAmbas>0 ? jenPuso/totAmbas*100 : 50, pi = 100-pj;
   return `
@@ -3097,7 +3159,7 @@ function renderIngresosPorFuente(){
   const ym = mesActual();
   const porFuente = {};
   state.ingresos.forEach(i=>{
-    if(!esDestinoBote(i.destino) || !ingresoAplicaEnMes(i, ym)) return;
+    if(!esDestinoBote(i.destino) || !ingresoAplicaEnMes(i, ym) || esTraspaso(i)) return;
     const key = i.fuente || 'Ingreso';
     porFuente[key] = (porFuente[key]||0) + brutoIngresoMXN(i);
   });
@@ -3351,7 +3413,8 @@ function renderCatSummaryRow(c){
 /* ---------------- CATEGORIAS ---------------- */
 function renderCategorias(){
   const meta = metaTotalMXN(), gastado = gastadoTotalMXN();
-  const d = destinoActual(); const pais = d ? paisDe(d.nombre) : null;
+  const plan = planPresupuestoMes();
+  const pais = plan.destino ? paisDe(plan.destino.nombre) : null;
   const pctUso = meta>0 ? Math.min(100, gastado/meta*100) : 0;
   return `
     <div class="card">
@@ -3359,9 +3422,12 @@ function renderCategorias(){
       ${renderTripleStat(meta, gastado, meta-gastado, {asignado:'Meta', gastado:'Gastado', disp:'Disponible'})}
       <div class="bar-track" style="margin-top:10px;"><div class="bar-fill" style="width:${pctUso}%;background:${pctUso>=90?'var(--brick)':(pctUso>=75?'var(--amber)':'var(--teal)')}"></div></div>
       <div class="small-note">Todo el Budget total (mamá sin ahorro + papá de Isa + meta del Abuelo) se reparte entre las subcategorías.</div>
-      <div class="note-box" style="margin-top:10px;">${ico('pin','icon-sm')}<div>${d ? `El % de cada una se calcula según <b>${escHtml(banderaDestino(d))} ${escHtml(d.nombre)}</b>${pais && pais.rest ? `: ahí alojamiento y restaurantes cuestan ${pais.rest}, el súper ${pais.food} y el transporte ${pais.trans} (promedio de Europa = 100)` : ''}, la temporada y lo que cubre el programa.` : 'Elige un destino actual en Destinos para que el % se calcule según los precios del lugar.'}</div></div>
-      <div class="section-label" style="margin:14px 4px 6px;">Subcategorías</div>
-      ${state.subcats.map((sb,i)=>renderSubcatRow(sb,i)).join('')}
+      <div class="note-box" style="margin-top:10px;">${ico('pin','icon-sm')}<div>${plan.hayDestinos ? `Primero se aparta <b>lo esencial</b> con precios reales de cada lugar (día por día según dónde estén y lo que cubre el programa), y lo que queda se reparte entre <b>lo opcional</b>.${plan.destino ? ` En <b>${escHtml(banderaDestino(plan.destino))} ${escHtml(plan.destino.nombre)}</b> lo aceptable de alojamiento es <b>hasta ${fmt(plan.topeNoche,'EUR')}/noche</b> para las dos${pais && pais.food ? `; el súper ahí cuesta ${pais.food} y el transporte ${pais.trans} (promedio de Europa = 100)` : ''}.` : ''}` : 'Agrega sus destinos (con fechas) para que lo esencial se calcule con los precios reales de cada lugar.'}</div></div>
+      ${plan.faltante>0.5 ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div><b>Lo esencial no alcanza este mes:</b> se necesitan ${fmt(plan.necesidadEsencial,'MXN')} y la meta es ${fmt(plan.meta,'MXN')} (faltan ${fmt(plan.faltante,'MXN')}). Se repartió proporcional y a lo opcional no le queda nada.</div></div>` : ''}
+      <div class="section-label grupo-lbl" style="margin:14px 4px 6px;">${ico('check','icon-xs')} Esencial primero <span>${fmt(plan.asignadoEsencial,'MXN')}</span></div>
+      ${state.subcats.map((sb,i)=>({sb,i})).filter(x=>plan.porSub[x.sb.id] && plan.porSub[x.sb.id].esencial).map(x=>renderSubcatRow(x.sb,x.i)).join('') || '<div class="small-note">—</div>'}
+      <div class="section-label grupo-lbl" style="margin:14px 4px 6px;">${ico('star','icon-xs')} Con lo que queda <span>${fmt(plan.resto,'MXN')}</span></div>
+      ${state.subcats.map((sb,i)=>({sb,i})).filter(x=>!(plan.porSub[x.sb.id] && plan.porSub[x.sb.id].esencial)).map(x=>renderSubcatRow(x.sb,x.i)).join('')}
       <button class="btn btn-outline btn-block" style="margin-top:10px;" data-open="nuevaSubcat">${ico('plus','icon-sm')} Agregar subcategoría</button>
     </div>
   `;
@@ -3443,10 +3509,12 @@ function renderSugerenciaDestino(){
   `;
 }
 
-function pctSubcatDeGenerales(sub){
-  const destino = destinoActual();
-  const totalAjustado = state.subcats.reduce((a,s)=>a+pesoAjustadoSub(s,destino),0) || 1;
-  return pesoAjustadoSub(sub,destino)/totalAjustado*100;
+function pctSubcatDeGenerales(sub, ym){
+  const plan = planPresupuestoMes(ym);
+  const x = plan.porSub[sub.id]; if(!x) return 0;
+  if(plan.meta>0) return x.presup/plan.meta*100;
+  const tot = state.subcats.reduce((a,sb)=>a+(plan.porSub[sb.id]?plan.porSub[sb.id].necesidad+plan.porSub[sb.id].peso:0),0) || 1;
+  return (x.necesidad + x.peso)/tot*100;
 }
 function renderSubcatRow(s,i){
   const gastadoMXN = subcatGastadoTotalMesMXN(s); // este mes, Budget total (bote + Abuelo); alojamiento por noche
@@ -3459,7 +3527,7 @@ function renderSubcatRow(s,i){
     <div class="subrow ${rojo?'rebasada':''}" style="cursor:pointer;" data-toggle-sub="${s.id}">
       ${micoHtml(iconoSubcat(s),'sm')}
       <div class="sname">${escHtml(s.nombre)}<span class="badge ${rojo?'badge-bad':'badge-ok'}" style="margin-left:6px;vertical-align:1px;">${pct.toFixed(0)}%</span></div>
-      <div class="samt" style="${rojo?'color:var(--brick);':''}">${fmt(gastadoMXN,'MXN')}<span class="est">de ${fmt(presup,'MXN')}${rojo?' · se pasó':''}</span></div>
+      <div class="samt" style="${rojo?'color:var(--brick);':''}">${fmt(gastadoMXN,'MXN')}<span class="est">de ${fmt(presup,'MXN')}${rojo?' · se pasó':''}${esSubAlojamiento(s) && planPresupuestoMes().topeNoche ? ' · hasta '+fmt(planPresupuestoMes().topeNoche,'EUR')+'/noche' : ''}</span></div>
       <button class="subrow-btn">${ico(isOpen?'chevdown':'chevright','icon-sm')}</button>
     </div>
     ${isOpen ? renderSubcatDetail(s) : ''}
@@ -3634,6 +3702,7 @@ function iconoMov(m){
   }
   if(t==='gasto-gustos') return {glyph:'coctel'};
   if(t==='gasto-efectivo' || t==='retiro-efectivo' || t==='ajuste-efectivo') return {glyph:'billete'};
+  if(t==='ingreso' && m.traspaso) return {glyph:'alcancia'};
   if(t==='ingreso' || t==='personal-ganancia') return {glyph:'billete'};
   if(t==='personal-gasto' || t==='pago-tarjeta') return {glyph:'tarjeta'};
   if(t==='pago-entre' || t==='pago-otro') return {glyph:'flechas'};
@@ -3739,6 +3808,10 @@ function renderDestinoDetalle(d){
       </div>
       <div class="small-note" style="margin-top:6px;">Compáralo contra sus otros destinos (Numbeo/Expatistan). Junto con la temporada, esto sube o baja el % que se va a alojamiento, actividades, escapadas y transporte entre ciudades; comida y transporte local se mueven menos; salud, compras, comunicación, lavandería y trámites no cambian por destino.</div>
     </div>
+    ${(()=>{ const p = paisDe(d.nombre); const renta = p && RENTA_1R_EUR[p.c] ? RENTA_1R_EUR[p.c] : RENTA_1R_DEFAULT; const sug = topeNocheCalculadoEUR(d); const usado = topeNocheEUR(d);
+      return `<div class="field aloj-tope"><label>${ico('bed','icon-xs')} Tope de alojamiento por noche (EUR, las dos)</label>
+        <input type="number" step="1" min="0" data-dest-field="${d.id}|alojMaxNoche" value="${Number(d.alojMaxNoche)>0?d.alojMaxNoche:''}" placeholder="${sug}">
+        <div class="small-note">Aceptable aquí: <b>hasta ${fmt(usado,'EUR')}/noche</b> (≈ ${fmt(usado*30,'EUR')} al mes). Sugerido ${fmt(sug,'EUR')}: renta de 1 recámara en ${escHtml(p?p.n:'Europa (promedio)')} ${fmt(renta,'EUR')}/mes × 1.6 por ser amueblado y por temporada${nochesDestino(d)<28?', +35% por ser menos de 28 noches':''}, ajustado por temporada y nivel del destino. Déjalo vacío para usar el sugerido.</div></div>`; })()}
     <div class="field"><label>Notas</label><textarea rows="2" data-dest-field="${d.id}|notas">${escHtml(d.notas||'')}</textarea></div>
     <span class="badge badge-plum">${ico('trend','icon-sm')} Fuente actual: ${escHtml(fuenteLabel(d.fuenteCosto))}</span>
   </div>
@@ -3746,7 +3819,7 @@ function renderDestinoDetalle(d){
 }
 function renderDesgloseCostoVida(d){
   if(!d.costoVidaDia){
-    return `<div class="card"><div class="small-note">Agrega un costo de vida diario arriba para ver cómo se repartiría el presupuesto de Generales entre subcategorías.</div></div>`;
+    return `<div class="card"><div class="small-note">El presupuesto por subcategoría ya se calcula solo con los precios de este país (tope de alojamiento, súper y lo demás esencial). Míralo en Categorías. El costo de vida diario es opcional, solo de referencia.</div></div>`;
   }
   const ajustado = costoVidaAjustadoDia(d);
   const sug = sugerenciaPctGenerales();
@@ -3780,11 +3853,11 @@ function collectMovimientos(){
   const out = [];
   state.subcats.forEach(s=>{
     s.gastos.forEach(g=>{
-      out.push({id:g.id, tipo:'gasto-generales', subId:s.id, subNombre:s.nombre, quien:g.quien, pagadoPor:g.pagadoPor, monto:g.monto, moneda:g.moneda, montoMXN:mxnOf(g), fecha:g.fecha, nota:g.nota, pagadoCon:g.pagadoCon, otroNombre:g.otroNombre, cubreDesde:g.cubreDesde, cubreHasta:g.cubreHasta, serieId:g.serieId});
+      out.push({id:g.id, tipo:'gasto-generales', subId:s.id, subNombre:s.nombre, quien:g.quien, pagadoPor:g.pagadoPor, parteJen:g.parteJen, monto:g.monto, moneda:g.moneda, montoMXN:mxnOf(g), fecha:g.fecha, nota:g.nota, pagadoCon:g.pagadoCon, otroNombre:g.otroNombre, cubreDesde:g.cubreDesde, cubreHasta:g.cubreHasta, serieId:g.serieId});
     });
   });
   state.gustosGastos.forEach(g=>{
-    out.push({id:g.id, tipo:'gasto-gustos', subId:null, subNombre:'Gustos', quien:g.quien, pagadoPor:g.pagadoPor, monto:g.monto, moneda:g.moneda, montoMXN:mxnOf(g), fecha:g.fecha, nota:g.nota, pagadoCon:g.pagadoCon, otroNombre:g.otroNombre, serieId:g.serieId});
+    out.push({id:g.id, tipo:'gasto-gustos', subId:null, subNombre:'Gustos', quien:g.quien, pagadoPor:g.pagadoPor, parteJen:g.parteJen, monto:g.monto, moneda:g.moneda, montoMXN:mxnOf(g), fecha:g.fecha, nota:g.nota, pagadoCon:g.pagadoCon, otroNombre:g.otroNombre, serieId:g.serieId});
   });
   (state.efectivoMovimientos||[]).forEach(m=>{
     if(m.tipo==='gasto'){
@@ -3799,7 +3872,7 @@ function collectMovimientos(){
     out.push({id:p.id, tipo:'pago-entre', subId:null, subNombre:'Pago entre nosotras', quien:p.de, persona:p.de, a:p.a, sale:p.sale, entra:p.entra, monto:p.monto, moneda:p.moneda, montoMXN:mxnOf(p), fecha:p.fecha, nota:p.nota});
   });
   state.ingresos.forEach(i=>{
-    out.push({id:i.id, tipo:'ingreso', subId:null, persona:i.persona, subNombre:i.fuente, quien:i.persona, monto:i.montoBruto, moneda:i.moneda, montoMXN: brutoIngresoMXN(i), netoMXN: netoIngresoMXN(i), destino:i.destino||'bote', mes:mesIngreso(i), recurrente:!!i.serieId, serieId:i.serieId, fecha:i.fecha, nota:i.fuente});
+    out.push({id:i.id, tipo:'ingreso', subId:null, persona:i.persona, subNombre:i.fuente, quien:i.persona, monto:i.montoBruto, moneda:i.moneda, montoMXN: brutoIngresoMXN(i), netoMXN: netoIngresoMXN(i), destino:i.destino||'bote', mes:mesIngreso(i), recurrente:!!i.serieId, serieId:i.serieId, fecha:i.fecha, nota:i.traspaso ? (i.fuente + (i.nota ? ' · '+i.nota : '')) : i.fuente, traspaso:i.traspaso||null});
   });
   ['jen','isa'].forEach(p=>{
     state.finanzas[p].ganancias.forEach(m=>{
@@ -3832,7 +3905,7 @@ function chipsForPerfil(){
 function cuentasDeMov(m, persona){
   const out = [];
   const esCat = m.tipo==='gasto-generales' || m.tipo==='gasto-gustos';
-  if(esCat && m.quien!=='abuelo' && pagadorFisico(m)===persona){
+  if(esCat && partePago(m, persona)>0){
     if(esDebito(m.pagadoCon)) out.push({cuenta:'debito', signo:-1});
     if(m.pagadoCon==='credito') out.push({cuenta:'credito', signo:-1});
     if(m.pagadoCon==='otro') out.push({cuenta:'otro', signo:-1});
@@ -3855,7 +3928,7 @@ function cuentasDeMov(m, persona){
 function signoEfectivo(m, persona){
   if(m.tipo==='gasto-efectivo' && m.quien===persona) return -1;
   if((m.tipo==='retiro-efectivo' || m.tipo==='ajuste-efectivo') && m.quien===persona) return +1;
-  if((m.tipo==='gasto-generales'||m.tipo==='gasto-gustos') && m.pagadoCon==='efectivo' && m.quien!=='abuelo' && pagadorFisico(m)===persona) return -1;
+  if((m.tipo==='gasto-generales'||m.tipo==='gasto-gustos') && m.pagadoCon==='efectivo' && partePago(m, persona)>0) return -1;
   if(m.tipo==='ingreso' && m.destino==='efectivo' && m.persona===persona) return +1;
   if(m.tipo==='pago-otro' && m.desde==='efectivo' && m.persona===persona) return -1;
   if(m.tipo==='pago-entre'){
@@ -3906,9 +3979,11 @@ function vistaMov(m){
     if(m.quien==='ambas' && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')){ monto = m.monto/2; montoMXN = m.montoMXN/2; nota = 'tu mitad'; }
   } else if(movFiltro==='efectivo'){
     signo = signoEfectivo(m, perfil);
+    if(m.quien==='ambas' && m.pagadoPor==='ambas' && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')){ const f = partePago(m, perfil); monto = m.monto*f; montoMXN = m.montoMXN*f; nota = 'tu parte'; }
   } else if(movFiltro==='personales'){
     const c = cuentasDeMov(m, perfil);
     signo = c.length ? c[0].signo : -1;
+    if(m.quien==='ambas' && m.pagadoPor==='ambas' && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')){ const f = partePago(m, perfil); monto = m.monto*f; montoMXN = m.montoMXN*f; nota = 'tu parte'; }
     if(m.tipo==='pago-tarjeta' && m.desde==='debito') nota = 'de débito a crédito';
     if(m.pagadoCon==='otro' && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')) nota = 'lo pagó '+(m.otroNombre||'otra persona');
   } else if(movFiltro==='abuelo'){
@@ -3920,6 +3995,7 @@ function vistaMov(m){
   return {signo: signo>=0?+1:-1, monto, moneda, montoMXN, nota, neutro:false};
 }
 function labelTipoMov(m){
+  if(m.tipo==='ingreso' && m.traspaso) return 'Traspaso · ' + (m.traspaso==='ahorro' ? 'del ahorro' : 'del sobrante') + ' → ' + labelDestinoTraspaso(m.destino, m.persona);
   if(m.tipo==='ingreso') return 'Ingreso' + (m.destino==='debito' ? ' · débito' : (m.destino==='efectivo' ? ' · efectivo' : (m.destino==='arq' ? ' · Arq' : ' · bote'))) + (m.recurrente ? ' · cada mes' : '');
   if(m.tipo==='personal-gasto') return m.cuenta==='credito' ? 'Crédito' : 'Débito';
   if(m.tipo==='personal-ganancia') return 'Débito';
@@ -4021,7 +4097,7 @@ function renderDeudasOtros(persona){
     const abierta = fichaAbierta===key;
     const pend = f.pendiente;
     const movs = collectMovimientos().filter(m=>
-      ((m.tipo==='gasto-generales'||m.tipo==='gasto-gustos') && m.pagadoCon==='otro' && m.quien!=='abuelo' && pagadorFisico(m)===persona && claveOtro(nombreOtroDe(m))===f.clave) ||
+      ((m.tipo==='gasto-generales'||m.tipo==='gasto-gustos') && m.pagadoCon==='otro' && partePago(m, persona)>0 && claveOtro(nombreOtroDe(m))===f.clave) ||
       (m.tipo==='pago-otro' && m.persona===persona && claveOtro(m.acreedor)===f.clave)
     ).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
     return `
@@ -4210,7 +4286,7 @@ function renderMovimientos(){
   return `
   ${renderResumenMensual()}
   <div class="chiprow" style="margin-bottom:12px;">
-    ${chips.map(([id,label])=>`<button class="chip ${movFiltro===id?'on':''}" data-mov-chip="${id}">${label}</button>`).join('')}
+    ${chips.map(([id,label])=>`<button class="chip chip-ico ${movFiltro===id?'on':''}" data-mov-chip="${id}">${ico(ICONO_CHIP[id]||'layers','icon-xs')}${label}</button>`).join('')}
   </div>
   <input type="text" class="mov-search" id="movSearch" placeholder="Buscar por nota o fuente..." value="${escHtml(movBusqueda)}">
   ${renderFiltrosMov()}
@@ -4290,7 +4366,7 @@ function editMovimiento(tipo, id, extra){
   if(tipo==='gasto-efectivo') return openGastoEfectivo({id});
   if(tipo==='retiro-efectivo') return openRetiroEfectivo({id});
   if(tipo==='ajuste-efectivo') return openSaldoInicialEfectivo({id});
-  if(tipo==='ingreso') return openIngreso({id});
+  if(tipo==='ingreso'){ const ing = state.ingresos.find(i=>i.id===id); if(esTraspaso(ing)) return openTraspaso(null, id); return openIngreso({id}); }
   if(tipo==='personal-ganancia') return openPersonalMov(extra, 'ganancia', {id});
   if(tipo==='personal-gasto') return openPersonalMov(extra, 'gasto', {id});
   if(tipo==='ahorro-retiro') return openAhorro(id);
@@ -4393,7 +4469,7 @@ function carryoverAcumuladoMXN(){
   const nowYM = mesActual();
   let acc = 0;
   Object.keys(meses).forEach(ym=>{ if(ym < nowYM) acc += meses[ym].neto; });
-  return acc;
+  return acc - traspasosMXN('sobrante', todayISO());
 }
 // Total de toda la vida: lo acumulado de meses cerrados + lo que va de este mes.
 function acumuladoTotalMXN(){ return carryoverAcumuladoMXN() + balanceMes().disp; }
@@ -4562,7 +4638,7 @@ function cuentaExport(m){
 function detalleExport(m){
   const d = [];
   if(m.tipo==='ingreso'){ if(m.recurrente) d.push('recurrente cada mes'); if(m.netoMXN!==undefined && m.netoMXN!==m.montoMXN) d.push('neto de ahorro: '+Math.round(m.netoMXN*100)/100+' MXN'); }
-  if(m.quien==='ambas' && m.pagadoPor) d.push('compartido, puso '+nombrePersonaExport(m.pagadoPor));
+  if(m.quien==='ambas' && m.pagadoPor) d.push(m.pagadoPor==='ambas' ? 'compartido, pusieron las dos ('+textoPagadoPor(m)+')' : 'compartido, puso '+nombrePersonaExport(m.pagadoPor));
   if(m.pagadoCon==='otro') d.push('deuda de '+nombrePersonaExport(pagadorFisico(m))+' con '+(m.otroNombre||'otra persona'));
   if(m.estadoPC) d.push(m.estadoPC);
   if(m.serieId && m.tipo!=='ingreso') d.push('recurrente cada mes');
@@ -4571,7 +4647,7 @@ function detalleExport(m){
   return d.join(' · ');
 }
 function nombrePersonaExport(v){
-  return {jen:'Jen', isa:'Isa', abuelo:'Abuelo', ambas:'Ambas'}[v] || (v||'');
+  return {jen:'Jen', isa:'Isa', abuelo:'Abuelo', ambas:'Jen e Isa'}[v] || (v||'');
 }
 function csvCell(v){
   const s = (v===null||v===undefined) ? '' : String(v);
@@ -4633,13 +4709,15 @@ function openAhorro(editId){
   const ex = editId ? state.ahorro.movimientos.find(m=>m.id===editId && m.tipo==='retiro') : null;
   const movimientos = [
     ...ahorroDepositosDerivados(),
-    ...state.ahorro.movimientos.filter(m=>m.tipo==='retiro')
+    ...state.ahorro.movimientos.filter(m=>m.tipo==='retiro'),
+    ...state.ingresos.filter(i=>i.traspaso==='ahorro').map(i=>({id:i.id, tipo:'traspaso', monto:brutoIngresoMXN(i), fecha:i.fecha, nota:'Pasado a '+labelDestinoTraspaso(i.destino, i.persona)}))
   ].sort((a,b)=> (a.fecha||'').localeCompare(b.fecha||''));
   openSheet(`
     ${sheetHeader('Ahorro de emergencia — Jen')}
     <div class="num" style="font-size:26px;">${fmt(ahorroSaldoMXN(),'MXN')}</div>
     <div class="small-note" style="margin-bottom:14px;">≈ ${fmt(toEUR(ahorroSaldoMXN()),'EUR')} de referencia</div>
     <div class="note-box">${ico('trend','icon-sm')} <div>Los depósitos automáticos vienen directo de los ingresos marcados con "genera ahorro automático" en Movimientos. Si borras o editas uno de esos ingresos ahí, este saldo se ajusta solo.</div></div>
+    <button class="btn btn-outline btn-block" data-traspaso="ahorro" style="margin-bottom:14px;">${ico('swap','icon-sm')} Pasar a otra cuenta (Budget, Arq, efectivo o débito)</button>
     <input type="hidden" id="retiroEditId" value="${ex?ex.id:''}">
     <div class="section-label" style="margin:0 4px 8px;">${ex?'Editar retiro':'Registrar retiro'}</div>
     <div class="field"><label>Motivo (obligatorio)</label>
@@ -4661,7 +4739,7 @@ function openAhorro(editId){
     ${movimientos.length ? movimientos.slice().reverse().map(m=>`
       <div class="exp-line">
         <div class="who" style="background:${m.tipo==='deposito'?'var(--teal-soft)':'var(--brick-soft)'};color:${m.tipo==='deposito'?'var(--teal-deep)':'var(--brick)'}">${m.tipo==='deposito'?'+':'−'}</div>
-        <div class="desc"><div class="n">${m.tipo==='deposito'?'Depósito automático':labelMotivo(m.motivo)}</div><div class="d">${fmtDate(m.fecha)}${m.nota?' · '+escHtml(m.nota):''}</div></div>
+        <div class="desc"><div class="n">${m.tipo==='deposito'?'Depósito automático':(m.tipo==='traspaso'?'Traspaso':labelMotivo(m.motivo))}</div><div class="d">${fmtDate(m.fecha)}${m.nota?' · '+escHtml(m.nota):''}</div></div>
         <div class="amt ${m.tipo==='deposito'?'income':'gasto'}">${m.tipo==='deposito'?'+':'−'}${fmt(m.monto,'MXN')}</div>
         ${m.tipo==='retiro' ? `<button class="mov-edit-btn" data-edit-retiro="${m.id}">${ico('edit','icon-sm')}</button><button class="subrow-btn" data-del-retiro="${m.id}">${ico('trash','icon-sm')}</button>` : ''}
       </div>`).join('') : emptyMini('Aún no hay movimientos.')}
@@ -4692,6 +4770,10 @@ function notaPago(pago){
     otro:'No resta de ninguna cuenta ni del bote: queda como deuda tuya con esa persona en "Le debo a otras personas" (Mi dinero aparte). Si es de ambas, la deuda es de quien puso el dinero y la otra le debe la mitad.'
   }[pago]||'';
 }
+function notaPagadoPor(v){
+  if(v==='ambas') return 'Pusieron dinero las dos. Con 50/50 nadie le debe a nadie; si una puso más, la otra le debe la diferencia.';
+  return 'Se reparte a la mitad — la otra persona le queda debiendo su parte.';
+}
 function openGasto(cat, subId, editRef, pagoPreset){
   cat = cat||'generales';
   let existing = null;
@@ -4715,6 +4797,7 @@ function openGasto(cat, subId, editRef, pagoPreset){
   const quienSel = existing ? (existing.quien==='abuelo' ? (existing.repartoAbuelo==='ambas'?'ambas':'jen') : existing.quien) : '';
   // Un gasto de ambas viejo sin "quién puso el dinero" se queda así al editarlo (no crea deuda sola).
   const pagadoPorSel = existing ? (existing.quien==='ambas' && !existing.pagadoPor ? '' : (existing.pagadoPor || perfil)) : perfil;
+  const repartoSel = existing && existing.pagadoPor==='ambas' && Math.abs(parteJenDe(existing)-0.5)>0.00001 ? 'custom' : 'mitad';
   const subSel = subInicial || (existing && editRef && editRef.subId ? state.subcats.find(s=>s.id===editRef.subId) : null) || null;
   void arrancaCompartido;
   const mostrarEstancia = cat==='generales' && esSubAlojamiento(subSel);
@@ -4759,9 +4842,21 @@ function openGasto(cat, subId, editRef, pagoPreset){
       <div class="seg">
         <button type="button" class="${pagadoPorSel==='jen'?'on':''}" data-pagadopor="jen">Jen</button>
         <button type="button" class="${pagadoPorSel==='isa'?'on':''}" data-pagadopor="isa">Isa</button>
+        <button type="button" class="${pagadoPorSel==='ambas'?'on':''}" data-pagadopor="ambas">Ambas</button>
       </div>
       <input type="hidden" id="gastoPagadoPor" value="${pagadoPorSel}">
-      <div class="small-note" style="margin-top:6px;">Se reparte a la mitad — la otra persona le queda debiendo su parte.</div>
+      <div id="pagoAmbasWrap" class="reparto-wrap" style="${pagadoPorSel==='ambas'?'':'display:none'}">
+        <div class="seg seg-sm">
+          <button type="button" class="${repartoSel==='mitad'?'on':''}" data-reparto="mitad">50/50</button>
+          <button type="button" class="${repartoSel==='custom'?'on':''}" data-reparto="custom">Personalizado</button>
+        </div>
+        <input type="hidden" id="gastoReparto" value="${repartoSel}">
+        <div class="field-row" id="repartoCustomWrap" style="margin-top:8px;${repartoSel==='custom'?'':'display:none'}">
+          <div class="field" style="margin-bottom:0;"><label>Jen puso</label><input type="number" step="0.01" min="0" id="gastoPusoJen" value="${repartoSel==='custom'?Math.round((Number(existing.monto)||0)*parteJenDe(existing)*100)/100:''}" placeholder="0"></div>
+          <div class="field" style="margin-bottom:0;"><label>Isa puso</label><input type="number" step="0.01" min="0" id="gastoPusoIsa" value="${repartoSel==='custom'?Math.round((Number(existing.monto)||0)*(1-parteJenDe(existing))*100)/100:''}" placeholder="0"></div>
+        </div>
+      </div>
+      <div class="small-note" id="pagadoPorNota" style="margin-top:6px;">${notaPagadoPor(pagadoPorSel)}</div>
     </div>
     ${renderTipoCambioField('gasto',monedaInicial,existing)}
     <div class="field"><label>Nota</label><input type="text" id="gastoNota" placeholder="Ej. cena, camión, entrada museo..." value="${existing&&existing.nota?escHtml(existing.nota):''}"></div>
@@ -4951,7 +5046,7 @@ function openPagoEntre(personaClick, editId, preset){
   else if(neto > 0.005) de = 'isa';
   else de = personaClick || perfil;
   const a = otraPersona(de);
-  const moneda = ex ? (ex.moneda||'MXN') : 'MXN';
+  const moneda = ex ? (ex.moneda||'MXN') : (preset.moneda || 'MXN');
   const montoIni = ex ? ex.monto : (preset.monto ? Math.round(preset.monto*100)/100 : (Math.abs(neto)>=0.01 ? Math.round(Math.abs(neto)*100)/100 : ''));
   const itemsInfo = aplica.length ? (()=>{ const {items} = deudaItems(); return aplica.map(ap=>{ const it = items.find(i=>i.k===ap.k); return `<div class="det-row"><span>${escHtml(it?it.nota:'Gasto')}</span><b>${fmt(Number(ap.montoMXN)||0,'MXN')}</b></div>`; }).join(''); })() : '';
   const sale = ex ? ex.sale : 'bote', entra = ex ? ex.entra : 'bote';
@@ -4961,6 +5056,7 @@ function openPagoEntre(personaClick, editId, preset){
     <div class="small-note" style="margin-bottom:12px;">Lo que una le paga a la otra para saldar lo compartido. Baja la deuda y mueve el dinero de una cuenta a otra.</div>
     <input type="hidden" id="peEditRef" value="${ex?ex.id:''}">
     <input type="hidden" id="peAplica" value='${JSON.stringify(aplica).replace(/'/g,"&apos;")}'>
+    <input type="hidden" id="peLibre" value="${!ex && preset.libre ? '1' : ''}">
     ${itemsInfo ? `<div class="field"><label>Lo que se está pagando</label><div class="det-rows">${itemsInfo}</div><div class="small-note">Si pagas menos del total, se aplica en ese orden y lo que falte sigue como deuda.</div></div>` : ''}
     <div class="field"><label>¿Quién le pagó a quién?</label>
       <div class="seg"><button class="${de==='jen'?'on':''}" data-pe-de="jen">Jen le pagó a Isa</button><button class="${de==='isa'?'on':''}" data-pe-de="isa">Isa le pagó a Jen</button></div>
@@ -6037,7 +6133,113 @@ function migrarDatosV15(st, conSplit){
 function cuentaEnTotal(g){ return cuentaEnBote(g) || g.quien==='abuelo'; }
 function metaTotalMXN(ym){ return boteTotalMXN(ym||mesActual()) + abueloMetaMXN(); }
 function gastadoTotalMXN(ym){ ym = ym||mesActual(); return balanceMes(ym).gasto + abueloGastadoMXN(ym); }
-function presupuestoSubcatMXN(s, ym){ return pctSubcatDeGenerales(s)/100 * metaTotalMXN(ym); }
+/* v16 — PRESUPUESTO POR SUBCATEGORÍA: primero lo esencial, luego lo demás.
+   1) Lo esencial se calcula con costos reales de cada lugar, día por día según
+      el destino de ese día y lo que cubre el programa.
+   2) Si no alcanza con la meta del mes, se reparte proporcional y se avisa.
+   3) Lo que queda se reparte entre lo opcional según su peso y los precios del lugar.
+   Renta: Numbeo "Apartment (1 bedroom) in City Centre", EUR/mes (2026).
+   Súper y demás: índices de precios Eurostat 2024 (PAISES). */
+const RENTA_1R_EUR = {HR:632, SI:667, BA:285, ME:577, RS:453, MK:266, AL:478, HU:525, AT:887, IT:724, GR:483, CZ:726, SK:624, PL:649, RO:426, BG:416, DE:804, FR:763, ES:905, PT:913, NL:1457, BE:884, DK:993, SE:773, FI:788, NO:1186, IS:1500, CH:1784, IE:1574, EE:593, LV:363, LT:563, MT:1049, CY:879, LU:1831, TR:500, GB:1172, MX:654};
+const RENTA_1R_DEFAULT = 700;
+const ALOJ_AMUEBLADO = 1.6;       // depa amueblado por temporada vs renta local
+const ALOJ_CORTA = 1.35;          // estancias de menos de 28 noches
+const ALOJ_TEMPORADA = {baja:0.9, media:1, alta:1.25};
+const ALOJ_NIVEL = {economico:0.8, medio:1, alto:1.3};
+const SUPER_PERSONA_MES_EUR = 250;
+const ESENCIAL_MES_EUR = {salud:{eur:50, idx:'tot'}, tlocal:{eur:60, idx:'trans'}, lav:{eur:30, idx:'tot'}, com:{eur:30, idx:null}, tram:{eur:10, idx:null}};
+const ENTRE_CIUDADES_PERSONA_EUR = 45;
+function claveEsencial(sub){
+  const n = sinAcentos(sub && sub.nombre || '');
+  if(esSubAlojamiento(sub)) return 'aloj';
+  if(/super/.test(n)) return 'super';
+  if(/salud|cuidado/.test(n)) return 'salud';
+  if(/transporte entre/.test(n)) return 'tentre';
+  if(/transporte local/.test(n) || sub.coberturaKey==='transporte') return 'tlocal';
+  if(/comunicacion|esim|roaming/.test(n)) return 'com';
+  if(/lavander/.test(n)) return 'lav';
+  if(/tramite|documento/.test(n)) return 'tram';
+  return null;
+}
+function esSubEsencial(sub){ return !!claveEsencial(sub); }
+function nochesDestino(d){ return d && d.fechaInicio && d.fechaFin ? Math.max(1, diasEntreISO(d.fechaInicio, d.fechaFin)) : 30; }
+// Hasta cuánto es aceptable pagar por noche (las dos, depa o cuarto privado), en EUR.
+function topeNocheCalculadoEUR(d){
+  const p = d ? paisDe(d.nombre) : null;
+  const renta = p && RENTA_1R_EUR[p.c] ? RENTA_1R_EUR[p.c] : RENTA_1R_DEFAULT;
+  let v = renta * ALOJ_AMUEBLADO / 30;
+  v *= ALOJ_TEMPORADA[d && d.estacionalidad || 'media'] ?? 1;
+  v *= ALOJ_NIVEL[d && d.nivelCosto || 'medio'] ?? 1;
+  if(nochesDestino(d) < 28) v *= ALOJ_CORTA;
+  return Math.round(v);
+}
+function topeNocheEUR(d){ const o = Number(d && d.alojMaxNoche); return o>0 ? o : topeNocheCalculadoEUR(d); }
+function indicePais(d, idx){ const p = d ? paisDe(d.nombre) : null; return p && typeof p[idx]==='number' ? p[idx]/100 : 1; }
+function destinoParaDia(iso){
+  const d = destinoEnFecha(iso); if(d) return d;
+  const ds = (state.destinos||[]).filter(x=>x.fechaInicio && x.fechaFin).sort((a,b)=>a.fechaInicio.localeCompare(b.fechaInicio));
+  if(!ds.length) return destinoActual() || null;
+  const antes = ds.filter(x=>x.fechaFin < iso); if(antes.length) return antes[antes.length-1];
+  return ds[0];
+}
+// Necesidad esencial de una subcategoría para un día, en EUR.
+function necesidadEsencialDiaEUR(clave, sub, d){
+  const cov = (k)=> d && d.cobertura ? coverageMultiplier(d.cobertura[k]) : 1;
+  if(clave==='aloj') return topeNocheEUR(d) * cov('alojamiento');
+  if(clave==='super') return SUPER_PERSONA_MES_EUR*2/30 * indicePais(d,'food') * coverageMultiplierForSub(sub, d);
+  if(clave==='tlocal') return ESENCIAL_MES_EUR.tlocal.eur/30 * indicePais(d,'trans') * cov('transporte');
+  const b = ESENCIAL_MES_EUR[clave]; if(!b) return 0;
+  return b.eur/30 * (b.idx ? indicePais(d, b.idx) : 1);
+}
+let _planCache = {k:null, v:null};
+function planPresupuestoMes(ym){
+  ym = ym || mesActual();
+  const meta = metaTotalMXN(ym);
+  const eur = rateSnapshotFor('EUR') || 21.5;
+  const k = ym+'|'+meta+'|'+eur+'|'+todayISO()+'|'+(state.destinoActualId||'')+'|'+JSON.stringify(state.destinos||[])+'|'+state.subcats.map(x=>x.id+':'+x.nombre+':'+x.peso+':'+(x.coberturaKey||'')).join(',');
+  if(_planCache.k===k) return _planCache.v;
+  const dias = []; const fin = finDeMesISO(ym);
+  for(let iso = ym+'-01'; iso <= fin; iso = sumarDiasISO(iso, 1)) dias.push(iso);
+  const hayDestinos = (state.destinos||[]).some(x=>x.fechaInicio && x.fechaFin) || !!destinoActual();
+  const porSub = {};
+  let necesidadTotal = 0;
+  state.subcats.forEach(sb=>{ porSub[sb.id] = {esencial: esSubEsencial(sb), necesidad:0, presup:0, peso:0}; });
+  if(hayDestinos){
+    dias.forEach(iso=>{
+      const d = destinoParaDia(iso);
+      state.subcats.forEach(sb=>{
+        const c = claveEsencial(sb);
+        if(c && c!=='tentre') porSub[sb.id].necesidad += necesidadEsencialDiaEUR(c, sb, d) * eur;
+        if(!c) porSub[sb.id].peso += pesoBaseDestino(sb, d) * coverageMultiplierForSub(sb, d);
+      });
+    });
+    // Transporte entre ciudades: cada llegada a un destino nuevo dentro del mes.
+    const ordenados = (state.destinos||[]).filter(x=>x.fechaInicio).sort((a,b)=>a.fechaInicio.localeCompare(b.fechaInicio));
+    const cambios = ordenados.filter((x,i)=>i>0 && ymDe(x.fechaInicio)===ym);
+    state.subcats.filter(sb=>claveEsencial(sb)==='tentre').forEach(sb=>{
+      porSub[sb.id].necesidad = cambios.reduce((a,x)=>a + ENTRE_CIUDADES_PERSONA_EUR*2*indicePais(x,'tot')*eur, 0);
+    });
+  } else {
+    // Sin destinos: todo por peso (como antes).
+    state.subcats.forEach(sb=>{ porSub[sb.id].esencial = false; porSub[sb.id].peso = Number(sb.peso)||0; });
+  }
+  state.subcats.forEach(sb=>{ if(porSub[sb.id].esencial) necesidadTotal += porSub[sb.id].necesidad; });
+  const escala = necesidadTotal > meta ? (meta>0 ? meta/necesidadTotal : 0) : 1;
+  let asignadoEsencial = 0;
+  state.subcats.forEach(sb=>{ const x = porSub[sb.id]; if(x.esencial){ x.presup = x.necesidad*escala; asignadoEsencial += x.presup; } });
+  const resto = Math.max(0, meta - asignadoEsencial);
+  const pesoTotal = state.subcats.reduce((a,sb)=>a+(porSub[sb.id].esencial?0:porSub[sb.id].peso),0);
+  state.subcats.forEach(sb=>{ const x = porSub[sb.id]; if(!x.esencial) x.presup = pesoTotal>0 ? resto * x.peso/pesoTotal : 0; });
+  if(!(pesoTotal>0) && resto>0 && asignadoEsencial>0){
+    // No hay nada opcional con peso: lo que sobra se queda en lo esencial (proporcional), para que todo sume la meta.
+    state.subcats.forEach(sb=>{ const x = porSub[sb.id]; if(x.esencial) x.presup += resto * x.presup/asignadoEsencial; });
+  }
+  const dHoy = destinoParaDia(ym===mesActual() ? todayISO() : ym+'-15');
+  const v = {ym, meta, porSub, necesidadEsencial: necesidadTotal, asignadoEsencial, resto: pesoTotal>0 ? resto : 0, sinRepartir: pesoTotal>0 ? 0 : resto, faltante: Math.max(0, necesidadTotal - meta), escala, destino: dHoy, topeNoche: dHoy ? topeNocheEUR(dHoy) : null, hayDestinos};
+  _planCache = {k, v};
+  return v;
+}
+function presupuestoSubcatMXN(s, ym){ const x = planPresupuestoMes(ym).porSub[s.id]; return x ? x.presup : 0; }
 function subcatGastadoTotalMesMXN(s, ym){ ym = ym||mesActual(); return (s.gastos||[]).filter(cuentaEnTotal).reduce((a,g)=>a+montoEnMesMXN(g, ym),0); }
 function subcatRebasada(s, ym){
   const gastado = subcatGastadoTotalMesMXN(s, ym);
@@ -6055,7 +6257,7 @@ function mesesBudgetTotal(){
 function acumuladoAntesDe(ym){
   const meses = resumenPorMes(); let acc = 0;
   Object.keys(meses).forEach(k=>{ if(k < ym) acc += meses[k].neto; });
-  return acc;
+  return acc - traspasosMXN('sobrante', null, ym);
 }
 // Efecto de un movimiento en el Budget total: +1 entra, −1 sale, 'neutro' se mueve dentro del total.
 function signoTotal(m){
@@ -6080,11 +6282,12 @@ function deudaItems(){
     if(g.quien==='abuelo'){
       if(g.repartoAbuelo!=='ambas') return;
       deudor='isa'; acreedor='jen'; mitad = mxnOf(g)/2; viaAbuelo = true;
-    } else if(g.quien==='ambas' && (g.pagadoPor==='jen' || g.pagadoPor==='isa')){
-      acreedor = g.pagadoPor; deudor = otraPersona(acreedor); mitad = mxnOf(g)/2;
+    } else if(g.quien==='ambas'){
+      const dd = deudaDeGastoAmbas(g); if(!dd) return;
+      acreedor = dd.acreedor; deudor = dd.deudor; mitad = dd.monto;
     } else return;
     if(!(mitad>0)) return;
-    items.push({k:'gastos:'+g.id, id:g.id, subId:sb.id, fecha:g.fecha, nota:g.nota||sb.nombre, subNombre:sb.nombre, deudor, acreedor, mitad, viaAbuelo, pagado:0});
+    items.push({k:'gastos:'+g.id, id:g.id, subId:sb.id, fecha:g.fecha, nota:g.nota||sb.nombre, subNombre:sb.nombre, deudor, acreedor, mitad, viaAbuelo, dosPusieron: g.pagadoPor==='ambas', pagado:0});
   }));
   const porK = {}; items.forEach(it=>{ porK[it.k] = it; });
   const libres = {jen:0, isa:0};
@@ -6111,10 +6314,41 @@ function deudaItems(){
   return {items, aFavor:libres};
 }
 
+// v16: si "deudora" paga cierta cantidad (MXN), qué gastos se saldan (del más viejo al más nuevo).
+function simularPagoLibre(deudora, montoMXN){
+  const ver = otraPersona(deudora);
+  const {items, aFavor} = deudaItems();
+  let resto = Math.max(0, Number(montoMXN)||0);
+  const lineas = [];
+  items.filter(i=>i.deudor===deudora && !i.saldado).sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'') || String(a.id).localeCompare(String(b.id))).forEach(i=>{
+    if(resto<=0.004) return;
+    const x = Math.min(i.restante, resto); resto -= x;
+    lineas.push({k:i.k, nota:i.nota, subNombre:i.subNombre, subId:i.subId, aplica:Math.round(x*100)/100, completo: x >= i.restante-0.005, queda: Math.max(0, Math.round((i.restante-x)*100)/100)});
+  });
+  // Lo que "ver" había pagado de más también se le regresa.
+  const extraVer = aFavor[ver]>0.005 ? Math.min(aFavor[ver], resto) : 0; resto -= extraVer;
+  return {lineas, extraVer: Math.round(extraVer*100)/100, sobra: Math.round(Math.max(0,resto)*100)/100};
+}
+let nosLibreMonto = '', nosLibreMoneda = 'MXN';
+function renderPrevPagoLibre(deudora){
+  const monto = Number(nosLibreMonto)||0;
+  if(!(monto>0)) return `<div class="small-note">Escribe cuánto pagó y aquí ves qué gastos se saldan.</div>`;
+  const mxn = nosLibreMoneda==='MXN' ? monto : monto*rateSnapshotFor(nosLibreMoneda);
+  const r = simularPagoLibre(deudora, mxn);
+  const ver = otraPersona(deudora);
+  return `<div class="det-rows">
+    ${r.lineas.map(l=>`<div class="det-row"><span class="prev-ic ${l.completo?'ok':'parcial'}">${ico(l.completo?'check':'clock','icon-xs')} ${escHtml(l.nota)}</span><b>${l.completo?'saldado':'queda '+fmt(l.queda,'MXN')}</b></div>`).join('')}
+    ${r.extraVer ? `<div class="det-row"><span class="prev-ic ok">${ico('check','icon-xs')} Lo que ${nombrePersona(ver)} pagó de más</span><b>${fmt(r.extraVer,'MXN')}</b></div>` : ''}
+    ${r.sobra ? `<div class="det-row"><span>Sobra</span><b>${fmt(r.sobra,'MXN')} a favor de ${nombrePersona(deudora)}</b></div>` : ''}
+  </div>${nosLibreMoneda!=='MXN' ? `<div class="small-note">≈ ${fmt(mxn,'MXN')} al tipo de cambio de hoy.</div>` : ''}`;
+}
+
 /* ---------- Arq: pesos → euros al tipo de cambio de la compra ---------- */
 function comprasArqDe(p){ return (state.comprasArq||[]).filter(c=>c.persona===p).slice().sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'') || (a.creado||0)-(b.creado||0)); }
 function consumosArq(p, excluirId){
-  const gastos = gastosCategoria().filter(g=>g.pagadoCon==='arq' && g.quien!=='abuelo' && pagadorFisico(g)===p && g.id!==excluirId);
+  // Cada consumo trae solo la parte de esta persona (con "Ambas", lo que puso cada una).
+  const gastos = gastosCategoria().filter(g=>g.pagadoCon==='arq' && partePago(g, p)>0 && g.id!==excluirId)
+    .map(g=>{ const f = partePago(g, p); return Object.assign({}, g, {monto:(Number(g.monto)||0)*f, montoMXN: mxnOf(g)*f}); });
   const retiros = (state.efectivoMovimientos||[]).filter(m=>m.tipo==='retiro' && m.cuenta==='arq' && m.persona===p && m.id!==excluirId);
   return [...gastos, ...retiros].sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
 }
@@ -6143,6 +6377,7 @@ function recalcularArq(st){
   st = st || state;
   if(!(st.comprasArq||[]).length) return false;
   let cambio = false;
+  const porRec = new Map();
   ['jen','isa'].forEach(p=>{
     const compras = (st.comprasArq||[]).filter(c=>c.persona===p).slice().sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'') || (a.creado||0)-(b.creado||0) || String(a.id).localeCompare(String(b.id)));
     if(!compras.length) return;
@@ -6153,19 +6388,28 @@ function recalcularArq(st){
     (st.subcats||[]).forEach(sb=>(sb.gastos||[]).forEach(g=>gastos.push(g)));
     (st.gustosGastos||[]).forEach(g=>gastos.push(g));
     const cons = [
-      ...gastos.filter(g=>g.pagadoCon==='arq' && g.quien!=='abuelo' && pagadorFisico(g)===p),
-      ...(st.efectivoMovimientos||[]).filter(m=>m.tipo==='retiro' && m.cuenta==='arq' && m.persona===p)
-    ].filter(g=>(g.moneda||'MXN')==='EUR' && Number(g.monto)>0)
-     .sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'') || String(a.id).localeCompare(String(b.id)));
-    cons.forEach(g=>{
-      const monto = Number(g.monto)||0;
-      let falta = monto, mxn = 0;
+      ...gastos.filter(g=>g.pagadoCon==='arq' && partePago(g, p)>0).map(g=>({rec:g, eur:(Number(g.monto)||0)*partePago(g, p)})),
+      ...(st.efectivoMovimientos||[]).filter(m=>m.tipo==='retiro' && m.cuenta==='arq' && m.persona===p).map(m=>({rec:m, eur:Number(m.monto)||0}))
+    ].filter(c=>(c.rec.moneda||'MXN')==='EUR' && c.eur>0)
+     .sort((a,b)=>(a.rec.fecha||'').localeCompare(b.rec.fecha||'') || String(a.rec.id).localeCompare(String(b.rec.id)));
+    cons.forEach(c=>{
+      let falta = c.eur, mxn = 0;
       for(const l of lotes){ if(falta<=0.000001) break; const x = Math.min(l.eur, falta); if(x>0){ mxn += x*l.rate; l.eur -= x; falta -= x; } }
       if(falta>0.000001) mxn += falta*ultimaRate; // gastó más euros de los comprados: provisional con la última compra
-      const rate = mxn/monto;
-      const montoMXN = Math.round(mxn*100)/100;
-      if(Math.abs((Number(g.rateMXN)||0)-rate)>0.00005 || Math.abs((Number(g.montoMXN)||0)-montoMXN)>0.005){ g.rateMXN = rate; g.montoMXN = montoMXN; cambio = true; }
+      const acc = porRec.get(c.rec) || {mxn:0, eur:0, partes:0};
+      acc.mxn += mxn; acc.eur += c.eur; acc.partes++;
+      porRec.set(c.rec, acc);
     });
+  });
+  porRec.forEach((acc, g)=>{
+    const monto = Number(g.monto)||0; if(!(monto>0)) return;
+    // Si "Ambas" y solo una tiene euros comprados, la otra parte se queda con su tipo de cambio actual.
+    const faltaEur = Math.max(0, monto - acc.eur);
+    // La parte sin euros de Arq se vale al tipo de cambio que quedó guardado al registrarlo (rateEURMXN), nunca al que esta misma función escribió.
+    const mxn = acc.mxn + faltaEur * (Number(g.rateEURMXN)||rateSnapshotFor('EUR')||0);
+    const rate = mxn/monto;
+    const montoMXN = Math.round(mxn*100)/100;
+    if(Math.abs((Number(g.rateMXN)||0)-rate)>0.00005 || Math.abs((Number(g.montoMXN)||0)-montoMXN)>0.005){ g.rateMXN = rate; g.montoMXN = montoMXN; cambio = true; }
   });
   return cambio;
 }
@@ -6419,14 +6663,17 @@ function gastoTotalDelDiaMXN(iso, conEfectivo){
 }
 function barrasSubcats(ym){
   ym = ym||mesActual();
-  const filas = state.subcats.map((s,i)=>({s, i, gastado:subcatGastadoTotalMesMXN(s, ym), presup:presupuestoSubcatMXN(s, ym), pct:pctSubcatDeGenerales(s)}));
+  const plan = planPresupuestoMes(ym);
+  const filas = state.subcats.map((s,i)=>({s, i, esencial: !!(plan.porSub[s.id] && plan.porSub[s.id].esencial), gastado:subcatGastadoTotalMesMXN(s, ym), presup:presupuestoSubcatMXN(s, ym), pct:pctSubcatDeGenerales(s, ym)}))
+    .sort((a,b)=>(b.esencial-a.esencial) || (a.i-b.i));
   const max = Math.max(1, ...filas.map(f=>Math.max(f.gastado, f.presup)));
   const rebasadas = filas.filter(f=>subcatRebasada(f.s, ym)).length;
   return `<div class="sc-bars">
-    ${filas.map(f=>{
+    ${filas.map((f,ix)=>{
       const rojo = subcatRebasada(f.s, ym);
+      const encabezado = (ix===0 || filas[ix-1].esencial!==f.esencial) ? `<div class="sc-grupo">${f.esencial ? 'Esencial primero' : 'Con lo que queda'}</div>` : '';
       const pal = paletteFor(f.i);
-      return `<div class="sc-row ${rojo?'rojo':''}">
+      return encabezado + `<div class="sc-row ${rojo?'rojo':''}">
         ${micoHtml(iconoSubcat(f.s),'sm')}
         <div class="sc-main">
           <div class="sc-top"><span class="sc-name">${escHtml(f.s.nombre)} <em>${f.pct.toFixed(0)}%</em></span><span class="sc-amt">${fmt(f.gastado,'MXN')} <small>de ${fmt(f.presup,'MXN')}</small></span></div>
@@ -6436,7 +6683,8 @@ function barrasSubcats(ym){
     }).join('')}
   </div>
   ${rebasadas ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div><b>${rebasadas} ${rebasadas>1?'subcategorías ya se pasaron':'subcategoría ya se pasó'}</b> de lo que les toca este mes (en rojo).</div></div>` : ''}
-  <div class="small-note" style="margin-top:6px;">La rayita marca lo que le toca a cada una según dónde están (precios del país y lo que cubre el programa), sobre el Budget total.</div>`;
+  ${plan.faltante>0.5 ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div>Lo esencial de este mes (${fmt(plan.necesidadEsencial,'MXN')}) no cabe en la meta: faltan ${fmt(plan.faltante,'MXN')}.</div></div>` : ''}
+  <div class="small-note" style="margin-top:6px;">La rayita marca hasta cuánto es aceptable gastar: primero lo esencial con precios reales de cada lugar, y lo que queda para lo opcional.</div>`;
 }
 
 /* ---------- Encabezados por fecha en las listas ---------- */
@@ -6479,6 +6727,8 @@ function pagoDeMov(m){
   return '';
 }
 function filtrosActivos(){ return (movFDesde?1:0) + (movFHasta?1:0) + (movFTipo!=='todos'?1:0) + (movFPago?1:0); }
+const ICONO_CHIP = {todos:'layers', total:'piggy', budget:'card', abuelo:'star', efectivo:'banknote', personales:'handcoin'};
+const GLYPH_FILTRO_PAGO = {bote:'bote', arq:'arq', abuelo:'abuelo', efectivo:'billete', debito:'tarjeta', credito:'credito', otro:'persona'};
 function renderFiltrosMov(){
   const conPago = movFiltro==='todos' || movFiltro==='total';
   const n = filtrosActivos();
@@ -6489,11 +6739,11 @@ function renderFiltrosMov(){
   </div>
   ${movFiltrosAbiertos ? `<div class="card filtros-panel">
     <div class="field-row">
-      <div class="field"><label>Desde</label><input type="date" id="movFDesde" value="${movFDesde}"></div>
-      <div class="field"><label>Hasta</label><input type="date" id="movFHasta" value="${movFHasta}"></div>
+      <div class="field"><label>${ico('calendar','icon-xs')} Desde</label><input type="date" id="movFDesde" value="${movFDesde}"></div>
+      <div class="field"><label>${ico('calendar','icon-xs')} Hasta</label><input type="date" id="movFHasta" value="${movFHasta}"></div>
     </div>
-    <div class="field"><label>Tipo</label><div class="seg">${[['todos','Todo'],['ingreso','Ingresos'],['gasto','Gastos']].map(([k,l])=>`<button type="button" class="${movFTipo===k?'on':''}" data-mov-ftipo="${k}">${l}</button>`).join('')}</div></div>
-    ${conPago ? `<div class="field" style="margin-bottom:0;"><label>¿Con qué se pagó?</label><select id="movFPago">${pagos.map(([k,l])=>`<option value="${k}" ${movFPago===k?'selected':''}>${l}</option>`).join('')}</select></div>` : ''}
+    <div class="field"><label>${ico('swap','icon-xs')} Tipo</label><div class="seg seg-ico">${[['todos','Todo','swap'],['ingreso','Ingresos','arrin'],['gasto','Gastos','arrout']].map(([k,l,ic])=>`<button type="button" class="${movFTipo===k?'on':''} ft-${k}" data-mov-ftipo="${k}">${ico(ic,'icon-xs')}${l}</button>`).join('')}</div></div>
+    ${conPago ? `<div class="field" style="margin-bottom:0;"><label>${ico('card','icon-xs')} ¿Con qué se pagó?</label>${pickerHtml('movFPago', pagos.map(([k,l])=>({v:k, label:l, glyph: GLYPH_FILTRO_PAGO[k]})), movFPago, 'Todas')}</div>` : ''}
   </div>` : ''}`;
 }
 function aplicarFiltrosMov(lista){
@@ -6542,16 +6792,94 @@ function renderBudgetTotalCard(ym){
 function renderAcumulableCard(ym){
   const antes = acumuladoAntesDe(ym);
   const b = balanceMes(ym);
-  const despues = antes + b.disp;
+  const pasado = state.ingresos.filter(i=>i.traspaso==='sobrante' && ymDe(i.fecha||'')===ym).reduce((a,i)=>a+brutoIngresoMXN(i),0);
+  const despues = antes + b.disp - pasado;
   const col = v => v<0 ? 'var(--brick)' : 'var(--teal-deep)';
   const txt = v => (v<0?'−':(v>0?'+':''))+fmt(Math.abs(v),'MXN');
   return `<div class="card">
     <div class="card-title"><h2>${ico('piggy','icon-sm')} Acumulable</h2><span class="hint">solo mamá y papá</span></div>
     <div class="carry-line"><div class="carry-lbl">Al empezar ${nombreMesLargo(ym).toLowerCase()}</div><div class="carry-val" style="color:${col(antes)};">${txt(antes)}</div></div>
     <div class="carry-line"><div class="carry-lbl">Lo que ${ym===mesActual()?'va dejando':'dejó'} este mes</div><div class="carry-val" style="color:${col(b.disp)};">${txt(b.disp)}</div></div>
+    ${pasado ? `<div class="carry-line"><div class="carry-lbl">Pasado a otras cuentas este mes</div><div class="carry-val" style="color:var(--brick);">−${fmt(pasado,'MXN')}</div></div>` : ''}
     <div class="carry-line"><div class="carry-lbl">${ym===mesActual()?'Si el mes cerrara hoy':'Al cerrar el mes'}</div><div class="carry-val" style="color:${col(despues)};">${txt(despues)}</div></div>
-    <div class="small-note">Es un ahorro (o deuda) que se va juntando mes a mes: no se suma al disponible del mes. Lo que no se gasta del Abuelo no se acumula.</div>
+    <div class="small-note">Es un apartado que se va juntando mes a mes: no cuenta para el Budget hasta que lo pasas a una cuenta. Lo que no se gasta del Abuelo no se acumula.</div>
+    ${ym===mesActual() ? `<button class="btn btn-outline btn-block btn-sm" data-traspaso="sobrante" style="margin-top:10px;">${ico('swap','icon-sm')} Pasar a otra cuenta</button>` : ''}
   </div>`;
+}
+
+/* ---------- Traspasos: ahorro / sobrante → otra cuenta ---------- */
+function labelDestinoTraspaso(destino, persona){
+  return {bote: nombreBudget(persona||'jen'), arq:'Arq ('+nombreBudget(persona||'jen')+')', efectivo:'Efectivo de '+nombrePersona(persona), debito:'Débito de '+nombrePersona(persona)}[destino] || destino;
+}
+function disponibleTraspaso(origen, excluirId){
+  const ex = excluirId ? state.ingresos.find(i=>i.id===excluirId) : null;
+  const devuelto = ex && ex.traspaso===origen ? brutoIngresoMXN(ex) : 0;
+  if(origen==='ahorro') return ahorroSaldoMXN() + devuelto; // el ahorro ya resta todos los traspasos, sin importar la fecha
+  // Sobrante: se restan también los traspasos con fecha futura (no se puede prometer dos veces el mismo dinero).
+  const futuros = traspasosMXN('sobrante') - traspasosMXN('sobrante', todayISO());
+  const exFuturo = ex && ex.traspaso==='sobrante' && (ex.fecha||'') > todayISO() ? brutoIngresoMXN(ex) : 0;
+  return carryoverAcumuladoMXN() - futuros + exFuturo + (ex && ex.traspaso==='sobrante' && (ex.fecha||'') <= todayISO() ? brutoIngresoMXN(ex) : 0);
+}
+function openTraspaso(origenOrEditId, editId){
+  const ex = editId ? state.ingresos.find(i=>i.id===editId) : null;
+  const origen = ex ? ex.traspaso : (origenOrEditId==='ahorro' ? 'ahorro' : 'sobrante');
+  const persona = ex ? ex.persona : (origen==='ahorro' ? 'jen' : perfil);
+  const destino = ex ? ex.destino : 'bote';
+  const disp = disponibleTraspaso(origen, ex ? ex.id : null);
+  const opcionesDestino = (p)=>[
+    {v:'bote', label:'Tarjeta del bote', sub:nombreBudget(p)+' · cuenta para el Budget del mes', glyph:'bote'},
+    {v:'arq', label:'Arq (pesos)', sub:nombreBudget(p), glyph:'arq'},
+    {v:'efectivo', label:'Efectivo', sub:'Lo sacaste en efectivo', glyph:'billete'},
+    {v:'debito', label:'Tarjeta de débito', sub:'Dinero aparte de '+nombrePersona(p), glyph:'tarjeta'}];
+  openSheet(`
+    ${sheetHeader(ex ? 'Editar traspaso' : 'Pasar a otra cuenta')}
+    <input type="hidden" id="trEditId" value="${ex?ex.id:''}">
+    <div class="field"><label>¿De dónde sale?</label>
+      <div class="seg">${(perfil==='jen' || origen==='ahorro' ? [['ahorro','Ahorro de emergencia'],['sobrante','Sobrante']] : [['sobrante','Sobrante de meses anteriores']]).map(([k,l])=>`<button type="button" class="${origen===k?'on':''}" data-tr-origen="${k}">${l}</button>`).join('')}</div>
+      <input type="hidden" id="trOrigen" value="${origen}">
+      <div class="small-note" id="trDisp">Hay ${fmt(disp,'MXN')} disponibles. Es un apartado: no cuenta para el Budget hasta que lo pasas.</div>
+    </div>
+    <div class="field" id="trPersonaWrap" style="${origen==='sobrante'?'':'display:none'}"><label>¿Para quién?</label>
+      <div class="seg">${['jen','isa'].map(p=>`<button type="button" class="${persona===p?'on':''}" data-tr-persona="${p}">${nombrePersona(p)}</button>`).join('')}</div>
+      <input type="hidden" id="trPersona" value="${persona}">
+    </div>
+    <div class="field"><label>¿A qué cuenta va?</label><div id="trDestinoWrap">${pickerHtml('trDestino', opcionesDestino(persona), destino, 'Elige la cuenta')}</div></div>
+    <div class="field-row">
+      <div class="field"><label>Monto</label><input type="number" step="0.01" id="trMonto" placeholder="0" value="${ex?ex.montoBruto:''}"></div>
+      <div class="field"><label>Moneda</label><select id="trMoneda">${currencyOptions(ex?ex.moneda||'MXN':'MXN')}</select></div>
+    </div>
+    ${renderTipoCambioField('tr', ex?ex.moneda||'MXN':'MXN', ex)}
+    <div class="field-row">
+      <div class="field"><label>Fecha</label><input type="date" id="trFecha" value="${ex?ex.fecha:todayISO()}"></div>
+      <div class="field" id="trMesWrap" style="${destino==='bote'||destino==='arq'?'':'display:none'}"><label>¿Para qué mes del Budget?</label><select id="trMes">${opcionesMes(ex && ex.mes >= mesActual() ? ex.mes : mesActual()).split('</option>').filter(o=>{ const m = o.match(/value="(\d{4}-\d{2})"/); return m && m[1] >= mesActual(); }).map(o=>o+'</option>').join('')}</select></div>
+    </div>
+    <div class="field"><label>Nota (opcional)</label><input type="text" id="trNota" value="${ex&&ex.nota?escHtml(ex.nota):''}" placeholder="Ej. para el depa de Kotor"></div>
+    <button class="btn btn-primary btn-block" id="doTraspaso">${ex?'Guardar cambios':'Pasar'}</button>
+  `);
+  const $ = (id)=>document.getElementById(id);
+  const refrescarDisp = ()=>{ const o = $('trOrigen').value; $('trDisp').textContent = 'Hay '+fmt(disponibleTraspaso(o, ex?ex.id:null),'MXN')+' disponibles. Es un apartado: no cuenta para el Budget hasta que lo pasas.'; $('trPersonaWrap').style.display = o==='sobrante' ? '' : 'none'; if(o==='ahorro'){ $('trPersona').value='jen'; } };
+  document.querySelectorAll('[data-tr-origen]').forEach(b=>b.addEventListener('click', ()=>{ document.querySelectorAll('[data-tr-origen]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); $('trOrigen').value = b.getAttribute('data-tr-origen'); refrescarDisp(); }));
+  document.querySelectorAll('[data-tr-persona]').forEach(b=>b.addEventListener('click', ()=>{ document.querySelectorAll('[data-tr-persona]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); $('trPersona').value = b.getAttribute('data-tr-persona');
+    const actual = $('trDestino').value; $('trDestinoWrap').innerHTML = pickerHtml('trDestino', opcionesDestino($('trPersona').value), actual, 'Elige la cuenta'); wirePickers($('overlay')); $('trDestino').addEventListener('change', refrescarMes); }));
+  const refrescarMes = ()=>{ const d = $('trDestino').value; $('trMesWrap').style.display = (d==='bote'||d==='arq') ? '' : 'none'; };
+  $('trDestino').addEventListener('change', refrescarMes);
+  $('trMoneda').addEventListener('change', ()=>{ const w = $('trRateWrap'), r = $('trRate'); if(!w||!r) return; if($('trMoneda').value==='MXN') w.style.display='none'; else { w.style.display=''; r.value = rateSnapshotFor($('trMoneda').value); } });
+  $('doTraspaso').addEventListener('click', ()=>{
+    const org = $('trOrigen').value, per = org==='ahorro' ? 'jen' : $('trPersona').value, des = $('trDestino').value;
+    const monto = Number($('trMonto').value)||0, moneda = $('trMoneda').value;
+    if(!des){ marcarFaltante('trDestino'); alert('Elige a qué cuenta va.'); return; }
+    if(!(monto>0)){ alert('Escribe el monto.'); return; }
+    const stamp = stampRates(monto, moneda, ($('trRate')||{}).value);
+    const dispo = disponibleTraspaso(org, ex ? ex.id : null);
+    if(stamp.montoMXN > dispo + 0.5){ alert('Solo hay '+fmt(Math.max(0,dispo),'MXN')+' disponibles en '+(org==='ahorro'?'el ahorro':'el sobrante')+'.'); return; }
+    const fecha = $('trFecha').value || todayISO();
+    const mes = (des==='bote'||des==='arq') ? ($('trMes').value || ymDe(fecha)) : ymDe(fecha);
+    if((des==='bote'||des==='arq') && mes < mesActual()){ alert('Solo se puede pasar al Budget de este mes o de uno que viene.'); return; }
+    const campos = {persona:per, fuente: org==='ahorro' ? 'Del ahorro' : 'Del sobrante', montoBruto:monto, moneda, fecha, mes, destino:des, ahorroAuto:false, ahorroAutoMonto:0, recurrente:false, traspaso:org, nota:$('trNota').value.trim(), ...stamp};
+    if(ex) Object.assign(ex, campos); else state.ingresos.push({id:uid(), ...campos});
+    persist(); closeSheet(); render();
+    mostrarToast('Listo: pasaste '+fmt(stamp.montoMXN,'MXN')+' a '+labelDestinoTraspaso(des, per)+'.', 'ok');
+  });
 }
 
 /* ---------- Detalle de un movimiento (se abre al tocarlo) ---------- */
@@ -6573,7 +6901,7 @@ function openDetalleMov(key){
     fila('Categoría', escHtml(m.subNombre||''));
     fila('¿A quién corresponde?', {jen:'Solo Jen', isa:'Solo Isa', ambas:'Ambas (a medias)', abuelo:(rec.repartoAbuelo==='ambas'?'Ambas':'Jen')+' · Tarjeta del Abuelo'}[m.quien]||'');
     fila('¿Con qué se pagó?', escHtml(labelPago(m)));
-    if(m.quien==='ambas') fila('Puso el dinero', m.pagadoPor ? nombrePersona(m.pagadoPor) : 'Sin definir');
+    if(m.quien==='ambas') fila('Puso el dinero', escHtml(textoPagadoPor(Object.assign({}, rec, {quien:m.quien, pagadoPor:m.pagadoPor}))));
   }
   if(m.tipo==='ingreso'){ fila('¿De quién?', nombrePersona(m.persona)); fila('Va a', {bote:'Tarjeta del bote', arq:'Arq (pesos)', debito:'Tarjeta de débito', efectivo:'Efectivo'}[m.destino]||''); if(m.mes) fila('Mes que aplica', nombreMesLargo(m.mes)); if(m.netoMXN!==m.montoMXN) fila('Neto (sin ahorro)', fmt(m.netoMXN,'MXN')); }
   if(m.tipo==='retiro-efectivo') fila('De', escHtml(labelCuentaRetiro(m.cuenta, m.persona)));
@@ -6638,7 +6966,7 @@ function renderNosotras(){
     <div class="exp-line nos-item ${i.saldado?'saldado':''}">
       ${conSel ? `<label class="nos-chk"><input type="checkbox" data-nos-sel="${escHtml(i.k)}" ${nosotrasSel[i.k]!==undefined?'checked':''}></label>` : ''}
       ${micoHtml(iconoMov({tipo:'gasto-generales', subId:i.subId}),'sm')}
-      <div class="desc" data-mov-open="gasto-generales|${i.id}|${i.subId}"><div class="n">${escHtml(i.nota)}</div><div class="d">${fmtDate(i.fecha)} · ${escHtml(i.subNombre)} · ${i.viaAbuelo?'Tarjeta del Abuelo':'puso '+nombrePersona(i.acreedor)}${i.pagado>0.005 && !i.saldado?` · ya pagó ${fmt(i.pagado,'MXN')}`:''}</div></div>
+      <div class="desc" data-mov-open="gasto-generales|${i.id}|${i.subId}"><div class="n">${escHtml(i.nota)}</div><div class="d">${fmtDate(i.fecha)} · ${escHtml(i.subNombre)} · ${i.viaAbuelo?'Tarjeta del Abuelo':(i.dosPusieron ? 'pusieron las dos, '+nombrePersona(i.acreedor)+' de más' : 'puso '+nombrePersona(i.acreedor))}${i.pagado>0.005 && !i.saldado?` · ya pagó ${fmt(i.pagado,'MXN')}`:''}</div></div>
       <div class="amt ${i.saldado?'':'gasto'}">${i.saldado ? 'Saldado' : fmt(i.restante,'MXN')}${!i.saldado && i.pagado>0.005 ? `<span class="est">de ${fmt(i.mitad,'MXN')}</span>` : ''}</div>
     </div>
     ${conSel && nosotrasSel[i.k]!==undefined ? `<div class="nos-parcial"><label>¿Cuánto paga de este? (MXN)</label><input type="number" step="0.01" data-nos-monto="${escHtml(i.k)}" value="${nosotrasSel[i.k]}" max="${i.restante}"></div>` : ''}`;
@@ -6656,7 +6984,12 @@ function renderNosotras(){
   <div class="card">
     <div class="card-title"><h2>Lo que ${nombrePersona(deudora)} le debe a ${nombrePersona(ver)}</h2><span class="hint">${fmt(totalPend,'MXN')}</span></div>
     ${contraPend>0.005 ? `<div class="note-box" style="margin:-2px 0 10px;"><span>${netoVer>0.005 ? `En neto ${nombrePersona(deudora)} le debe <b>${fmt(netoVer,'MXN')}</b>` : (netoVer<-0.005 ? `En neto es ${nombrePersona(ver)} quien debe <b>${fmt(-netoVer,'MXN')}</b>` : 'En neto están a mano')}, porque ${nombrePersona(ver)} también le debe ${fmt(contraPend,'MXN')} a ${nombrePersona(deudora)} (toca su nombre arriba para verlo).</span></div>` : ''}
-    ${pend.length ? `<div class="small-note" style="margin:-4px 0 6px;">Marca lo que ${nombrePersona(deudora)} va a pagar. Puedes pagar solo una parte: el gasto sigue apareciendo con lo que falta.</div>` : ''}
+    ${(pend.length || extraVer) ? `<div class="nos-libre">
+      <label for="nosLibreMonto">¿Cuánto pagó ${nombrePersona(deudora)}? <span class="muted">(cualquier cantidad)</span></label>
+      <div class="nos-libre-row"><input type="number" step="0.01" min="0" id="nosLibreMonto" placeholder="0" value="${escHtml(nosLibreMonto)}"><select id="nosLibreMoneda" aria-label="Moneda">${['MXN','EUR'].map(m=>`<option ${m===nosLibreMoneda?'selected':''}>${m}</option>`).join('')}</select><button class="btn btn-primary btn-sm" id="nosLibrePagar" data-deudora="${deudora}">Registrar</button></div>
+      <div id="nosLibrePrev">${renderPrevPagoLibre(deudora)}</div>
+    </div>` : ''}
+    ${pend.length ? `<div class="small-note" style="margin:-4px 0 6px;">O marca los gastos que ${nombrePersona(deudora)} va a pagar. Puedes pagar solo una parte: el gasto sigue apareciendo con lo que falta.</div>` : ''}
     ${pend.length ? pend.map(i=>lineaItem(i, true)).join('') : (extraVer ? '' : `<div class="small-note">${nombrePersona(deudora)} no le debe nada a ${nombrePersona(ver)}. 🎉</div>`)}
     ${extraVer ? `<div class="exp-line nos-item"><span class="nos-chk"></span>${micoHtml(iconoMov({tipo:'pago-entre'}),'sm')}<div class="desc"><div class="n">Pagado de más por ${nombrePersona(ver)}</div><div class="d">${nombrePersona(ver)} le pagó más de lo que debía; ${nombrePersona(deudora)} se lo regresa</div></div><div class="amt gasto">${fmt(extraVer,'MXN')}</div></div>` : ''}
     ${(pend.length || extraVer) ? `<div class="det-actions" style="margin-top:12px;">
@@ -6885,7 +7218,7 @@ function renderConQuePago(){
       <span class="cqp-n">${i+1}</span>
       ${micoHtml({glyph:x.glyph},'sm')}
       <div class="cqp-main"><div class="cqp-name">${escHtml(x.nombre)}${i===iAhora?' <span class="badge badge-ok">usa esta</span>':''}</div>${i===iAhora?`<div class="small-note" style="margin:0;">${escHtml(x.nota)}</div>`:''}</div>
-      <div class="cqp-amt">${x.monto<=0.5 && i<iAhora ? 'agotado' : fmt(x.monto,'MXN')}</div>
+      <div class="cqp-amt">${x.monto<=0.5 && i<iAhora ? 'agotado' : fmt(x.monto,'MXN')}${(x.k==='sobrante'||x.k==='ahorro') && x.monto>0.5 ? `<button class="link-quiet cqp-pasar" data-traspaso="${x.k}">pasar</button>` : ''}</div>
     </div>`).join('')}
     <div class="small-note" style="margin-top:8px;">${nombreBudget(otra)} (${nombrePersona(otra)}): ${fmt(otroBudget,'MXN')} disponibles.</div>
   </div>`;
@@ -6896,7 +7229,7 @@ function actualizarTasaArqEnForm(){
   const r = document.getElementById('gastoRate'); if(!r) return;
   const q = (document.getElementById('gastoQuien')||{}).value;
   const pp = (document.getElementById('gastoPagadoPor')||{}).value || perfil;
-  const pag = q==='ambas' ? pp : (q==='jen' || q==='isa' ? q : perfil);
+  const pag = q==='ambas' ? (pp==='ambas' ? perfil : pp) : (q==='jen' || q==='isa' ? q : perfil);
   const er = document.getElementById('gastoEditRef'); let ref = null; try{ ref = er && er.value ? JSON.parse(er.value.replace(/&apos;/g,"'")) : null; }catch(e){}
   const monto = Number((document.getElementById('gastoMonto')||{}).value)||0;
   const t = tasaArq(pag, monto, ref ? ref.id : null);
@@ -6908,6 +7241,7 @@ function actualizarTasaArqEnForm(){
 let inicioVerMas = false, inicioSubcatsAbierto = false;
 function wireV15Events(){
   const on = (sel, ev, fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev, (e)=>fn(el, e)));
+  document.querySelectorAll('#app [data-traspaso]').forEach(el=>el.addEventListener('click', (e)=>{ e.stopPropagation(); openTraspaso(el.getAttribute('data-traspaso')); }));
   on('[data-mov-open]', 'click', (el, e)=>{ if(e.target.closest('input,label,button:not([data-mov-open])')) return; e.stopPropagation(); openDetalleMov(el.getAttribute('data-mov-open')); });
   const fb = document.getElementById('movFiltrosBtn'); if(fb) fb.addEventListener('click', ()=>{ movFiltrosAbiertos = !movFiltrosAbiertos; render(); });
   const fl = document.getElementById('movFiltrosLimpiar'); if(fl) fl.addEventListener('click', ()=>{ movFDesde=''; movFHasta=''; movFTipo='todos'; movFPago=''; render(); });
@@ -6941,6 +7275,19 @@ function wireV15Events(){
     const extra = di.aFavor[otraPersona(deudora)]>0.005 ? di.aFavor[otraPersona(deudora)] : 0;
     openPagoEntre(null, null, {de: deudora, aplica, monto: Math.round((aplica.reduce((a,x)=>a+x.montoMXN,0) + extra)*100)/100});
   });
+  { const li = document.getElementById('nosLibreMonto'), lm = document.getElementById('nosLibreMoneda'), lb = document.getElementById('nosLibrePagar');
+    const refrescar = ()=>{ const pv = document.getElementById('nosLibrePrev'); if(pv && lb) pv.innerHTML = renderPrevPagoLibre(lb.getAttribute('data-deudora')); };
+    if(li) li.addEventListener('input', ()=>{ nosLibreMonto = li.value; refrescar(); });
+    if(lm) lm.addEventListener('change', ()=>{ nosLibreMoneda = lm.value; refrescar(); });
+    if(lb) lb.addEventListener('click', ()=>{
+      const deudora = lb.getAttribute('data-deudora');
+      const monto = Number(nosLibreMonto)||0;
+      if(!(monto>0)){ alert('Escribe cuánto pagó.'); return; }
+      const mxn = nosLibreMoneda==='MXN' ? monto : monto*rateSnapshotFor(nosLibreMoneda);
+      const r = simularPagoLibre(deudora, mxn);
+      openPagoEntre(null, null, {de: deudora, aplica: r.lineas.map(l=>({k:l.k, montoMXN:l.aplica})), monto, moneda: nosLibreMoneda, libre:true});
+      nosLibreMonto = '';
+    }); }
   const vs = document.getElementById('nosVerSaldados'); if(vs) vs.addEventListener('click', ()=>{ nosotrasSaldados = !nosotrasSaldados; render(); });
   const nb = document.getElementById('nosBuscar'); if(nb){ nb.addEventListener('input', ()=>{ nosotrasBusqueda = nb.value; }); nb.addEventListener('keyup', (e)=>{ if(e.key==='Enter') render(); }); nb.addEventListener('blur', ()=>render()); }
   on('[data-nos-ir]', 'click', (el)=>{ activeTab = 'nosotras'; nosotrasVer = el.getAttribute('data-nos-ir'); nosotrasSel = {}; render(); try{ (document.scrollingElement||document.documentElement).scrollTop = 0; }catch(e){} });
@@ -7275,6 +7622,7 @@ function wireEvents(){
 
 function wireSheetEvents(){
   wirePickers(document.getElementById('overlay'));
+  document.querySelectorAll('#overlay [data-traspaso]').forEach(el=>el.addEventListener('click', ()=>{ closeSheet(); openTraspaso(el.getAttribute('data-traspaso')); }));
   const closeBtn = document.getElementById('closeSheetBtn');
   if(closeBtn) closeBtn.addEventListener('click', closeSheet);
   document.querySelectorAll('[data-importar]').forEach(el=>{ el.addEventListener('click', ()=>aplicarImportar(el.getAttribute('data-importar'))); });
@@ -7372,9 +7720,34 @@ function wireSheetEvents(){
       document.querySelectorAll('[data-pagadopor]').forEach(b=>b.classList.remove('on'));
       el.classList.add('on');
       const hidden = document.getElementById('gastoPagadoPor');
-      if(hidden) hidden.value = el.getAttribute('data-pagadopor');
+      const v = el.getAttribute('data-pagadopor');
+      if(hidden) hidden.value = v;
+      const aw = document.getElementById('pagoAmbasWrap'); if(aw) aw.style.display = v==='ambas' ? '' : 'none';
+      const nt = document.getElementById('pagadoPorNota'); if(nt) nt.textContent = notaPagadoPor(v);
     });
   });
+  // "Ambas": 50/50 o personalizado (lo que puso cada una; la otra parte se calcula sola)
+  document.querySelectorAll('[data-reparto]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      document.querySelectorAll('[data-reparto]').forEach(b=>b.classList.remove('on'));
+      el.classList.add('on');
+      const v = el.getAttribute('data-reparto');
+      const h = document.getElementById('gastoReparto'); if(h) h.value = v;
+      const cw = document.getElementById('repartoCustomWrap'); if(cw) cw.style.display = v==='custom' ? '' : 'none';
+      if(v==='custom'){ const j = document.getElementById('gastoPusoJen'); if(j && j.value===''){ const tot = Number((document.getElementById('gastoMonto')||{}).value)||0; j.value = tot ? Math.round(tot/2*100)/100 : ''; completarReparto('jen'); } }
+    });
+  });
+  const completarReparto = (desde)=>{
+    const tot = Number((document.getElementById('gastoMonto')||{}).value)||0;
+    const j = document.getElementById('gastoPusoJen'), i = document.getElementById('gastoPusoIsa');
+    if(!j || !i || !tot) return;
+    if(desde==='jen'){ if(j.value==='') return; const v = Math.min(tot, Math.max(0, Number(j.value)||0)); i.value = Math.round((tot - v)*100)/100; }
+    else { if(i.value==='') return; const v = Math.min(tot, Math.max(0, Number(i.value)||0)); j.value = Math.round((tot - v)*100)/100; }
+  };
+  { const j = document.getElementById('gastoPusoJen'), i = document.getElementById('gastoPusoIsa');
+    if(j) j.addEventListener('input', ()=>completarReparto('jen'));
+    if(i) i.addEventListener('input', ()=>completarReparto('isa'));
+    const mo = document.getElementById('gastoMonto'); if(mo) mo.addEventListener('input', ()=>completarReparto('jen')); }
   const gastoQuienSel = document.getElementById('gastoQuien');
   const gastoPagoSel = document.getElementById('gastoPago');
   const refrescarPago = ()=>{
@@ -7436,6 +7809,15 @@ function wireSheetEvents(){
     const repartoAbuelo = pago==='abuelo' ? (quienSelVal==='ambas' ? 'ambas' : 'jen') : null;
     const pagadoPorEl = document.getElementById('gastoPagadoPor');
     const pagadoPor = quien==='ambas' ? (pagadoPorEl ? (pagadoPorEl.value || null) : perfil) : null;
+    let parteJen = null;
+    if(pagadoPor==='ambas'){
+      const rep = (document.getElementById('gastoReparto')||{}).value || 'mitad';
+      if(rep==='custom'){
+        const pj = Number((document.getElementById('gastoPusoJen')||{}).value), pi = Number((document.getElementById('gastoPusoIsa')||{}).value);
+        if(!(pj>=0) || !(pi>=0) || Math.abs(pj+pi-monto) > 0.011){ alert('Lo que puso Jen más lo que puso Isa tiene que dar el total ('+monto+').'); return; }
+        parteJen = monto>0 ? pj/monto : 0.5;
+      } else parteJen = 0.5;
+    }
     const nota = document.getElementById('gastoNota').value;
     const pagadoCon = pago==='abuelo' ? 'bote' : pago;
     { const erTmp = document.getElementById('gastoEditRef'); const refTmp = erTmp && erTmp.value ? JSON.parse(erTmp.value.replace(/&apos;/g,"'")) : null;
@@ -7489,6 +7871,7 @@ function wireSheetEvents(){
       state.subcats.forEach(x=>{ if(x.gastos.some(g=>g.id===existing.id)) x.gastos = x.gastos.filter(g=>g.id!==existing.id); });
       state.gustosGastos = state.gustosGastos.filter(g=>g.id!==existing.id);
       Object.assign(existing, {monto, moneda, fecha, quien, pagadoPor, nota, pagadoCon, ...stamp});
+      if(parteJen!==null) existing.parteJen = parteJen; else delete existing.parteJen;
       if(repartoAbuelo) existing.repartoAbuelo = repartoAbuelo; else delete existing.repartoAbuelo;
       if(otroNombre) existing.otroNombre = otroNombre; else delete existing.otroNombre;
       aplicarEstancia(existing);
@@ -7506,6 +7889,7 @@ function wireSheetEvents(){
     }
 
     const gasto = {id:uid(), monto, moneda, fecha, quien, pagadoPor, nota, pagadoCon, ...stamp};
+    if(parteJen!==null) gasto.parteJen = parteJen;
     if(repartoAbuelo) gasto.repartoAbuelo = repartoAbuelo;
     if(otroNombre) gasto.otroNombre = otroNombre;
     aplicarEstancia(gasto);
@@ -7733,6 +8117,10 @@ function wireSheetEvents(){
     // Gastos específicos que se están pagando (si el pago es menor, se aplica en orden hasta donde alcance).
     let aplica = [];
     try{ aplica = JSON.parse((document.getElementById('peAplica')||{}).value.replace(/&apos;/g,"'")||'[]')||[]; }catch(err){ aplica = []; }
+    if((document.getElementById('peLibre')||{}).value==='1' && !document.getElementById('peEditRef').value){
+      // "Pagar cualquier cantidad": se recalcula con el monto final en pesos (por si cambiaron el tipo de cambio).
+      aplica = simularPagoLibre(de, mxnOf(campos)).lineas.map(l=>({k:l.k, montoMXN:l.aplica}));
+    }
     if(aplica.length){
       let disponible = mxnOf(campos);
       aplica = aplica.map(ap=>{ const x = Math.min(Number(ap.montoMXN)||0, Math.max(0, disponible)); disponible -= x; return {k:ap.k, montoMXN:Math.round(x*100)/100}; }).filter(ap=>ap.montoMXN>0);
