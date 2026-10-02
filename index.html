@@ -742,13 +742,13 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.1 · 2 oct 2026 (cuentas Nu/Revolut, Budget del mes con Abuelo, compensar, total acumulado ±)';
+const APP_VERSION = '18.2 · 3 oct 2026 (reiniciar desde cero, Excel con colores, hoja más ligera)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
-const APP_BUILD = 18;
+const APP_BUILD = 19; // v18.2: reiniciar desde cero (las versiones anteriores no lo entienden)
 // Versión mínima del código de la hoja (Apps Script) que sabe juntar las colecciones nuevas.
-const SCRIPT_MIN = 34;
+const SCRIPT_MIN = 35;
 let syncVersionNube = null;
 const Storage = {
   load(){
@@ -1297,7 +1297,7 @@ function recorrerRegistros(st){
   (st.subcats||[]).forEach(sb=>{ if(sb && sb.id) out.push({k:'subcats:'+sb.id, col:'subcats', rec:sb, loc:''}); });
   return out;
 }
-const CLAVES_NO_CONFIG = ['ingresos','subcats','gustosGastos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','rates','ratesMeta','syncUrl','_borrados','_cfgU','efectivoGastos','_syncMarca','_papelera','importaciones','suscripciones','comprasArq','transferencias','cuentasCfg'];
+const CLAVES_NO_CONFIG = ['ingresos','subcats','gustosGastos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','rates','ratesMeta','syncUrl','_borrados','_cfgU','efectivoGastos','_syncMarca','_papelera','importaciones','suscripciones','comprasArq','transferencias','cuentasCfg','reinicioId','reinicioEn','reinicioPor'];
 function configDe(st){
   const c = {};
   Object.keys(st).forEach(k=>{ if(!CLAVES_NO_CONFIG.includes(k) && k!=='finanzas' && k!=='ahorro' && k!=='fondoGrande') c[k]=st[k]; });
@@ -1316,6 +1316,25 @@ function huellasDe(st){
   return m;
 }
 function mergeStates(L, R){
+  // v18.2: si una de las dos copias viene de un "Reiniciar desde cero" más nuevo, esa copia
+  // queda tal cual y lo de antes del reinicio se descarta (en los dos teléfonos y en la hoja).
+  const reL = Number(L && L.reinicioEn)||0, reR = Number(R && R.reinicioEn)||0;
+  if(reL !== reR){
+    const gana = JSON.parse(JSON.stringify(reL > reR ? L : R)), pierde = JSON.parse(JSON.stringify(reL > reR ? R : L));
+    const re = Math.max(reL, reR);
+    // Del lado viejo solo se quedan los registros hechos después del reinicio (p. ej. sin internet); lo de antes se descarta.
+    const nuevos = new Set(recorrerRegistros(pierde).filter(e=>e.col!=='subcats' && typeof e.rec._u==='number' && e.rec._u > re).map(e=>e.rec));
+    if(!nuevos.size) return gana;
+    const viejos = new Set(recorrerRegistros(pierde).filter(e=>e.col!=='subcats' && !nuevos.has(e.rec)).map(e=>e.rec));
+    const limpiar = (o)=>{ if(Array.isArray(o)){ for(let i=o.length-1;i>=0;i--){ if(viejos.has(o[i])) o.splice(i,1); else limpiar(o[i]); } } else if(o && typeof o==='object'){ Object.keys(o).forEach(k=>{ if(k!=='_papelera' && k!=='_borrados') limpiar(o[k]); }); } };
+    limpiar(pierde);
+    const solo = JSON.parse(JSON.stringify(gana));
+    // Solo los registros nuevos: ajustes, marcas de borrado y papelera del lado viejo no cuentan.
+    Object.keys(solo).forEach(k=>{ if(!['subcats','gustosGastos','ingresos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','importaciones','suscripciones','comprasArq','transferencias','finanzas','ahorro','fondoGrande'].includes(k)) solo[k] = gana[k]; });
+    ['subcats','gustosGastos','ingresos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','importaciones','suscripciones','comprasArq','transferencias','finanzas','ahorro','fondoGrande'].forEach(k=>{ if(pierde[k]!==undefined) solo[k] = pierde[k]; });
+    solo._borrados = {}; solo._papelera = {}; solo._cfgU = {}; solo.reinicioId = gana.reinicioId; solo.reinicioEn = gana.reinicioEn; if(gana.reinicioPor) solo.reinicioPor = gana.reinicioPor;
+    return mergeStates(solo, gana);
+  }
   const bor = {};
   [R._borrados||{}, L._borrados||{}].forEach(b=>Object.keys(b).forEach(k=>{ if(!bor[k] || b[k]>bor[k]) bor[k]=b[k]; }));
   // Borrados de hace más de 6 meses ya no hacen falta.
@@ -1471,6 +1490,8 @@ function juntarRescatando(actual, copia){
   });
   const a = JSON.parse(JSON.stringify(actual));
   const c = JSON.parse(JSON.stringify(copia));
+  // Una copia de antes de un reinicio se puede juntar (se toma como del reinicio actual).
+  if(a.reinicioEn){ c.reinicioId = a.reinicioId; c.reinicioEn = a.reinicioEn; } else { delete c.reinicioId; delete c.reinicioEn; }
   if(!a._borrados || typeof a._borrados!=='object') a._borrados = {};
   if(!c._borrados || typeof c._borrados!=='object') c._borrados = {};
   const vivos = new Set(recorrerRegistros(a).map(e=>e.k));
@@ -1733,10 +1754,15 @@ async function sincronizarUnaVez(){
       const huellasAntes = huellasDe(state);
       if(nube){
         const url = state.syncUrl;
+        // Un teléfono o navegador que se une por primera vez (sin reinicio propio) adopta el reinicio de la hoja:
+        // así lo que ya tenía se junta normal en vez de borrarse.
+        if(!leerMetaSync().ultima && !state.reinicioEn && nube.reinicioEn){ state.reinicioId = nube.reinicioId; state.reinicioEn = nube.reinicioEn; if(nube.reinicioPor) state.reinicioPor = nube.reinicioPor; }
+        const reinicioAntes = Number(state.reinicioEn)||0;
         state = mergeStates(state, nube);
         state.syncUrl = url;
         Storage.save(state);
         rebasarHuellas();
+        if((Number(state.reinicioEn)||0) > reinicioAntes) reinicioDesdeOtroTelefono(state.reinicioPor);
         if(generarRecurrentes()>0){ sellarCambios(); Storage.save(state); }
         if(recalcularArq()){ sellarCambios(); Storage.save(state); }
         // ¿Cuántas cosas llegaron del otro teléfono?
@@ -1754,7 +1780,7 @@ async function sincronizarUnaVez(){
         return true;
       }
       // Con un código de hoja viejo, subir podría perder suscripciones / compras de Arq: no se sube hasta actualizarlo.
-      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.4). Lo que registres se queda guardado en este teléfono y se sube en cuanto lo actualices.');
+      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.5). Lo que registres se queda guardado en este teléfono y se sube en cuanto lo actualices.');
       const ahoraISO = new Date().toISOString();
       const marca = uid();
       const disp = miDispositivo();
@@ -5075,6 +5101,7 @@ function renderAjustesInline(){
   <button class="btn btn-outline btn-block" id="exportExcel" style="margin-bottom:10px;">${ico('trend','icon-sm')} Exportar gastos a Excel</button>
   <button class="btn btn-outline btn-block" id="exportData" style="margin-bottom:10px;">${ico('file','icon-sm')} Exportar datos (copia de respaldo)</button>
   <button class="btn btn-outline btn-block" id="importData" style="margin-bottom:16px;">${ico('file','icon-sm')} Importar respaldo</button>
+  <button class="btn btn-outline btn-block" id="reiniciarTodo" style="margin-bottom:16px;color:var(--brick);border-color:var(--brick);">${ico('trash','icon-sm')} Reiniciar desde cero</button>
   <input type="file" id="importFile" accept=".json,application/json" hidden>
   <div class="small-note" style="text-align:center;margin-bottom:16px;">Versión ${APP_VERSION}</div>
   `;
@@ -5125,9 +5152,116 @@ function csvCell(v){
 // Arma el CSV en texto plano (sin tocar el DOM) para poder probarlo aparte
 // de la descarga. Ordenado cronológicamente para que se lea como bitácora.
 function buildMovimientosCSV(){
+  const {headers, filas} = datosMovimientosExport();
+  return [headers, ...filas].map(fila=>fila.map(csvCell).join(',')).join('\r\n');
+}
+/* ============================================================
+   v18.2 — REINICIAR DESDE CERO: borra todo en los dos teléfonos y en la hoja.
+   Antes baja una copia de respaldo. El reinicio viaja a la hoja y al otro
+   teléfono (reinicioEn): lo de antes del reinicio ya no se vuelve a juntar.
+   ============================================================ */
+function borrarCopiasLocales(){
+  copiasMemoria = {}; ultimaCopiaTs = 0;
+  try{ idbCopias().then(db=>{ try{ const tx = db.transaction('copias','readwrite'); tx.objectStore('copias').clear(); tx.oncomplete = ()=>db.close(); tx.onerror = ()=>db.close(); }catch(e){ try{ db.close(); }catch(e2){} } }).catch(()=>{}); }catch(e){}
+}
+function vistasAlInicio(){
+  activeTab = 'inicio'; movFiltro = 'todos'; movBusqueda = ''; movMes = null; movMesTotal = null; movSel = new Set(); movSelModo = false;
+  fichaAbierta = null; personalesResumenAbierto = false; deudasOtrosAbierto = false; meDebenAbierto = false; acumAbierto = null; destinoVerId = null; nosHistLimite = 20;
+  movFDesde = ''; movFHasta = ''; movFTipo = 'todos'; movFPago = ''; movFCuenta = '';
+}
+function estadoReiniciado(){
+  const nuevo = migrateState(defaultState());
+  migrarDatosV15(nuevo, true);
+  nuevo.syncUrl = state.syncUrl || '';
+  if(state.rates) nuevo.rates = JSON.parse(JSON.stringify(state.rates));
+  if(state.ratesMeta) nuevo.ratesMeta = JSON.parse(JSON.stringify(state.ratesMeta));
+  nuevo.reinicioId = uid();
+  nuevo.reinicioEn = Math.max(Date.now(), (Number(state.reinicioEn)||0) + 1);
+  nuevo.reinicioPor = perfil || '';
+  nuevo._borrados = {}; nuevo._papelera = {};
+  return nuevo;
+}
+function openReiniciar(){
+  openSheet(`
+    ${sheetHeader('Reiniciar desde cero')}
+    <div class="note-box" style="border-color:var(--brick);">${ico('alert','icon-sm')}<div>Se borra <b>todo</b>: ingresos, gastos, cuentas, deudas, destinos, suscripciones, papelera y copias del teléfono, <b>en los dos teléfonos</b> y en tu Google Sheet (incluido su historial). No se puede deshacer desde la app.</div></div>
+    <div class="small-note" style="margin:10px 0;">Antes de borrar se descarga una copia de respaldo (.json) por si la necesitas: guárdala en tu Drive o correo. El otro teléfono se borra solo la próxima vez que se sincronice.</div>
+    <div class="field"><label>Para confirmar escribe BORRAR</label><input type="text" id="reiniciarConfirma" autocomplete="off" placeholder="BORRAR"></div>
+    <button class="btn btn-block" id="doReiniciar" style="background:var(--brick);color:#fff;">Bajar respaldo y borrar todo</button>
+  `);
+  document.getElementById('doReiniciar').addEventListener('click', ()=>{
+    if(String(document.getElementById('reiniciarConfirma').value||'').trim().toUpperCase()!=='BORRAR'){ alert('Escribe BORRAR para confirmar.'); return; }
+    reiniciarTodo();
+  });
+}
+async function reiniciarTodo(){
+  const btn = document.getElementById('doReiniciar');
+  if(state.syncUrl){
+    if(navigator.onLine===false){ alert('Para reiniciar necesitas internet (así se borra también en la hoja y en el otro teléfono). No se borró nada.'); return; }
+    if(btn){ btn.disabled = true; btn.textContent = 'Reiniciando…'; }
+    // 1) Traer lo último del otro teléfono (para que el respaldo lo tenga todo).
+    const okSync = await sincronizar();
+    if(!okSync){ if(btn){ btn.disabled = false; btn.textContent = 'Bajar respaldo y borrar todo'; } alert('No se pudo conectar con la hoja ('+(syncError||'revisa tu internet')+'). No se borró nada.'); return; }
+    try{ descargarRespaldo(); }catch(e){}
+    // 2) Subir el reinicio y esperar a que la hoja lo confirme antes de borrar aquí.
+    const nuevo = estadoReiniciado();
+    try{
+      const res = await fetchSync(state.syncUrl, {cache:'no-store'});
+      const payload = await res.json();
+      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.5).');
+      const disp = miDispositivo();
+      const body = JSON.stringify({ updatedAt: new Date().toISOString(), baseUpdatedAt: payload.updatedAt || null, appBuild: APP_BUILD, quien: perfil||'', dispositivo: disp.nombre, dispositivoId: disp.id, cambios: 0, data: nuevo });
+      const r2 = await fetchSync(state.syncUrl, { method:'POST', body }, 60000);
+      const resp = await r2.json();
+      if(!resp || resp.ok!==true) throw new Error(resp && resp.error ? resp.error : 'La hoja no confirmó.');
+      ultimaNubeVista = resp.updatedAt || null;
+    }catch(e){
+      if(btn){ btn.disabled = false; btn.textContent = 'Bajar respaldo y borrar todo'; }
+      alert('No se pudo reiniciar en la hoja: '+((e && e.message) || 'revisa tu internet')+'. No se borró nada.');
+      return;
+    }
+    aplicarReinicioLocal(nuevo, false);
+    return;
+  }
+  try{ descargarRespaldo(); }catch(e){}
+  aplicarReinicioLocal(estadoReiniciado(), true);
+}
+function aplicarReinicioLocal(nuevo, pendiente){
+  state = nuevo;
+  // Se empieza como si fuera la primera vez: nada de lo anterior queda como "borrado" ni en la papelera.
+  const meta = leerMetaSync();
+  guardarMetaSync({huellas:null, pendiente:!!pendiente, pendienteDesde: pendiente ? Date.now() : null, pendientes:[], ultima: meta.ultima || null});
+  persist();
+  state._borrados = {}; state._papelera = {};
+  Storage.save(state); rebasarHuellas(); marcarPendiente(!!pendiente);
+  borrarCopiasLocales();
+  vistasAlInicio();
+  try{ closeSheet(); }catch(e){}
+  render();
+  if(state.syncUrl) programarSync(1500);
+  mostrarToast(state.syncUrl ? 'Listo: empezaron desde cero. Ya se borró en la hoja; el otro teléfono se borra solo al sincronizarse.' : 'Listo: empezaste desde cero.', 'ok');
+}
+// El otro teléfono reinició: aquí también se borró todo (ya se tomó lo de la hoja).
+function reinicioDesdeOtroTelefono(quien){
+  state._borrados = state._borrados || {}; state._papelera = state._papelera || {};
+  Storage.save(state); rebasarHuellas(); marcarPendiente(false);
+  borrarCopiasLocales();
+  vistasAlInicio();
+  setTimeout(()=>{ try{ closeSheet(); }catch(e){} render(); mostrarToast((quien ? nombrePersona(quien)+' reinició' : 'Se reinició')+' la app desde cero: aquí también se borró todo.', 'ok'); }, 0);
+}
+
+/* ---------- v18.2: Excel con colores (gastos en rojo, ingresos en verde) ---------- */
+// Clase de cada renglón para el color: 'ingreso' (verde), 'gasto' (rojo) o '' (movimientos entre cuentas, notas).
+function claseExport(m){
+  const neg = (Number(m.monto)||0) < 0;
+  if(m.tipo==='gasto-generales' || m.tipo==='gasto-gustos' || m.tipo==='gasto-efectivo' || m.tipo==='personal-gasto') return neg ? 'ingreso' : 'gasto';
+  if(m.tipo==='personal-ganancia') return neg ? 'gasto' : 'ingreso';
+  // ahorro, traspasos, pagos entre cuentas, saldos iniciales y notas (me deben / voy a deber): sin color
+  if(m.tipo==='ingreso') return m.traspaso ? '' : (neg ? 'gasto' : 'ingreso');
+  return '';
+}
+function datosMovimientosExport(){
   const movs = collectMovimientos().slice().sort((a,b)=> (a.fecha||'').localeCompare(b.fecha||''));
-  // Extras que no son movimientos guardados pero sí dinero: depósitos
-  // automáticos al ahorro y saldos iniciales de las tarjetas de débito.
   ahorroDepositosDerivados().forEach(d=>movs.push({tipo:'ahorro-deposito', quien:'jen', fecha:d.fecha, nota:d.nota, monto:d.monto, moneda:'MXN', montoMXN:d.monto}));
   ['jen','isa'].forEach(p=>{ const ini = Number(state.finanzas[p].inicial)||0; if(ini) movs.push({tipo:'saldo-inicial-debito', quien:p, fecha:'', nota:'Saldo inicial', monto:ini, moneda:'MXN', montoMXN:ini}); });
   (state.porCobrar||[]).forEach(r=>movs.push({tipo:'por-cobrar', quien:r.persona, fecha:r.fecha, nota:r.nombre+(r.concepto?' · '+r.concepto:''), monto:r.monto, moneda:r.moneda, montoMXN:mxnOf(r), estadoPC:r.estado, serieId:r.serieId}));
@@ -5139,18 +5273,60 @@ function buildMovimientosCSV(){
     m.monto, m.moneda||'MXN', Math.round((m.montoMXN||0)*100)/100, pagadoConExport(m), cuentaExport(m),
     m.tipo==='ingreso' ? (m.mes||'') : '', detalleExport(m)
   ]);
-  return [headers, ...filas].map(fila=>fila.map(csvCell).join(',')).join('\r\n');
+  return {headers, filas, clases: movs.map(claseExport)};
+}
+// .xlsx hecho aquí mismo (sin internet ni librerías): un zip sin comprimir con la hoja y sus estilos.
+const CRC_TABLA = (()=>{ const t = new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+function crc32(bytes){ let c = 0xFFFFFFFF; for(let i=0;i<bytes.length;i++) c = CRC_TABLA[(c^bytes[i])&0xFF]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+function zipSinComprimir(archivos){
+  const enc = new TextEncoder(), partes = [], central = []; let off = 0;
+  const u16 = (v)=>[v&0xFF, (v>>>8)&0xFF], u32 = (v)=>[v&0xFF, (v>>>8)&0xFF, (v>>>16)&0xFF, (v>>>24)&0xFF];
+  archivos.forEach(([nombre, texto])=>{
+    const n = enc.encode(nombre), d = enc.encode(texto), crc = crc32(d);
+    const loc = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(d.length), ...u32(d.length), ...u16(n.length), ...u16(0)]);
+    partes.push(loc, n, d);
+    central.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(d.length), ...u32(d.length), ...u16(n.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(off)]), n);
+    off += loc.length + n.length + d.length;
+  });
+  const tamCentral = central.reduce((a,x)=>a+x.length,0);
+  const fin = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(archivos.length), ...u16(archivos.length), ...u32(tamCentral), ...u32(off), ...u16(0)]);
+  const todo = [...partes, ...central, fin], total = todo.reduce((a,x)=>a+x.length,0), out = new Uint8Array(total);
+  let p = 0; todo.forEach(x=>{ out.set(x, p); p += x.length; });
+  return out;
+}
+function xmlEsc(v){ return String(v==null?'':v).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,''); }
+function construirXlsxMovimientos(){
+  const {headers, filas, clases} = datosMovimientosExport();
+  const col = (i)=>{ let s=''; i++; while(i>0){ const m=(i-1)%26; s=String.fromCharCode(65+m)+s; i=Math.floor((i-1)/26); } return s; };
+  // estilos: 1 encabezado, 2 texto rojo, 3 texto verde, 4 número rojo, 5 número verde, 6 número normal
+  const estilo = (clase, num)=> num ? (clase==='gasto'?4:(clase==='ingreso'?5:6)) : (clase==='gasto'?2:(clase==='ingreso'?3:0));
+  const celda = (ref, v, s)=> (typeof v==='number' && isFinite(v)) ? `<c r="${ref}" s="${s}"><v>${v}</v></c>` : `<c r="${ref}" t="inlineStr"${s?` s="${s}"`:''}><is><t xml:space="preserve">${xmlEsc(v)}</t></is></c>`;
+  const filasXml = [`<row r="1">${headers.map((h,i)=>celda(col(i)+'1', h, 1)).join('')}</row>`]
+    .concat(filas.map((f,ri)=>`<row r="${ri+2}">${f.map((v,ci)=>{ const num = typeof v==='number' && isFinite(v); return celda(col(ci)+(ri+2), v, estilo(clases[ri], num)); }).join('')}</row>`));
+  const anchos = [12,28,10,36,12,9,14,24,30,12,30];
+  const hoja = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${anchos.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${filasXml.join('')}</sheetData><autoFilter ref="A1:${col(headers.length-1)}${filas.length+1}"/></worksheet>`;
+  const estilos = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00"/></numFmts><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FFC0392B"/><name val="Calibri"/></font><font><sz val="11"/><color rgb="FF1E8449"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE8F0EE"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyNumberFormat="1"/><xf numFmtId="164" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyNumberFormat="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  return zipSinComprimir([
+    ['[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>'],
+    ['_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+    ['xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Movimientos" sheetId="1" r:id="rId1"/></sheets><definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">Movimientos!$A$1:$'+col(headers.length-1)+'$'+(filas.length+1)+'</definedName></definedNames></workbook>'],
+    ['xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'],
+    ['xl/styles.xml', estilos],
+    ['xl/worksheets/sheet1.xml', hoja],
+  ]);
 }
 // Exporta todos los movimientos (generales, gustos, efectivo, ingresos,
 // personales y retiros de ahorro) a un .csv que Excel/Sheets abre directo —
 // sin depender de internet ni de ninguna librería externa.
 function exportarGastosCSV(){
-  const csv = buildMovimientosCSV();
-  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8;'});
+  // v18.2: ahora es un Excel de verdad (.xlsx): gastos en rojo, ingresos en verde.
+  const bytes = construirXlsxMovimientos();
+  const blob = new Blob([bytes], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `movimientos-ruta-compartida-${todayISO()}.csv`; a.click();
-  URL.revokeObjectURL(url);
+  a.href = url; a.download = `movimientos-budgetin-${todayISO()}.xlsx`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  mostrarToast('Excel descargado: gastos en rojo, ingresos en verde.', 'ok');
 }
 
 function openPct(){
@@ -5783,6 +5959,7 @@ function aplicarImportar(modo){
   if(!importPendiente) return;
   const datos = migrateState(JSON.parse(JSON.stringify(importPendiente)));
   migrarDatosV15(datos, true); // un respaldo viejo llega ya con las categorías nuevas
+  if(state.reinicioEn){ datos.reinicioId = state.reinicioId; datos.reinicioEn = state.reinicioEn; } else { delete datos.reinicioId; delete datos.reinicioEn; }
   const url = state.syncUrl;
   if(modo==='reemplazar'){
     state = datos; state.syncUrl = url;
@@ -6516,8 +6693,8 @@ async function openCopias(){
     const p = await r.json();
     const c = document.getElementById('copiasNube'); if(!c) return;
     if(!p || !Array.isArray(p.filas)){ c.textContent = 'Pega el código nuevo de Apps Script (versión 3) para ver aquí las copias de la hoja.'; return; }
-    c.innerHTML = p.filas.length ? p.filas.map(f=>`<div class="exp-line" style="padding:7px 0;"><div class="desc"><div class="n">${escHtml(f.fecha||'')}</div><div class="d">${escHtml(nombreQuien(f.quien))} · ${escHtml(f.dispositivo||'')}</div></div><button class="btn btn-outline btn-sm" data-copia-nube="${Number(f.fila)}">Juntar</button></div>`).join('') : 'Todavía no hay copias en la hoja.';
-    c.querySelectorAll('[data-copia-nube]').forEach(el=>el.addEventListener('click', ()=>juntarCopiaNube(Number(el.getAttribute('data-copia-nube')))));
+    c.innerHTML = p.filas.length ? p.filas.map(f=>`<div class="exp-line" style="padding:7px 0;"><div class="desc"><div class="n">${escHtml(f.fecha||'')}</div><div class="d">${escHtml(nombreQuien(f.quien))} · ${escHtml(f.dispositivo||'')}</div></div><button class="btn btn-outline btn-sm" data-copia-nube="${Number(f.fila)}" data-copia-hora="${escHtml(f.updatedAt||'')}">Juntar</button></div>`).join('') : 'Todavía no hay copias en la hoja.';
+    c.querySelectorAll('[data-copia-nube]').forEach(el=>el.addEventListener('click', ()=>juntarCopiaNube(Number(el.getAttribute('data-copia-nube')), el.getAttribute('data-copia-hora'))));
   }catch(e){ const c = document.getElementById('copiasNube'); if(c) c.textContent = 'No se pudo leer la hoja. Revisa tu internet.'; }
 }
 function juntarCopia(datos){
@@ -6525,11 +6702,12 @@ function juntarCopia(datos){
   importPendiente = datos;
   aplicarImportar('juntar');
 }
-async function juntarCopiaNube(fila){
+async function juntarCopiaNube(fila, hora){
   try{
-    const r = await fetch(urlSync('fila='+fila), {cache:'no-store'});
+    const r = await fetch(urlSync(hora ? 'copia='+encodeURIComponent(hora)+'&fila='+fila : 'fila='+fila), {cache:'no-store'});
     const p = await r.json();
-    juntarCopia(p && p.data);
+    if(!(p && p.data)){ mostrarToast('Esa copia ya no está en la hoja (solo se guardan las últimas 10). Abre la lista otra vez.', 'error'); return; }
+    juntarCopia(p.data);
   }catch(e){ mostrarToast('No se pudo leer esa copia. Revisa tu internet.', 'error'); }
 }
 
@@ -8722,6 +8900,8 @@ function wireEvents(){
   const vh = document.getElementById('verHistorialSync'); if(vh) vh.addEventListener('click', openHistorialSync);
   const vc = document.getElementById('verCopias'); if(vc) vc.addEventListener('click', openCopias);
   const vp = document.getElementById('verPapelera'); if(vp) vp.addEventListener('click', openPapelera);
+  const reiniciarBtn = document.getElementById('reiniciarTodo');
+  if(reiniciarBtn) reiniciarBtn.addEventListener('click', openReiniciar);
   const exportExcelBtn = document.getElementById('exportExcel');
   if(exportExcelBtn) exportExcelBtn.addEventListener('click', exportarGastosCSV);
   wireV15Events();
@@ -9650,7 +9830,7 @@ setInterval(pintarBarraPendiente, 10000);
 // toma esos datos (así una pestaña vieja no borra lo que hizo la otra).
 window.addEventListener('storage', (e)=>{
   if(e.key!==STORAGE_KEY || !e.newValue) return;
-  try{ const nuevo = migrateState(JSON.parse(e.newValue)); if(nuevo){ const url = state.syncUrl; state = nuevo; if(!state.syncUrl) state.syncUrl = url; recordarRegistros(); render(); } }catch(err){}
+  try{ const nuevo = migrateState(JSON.parse(e.newValue)); if(nuevo){ if((Number(nuevo.reinicioEn)||0) !== (Number(state.reinicioEn)||0)){ copiasMemoria = {}; ultimaCopiaTs = 0; } const url = state.syncUrl; state = nuevo; if(!state.syncUrl) state.syncUrl = url; recordarRegistros(); render(); } }catch(err){}
 });
 window.addEventListener('online', ()=>{ if(state.syncUrl) sincronizar(); });
 document.addEventListener('visibilitychange', ()=>{
