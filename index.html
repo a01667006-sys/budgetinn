@@ -660,6 +660,10 @@
   .ec-monto select{width:116px;flex:none;padding-right:6px;}
   .ec-rate{font-size:12px;color:var(--ink-soft);display:flex;flex-direction:column;gap:4px;}
   .ec-avisos{font-size:12px;color:var(--amber);font-weight:600;}
+  .ec-origen{grid-column:1 / -1;}
+  .ec-origen select{margin-top:2px;}
+  .btn-deshacer-imp{font-size:13px;flex-wrap:wrap;}
+  .btn-deshacer-imp .muted{font-weight:500;}
   .esp-line{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
   .esp-line:last-of-type{border-bottom:none;}
   .esp-line .desc{flex:1;min-width:0;} .esp-line .n{font-weight:700;font-size:14px;} .esp-line .d{font-size:12px;color:var(--ink-soft);}
@@ -742,7 +746,7 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.2 · 3 oct 2026 (reiniciar desde cero, Excel con colores, hoja más ligera)';
+const APP_VERSION = '18.3 · 3 oct 2026 (deshacer última importación, pagos de tarjeta importados con su origen)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
@@ -2604,6 +2608,10 @@ function saldoEfectivo(persona, moneda){
   (state.pagosOtros||[]).forEach(p=>{
     if(p.persona===persona && p.desde==='efectivo' && (p.moneda||'MXN')===moneda) s -= Number(p.monto)||0;
   });
+  // pagos de tarjeta de crédito hechos en efectivo (p. ej. en tienda)
+  (state.pagosTarjeta||[]).forEach(p=>{
+    if(p.persona===persona && p.desde==='efectivo' && (p.moneda||'MXN')===moneda) s -= Number(p.monto)||0;
+  });
   // ingresos que llegan en efectivo (en su moneda, neto de ahorro), cada mes que aplicaron
   state.ingresos.forEach(i=>{
     if(i.persona!==persona || i.destino!=='efectivo' || (i.moneda||'MXN')!==moneda) return;
@@ -2622,6 +2630,8 @@ function monedasEfectivo(persona){
   cats.forEach(g=>{ if(g.pagadoCon==='efectivo' && partePago(g, persona)>0) set.add(g.moneda||'EUR'); });
   (state.pagosEntre||[]).forEach(p=>{ if((p.a===persona && p.entra==='efectivo') || (p.de===persona && p.sale==='efectivo')) set.add(p.moneda||'MXN'); });
   state.ingresos.forEach(i=>{ if(i.persona===persona && i.destino==='efectivo' && ocurrenciasIngreso(i).length) set.add(i.moneda||'MXN'); });
+  (state.pagosTarjeta||[]).forEach(p=>{ if(p.persona===persona && p.desde==='efectivo') set.add(p.moneda||'MXN'); });
+  (state.pagosOtros||[]).forEach(p=>{ if(p.persona===persona && p.desde==='efectivo') set.add(p.moneda||'MXN'); });
   return [...set];
 }
 function saldoEfectivoResumen(persona){
@@ -4179,6 +4189,7 @@ function signoEfectivo(m, persona){
   if((m.tipo==='gasto-generales'||m.tipo==='gasto-gustos') && m.pagadoCon==='efectivo' && partePago(m, persona)>0) return -1;
   if(m.tipo==='ingreso' && m.destino==='efectivo' && m.persona===persona) return +1;
   if(m.tipo==='pago-otro' && m.desde==='efectivo' && m.persona===persona) return -1;
+  if(m.tipo==='pago-tarjeta' && m.desde==='efectivo' && m.persona===persona) return -1;
   if(m.tipo==='pago-entre'){
     if(m.persona===persona && m.sale==='efectivo') return -1;
     if(m.a===persona && m.entra==='efectivo') return +1;
@@ -4758,7 +4769,8 @@ function renderMovimientos(){
   </div>
   ${movFiltro==='personales' ? '' : `<input type="text" class="mov-search" id="movSearch" placeholder="Buscar por nota o fuente..." value="${escHtml(movBusqueda)}">
   ${renderFiltrosMov()}`}
-  <button class="btn btn-outline btn-block" id="abrirImportarEstado" style="margin-bottom:12px;">${ico('file','icon-sm')} Importar estado de cuenta</button>
+  <button class="btn btn-outline btn-block" id="abrirImportarEstado" style="margin-bottom:${ultimaImportacion()?'6':'12'}px;">${ico('file','icon-sm')} Importar estado de cuenta</button>
+  ${(()=>{ const im = ultimaImportacion(); return im ? `<button class="btn btn-ghost btn-block btn-deshacer-imp" id="deshacerUltimaImp" style="margin-bottom:12px;">${ico('repeat','icon-sm')} Deshacer última importación <span class="muted">· ${escHtml(EC_NOMBRE_BANCO[im.banco]||'Estado de cuenta')} · ${registrosDeImportacion(im.id).length} mov. · ${escHtml(fmtDate(im.fecha))} · ${escHtml(nombrePersona(im.persona))}</span></button>` : ''; })()}
   ${resumenCard}
   ${movFiltro==='personales' ? `<input type="text" class="mov-search" id="movSearch" placeholder="Buscar en mi dinero aparte..." value="${escHtml(movBusqueda)}">
   ${renderFiltrosMov()}` : ''}
@@ -5784,11 +5796,11 @@ function openPagoEntre(personaClick, editId, preset){
 
 // Pagar la tarjeta de crédito: baja lo utilizado y sale de la cuenta elegida.
 function opcionesDesdePagoTarjeta(persona){
-  return [['debito','Mi dinero'], ['bote',nombreBudget(persona)], ['otra','Otro']];
+  return [['debito','Mi dinero'], ['bote',nombreBudget(persona)], ['efectivo','Efectivo'], ['otra','Otro']];
 }
 function labelDesdePagoTarjeta(k, persona){ const f = opcionesDesdePagoTarjeta(persona).find(x=>x[0]===k); return f ? f[1] : 'Otro'; }
 function notaDesdePagoTarjeta(k){
-  return {debito:'Se resta de lo tuyo en la cuenta que elijas.', bote:'Sale del dinero del Budget en la cuenta que elijas (si pagas lo tuyo con el Budget, se resta del Budget).', otra:'Solo baja lo utilizado; no resta de ninguna cuenta de la app.'}[k]||'';
+  return {debito:'Se resta de lo tuyo en la cuenta que elijas.', bote:'Sale del dinero del Budget en la cuenta que elijas (si pagas lo tuyo con el Budget, se resta del Budget).', efectivo:'Se resta de tu efectivo (en la moneda del pago).', otra:'Solo baja lo utilizado; no resta de ninguna cuenta de la app.'}[k]||'';
 }
 // Lo que se debe de una tarjeta, por parte (Budget / tuya).
 function deudaTarjetaPartes(persona, tarjeta){
@@ -5820,7 +5832,7 @@ function openPagoTarjeta(persona, editId, tarjetaPreset){
       <select id="ptDesde">${opcionesDesdePagoTarjeta(persona).map(([k,l])=>`<option value="${k}" ${k===desde?'selected':''}>${l}</option>`).join('')}</select>
       <div class="small-note" id="ptDesdeNota">${notaDesdePagoTarjeta(desde)}</div>
     </div>
-    <div class="field" id="ptCtaDesdeWrap" style="${desde==='otra'?'display:none':''}"><label>¿Desde qué cuenta?</label><select id="ptCtaDesde">${opcionesCta(ctasDebitoDe(desde, ex ? ex.ctaDesde : ''), desde==='bote' && !(ex && ex.ctaDesde) ? 'nu-deb' : ctaDesde)}</select></div>
+    <div class="field" id="ptCtaDesdeWrap" style="${desde==='otra'||desde==='efectivo'?'display:none':''}"><label>¿Desde qué cuenta?</label><select id="ptCtaDesde">${opcionesCta(ctasDebitoDe(desde, ex ? ex.ctaDesde : ''), desde==='bote' && !(ex && ex.ctaDesde) ? 'nu-deb' : ctaDesde)}</select></div>
     <div class="field-row">
       <div class="field"><label>Monto</label><input type="number" id="ptMonto" placeholder="0" value="${montoIni}"></div>
       <div class="field"><label>Moneda</label><select id="ptMoneda">${currencyOptions(moneda)}</select></div>
@@ -6233,7 +6245,10 @@ function ecDuplicadoDe(fila){
     if(m.tipo==='ingreso' && m.traspaso && m.destino!=='efectivo') return false; // los traspasos nunca salen en el banco
     if(!m.fecha || (m.moneda||'MXN')!==fila.moneda) return false;
     if(Math.abs(Math.abs(Number(m.monto)||0) - fila.monto) > 0.009) return false;
-    return Math.abs(new Date(m.fecha+'T00:00:00') - f) <= 36*3600*1000;
+    // Un pago de tarjeta aparece en el estado de crédito y en el de débito con días de diferencia: se busca hasta 5 días.
+    const pareceAbono = fila.tipo==='pagoTarjeta' || (fila.avisos||[]).some(a=>/entre tus cuentas|Pago a la tarjeta/.test(a)) || /pago|tarjeta|card|spei|transfer|abono/.test(sinAcentos(fila.desc||''));
+    const ventana = (m.tipo==='pago-tarjeta' && pareceAbono && (!perfil || m.persona===perfil)) ? 5*24*3600*1000 : 36*3600*1000;
+    return Math.abs(new Date(m.fecha+'T00:00:00') - f) <= ventana;
   });
 }
 // Convierte lo leído en renglones para revisar.
@@ -6421,6 +6436,28 @@ function ecCtaDef(banco, cuenta, invertido){
 function ecListaCtas(cuenta){ return cuenta==='credito' ? CUENTAS_CREDITO : (cuenta==='debito' ? CUENTAS_DEBITO : CUENTAS_BUDGET); }
 function ctaMismoBanco(cta, tipo){ return (String(cta||'').startsWith('rev') ? 'rev' : 'nu') + '-' + tipo; }
 function ecFilasVisibles(){ return ecEstado.filas.filter(f=>!f.quitada); }
+// v18.3: ¿el renglón es un pago (o devolución) a una tarjeta de crédito? (estado de crédito con ingreso / pago)
+function ecCtaEstado(e){ return (e.cta && ecListaCtas(e.cuenta).includes(e.cta)) ? e.cta : ecCtaDef(e.banco, e.cuenta, e.invertido); }
+function ecEsCreditoFila(e, f){ const c = f.cuenta || e.cuenta; return c==='credito' || (c==='bote' && esCredito(ecCtaEstado(e))); }
+function ecBancoDe(e){ return String(ecCtaEstado(e)).startsWith('rev') ? 'rev' : 'nu'; }
+// Opciones de "¿De dónde salió el pago?" (parte de la deuda | desde | cuenta)
+function ecOpcionesOrigenPago(){
+  return [
+    ['mio|debito|nu-deb','Lo tuyo · desde tu Nu débito'], ['mio|debito|rev-deb','Lo tuyo · desde tu Revolut débito'],
+    ['mio|bote|nu-deb','Lo tuyo · con dinero del Budget (Nu débito)'], ['mio|bote|rev-deb','Lo tuyo · con dinero del Budget (Revolut débito)'],
+    ['budget|bote|nu-deb','Lo del Budget · desde el Budget (Nu débito)'], ['budget|bote|rev-deb','Lo del Budget · desde el Budget (Revolut débito)'],
+    ['mio|efectivo','Lo tuyo · en efectivo'],
+    ['mio|otra','Lo tuyo · desde otra cuenta (no resta de ninguna cuenta de la app)'], ['budget|otra','Lo del Budget · desde otra cuenta (no resta de ninguna cuenta de la app)'],
+    ['devolucion|mio','Devolución de una compra tuya (baja lo que gastaste)'], ['devolucion|budget','Devolución de una compra del Budget (regresa al Budget)']];
+}
+function ecOrigenPorDefecto(e, f){
+  const c = f.cuenta || e.cuenta, b = ecBancoDe(e), parte = c==='bote' ? 'budget' : 'mio';
+  if((f.avisos||[]).some(a=>/Devoluci/.test(a)) || /reembolso|devoluci|refund|bonificaci|cashback/.test(sinAcentos(f.desc||''))) return 'devolucion|'+parte;
+  return parte==='budget' ? 'budget|bote|'+b+'-deb' : 'mio|debito|'+b+'-deb';
+}
+// En un estado de débito: ¿qué tarjeta y qué parte se pagó?
+function ecOpcionesTarjetaPagada(){ return [['mio|nu-cred','Lo tuyo de Nu crédito'],['budget|nu-cred','Lo del Budget de Nu crédito'],['mio|rev-cred','Lo tuyo de Revolut crédito'],['budget|rev-cred','Lo del Budget de Revolut crédito']]; }
+function ecTarjetaPorDefecto(e, f){ const c = f.cuenta || e.cuenta; return (c==='bote' ? 'budget|' : 'mio|') + ecBancoDe(e) + '-cred'; }
 function ecResumen(){
   const vis = ecFilasVisibles(), sel = vis.filter(f=>f.incluir);
   const g = sel.filter(f=>f.tipo==='gasto').length, i = sel.filter(f=>f.tipo==='ingreso').length, o = sel.length-g-i;
@@ -6429,6 +6466,8 @@ function ecResumen(){
 }
 function openRevisionEstado(){
   const e = ecEstado;
+  const scrollAntes = (()=>{ const sh = document.querySelector('#overlay .sheet'), ov = document.getElementById('overlay'); return {sh: sh ? sh.scrollTop : 0, ov: ov ? ov.scrollTop : 0}; })();
+  setTimeout(()=>{ const sh = document.querySelector('#overlay .sheet'), ov = document.getElementById('overlay'); if(sh && scrollAntes.sh) sh.scrollTop = scrollAntes.sh; if(ov && scrollAntes.ov) ov.scrollTop = scrollAntes.ov; }, 0);
   const cuentas = ecCuentasPara(e.persona);
   const catOpts = (sel)=>state.subcats.map(sb=>`<option value="${sb.id}" ${sb.id===sel?'selected':''}>${escHtml(sb.nombre)}</option>`).join('');
   openSheet(`
@@ -6459,12 +6498,14 @@ function openRevisionEstado(){
           <div class="ec-monto"><input type="number" step="0.01" data-ec="monto" value="${f.monto}"><select data-ec="moneda">${currencyOptions(f.moneda)}</select></div>
           <select data-ec="tipo">
             <option value="gasto" ${f.tipo==='gasto'?'selected':''}>Gasto</option>
-            <option value="ingreso" ${f.tipo==='ingreso'?'selected':''}>Ingreso</option>
+            <option value="ingreso" ${f.tipo==='ingreso'?'selected':''}>${ecEsCreditoFila(e,f) ? 'Ingreso (pago o devolución a la tarjeta)' : 'Ingreso'}</option>
             <option value="retiro" ${f.tipo==='retiro'?'selected':''}>Retiro a efectivo</option>
             <option value="pagoTarjeta" ${f.tipo==='pagoTarjeta'?'selected':''}>Pago de tarjeta de crédito</option>
           </select>
           ${f.tipo==='gasto' ? `<select data-ec="cat">${catOpts(f.cat)}</select>
           <select data-ec="quien"><option value="yo" ${f.quien==='yo'?'selected':''}>Solo ${nombrePersona(e.persona)}</option><option value="ambas" ${f.quien==='ambas'?'selected':''}>Ambas (a medias)</option></select>` : ''}
+          ${(f.tipo==='ingreso' || f.tipo==='pagoTarjeta') && ecEsCreditoFila(e,f) ? `<label class="ec-rate ec-origen">¿De dónde salió el pago a la tarjeta?<select data-ec="origen">${ecOpcionesOrigenPago().map(([k,l])=>`<option value="${k}" ${(f.origen||ecOrigenPorDefecto(e,f))===k?'selected':''}>${l}</option>`).join('')}</select></label>` : ''}
+          ${f.tipo==='pagoTarjeta' && !ecEsCreditoFila(e,f) && !['abuelo','otro','arq'].includes(f.cuenta||e.cuenta) ? `<label class="ec-rate ec-origen">¿Qué tarjeta pagaste?<select data-ec="tarjetaPagada">${ecOpcionesTarjetaPagada().map(([k,l])=>`<option value="${k}" ${(f.tarjetaPagada||ecTarjetaPorDefecto(e,f))===k?'selected':''}>${l}</option>`).join('')}</select></label>` : ''}
           <select data-ec="cuenta"><option value="">Cuenta: igual que arriba</option>${cuentas.map(([k,l])=>`<option value="${k}" ${k===f.cuenta?'selected':''}>${l}</option>`).join('')}</select>
           ${f.moneda!=='MXN' ? `<label class="ec-rate">Tipo de cambio <input type="number" step="0.0001" data-ec="rate" value="${f.rate==null?'':f.rate}" placeholder="buscando…"></label>` : ''}
         </div>
@@ -6481,8 +6522,9 @@ function openRevisionEstado(){
     if(!lista.includes(ecEstado.cta)) ecEstado.cta = c==='bote' ? ecCtaDef(ecEstado.banco, 'bote', ecEstado.invertido) : ctaMismoBanco(ecEstado.cta, c==='credito' ? 'cred' : 'deb');
     $('ecCta').innerHTML = opcionesCta(lista, ecEstado.cta);
     $('ecCtaWrap').style.display = ['bote','debito','credito'].includes(c) ? '' : 'none';
+    openRevisionEstado();
   });
-  $('ecCta').addEventListener('change', ()=>{ ecEstado.cta = $('ecCta').value; });
+  $('ecCta').addEventListener('change', ()=>{ ecEstado.cta = $('ecCta').value; openRevisionEstado(); });
   $('ecOtro').addEventListener('input', ()=>{ ecEstado.otroNombre = $('ecOtro').value; });
   $('ecTodos').addEventListener('click', ()=>{ ecFilasVisibles().forEach(f=>{ if(!(f.dup && !f.dupResuelto) && (f.moneda in (state.rates||{}))) f.incluir=true; }); openRevisionEstado(); });
   document.querySelectorAll('[data-ec-dup]').forEach(b=>b.addEventListener('click', ()=>{
@@ -6505,7 +6547,7 @@ function openRevisionEstado(){
         else if(campo==='rate'){ f.rate = Number(inp.value)||null; f.rateEditado = true; }
         else f[campo] = inp.value;
         if(campo==='tipo' && f.tipo==='gasto' && !f.cat) f.cat = ecSugerirCategoria(f.desc) || subcatV15(state, 'Otros').id;
-        if(campo==='tipo' || campo==='moneda'){ if(campo==='moneda'){ f.rate = f.moneda==='MXN' ? 1 : null; f.rateEditado=false; ecCargarTasas(); } openRevisionEstado(); return; }
+        if(campo==='tipo' || campo==='moneda' || campo==='cuenta'){ if(campo==='moneda'){ f.rate = f.moneda==='MXN' ? 1 : null; f.rateEditado=false; ecCargarTasas(); } openRevisionEstado(); return; }
         const r = document.getElementById('ecResumen'); if(r) r.innerHTML = ecResumen();
       });
     });
@@ -6514,7 +6556,7 @@ function openRevisionEstado(){
     const n = guardarImportacionEstado();
     if(n===null) return;
     closeSheet(); render();
-    mostrarToast('Se importaron '+n+' movimientos. Puedes deshacerlo desde "Importar estado de cuenta".', 'ok');
+    mostrarToast('Se importaron '+n+' movimientos. Si te equivocaste, toca "Deshacer última importación" (abajo de Importar estado de cuenta).', 'ok');
   });
 }
 // Tipo de cambio de la fecha de cada movimiento (en segundo plano).
@@ -6541,7 +6583,7 @@ function guardarImportacionEstado(){
   if(sel.some(f=>(f.cuenta||e.cuenta)==='otro') && !String(e.otroNombre||'').trim()){ mostrarToast('Escribe quién lo pagó (cuenta "Otra persona").', 'error'); return null; }
   const importId = uid();
   const persona = e.persona;
-  let n = 0;
+  let n = 0; const omitidos = [];
   sel.forEach(f=>{
     const cuenta = f.cuenta || e.cuenta;
     const stamp = stampRates(f.monto, f.moneda, f.moneda==='MXN' ? 1 : (f.rate || null));
@@ -6554,10 +6596,22 @@ function guardarImportacionEstado(){
         if(['bote','debito','credito'].includes(cuenta)) g.cta = ctaPara(cuenta); }
       { const sb = state.subcats.find(x=>x.id===f.cat) || subcatV15(state, 'Otros'); sb.gastos.push(g); }
       n++;
+    } else if((f.tipo==='ingreso' || f.tipo==='pagoTarjeta') && (cuenta==='credito' || (cuenta==='bote' && esCredito(ctaEst)))){
+      // v18.3: en un estado de tarjeta de crédito, un ingreso es un pago (o devolución) a la tarjeta: se guarda de dónde salió.
+      const tarjeta = cuenta==='credito' ? ctaPara('credito') : ctaEst;
+      const [parte, desde, ctaD] = String(f.origen || ecOrigenPorDefecto(e, f)).split('|');
+      if(parte==='devolucion'){
+        // Una devolución no es un pago: baja lo que se gastó (gasto negativo en esa tarjeta y en esa bolsa).
+        const g = {...base, monto:-f.monto, montoMXN:-(Number(stamp.montoMXN)||0), montoEUR:-(Number(stamp.montoEUR)||0), quien:persona, pagadoPor:null, pagadoCon: desde==='budget' ? 'bote' : 'credito', cta:tarjeta, nota:'Devolución · '+nota};
+        const sb = state.subcats.find(x=>x.id===(f.cat || ecSugerirCategoria(nota))) || subcatV15(state, 'Otros'); sb.gastos.push(g);
+        n++; return;
+      }
+      const r = {id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde, bolsa: parte==='budget' ? 'budget' : 'mio', tarjeta, importId, ...stamp, notaLibre:nota};
+      if(ctaD && (desde==='debito' || desde==='bote')) r.ctaDesde = ctaDebito(ctaD);
+      r.nota = 'Pago '+labelCuenta(tarjeta)+(r.bolsa==='budget'?' (parte del Budget)':'')+' · '+(r.ctaDesde ? 'desde '+labelCuenta(r.ctaDesde)+' ('+(desde==='bote'?'Budget':'mío')+')' : (desde==='efectivo' ? 'en efectivo' : 'otra cuenta / devolución'))+' · '+nota;
+      state.pagosTarjeta.push(r); n++; return;
     } else if(f.tipo==='ingreso'){
-      if(cuenta==='credito'){ state.pagosTarjeta.push({id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde:'otra', tarjeta:ctaPara('credito'), nota:'Pago/abono a tarjeta de crédito · '+nota, notaLibre:nota, importId, ...stamp}); n++; return; }
-      if(cuenta==='abuelo' || cuenta==='otro') return; // un abono a una tarjeta ajena no es dinero tuyo
-      if(cuenta==='bote' && esCredito(ctaEst)){ state.pagosTarjeta.push({id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde:'otra', bolsa:'budget', tarjeta:ctaEst, nota:'Pago/abono a '+labelCuenta(ctaEst)+' (parte del Budget) · '+nota, notaLibre:nota, importId, ...stamp}); n++; return; }
+      if(cuenta==='abuelo' || cuenta==='otro'){ omitidos.push(nota); return; } // un abono a una tarjeta ajena no es dinero tuyo
       const destino = cuenta==='bote' ? 'bote' : cuenta==='arq' ? 'arq' : cuenta==='efectivo' ? 'efectivo' : 'debito';
       state.ingresos.push({id:base.id, persona, fuente:nota, montoBruto:f.monto, moneda:f.moneda, fecha:f.fecha, mes: ymDe(f.fecha), destino, ahorroAuto:false, ahorroAutoMonto:0, recurrente:false, importId, ...stamp, ...((destino==='bote'||destino==='debito') ? {cta: ctaDebBudget(destino)} : {})});
       n++;
@@ -6565,17 +6619,81 @@ function guardarImportacionEstado(){
       const cuentaRet = ['bote','arq','debito','abuelo'].includes(cuenta) ? cuenta : 'otra';
       state.efectivoMovimientos.push({id:base.id, persona, tipo:'retiro', monto:f.monto, moneda:f.moneda, fecha:f.fecha, cuenta:cuentaRet, origen:'', nota:'Retiro · '+nota, importId, ...stamp, ...((cuentaRet==='bote'||cuentaRet==='debito') ? {cta: ctaDebBudget(cuentaRet)} : {})});
       n++;
+    } else if(f.tipo==='pagoTarjeta' && ['abuelo','otro','arq'].includes(cuenta)){
+      omitidos.push(nota); return; // pago a una tarjeta que no es de ustedes: no mueve su dinero
     } else if(f.tipo==='pagoTarjeta'){
-      const desde = cuenta==='debito' ? 'debito' : cuenta==='bote' ? 'bote' : 'otra';
-      state.pagosTarjeta.push({id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde, ...(desde==='bote' ? {bolsa:'budget'} : {}), tarjeta: esCredito(ctaEst) ? ctaEst : ctaMismoBanco(ctaEst,'cred'), ...(desde!=='otra' ? {ctaDesde: ctaDebBudget(desde)} : {}), nota:'Pago tarjeta de crédito · '+nota, notaLibre:nota, importId, ...stamp});
+      // Estado de débito (o efectivo): sale de esta cuenta y se elige qué tarjeta y qué parte se pagó.
+      const desde = cuenta==='debito' ? 'debito' : cuenta==='bote' ? 'bote' : cuenta==='efectivo' ? 'efectivo' : 'otra';
+      const [parte, tarjeta] = String(f.tarjetaPagada || ecTarjetaPorDefecto(e, f)).split('|');
+      // Lo del Budget de la tarjeta se paga con dinero del Budget (igual que en el formulario): sale como Budget de esa cuenta.
+      const desdeReal = parte==='budget' && desde!=='otra' ? 'bote' : desde;
+      const r = {id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde:desdeReal, bolsa: parte==='budget' ? 'budget' : 'mio', tarjeta: ctaCredito(tarjeta), importId, ...stamp, notaLibre:nota};
+      if(desdeReal==='debito' || desdeReal==='bote') r.ctaDesde = desde==='efectivo' ? 'nu-deb' : ctaDebBudget(desde==='bote'?'bote':'debito');
+      r.nota = 'Pago '+labelCuenta(r.tarjeta)+(r.bolsa==='budget'?' (parte del Budget)':'')+' · '+(r.ctaDesde ? 'desde '+labelCuenta(r.ctaDesde)+' ('+(desdeReal==='bote'?'Budget':'mío')+')' : (desdeReal==='efectivo'?'en efectivo':'otra cuenta'))+' · '+nota;
+      state.pagosTarjeta.push(r);
       n++;
     }
   });
   if(!Array.isArray(state.importaciones)) state.importaciones = [];
-  state.importaciones.push({id:importId, fecha:todayISO(), creado:Date.now(), banco:e.banco, persona, cuenta:e.cuenta, n, archivo:e.archivo||''});
+  const imp = {id:importId, fecha:todayISO(), creado:Date.now(), banco:e.banco, persona, por: perfil||persona, cuenta:e.cuenta, n, archivo:e.archivo||''};
+  state.importaciones.push(imp);
   ecEstado = null;
   persist();
+  // Sello de cómo quedaron al importarlos: así "Deshacer" sabe cuáles se cambiaron después.
+  imp.selloImport = registrosDeImportacion(importId).reduce((a,[,r])=>Math.max(a, Number(r._u)||0), 0);
+  persist();
+  if(omitidos.length) setTimeout(()=>mostrarToast(omitidos.length+' movimiento'+(omitidos.length===1?'':'s')+' de una tarjeta ajena (Abuelo / otra persona) no se guardaron: no es dinero de ustedes.', 'error'), 1200);
   return n;
+}
+// v18.3: la importación más reciente (de cualquiera de las dos) que todavía tiene movimientos.
+function registrosDeImportacion(importId){
+  const out = [];
+  state.ingresos.forEach(r=>{ if(r.importId===importId) out.push(['ingresos', r]); });
+  (state.gustosGastos||[]).forEach(r=>{ if(r.importId===importId) out.push(['gastos', r]); });
+  state.subcats.forEach(sb=>(sb.gastos||[]).forEach(r=>{ if(r.importId===importId) out.push(['gastos', r]); }));
+  (state.efectivoMovimientos||[]).forEach(r=>{ if(r.importId===importId) out.push(['efectivo', r]); });
+  (state.pagosTarjeta||[]).forEach(r=>{ if(r.importId===importId) out.push(['pagosTarjeta', r]); });
+  return out;
+}
+function ultimaImportacion(){
+  const lista = (state.importaciones||[]).slice().sort((a,b)=>(b.creado||0)-(a.creado||0));
+  return lista.find(im=>registrosDeImportacion(im.id).length>0) || null;
+}
+function openDeshacerUltimaImportacion(){
+  const im = ultimaImportacion(); if(!im){ mostrarToast('No hay importaciones para deshacer.', 'error'); return; }
+  const regs = registrosDeImportacion(im.id);
+  const editados = regs.filter(([,r])=>typeof r._u==='number' && r._u > (Number(im.selloImport) || ((Number(im.creado)||0) + 5000))).length;
+  const ks = new Set(regs.filter(([c])=>c==='gastos').map(([,r])=>'gastos:'+r.id));
+  const pagosLigados = (state.pagosEntre||[]).filter(p=>(p.aplica||[]).some(ap=>ks.has(ap.k))).length;
+  const quienImp = im.por || im.persona; const otra = quienImp && quienImp!==perfil;
+  openSheet(`
+    ${sheetHeader('Deshacer última importación')}
+    <div class="det-rows" style="margin-bottom:12px;">
+      <div class="det-row"><span>Estado de cuenta</span><b>${escHtml(EC_NOMBRE_BANCO[im.banco]||'Estado de cuenta')}${im.archivo?' · '+escHtml(im.archivo):''}</b></div>
+      <div class="det-row"><span>Importado</span><b>${escHtml(fmtDate(im.fecha))} · ${escHtml(nombrePersona(im.persona))}</b></div>
+      <div class="det-row"><span>Movimientos que se quitan</span><b>${regs.length}</b></div>
+    </div>
+    ${otra ? `<div class="note-box" style="margin-bottom:8px;">${ico('alert','icon-sm')}<div>Esta importación la hizo ${escHtml(nombrePersona(quienImp))}.</div></div>` : ''}
+    ${editados ? `<div class="note-box" style="margin-bottom:8px;">${ico('alert','icon-sm')}<div>${editados} de esos movimientos los cambiaron después de importarlos: también se quitan.</div></div>` : ''}
+    ${pagosLigados ? `<div class="note-box" style="margin-bottom:8px;">${ico('alert','icon-sm')}<div>${pagosLigados} pago${pagosLigados===1?'':'s'} en Nosotras estaba${pagosLigados===1?'':'n'} saldando gastos de esta importación: el pago se queda y cuenta como pagado a favor.</div></div>` : ''}
+    <div class="small-note" style="margin-bottom:12px;">Todo se va a la papelera; si te equivocas, toca "Recuperar" en el aviso que sale después.</div>
+    <button class="btn btn-block" id="doDeshacerImp" style="background:var(--brick);color:#fff;">Deshacer importación (${regs.length})</button>
+  `);
+  document.getElementById('doDeshacerImp').addEventListener('click', ()=>{
+    const claves = registrosDeImportacion(im.id).map(([c, r])=>c+':'+r.id);
+    const copiaIm = JSON.parse(JSON.stringify(im));
+    const n = deshacerImportacion(im.id);
+    closeSheet(); render();
+    mostrarToast('Se quitaron '+n+' movimientos de esa importación.', 'ok', {label:'Recuperar', fn:()=>{
+      if(!(state.importaciones||[]).some(x=>x.id===copiaIm.id)){ if(!Array.isArray(state.importaciones)) state.importaciones = []; state.importaciones.push(copiaIm); }
+      if(state._papelera) delete state._papelera['importaciones:'+copiaIm.id];
+      recuperarVarios(claves);
+      // Lo recuperado queda como "recién importado" (no como cambiado después).
+      const im2 = (state.importaciones||[]).find(x=>x.id===copiaIm.id);
+      if(im2){ im2.selloImport = registrosDeImportacion(im2.id).reduce((a,[,r])=>Math.max(a, Number(r._u)||0), 0); persist(); }
+      if(state._papelera && state._papelera['importaciones:'+copiaIm.id]){ delete state._papelera['importaciones:'+copiaIm.id]; Storage.save(state); }
+    }});
+  });
 }
 function deshacerImportacion(importId){
   let n = 0;
@@ -8897,6 +9015,7 @@ function wireEvents(){
     lector.readAsText(f);
   });
   const aie = document.getElementById('abrirImportarEstado'); if(aie) aie.addEventListener('click', openImportarEstado);
+  const dui = document.getElementById('deshacerUltimaImp'); if(dui) dui.addEventListener('click', openDeshacerUltimaImportacion);
   const vh = document.getElementById('verHistorialSync'); if(vh) vh.addEventListener('click', openHistorialSync);
   const vc = document.getElementById('verCopias'); if(vc) vc.addEventListener('click', openCopias);
   const vp = document.getElementById('verPapelera'); if(vp) vp.addEventListener('click', openPapelera);
@@ -9140,7 +9259,8 @@ function wireSheetEvents(){
   if(doGasto) doGasto.addEventListener('click', ()=>{
     const cat = 'generales';
     const monto = Number(document.getElementById('gastoMonto').value||0);
-    if(monto<=0){ alert('Ingresa un monto válido.'); return; }
+    const eraDevolucion = (()=>{ try{ const er = document.getElementById('gastoEditRef'); const ref = er && er.value ? JSON.parse(er.value.replace(/&apos;/g,"'")) : null; const g = ref ? gastosCategoria().find(x=>x.id===ref.id) : null; return !!(g && Number(g.monto) < 0); }catch(e){ return false; } })();
+    if(monto===0 || (monto<0 && !eraDevolucion)){ alert('Ingresa un monto válido.'); return; }
     if(!(document.getElementById('gastoSub')||{}).value){ marcarFaltante('gastoSub'); alert('Elige la categoría.'); return; }
     if(!state.subcats.some(x=>x.id===document.getElementById('gastoSub').value)){
       // La categoría cambió mientras el formulario estaba abierto (p. ej. al sincronizar).
@@ -9649,7 +9769,7 @@ function wireSheetEvents(){
     const bolsaPt = (document.getElementById('ptParte')||{}).value==='budget' ? 'budget' : 'mio';
     const desde = bolsaPt==='budget' ? 'bote' : (document.getElementById('ptDesde').value||'otra');
     const tarjetaPt = ctaCredito((document.getElementById('ptTarjeta')||{}).value);
-    const ctaDesdePt = desde==='otra' ? null : ctaDebito((document.getElementById('ptCtaDesde')||{}).value);
+    const ctaDesdePt = (desde==='otra' || desde==='efectivo') ? null : ctaDebito((document.getElementById('ptCtaDesde')||{}).value);
     const notaLibre = document.getElementById('ptNota').value.trim();
     const rateInput = document.getElementById('ptRate');
     const stamp = stampRates(monto, moneda, rateInput?rateInput.value:null);
@@ -9674,7 +9794,7 @@ function wireSheetEvents(){
     const refrescarDesde = ()=>{
       const ds = document.getElementById('ptDesde'); if(!ds) return;
       const n = document.getElementById('ptDesdeNota'); if(n) n.textContent = notaDesdePagoTarjeta(ds.value);
-      const cw = document.getElementById('ptCtaDesdeWrap'); if(cw) cw.style.display = ds.value==='otra' ? 'none' : '';
+      const cw = document.getElementById('ptCtaDesdeWrap'); if(cw) cw.style.display = (ds.value==='otra' || ds.value==='efectivo') ? 'none' : '';
       const pc = document.getElementById('ptCtaDesde'); if(pc){ const v = pc.value, l = ctasDebitoDe(ds.value); pc.innerHTML = opcionesCta(l, l.includes(v) ? v : l[0]); }
     };
     const tj = document.getElementById('ptTarjeta'); if(tj) tj.addEventListener('change', ponerMonto);
