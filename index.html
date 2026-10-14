@@ -397,6 +397,21 @@
   .pk-opt.off{opacity:.35;cursor:not-allowed;}
   .ficha-split{font-size:11.5px;color:var(--ink-soft);margin-top:3px;line-height:1.35;}
   .ficha-split b{color:var(--ink);font-weight:700;}
+  /* v18.6: lo del Budget (ámbar) y lo tuyo (morado) en cada cuenta y en el pago de tarjeta */
+  .dot-b,.dot-m{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:0;}
+  .dot-b{background:var(--amber);} .dot-m{background:var(--plum);}
+  .split-aviso{display:block;margin-top:3px;color:var(--amber);font-weight:600;}
+  .mi-resumen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 4px;}
+  .mi-resumen div{background:var(--paper-soft);border-radius:12px;padding:8px 10px;min-width:0;}
+  .mi-resumen small{display:block;font-size:11px;color:var(--ink-soft);font-weight:600;}
+  .mi-resumen b{display:block;font-size:15px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rp-box{background:var(--paper-soft);border-radius:14px;padding:10px 12px;margin:4px 0 14px;font-size:13px;line-height:1.4;}
+  .rp-t{font-weight:700;margin-bottom:6px;}
+  .rp-l{display:flex;gap:8px;align-items:flex-start;margin:4px 0;}
+  .rp-chip{flex:none;font-size:11px;font-weight:700;border-radius:99px;padding:1px 8px;color:#1d1400;}
+  .rp-b{background:var(--amber);} .rp-m{background:var(--plum);color:#fff;}
+  .rp-aviso{display:flex;gap:6px;align-items:flex-start;color:var(--amber);font-weight:600;margin-top:6px;}
+  .rp-nota{color:var(--ink-soft);margin-top:6px;font-size:12px;}
   .pk-txt{display:flex;flex-direction:column;min-width:0;}
   .pk-txt small{font-size:11.5px;color:var(--ink-faint);font-weight:500;}
   .pk-ilu{width:30px;height:30px;flex-shrink:0;display:inline-flex;}
@@ -723,7 +738,9 @@
   .card.card-deudas{background:linear-gradient(135deg, color-mix(in srgb, var(--plum) 16%, var(--card)) 0%, color-mix(in srgb, var(--teal) 8%, var(--card)) 100%);border:1px solid color-mix(in srgb, var(--plum) 28%, transparent);}
   .card.card-deudas .deuda-col{background:color-mix(in srgb, var(--card) 70%, transparent);}
   /* Fichas de Tarjeta de débito / crédito */
-  .ficha{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--card2);border:1px solid var(--line);cursor:pointer;}
+  .ficha{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--card2);border:1px solid var(--line);cursor:pointer;}
+  .ficha > .ficha-split{flex:1 0 100%;min-width:0;box-sizing:border-box;margin-top:-6px;padding-left:52px;font-size:12.5px;overflow-wrap:anywhere;} /* v18.6: el desglose Budget / tuyo a todo lo ancho */
+  .sp-i{white-space:nowrap;}
   .ficha-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:var(--teal-soft);color:var(--teal-deep);flex-shrink:0;}
   .ficha-info{flex:1;min-width:0;}
   .ficha-name{font-size:14px;font-weight:700;}
@@ -916,13 +933,14 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.5 · 3 oct 2026 (sincronización a prueba de daños, varios gastos a la vez, importaciones con nombre, no es deuda, acumulado desde septiembre)';
+const APP_VERSION = '18.6 · 14 oct 2026 (pagar la tarjeta ya no toca el Budget: la app reparte sola lo del Budget y lo tuyo en cada cuenta)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
-const APP_BUILD = 20; // v18.5: "no es deuda", fecha de inicio del Budget, importaciones con nombre (las versiones anteriores no lo entienden)
+const APP_BUILD = 21; // v18.6: pagar una tarjeta ya no guarda "parte" y nunca cambia el Budget (las versiones anteriores lo contarían distinto)
+// (20 = v18.5: "no es deuda", fecha de inicio del Budget, importaciones con nombre (las versiones anteriores no lo entienden)
 // Versión mínima del código de la hoja (Apps Script) que sabe juntar las colecciones nuevas.
-const SCRIPT_MIN = 36;
+const SCRIPT_MIN = 37;
 let syncVersionNube = null;
 const Storage = {
   load(){
@@ -1960,7 +1978,7 @@ async function sincronizarUnaVez(){
         return true;
       }
       // Con un código de hoja viejo, subir podría perder suscripciones / compras de Arq: no se sube hasta actualizarlo.
-      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.6) y crear una versión nueva de la implementación. Lo que registres se queda guardado en este teléfono y se sube en cuanto lo actualices.');
+      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.7) y crear una versión nueva de la implementación. Lo que registres se queda guardado en este teléfono y se sube en cuanto lo actualices.');
       const ahoraISO = new Date().toISOString();
       const marca = uid();
       const disp = miDispositivo();
@@ -2688,10 +2706,9 @@ function fondoGrandeDisponibleMXN(){
 }
 
 function boteMXN(ym){ return boteTotalMXN(ym); }
-// Pagos de la tarjeta de crédito hechos DESDE el bote (bajan el bote ese mes).
-function pagosTarjetaDesdeBoteMXN(persona, ym){
-  return (state.pagosTarjeta||[]).filter(p=>p.desde==='bote' && p.bolsa!=='budget' && (!persona || p.persona===persona) && (!ym || ymDe(p.fecha)===ym)).reduce((a,p)=>a+mxnOf(p),0);
-}
+// v18.6 (opción B): pagar una tarjeta de crédito es pasar dinero entre tus cuentas: NUNCA cambia el Budget
+// (lo del Budget ya se restó al comprar). Se deja en 0 para que los cálculos viejos que la usan sigan cuadrando.
+function pagosTarjetaDesdeBoteMXN(persona, ym){ return 0; }
 // Pagos a otras personas hechos DESDE el bote (bajan el bote ese mes).
 function pagosOtrosDesdeBoteMXN(persona, ym){
   return (state.pagosOtros||[]).filter(p=>p.desde==='bote' && (!persona || p.persona===persona) && (!ym || ymDe(p.fecha)===ym)).reduce((a,p)=>a+mxnOf(p),0);
@@ -2973,7 +2990,10 @@ function saldoDebitoMXN(persona){
     if(p.de===persona && esDebito(p.sale)) a -= m;
     return a;
   },0);
-  const pagosTarjeta = (state.pagosTarjeta||[]).filter(p=>p.persona===persona && p.desde==='debito').reduce((a,p)=>a+mxnOf(p),0);
+  // v18.6: de un pago de tarjeta desde tu cuenta, solo la parte que pagó lo tuyo baja tu dinero (la otra era del Budget).
+  const rpt = (state.pagosTarjeta||[]).some(p=>p.persona===persona) ? repartoPagosTarjeta() : {};
+  const pagosTarjeta = (state.pagosTarjeta||[]).filter(p=>p.persona===persona && pagoTarjetaDesdeCuenta(p)).reduce((a,p)=>a+(rpt[p.id] ? rpt[p.id].mio : mxnOf(p)),0)
+    - (state.pagosTarjeta||[]).filter(p=>p.persona===persona && !pagoTarjetaDesdeCuenta(p) && rpt[p.id] && rpt[p.id].pasaATuyo).reduce((a,p)=>a+rpt[p.id].budget,0); // lo del Budget que pagaste con tu efectivo pasa a ser tuyo
   const pagosOtros = (state.pagosOtros||[]).filter(p=>p.persona===persona && p.desde==='debito').reduce((a,p)=>a+mxnOf(p),0);
   const inicialRev = Number(((state.cuentasCfg||{})[persona]||{})['rev-deb'] && state.cuentasCfg[persona]['rev-deb'].inicial)||0; // v18: Revolut débito
   return inicialMXN + inicialRev + ganancias + ingresosFueraMXN(persona,'debito') - gastos - cats - retirosEfectivoMXN('debito', persona) + pagosEntre - pagosTarjeta - pagosOtros;
@@ -2984,7 +3004,8 @@ function creditoUtilizadoMXN(persona){
   if(!f) return 0;
   const gastos = f.gastos.filter(g=>g.cuenta==='credito').reduce((a,g)=>a+mxnOf(g),0);
   const cats = gastosCategoria().filter(g=>g.pagadoCon==='credito').reduce((a,g)=>a+mxnOf(g)*partePago(g, persona),0);
-  const pagos = (state.pagosTarjeta||[]).filter(p=>p.persona===persona && p.bolsa!=='budget').reduce((a,p)=>a+mxnOf(p),0); // v18: pagar la parte del Budget no baja lo tuyo
+  const rpt = (state.pagosTarjeta||[]).some(p=>p.persona===persona) ? repartoPagosTarjeta() : {};
+  const pagos = (state.pagosTarjeta||[]).filter(p=>p.persona===persona).reduce((a,p)=>a+(rpt[p.id] ? rpt[p.id].mio : mxnOf(p)),0); // v18.6: solo la parte del pago que bajó lo tuyo
   return gastos + cats - pagos;
 }
 /* ------------------------------------------------------------
@@ -4398,8 +4419,9 @@ function collectMovimientos(){
       out.push({id:m.id, tipo:'personal-gasto', persona:p, subNombre:'Mi dinero', quien:p, cuenta:m.cuenta==='credito'?'credito':'debito', monto:m.monto, moneda:m.moneda, montoMXN:mxnOf(m), fecha:m.fecha, nota:m.nota, serieId:m.serieId});
     });
   });
+  const rptMov = (state.pagosTarjeta||[]).length ? repartoPagosTarjeta() : {};
   (state.pagosTarjeta||[]).forEach(t=>{
-    out.push({id:t.id, tipo:'pago-tarjeta', persona:t.persona, subNombre:'Pago de tarjeta de crédito', quien:t.persona, desde:t.desde, bolsa:t.bolsa||null, tarjeta:t.tarjeta||null, ctaDesde:t.ctaDesde, monto:t.monto, moneda:t.moneda, montoMXN:mxnOf(t), fecha:t.fecha, nota:t.nota});
+    out.push({id:t.id, tipo:'pago-tarjeta', persona:t.persona, subNombre:'Pago de tarjeta de crédito', quien:t.persona, desde:t.desde, tarjeta:t.tarjeta||null, ctaDesde:t.ctaDesde, monto:t.monto, moneda:t.moneda, montoMXN:mxnOf(t), fecha:t.fecha, nota:notaPagoTarjeta(t, rptMov[t.id])});
   });
   // v18: pases entre cuentas (no cambian el Budget ni el total)
   (state.transferencias||[]).forEach(t=>{
@@ -4435,7 +4457,7 @@ function cuentasDeMov(m, persona){
     if(m.tipo==='personal-gasto') out.push({cuenta:m.cuenta==='credito'?'credito':'debito', signo:-1});
     if(m.tipo==='ingreso' && m.destino==='debito') out.push({cuenta:'debito', signo:+1});
     if(m.tipo==='retiro-efectivo' && esDebito(m.cuenta)) out.push({cuenta:'debito', signo:-1});
-    if(m.tipo==='pago-tarjeta'){ out.push({cuenta:'credito', signo:+1}); if(m.desde==='debito') out.push({cuenta:'debito', signo:-1}); }
+    if(m.tipo==='pago-tarjeta'){ out.push({cuenta:'credito', signo:+1}); if(pagoTarjetaDesdeCuenta(m)) out.push({cuenta:'debito', signo:-1}); }
     if(m.tipo==='pago-otro'){ if(m.desde==='debito') out.push({cuenta:'debito', signo:-1}); out.push({cuenta:'otro', signo:+1}); }
   }
   if(m.tipo==='pago-entre'){
@@ -4463,7 +4485,7 @@ function signoEfectivo(m, persona){
 function signoBudget(m, persona){
   if(m.tipo==='ingreso') return (esDestinoBote(m.destino) && m.persona===persona && !m.esAbuelo) ? +1 : 0;
   if(m.tipo==='retiro-efectivo') return ((m.cuenta==='bote'||m.cuenta==='arq') && m.persona===persona) ? -1 : 0;
-  if(m.tipo==='pago-tarjeta') return (m.desde==='bote' && m.bolsa!=='budget' && m.persona===persona) ? -1 : 0;
+  if(m.tipo==='pago-tarjeta') return 0; // v18.6: pagar la tarjeta no cambia el Budget
   if(m.tipo==='pago-otro') return (m.desde==='bote' && m.persona===persona) ? -1 : 0;
   if(m.tipo==='pago-entre'){
     const pe = (state.pagosEntre||[]).find(x=>x.id===m.id) || m;
@@ -4508,7 +4530,7 @@ function vistaMov(m){
     const c = cuentasDeMov(m, perfil);
     signo = c.length ? c[0].signo : -1;
     if(m.quien==='ambas' && m.pagadoPor==='ambas' && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')){ const f = partePago(m, perfil); monto = m.monto*f; montoMXN = m.montoMXN*f; nota = 'tu parte'; }
-    if(m.tipo==='pago-tarjeta' && m.desde==='debito') nota = 'de débito a crédito';
+    if(m.tipo==='pago-tarjeta' && pagoTarjetaDesdeCuenta(m)) nota = 'de débito a crédito';
     if(m.pagadoCon==='otro' && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')) nota = 'lo pagó '+(m.otroNombre||'otra persona');
   } else if(movFiltro==='abuelo'){
     signo = -1;
@@ -4572,7 +4594,7 @@ function lineaFicha(m, signo){
     <div class="exp-line clickable" style="padding:7px 0;" data-mov-open="${key}">
       ${micoHtml(iconoMov(m),'sm')}
       <div class="desc"><div class="n">${escHtml(m.nota||m.subNombre||'Movimiento')}</div><div class="d">${fmtDate(m.fecha)} <span class="type-tag">${escHtml(labelTipoMov(m))}</span>${(()=>{ const se = m.serieId ? (state.series||[]).find(x=>x.id===m.serieId) : null; return se && se.aMeses ? ` <span class="type-tag">a meses ${numeroMensualidad(se, m.serieYM||se.desde)}/${se.aMeses.meses}</span>` : (m.serieId && m.tipo!=='ingreso' ? ' <span class="type-tag">cada mes</span>' : ''); })()}</div></div>
-      <div class="amt ${signo>0?'income':'gasto'}">${signo>0?'+':'−'}${fmt(m.monto,m.moneda||'MXN')}${m.moneda && m.moneda!=='MXN' ? `<span class="est">≈ ${fmt(m.montoMXN,'MXN')}</span>`:''}</div>
+      <div class="amt ${signo>0?'income':(signo<0?'gasto':'')}">${signo>0?'+':(signo<0?'−':'↔ ')}${fmt(m.monto,m.moneda||'MXN')}${m.moneda && m.moneda!=='MXN' ? `<span class="est">≈ ${fmt(m.montoMXN,'MXN')}</span>`:''}</div>
       <span class="chev-mov">${ico('chevright','icon-sm')}</span>
     </div>`;
 }
@@ -4627,7 +4649,40 @@ function limiteCuenta(p, k){
 }
 // Todos los movimientos de dinero por cuenta y bolsa: {p, cta, bolsa:'budget'|'mio'|'ahorro', mxn (+ entra / − sale), id}.
 // En las de crédito, el saldo es negativo = lo que se debe.
-function flujosCuentas(){
+function flujosCuentas(){ return flujosYRepartoPagos().flujos; }
+// v18.6: cómo se repartió cada pago de tarjeta: {id: {budget, mio}} (MXN).
+function repartoPagosTarjeta(){ return flujosYRepartoPagos().reparto; }
+// v18.6: ¿el pago de tarjeta salió de una de tus cuentas de débito? ('bote' = pagos viejos "desde el Budget": es lo mismo).
+function pagoTarjetaDesdeCuenta(t){ return !!t && (t.desde==='debito' || t.desde==='bote'); }
+/* v18.6 — reparto automático de un pago de tarjeta (opción B, "cuentas reales").
+   deuda = {budget, mio} que se debe en la tarjeta antes del pago; fuente = {budget, mio} que hay en la cuenta de
+   donde sale (null = efectivo u otra cuenta fuera de la app).
+   1) Con el dinero del Budget de la cuenta se paga lo del Budget; con lo tuyo, lo tuyo.
+   2) Si no cuadra, lo que sobra en la cuenta paga lo que falta (lo tuyo paga lo del Budget = "adelantaste de lo tuyo";
+      lo del Budget paga lo tuyo = "usaste dinero del Budget para lo tuyo").
+   3) Si aún falta: desde una cuenta, primero lo del Budget; en efectivo u otra cuenta, primero lo tuyo.
+   4) Lo que pagues de más queda a tu favor (tuyo).
+   Pagar nunca cambia el Budget: solo dice qué parte de la deuda baja y de qué dinero sale. */
+function repartoPagoTarjeta(P, deuda, fuente){
+  P = Math.max(0, Number(P)||0);
+  const dB = Math.max(0, Number((deuda||{}).budget)||0), dM = Math.max(0, Number((deuda||{}).mio)||0);
+  let xb = 0, xm = 0, r = P;
+  const toma = (v)=>{ v = Math.max(0, Math.min(r, v)); r -= v; return v; };
+  if(fuente){
+    const fB = Math.max(0, Number(fuente.budget)||0), fM = Math.max(0, Number(fuente.mio)||0);
+    xb += toma(Math.min(dB, fB));
+    xm += toma(Math.min(dM, fM));
+    xb += toma(Math.min(dB - xb, fM - xm));
+    xm += toma(Math.min(dM - xm, fB - xb));
+    xb += toma(dB - xb); xm += toma(dM - xm);
+  } else {
+    xm += toma(dM); xb += toma(dB);
+  }
+  xm += r;
+  const r2 = (v)=>Math.round(v*100)/100;
+  return {budget: r2(xb), mio: r2(P - r2(xb))};
+}
+function flujosYRepartoPagos(){
   const out = [];
   const hoy = todayISO();
   const f = (p, cta, bolsa, mxn, id, fecha)=>{ if((p==='jen'||p==='isa') && CUENTAS[cta] && mxn) out.push({p, cta, bolsa, mxn, id, fecha: fecha||''}); };
@@ -4643,17 +4698,18 @@ function flujosCuentas(){
       const origen = i.traspaso==='ahorro' ? 'ahorro' : 'budget';
       const dest = i.destino==='bote' ? 'budget' : (i.destino==='debito' ? 'mio' : null);
       if(origen===dest) return; // del sobrante al Budget del mes: ya estaba en la cuenta
-      f(p, cta, origen, -x, i.id); if(dest) f(p, cta, dest, x, i.id);
+      f(p, cta, origen, -x, i.id, i.fecha); if(dest) f(p, cta, dest, x, i.id, i.fecha);
       return;
     }
     if(i.destino==='bote'){
       if(esIngresoAbuelo(i)) return;
       if(i.fecha && i.fecha > hoy) return;
       const veces = i.recurrente ? Math.max(1, ocurrenciasIngreso(i).length) : 1;
-      f(p, cta, 'budget', netoIngresoMXN(i)*veces, i.id);
-      f(p, cta, 'ahorro', ahorroDeIngresoMXN(i)*veces, i.id);
+      const fe = i.recurrente ? '' : i.fecha; // v18.6: fecha solo para saber qué había en la cuenta el día de un pago
+      f(p, cta, 'budget', netoIngresoMXN(i)*veces, i.id, fe);
+      f(p, cta, 'ahorro', ahorroDeIngresoMXN(i)*veces, i.id, fe);
     } else if(i.destino==='debito'){
-      f(p, cta, 'mio', netoIngresoMXN(i)*ocurrenciasIngreso(i).length, i.id);
+      f(p, cta, 'mio', netoIngresoMXN(i)*ocurrenciasIngreso(i).length, i.id, i.recurrente ? '' : i.fecha);
     }
   });
   gastosCategoria().forEach(g=>{
@@ -4664,37 +4720,57 @@ function flujosCuentas(){
   (state.efectivoMovimientos||[]).forEach(m=>{
     if(m.tipo!=='retiro') return;
     const bolsa = m.cuenta==='bote' ? 'budget' : (esDebito(m.cuenta) ? 'mio' : (m.cuenta==='ahorro' ? 'ahorro' : null));
-    if(bolsa) f(m.persona, ctaDebito(m.cta), bolsa, -mxnOf(m), m.id);
+    if(bolsa) f(m.persona, ctaDebito(m.cta), bolsa, -mxnOf(m), m.id, m.fecha);
   });
   (state.pagosEntre||[]).forEach(pe=>{
     const x = mxnOf(pe);
     const bs = pe.sale==='bote' ? 'budget' : (esDebito(pe.sale) ? 'mio' : null);
     const be = pe.entra==='bote' ? 'budget' : (esDebito(pe.entra) ? 'mio' : null);
-    if(bs) f(pe.de, ctaDebito(pe.ctaSale), bs, -x, pe.id);
-    if(be) f(pe.a, ctaDebito(pe.ctaEntra), be, x, pe.id);
-  });
-  (state.pagosTarjeta||[]).forEach(t=>{
-    const x = mxnOf(t);
-    f(t.persona, ctaCredito(t.tarjeta), t.bolsa==='budget' ? 'budget' : 'mio', x, t.id, t.fecha); // baja lo que se debe
-    if(t.desde==='debito') f(t.persona, ctaDebito(t.ctaDesde), 'mio', -x, t.id);
-    else if(t.desde==='bote') f(t.persona, ctaDebito(t.ctaDesde), 'budget', -x, t.id);
+    if(bs) f(pe.de, ctaDebito(pe.ctaSale), bs, -x, pe.id, pe.fecha);
+    if(be) f(pe.a, ctaDebito(pe.ctaEntra), be, x, pe.id, pe.fecha);
   });
   (state.pagosOtros||[]).forEach(t=>{
     const x = mxnOf(t);
-    if(t.desde==='debito') f(t.persona, ctaDebito(t.ctaDesde), 'mio', -x, t.id);
-    else if(t.desde==='bote') f(t.persona, ctaDebito(t.ctaDesde), 'budget', -x, t.id);
+    if(t.desde==='debito') f(t.persona, ctaDebito(t.ctaDesde), 'mio', -x, t.id, t.fecha);
+    else if(t.desde==='bote') f(t.persona, ctaDebito(t.ctaDesde), 'budget', -x, t.id, t.fecha);
   });
   ['jen','isa'].forEach(p=>{
     const fz = state.finanzas[p]; if(!fz) return;
-    (fz.ganancias||[]).forEach(g=>f(p, ctaDebito(g.cta), 'mio', mxnOf(g), g.id));
+    (fz.ganancias||[]).forEach(g=>f(p, ctaDebito(g.cta), 'mio', mxnOf(g), g.id, g.fecha));
     (fz.gastos||[]).forEach(g=>{ if(g.cuenta==='credito') f(p, ctaCredito(g.cta), 'mio', -mxnOf(g), g.id, g.fecha); else f(p, ctaDebito(g.cta), 'mio', -mxnOf(g), g.id, g.fecha); });
   });
   (state.transferencias||[]).forEach(t=>{
     const x = mxnOf(t), b = t.bolsa==='budget' ? 'budget' : 'mio';
-    f(t.persona, t.desde, b, -x, t.id); f(t.persona, t.hacia, b, x, t.id);
+    f(t.persona, t.desde, b, -x, t.id, esCredito(t.desde) ? '' : t.fecha); f(t.persona, t.hacia, b, x, t.id, esCredito(t.hacia) ? '' : t.fecha);
   });
   (state.ahorro.movimientos||[]).filter(m=>m.tipo==='retiro').forEach(m=>f('jen', 'nu-deb', 'ahorro', -(Number(m.monto)||0), m.id));
-  return out;
+  // v18.6: pagos de tarjeta al final, en orden de fecha: cada uno se reparte solo (repartoPagoTarjeta) con lo que se
+  // debía en la tarjeta y lo que había en la cuenta ese día. Lo que no tiene fecha cuenta desde el principio.
+  const reparto = {}, porCta = {};
+  out.forEach(x=>{ (porCta[x.p+'|'+x.cta] = porCta[x.p+'|'+x.cta] || []).push(x); });
+  const saldoAl = (p, cta, fecha)=>{ const r = {budget:0, mio:0}; (porCta[p+'|'+cta]||[]).forEach(x=>{ if((x.bolsa==='budget' || x.bolsa==='mio') && (!x.fecha || !fecha || x.fecha<=fecha)) r[x.bolsa] += x.mxn; }); return r; };
+  const fp = (p, cta, bolsa, mxn, id, fecha)=>{ const n = out.length; f(p, cta, bolsa, mxn, id, fecha); if(out.length > n) (porCta[p+'|'+cta] = porCta[p+'|'+cta] || []).push(out[n]); };
+  (state.pagosTarjeta||[]).filter(t=>t && (t.persona==='jen' || t.persona==='isa'))
+    .map((t, i)=>({t, i})).sort((a,b)=>String(a.t.fecha||'').localeCompare(String(b.t.fecha||'')) || ((Number(a.t.creado)||0) - (Number(b.t.creado)||0)) || (a.i - b.i))
+    .forEach(({t})=>{
+      const x = mxnOf(t); if(!x) return;
+      const cc = ctaCredito(t.tarjeta), deDebito = pagoTarjetaDesdeCuenta(t), cd = deDebito ? ctaDebito(t.ctaDesde) : null;
+      const sc = saldoAl(t.persona, cc, t.fecha);
+      const deuda = {budget: Math.max(0, -sc.budget), mio: Math.max(0, -sc.mio)};
+      const fuente = cd ? saldoAl(t.persona, cd, t.fecha) : null;
+      const rp = x > 0 ? repartoPagoTarjeta(x, deuda, fuente) : {budget:0, mio:x}; // monto negativo (raro): tuyo
+      reparto[t.id] = Object.assign({}, rp, {deuda, fuente});
+      fp(t.persona, cc, 'budget', rp.budget, t.id, t.fecha); fp(t.persona, cc, 'mio', rp.mio, t.id, t.fecha); // baja lo que se debe
+      if(cd){ fp(t.persona, cd, 'budget', -rp.budget, t.id, t.fecha); fp(t.persona, cd, 'mio', -rp.mio, t.id, t.fecha); }
+      else if(rp.budget > 0.005){
+        // En efectivo u otra cuenta pagaste lo del Budget con tu dinero: esa parte del dinero del Budget que hay en tu
+        // cuenta (la que más tenga del Budget) pasa a ser tuya. Así lo del Budget en tus cuentas sigue = Budget disponible.
+        const ca = CUENTAS_DEBITO.slice().sort((a,b)=>saldoAl(t.persona, b, t.fecha).budget - saldoAl(t.persona, a, t.fecha).budget)[0] || 'nu-deb';
+        fp(t.persona, ca, 'budget', -rp.budget, t.id, t.fecha); fp(t.persona, ca, 'mio', rp.budget, t.id, t.fecha);
+        reparto[t.id].pasaATuyo = ca;
+      }
+    });
+  return {flujos: out, reparto};
 }
 // {cta: {budget, mio, ahorro, total}} de una persona.
 function saldosCuentas(p){
@@ -4734,7 +4810,8 @@ function estadoTarjetaCredito(p, k, hoy){
   const cfg = cfgTarjeta(p, k);
   const fl = flujosCuentas().filter(x=>x.p===p && x.cta===k);
   const sum = (arr, b)=>arr.filter(x=>!b || x.bolsa===b).reduce((a,x)=>a+x.mxn, 0);
-  const uti = Math.max(0, -sum(fl)), utiB = Math.max(0, -sum(fl,'budget')), utiM = Math.max(0, -sum(fl,'mio'));
+  const pn = partesNetasCredito({budget: sum(fl,'budget'), mio: sum(fl,'mio')}); // v18.6: lo a favor de una parte cubre la otra
+  const uti = Math.max(0, -sum(fl)), utiB = pn.budget, utiM = pn.mio;
   const ciclo = cicloTarjeta(cfg, hoy);
   const base = {p, k, cfg, uti, utiBudget: utiB, utiMio: utiM, configurada: !!ciclo};
   if(!ciclo) return base;
@@ -4782,7 +4859,8 @@ function renderTarjetasCreditoInicio(){
         <span class="pk-ilu"><svg viewBox="0 0 64 64" aria-hidden="true">${ILU.credito}</svg></span>
         <div class="desc">
           <div class="n">${escHtml(labelCuenta(e.k))}</div>
-          <div class="d">Utilizado <b>${fmt(e.uti,'MXN')}</b>${e.configurada ? ` · Al corte (${escHtml(fmtDate(e.corte))}) por pagar <b>${fmt(e.porPagar,'MXN')}</b>${escHtml(textoPartesCorte(e))}` : ''}</div>
+          <div class="d">Debes <b>${fmt(e.uti,'MXN')}</b>${e.configurada ? ` · Al corte (${escHtml(fmtDate(e.corte))}) por pagar <b>${fmt(e.porPagar,'MXN')}</b>` : ''}</div>
+          ${e.uti>0.5 ? `<div class="d">De lo que debes: <i class="dot-b" aria-hidden="true"></i>${fmt(e.utiBudget,'MXN')} del Budget + <i class="dot-m" aria-hidden="true"></i>${fmt(e.utiMio,'MXN')} tuyo</div>` : ''}
           <div class="d">${e.configurada ? `${ico('calendar','icon-xs')} Fecha límite ${escHtml(fmtDate(e.limite))} · <b class="${urg?'rojo':''}">${escHtml(textoDiasLimite(e))}</b>` : `<button type="button" class="link-quiet" data-tarj-config="${e.k}">${ico('calendar','icon-xs')} Agregar fecha de corte y de pago</button>`}</div>
         </div>
         <button type="button" class="btn ${e.configurada && e.porPagar>0 ? 'btn-primary' : 'btn-outline'} btn-sm" data-open="pagoTarjeta" data-persona="${perfil}" data-tarjeta="${e.k}" ${e.configurada && e.porPagar>0 ? `data-monto="${e.porPagar}"` : ''}>Pagar</button>
@@ -4811,20 +4889,31 @@ function htmlFechasTarjeta(p, k){
     </div>` : ''}
   </div>`;
 }
+// v18.6: en cada cuenta, cuánto es del Budget y cuánto es tuyo (en palabras, con su color).
 function lineaSplit(c, credito){
   const fmtS = (v)=>fmt(Math.round(Math.abs(v)*100)/100,'MXN');
+  const B = '<i class="dot-b" aria-hidden="true"></i>', M = '<i class="dot-m" aria-hidden="true"></i>';
   if(credito){
-    const deb = (v)=>Math.max(0, -v);
-    return `<span class="split"><b>${fmt(deb(c.budget),'MXN')}</b> del Budget + <b>${fmt(deb(c.mio),'MXN')}</b> tuyo</span>`;
+    const pn = partesNetasCredito(c), notas = [];
+    if(pn.cubreTuyo > 0.5) notas.push('Tus '+fmtS(pn.cubreTuyo)+' a favor ya cubren esa parte de lo del Budget.');
+    if(pn.cubreBudget > 0.5) notas.push('Los '+fmtS(pn.cubreBudget)+' a favor del Budget (devolución) ya cubren esa parte de lo tuyo.');
+    if(pn.favorMio > 0.5) notas.push('Tienes '+fmtS(pn.favorMio)+' a tu favor en la tarjeta.');
+    if(pn.favorBudget > 0.5) notas.push('Hay '+fmtS(pn.favorBudget)+' a favor del Budget en la tarjeta (devolución de una compra del Budget).');
+    return `<span class="split">Debes <span class="sp-i">${B}<b>${fmt(pn.budget,'MXN')}</b> del Budget</span> + <span class="sp-i">${M}<b>${fmt(pn.mio,'MXN')}</b> tuyo</span></span>`
+      + notas.map(t=>`<span class="split-aviso">${escHtml(t)}</span>`).join('');
   }
-  return `<span class="split"><b>${c.budget<0?'−':''}${fmtS(c.budget)}</b> del Budget + <b>${c.mio<0?'−':''}${fmtS(c.mio)}</b> tuyo${Math.abs(c.ahorro)>0.5?` + <b>${fmtS(c.ahorro)}</b> de ahorro`:''}</span>`;
+  const avisos = [];
+  if(c.budget < -0.5) avisos.push('Pusiste '+fmtS(c.budget)+' de lo tuyo para cosas del Budget: el Budget te los debe en esta cuenta.');
+  if(c.mio < -0.5) avisos.push('Usaste '+fmtS(c.mio)+' del Budget para cosas tuyas: se los debes al Budget en esta cuenta.');
+  return `<span class="split">De esto: <span class="sp-i">${B}<b>${c.budget<0?'−':''}${fmtS(c.budget)}</b> del Budget</span> + <span class="sp-i">${M}<b>${c.mio<0?'−':''}${fmtS(c.mio)}</b> tuyo</span>${Math.abs(c.ahorro)>0.5?` + <span class="sp-i"><b>${fmtS(c.ahorro)}</b> de ahorro</span>`:''}</span>`
+    + avisos.map(a=>`<span class="split-aviso">${escHtml(a)}</span>`).join('');
 }
 function listaFichaCuenta(persona, cta){
   const ids = saldosCuentas(persona)[cta].ids;
   const movs = collectMovimientos().filter(m=>ids.has(m.id)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
   if(!movs.length) return `<div class="small-note">Sin movimientos todavía.</div>`;
   const neto = {}; flujosCuentas().forEach(x=>{ if(x.p===persona && x.cta===cta) neto[x.id] = (neto[x.id]||0) + x.mxn; });
-  const signoEn = (m)=>(neto[m.id]||0)>=0 ? +1 : -1;
+  const signoEn = (m)=>Math.abs(neto[m.id]||0) < 0.005 ? 0 : ((neto[m.id]||0) > 0 ? +1 : -1); // v18.6: 0 = no cambia lo que hay (p. ej. lo del Budget que pasa a ser tuyo)
   const vis = movs.slice(0, fichaLimite);
   return listaPorDia(vis.map(m=>Object.assign({}, m, {_signo: signoEn(m)})), m=>lineaFicha(m, m._signo))
     + (movs.length > vis.length ? `<button class="btn btn-outline btn-sm btn-block" data-ficha-mas style="margin-top:8px;">${ico('chevdown','icon-sm')} Ver más (${movs.length - vis.length} más)</button>` : '');
@@ -4842,10 +4931,11 @@ function renderFichasDinero(persona){
       <div class="ficha-ico" style="${icoStyle}">${ico('card')}</div>
       <div class="ficha-info"><div class="ficha-name">${CUENTAS[k].label}</div>
         <div class="ficha-lbl">${cred ? (lim>0?'Límite disponible '+fmt(lim-uti,'MXN'):'Sin límite definido') : 'En el banco'}${cred ? (()=>{ const et = estadoTarjetaCredito(persona, k); return et.configurada ? ' · '+(et.porPagar>0 ? 'pagar '+fmt(et.porPagar,'MXN')+' antes del '+fmtDate(et.limite) : 'corte pagado') : ''; })() : ''}</div>
-        <div class="ficha-split">${lineaSplit(c, cred)}</div></div>
+        </div>
       ${cred ? `<button class="ficha-uti" data-open="pagoTarjeta" data-persona="${persona}" data-tarjeta="${k}" title="Pagar la tarjeta"><span>Utilizado</span><b>${fmt(uti,'MXN')}</b><em>pagar</em></button>`
              : `<div class="ficha-amt" style="color:${c.total<0?'var(--brick)':'var(--ink)'};">${c.total<0?'−'+fmt(-c.total,'MXN'):fmt(c.total,'MXN')}</div>`}
       <span class="ficha-chev">${ico(abierta?'chevdown':'chevright','icon-sm')}</span>
+      <div class="ficha-split">${lineaSplit(c, cred)}</div>
     </div>
     ${abierta ? `<div class="ficha-detalle">
       ${cred ? htmlFechasTarjeta(persona, k) : ''}
@@ -4864,11 +4954,17 @@ function renderFichasDinero(persona){
       </div>
     </div>` : ''}`;
   }).join('');
-  const budgetTot = Object.values(sc).reduce((a,c)=>a+c.budget,0), mioTot = Object.values(sc).reduce((a,c)=>a+c.mio,0);
+  const budgetTot = Object.values(sc).reduce((a,c)=>a+c.budget,0), mioTot = Object.values(sc).reduce((a,c)=>a+c.mio,0), ahorroTot = Object.values(sc).reduce((a,c)=>a+c.ahorro,0);
+  const netoTot = budgetTot + mioTot + ahorroTot;
   return `
   <div class="card" style="border-top:4px solid var(--${colorPerfil(persona)});">
     <div class="card-title"><h2>Mi dinero</h2><span class="hint" data-transferir="${persona}|nu-deb">${ico('swap','icon-xs')} pasar entre cuentas</span></div>
-    <div class="small-note">En cada cuenta: cuánto es del Budget y cuánto es tuyo. En total tienes <b>${fmt(mioTot,'MXN')}</b> tuyos y <b>${fmt(budgetTot,'MXN')}</b> del Budget repartidos en tus cuentas.</div>
+    <div class="mi-resumen">
+      <div><small>En tus cuentas</small><b>${netoTot<0?'−':''}${fmt(Math.abs(netoTot),'MXN')}</b></div>
+      <div><small><i class="dot-b" aria-hidden="true"></i>Del Budget</small><b>${budgetTot<0?'−':''}${fmt(Math.abs(budgetTot),'MXN')}</b></div>
+      <div><small><i class="dot-m" aria-hidden="true"></i>Tuyo</small><b>${mioTot<0?'−':''}${fmt(Math.abs(mioTot),'MXN')}</b></div>
+    </div>
+    <div class="small-note">En tus cuentas tienes ${fmt(netoTot,'MXN')} (lo que hay en débito menos lo que debes en crédito). De eso, <b>${fmt(budgetTot,'MXN')}</b> es del Budget y <b>${fmt(mioTot,'MXN')}</b> es tuyo${Math.abs(ahorroTot)>0.5?` (y ${fmt(ahorroTot,'MXN')} de ahorro)`:''}. En cada cuenta abajo ves cuánto es de cada uno. Pagar una tarjeta solo pasa dinero entre tus cuentas: no cambia el Budget.</div>
     ${fichas}
   </div>`;
 }
@@ -5141,7 +5237,7 @@ function renderMovimientos(){
     <div class="card" style="border-top:4px solid var(--${colorPerfil(perfil)});">
       <div class="card-title"><h2>${ico('wallet','icon-sm')} ${nombreBudget(perfil)}</h2></div>
       ${renderTripleStat(meta, gastado, disp, {asignado:'Meta', gastado:'Gastado', disp:'Disponible'})}
-      <div class="small-note" style="margin-top:8px;">Lo que ${perfil==='isa'?'tu papá':'tu mamá'} deposita este mes vs. tu parte de los gastos del Budget (lo compartido cuenta a la mitad). Es solo de este mes. No incluye lo pagado con efectivo, débito, crédito ni tarjeta del Abuelo; sí los retiros a efectivo y pagos de tu tarjeta de crédito hechos desde el Budget.</div>
+      <div class="small-note" style="margin-top:8px;">Lo que ${perfil==='isa'?'tu papá':'tu mamá'} deposita este mes vs. tu parte de los gastos del Budget (lo compartido cuenta a la mitad). Es solo de este mes. No incluye lo pagado con efectivo, débito, crédito ni tarjeta del Abuelo; sí los retiros a efectivo hechos desde el Budget. Pagar tu tarjeta de crédito no cambia el Budget.</div>
     </div>` + renderArqCard(perfil);
   }
 
@@ -5302,7 +5398,7 @@ function renderConfig(){
       <div class="stat-box"><div class="lbl">Proyectado para lo que resta</div><div class="val">${fmt(disponibleProyectado,'MXN')}</div></div>
       ` : `<div class="stat-box" style="grid-column:span 2"><div class="lbl">Agrega el monto disponible para ver el presupuesto diario</div></div>`}
     </div>
-    <div class="small-note" style="margin-top:10px;">Gastado del Budget hasta ahora, todos los meses (categorías, retiros a efectivo, pagos de tarjeta y pagos entre ustedes desde el Budget): ${fmt(gastadoTotal,'MXN')}</div>
+    <div class="small-note" style="margin-top:10px;">Gastado del Budget hasta ahora, todos los meses (categorías, retiros a efectivo y pagos entre ustedes desde el Budget; pagar tus tarjetas no cuenta): ${fmt(gastadoTotal,'MXN')}</div>
   </div>` : `<div class="card"><div class="small-note">Agrega fecha de inicio y fin para ver días totales, días restantes y presupuesto diario proyectado.</div></div>`}
   ${renderAjustesInline()}
   `;
@@ -5342,7 +5438,6 @@ function resumenPorMes(){
   });
   (state.efectivoMovimientos||[]).forEach(m=>{ if(m.tipo==='retiro' && (m.cuenta==='bote'||m.cuenta==='arq') && m.fecha) set.add(ymDe(m.fecha)); });
   (state.pagosEntre||[]).forEach(p=>{ if(p.fecha) set.add(ymDe(p.fecha)); });
-  (state.pagosTarjeta||[]).forEach(p=>{ if(p.desde==='bote' && p.fecha) set.add(ymDe(p.fecha)); });
   (state.pagosOtros||[]).forEach(p=>{ if(p.desde==='bote' && p.fecha) set.add(ymDe(p.fecha)); });
   // v18.5: el acumulado (y el resumen) empieza en el mes de inicio del Budget; lo de antes no cuenta.
   const ini = inicioBudgetYM();
@@ -5534,7 +5629,7 @@ function cuentaExport(m){
   if(m.tipo==='ingreso') return L[m.destino||'bote'];
   if(m.tipo==='retiro-efectivo') return 'De '+(L[m.cuenta]||'Otra')+' a Efectivo';
   if(m.tipo==='pago-entre') return 'De '+(L[m.sale]||'Otra')+' ('+nombrePersonaExport(m.persona)+') a '+(L[m.entra]||'Otra')+' ('+nombrePersonaExport(m.a)+')';
-  if(m.tipo==='pago-tarjeta') return 'De '+(L[m.desde]||'Otra')+' a Crédito';
+  if(m.tipo==='pago-tarjeta') return 'De '+(pagoTarjetaDesdeCuenta(m) ? labelCuenta(ctaDebito(m.ctaDesde)) : (L[m.desde]||'Otra'))+' a '+labelCuenta(ctaCredito(m.tarjeta));
   if(m.tipo==='pago-otro') return 'De '+(L[m.desde]||'Otra')+' a '+(m.acreedor||'otra persona');
   if(m.tipo==='por-cobrar' || m.tipo==='deuda-proyectada') return 'No mueve dinero';
   if(m.tipo==='personal-gasto') return m.cuenta==='credito' ? 'Crédito' : 'Débito';
@@ -5549,6 +5644,7 @@ function detalleExport(m){
   if(m.pagadoCon==='otro') d.push('deuda de '+nombrePersonaExport(pagadorFisico(m))+' con '+(m.otroNombre||'otra persona'));
   if(m.tipo==='transferencia'){ const t = (state.transferencias||[]).find(x=>x.id===m.id); d.push(t && t.bolsa==='budget' ? 'dinero del Budget' : 'dinero tuyo'); }
   if(m.tipo==='pago-entre'){ const pe = (state.pagosEntre||[]).find(x=>x.id===m.id); if(pe && pe.noDeuda) d.push('no es deuda'); }
+  if(m.tipo==='pago-tarjeta') d.push('pase entre tus cuentas: no cambia el Budget');
   if(m.estadoPC) d.push(m.estadoPC);
   if(m.serieId && m.tipo!=='ingreso') d.push('recurrente cada mes');
   if(m.quien==='abuelo'){ const g = gastosCategoria().find(x=>x.id===m.id); if(g && g.repartoAbuelo==='ambas') d.push('Abuelo compartido (Isa debe la mitad)'); }
@@ -5621,7 +5717,7 @@ async function reiniciarTodo(){
     try{
       const res = await fetchSync(state.syncUrl, {cache:'no-store'});
       const payload = await res.json();
-      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.5).');
+      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.7).');
       const disp = miDispositivo();
       const body = JSON.stringify({ updatedAt: new Date().toISOString(), baseUpdatedAt: payload.updatedAt || null, appBuild: APP_BUILD, quien: perfil||'', dispositivo: disp.nombre, dispositivoId: disp.id, cambios: 0, data: nuevo });
       const r2 = await fetchSync(state.syncUrl, { method:'POST', body }, 60000);
@@ -5817,7 +5913,7 @@ function opcionesPago(persona, incluirAbuelo){
   return out;
 }
 function notaPago(pago, cta){
-  if(pago==='bote' && esCredito(cta)) return 'Se resta del Budget al comprar. Queda en lo utilizado de tu '+labelCuenta(cta)+' como parte del Budget; cuando la pagues, esa parte no vuelve a restar.';
+  if(pago==='bote' && esCredito(cta)) return 'Se resta del Budget al comprar. En tu '+labelCuenta(cta)+' queda marcado como deuda del Budget; cuando pagues la tarjeta, el Budget no vuelve a bajar.';
   if(pago==='bote' && cta && cta!=='nu-deb') return 'Se resta del Budget; sale de tu '+labelCuenta(cta)+'.';
   if((pago==='debito'||pago==='credito') && cta) return {debito:'Se resta de lo tuyo en '+labelCuenta(cta)+'; no toca el Budget.', credito:'Suma a lo utilizado (parte tuya) de tu '+labelCuenta(cta)+'; no toca el Budget.'}[pago];
   return {
@@ -6368,61 +6464,144 @@ function openPagoEntre(personaClick, editId, preset){
   if(ex && ex.rateMXN){ const r=document.getElementById('peRate'); if(r) r.value = ex.rateMXN; }
 }
 
-// Pagar la tarjeta de crédito: baja lo utilizado y sale de la cuenta elegida.
+// Pagar la tarjeta de crédito (v18.6, opción B): es pasar dinero de una cuenta tuya a la tarjeta. Baja lo que debes y
+// sale de la cuenta elegida; NUNCA cambia el Budget. La app reparte sola qué parte de la deuda baja (del Budget / tuya).
 function opcionesDesdePagoTarjeta(persona){
-  return [['debito','Mi dinero'], ['bote',nombreBudget(persona)], ['efectivo','Efectivo'], ['otra','Otro']];
+  return [['debito','De una de mis cuentas'], ['efectivo','Efectivo'], ['otra','Otra cuenta (fuera de la app)']];
 }
-function labelDesdePagoTarjeta(k, persona){ const f = opcionesDesdePagoTarjeta(persona).find(x=>x[0]===k); return f ? f[1] : 'Otro'; }
+function labelDesdePagoTarjeta(k, persona){ if(k==='bote') k = 'debito'; const f = opcionesDesdePagoTarjeta(persona).find(x=>x[0]===k); return f ? f[1] : 'Otra cuenta'; }
 function notaDesdePagoTarjeta(k){
-  return {debito:'Se resta de lo tuyo en la cuenta que elijas.', bote:'Sale del dinero del Budget en la cuenta que elijas (si pagas lo tuyo con el Budget, se resta del Budget).', efectivo:'Se resta de tu efectivo (en la moneda del pago).', otra:'Solo baja lo utilizado; no resta de ninguna cuenta de la app.'}[k]||'';
+  return {debito:'Sale de la cuenta que elijas. La app ve cuánto de esa cuenta es del Budget y cuánto es tuyo.', bote:'Sale de la cuenta que elijas. La app ve cuánto de esa cuenta es del Budget y cuánto es tuyo.', efectivo:'Se resta de tu efectivo (en la moneda del pago).', otra:'Solo baja lo que debes; no resta de ninguna cuenta de la app.'}[k]||'';
 }
-// Lo que se debe de una tarjeta, por parte (Budget / tuya).
-function deudaTarjetaPartes(persona, tarjeta){
-  const c = saldosCuentas(persona)[ctaCredito(tarjeta)];
-  return {budget: Math.max(0, -c.budget), mio: Math.max(0, -c.mio)};
+// v18.6: "$800 del Budget + $200 tuyo" (cómo se repartió / se va a repartir un pago).
+function textoRepartoPago(rp){
+  const b = Number((rp||{}).budget)||0, m = Number((rp||{}).mio)||0;
+  if(b > 0.005 && m > 0.005) return 'cubrió '+fmt(b,'MXN')+' del Budget + '+fmt(m,'MXN')+' tuyo';
+  if(b > 0.005) return 'cubrió '+fmt(b,'MXN')+' del Budget';
+  return 'cubrió '+fmt(m,'MXN')+' tuyo';
+}
+// v18.6: texto del pago en las listas (se arma en vivo: el reparto se recalcula si cambia algo).
+function notaPagoTarjeta(t, rp){
+  const src = pagoTarjetaDesdeCuenta(t) ? labelCuenta(ctaDebito(t.ctaDesde)) : (t.desde==='efectivo' ? 'efectivo' : 'otra cuenta');
+  return 'Pago '+labelCuenta(ctaCredito(t.tarjeta))+' desde '+src+(rp ? ' · '+textoRepartoPago(rp) : '')+(t.notaLibre ? ' · '+t.notaLibre : '');
+}
+// v18.6: lo que de verdad debes de una tarjeta, por parte. Si una parte tiene saldo a favor (pagaste de más, una
+// devolución, un pago antes de la compra), ese saldo cubre lo que debes de la otra: así "Debes" = lo que dice el banco.
+function partesNetasCredito(c){
+  const B = Math.max(0, -(c.budget||0)), M = Math.max(0, -(c.mio||0)), fB = Math.max(0, c.budget||0), fM = Math.max(0, c.mio||0);
+  const cB = Math.min(B, fM), cM = Math.min(M, fB);
+  const r2 = (v)=>Math.round(v*100)/100;
+  return {budget: r2(B - cB), mio: r2(M - cM), favorMio: r2(fM - cB), favorBudget: r2(fB - cM), cubreTuyo: r2(cB), cubreBudget: r2(cM)};
+}
+// Lo que se debe de una tarjeta, por parte (Budget / tuya). excluirId: sin contar ese pago (al editarlo).
+function deudaTarjetaPartes(persona, tarjeta, excluirId){
+  if(excluirId){ const orig = state.pagosTarjeta; try{ state.pagosTarjeta = (orig||[]).filter(p=>p.id!==excluirId); return deudaTarjetaPartes(persona, tarjeta); } finally { state.pagosTarjeta = orig; } }
+  return partesNetasCredito(saldosCuentas(persona)[ctaCredito(tarjeta)]);
+}
+// v18.6: cómo se repartiría un pago (sin guardarlo): {budget, mio, deuda:{budget,mio}, fuente:{budget,mio}|null}.
+function simularPagoTarjeta(persona, tarjeta, desde, ctaDesde, montoMXN, fecha, excluirId){
+  const orig = state.pagosTarjeta;
+  const ex = excluirId ? (orig||[]).find(p=>p.id===excluirId) : null;
+  const prueba = {id:'__simPago', persona, tarjeta: ctaCredito(tarjeta), desde: desde==='bote' ? 'debito' : desde, monto: montoMXN, moneda:'MXN', montoMXN, rateMXN:1, fecha: fecha || todayISO(), creado: ex ? ex.creado : Number.MAX_SAFE_INTEGER};
+  if(pagoTarjetaDesdeCuenta(prueba)) prueba.ctaDesde = ctaDebito(ctaDesde);
+  try{
+    state.pagosTarjeta = ex ? (orig||[]).map(p=>p===ex ? prueba : p) : (orig||[]).concat([prueba]); // al editar, en su mismo lugar
+    return repartoPagosTarjeta()['__simPago'] || null;
+  } finally { state.pagosTarjeta = orig; }
+}
+// Lista de cuentas de débito con lo que tiene cada una (Budget / tuyo) para elegir de dónde sale el pago.
+function opcionesCtaPago(persona, sel){
+  const sc = saldosCuentas(persona);
+  return CUENTAS_DEBITO.map(k=>{ const c = sc[k]; return `<option value="${k}" ${k===sel?'selected':''}>${CUENTAS[k].corto} · hay ${fmt(c.total,'MXN')}</option>`; }).join('');
+}
+// v18.6: explica en palabras de qué dinero sale el pago y qué parte de la deuda baja.
+function htmlRepartoPago(rp, ctaDesde, tarjeta){
+  if(!rp || !(rp.budget + rp.mio > 0.005)) return '';
+  const cta = ctaDesde ? labelCuenta(ctaDesde) : '';
+  const lineas = [];
+  const fB0 = rp.fuente ? Math.max(0, rp.fuente.budget) : 0, fM0 = rp.fuente ? Math.max(0, rp.fuente.mio) : 0;
+  // de qué dinero de la cuenta sale cada parte (lo que no alcanza de esa parte sale de la otra)
+  const origen = (parte, hay, propio, otro)=>{ if(!cta) return ''; const de = Math.min(parte, hay);
+    if(de >= parte - 0.005) return ' · sale '+propio+' en '+escHtml(cta);
+    if(de < 0.005) return ' · sale '+otro+' en '+escHtml(cta);
+    return ' · '+fmt(de,'MXN')+' sale '+propio+' y '+fmt(parte-de,'MXN')+' '+otro+' en '+escHtml(cta); };
+  if(rp.budget > 0.005) lineas.push(`<div class="rp-l"><span class="rp-chip rp-b">Budget</span><span><b>${fmt(rp.budget,'MXN')}</b> paga lo que compraste con el Budget${origen(rp.budget, fB0, 'del dinero del Budget', 'de lo tuyo')}</span></div>`);
+  if(rp.mio > 0.005){
+    const dM = rp.deuda ? Math.min(rp.mio, rp.deuda.mio) : rp.mio, extra = rp.mio - dM;
+    const que = dM < 0.005 ? 'queda a tu favor en la tarjeta (no debías nada tuyo)' : (extra > 0.005 ? 'paga lo tuyo y '+fmt(extra,'MXN')+' quedan a tu favor en la tarjeta' : 'paga lo que compraste con tu dinero');
+    lineas.push(`<div class="rp-l"><span class="rp-chip rp-m">Tuyo</span><span><b>${fmt(rp.mio,'MXN')}</b> ${que}${origen(rp.mio, fM0, 'de lo tuyo', 'del dinero del Budget')}</span></div>`);
+  }
+  const avisos = [];
+  if(rp.fuente){
+    const fB = Math.max(0, rp.fuente.budget), fM = Math.max(0, rp.fuente.mio);
+    if(rp.budget > fB + 0.005) avisos.push(`En ${escHtml(cta)} solo hay ${fmt(fB,'MXN')} del Budget: ${fmt(rp.budget - fB,'MXN')} de lo del Budget lo pones de tu dinero (en esa cuenta, el Budget te queda debiendo eso).`);
+    if(rp.mio > fM + 0.005) avisos.push(`En ${escHtml(cta)} solo hay ${fmt(fM,'MXN')} tuyos: ${fmt(rp.mio - fM,'MXN')} de lo tuyo lo pagas con dinero del Budget (se lo quedas debiendo al Budget).`);
+  } else if(rp.budget > 0.005){
+    avisos.push(`Pagas ${fmt(rp.budget,'MXN')} de lo del Budget con tu dinero: esos ${fmt(rp.budget,'MXN')} del Budget que hay en tu ${escHtml(labelCuenta(rp.pasaATuyo||'nu-deb'))} pasan a ser tuyos.`);
+  }
+  return `<div class="rp-box"><div class="rp-t">Así se reparte este pago</div>${lineas.join('')}
+    ${avisos.map(a=>`<div class="rp-aviso">${ico('alert','icon-xs')} <span>${a}</span></div>`).join('')}
+    <div class="rp-nota">Tu Budget no cambia: lo del Budget ya se restó cuando compraste. Pagar la tarjeta solo pasa dinero de tu cuenta a la tarjeta.</div></div>`;
 }
 function openPagoTarjeta(persona, editId, tarjetaPreset, preset){
   const ex = editId ? (state.pagosTarjeta||[]).find(p=>p.id===editId) : null;
   persona = ex ? ex.persona : (persona||perfil);
   const moneda = ex ? (ex.moneda||'MXN') : 'MXN';
   const tarjeta = ctaCredito(ex ? ex.tarjeta : tarjetaPreset);
-  const partes = deudaTarjetaPartes(persona, tarjeta);
-  // v18.4: desde "Tarjetas de crédito" en Inicio llega lo que falta pagar del corte (primero lo tuyo).
+  const partes = deudaTarjetaPartes(persona, tarjeta, ex ? ex.id : null);
+  // v18.4: desde "Tarjetas de crédito" en Inicio llega lo que falta pagar del corte; si no, todo lo que debes.
   const etCorte = !ex && preset && preset.monto ? estadoTarjetaCredito(persona, tarjeta) : null;
-  const parte = ex ? (ex.bolsa==='budget' ? 'budget' : 'mio') : (etCorte && etCorte.configurada ? (etCorte.porPagarMio>0.005 || !(etCorte.porPagarBudget>0.005) ? 'mio' : 'budget') : (partes.mio<0.005 && partes.budget>0.005 ? 'budget' : 'mio'));
-  const montoCorte = etCorte && etCorte.configurada ? Math.round((parte==='budget' ? etCorte.porPagarBudget : etCorte.porPagarMio)*100)/100 : 0;
-  const montoIni = ex ? ex.monto : (montoCorte>0.005 ? montoCorte : (partes[parte]>0.005 ? Math.round(partes[parte]*100)/100 : ''));
-  const desde = ex ? ex.desde : (parte==='budget' ? 'bote' : 'debito');
-  const ctaDesde = ctaDebito(ex ? ex.ctaDesde : '');
+  const total = partes.budget + partes.mio;
+  const montoIni = ex ? ex.monto : (etCorte && etCorte.configurada && etCorte.porPagar>0.005 ? etCorte.porPagar : (preset && preset.monto>0 ? preset.monto : (total>0.005 ? Math.round(total*100)/100 : '')));
+  const desde = ex ? (ex.desde==='bote' ? 'debito' : (ex.desde||'otra')) : 'debito';
+  const ctaDesde = ex ? ctaDebito(ex.ctaDesde) : ctaPagoPorDefecto(persona, partes); // un pago viejo sin cuenta salió de Nu débito
   openSheet(`
     ${sheetHeader(ex ? 'Editar pago de tarjeta' : 'Pagar tarjeta de crédito — '+nombrePersona(persona))}
-    <div class="small-note" style="margin-bottom:12px;" id="ptUtiNota">${textoUtiTarjeta(partes)}</div>
+    <div class="small-note" style="margin-bottom:12px;" id="ptUtiNota">${textoUtiTarjeta(partes, tarjeta)}</div>
     <input type="hidden" id="ptEditRef" value="${ex?ex.id:''}">
     <input type="hidden" id="ptPersona" value="${persona}">
-    <div class="field"><label>¿Qué tarjeta?</label><select id="ptTarjeta">${opcionesCta(CUENTAS_CREDITO, tarjeta)}</select></div>
-    <div class="field"><label>¿Qué parte pagas?</label>
-      <div class="seg"><button type="button" class="${parte==='mio'?'on':''}" data-pt-parte="mio">Lo mío</button><button type="button" class="${parte==='budget'?'on':''}" data-pt-parte="budget">Lo del Budget</button></div>
-      <input type="hidden" id="ptParte" value="${parte}">
-      <div class="small-note" id="ptParteNota">${parte==='budget' ? 'Lo del Budget ya se restó del Budget cuando compraste: pagarlo no lo vuelve a restar.' : 'Lo que gastaste de tu dinero con esta tarjeta.'}</div>
-    </div>
-    <div class="field" id="ptDesdeWrap" style="${parte==='budget'?'display:none':''}"><label>¿De qué dinero lo pagas?</label>
+    <div class="field"><label>¿Qué tarjeta pagas?</label><select id="ptTarjeta">${opcionesCta(CUENTAS_CREDITO, tarjeta)}</select></div>
+    <div class="field"><label>¿De dónde sale el dinero?</label>
       <select id="ptDesde">${opcionesDesdePagoTarjeta(persona).map(([k,l])=>`<option value="${k}" ${k===desde?'selected':''}>${l}</option>`).join('')}</select>
       <div class="small-note" id="ptDesdeNota">${notaDesdePagoTarjeta(desde)}</div>
     </div>
-    <div class="field" id="ptCtaDesdeWrap" style="${desde==='otra'||desde==='efectivo'?'display:none':''}"><label>¿Desde qué cuenta?</label><select id="ptCtaDesde">${opcionesCta(ctasDebitoDe(desde, ex ? ex.ctaDesde : ''), desde==='bote' && !(ex && ex.ctaDesde) ? 'nu-deb' : ctaDesde)}</select></div>
+    <div class="field" id="ptCtaDesdeWrap" style="${desde==='debito'?'':'display:none'}"><label>¿De qué cuenta?</label><select id="ptCtaDesde">${opcionesCtaPago(persona, ctaDesde)}</select></div>
     <div class="field-row">
       <div class="field"><label>Monto</label><input type="number" id="ptMonto" placeholder="0" value="${montoIni}"></div>
       <div class="field"><label>Moneda</label><select id="ptMoneda">${currencyOptions(moneda)}</select></div>
     </div>
     <div class="field"><label>Fecha</label><input type="date" id="ptFecha" value="${ex?ex.fecha:todayISO()}"></div>
     ${renderTipoCambioField('pt', moneda)}
+    <div id="ptReparto"></div>
     <div class="field"><label>Nota (opcional)</label><input type="text" id="ptNota" placeholder="Ej. pago mensual" value="${ex&&ex.notaLibre?escHtml(ex.notaLibre):''}"></div>
     <button class="btn btn-primary btn-block" id="doPagoTarjeta">${ex?'Guardar cambios':'Guardar pago'}</button>
   `);
   if(ex && ex.rateMXN){ const r=document.getElementById('ptRate'); if(r) r.value = ex.rateMXN; }
+  refrescarRepartoPago();
+}
+// La cuenta de débito que mejor cuadra con lo que debes: si debes más del Budget, la de más dinero del Budget;
+// si debes más de lo tuyo, la de más dinero tuyo (empate: la de más dinero).
+function ctaPagoPorDefecto(persona, partes){
+  const sc = saldosCuentas(persona), b = partes && partes.mio > partes.budget ? 'mio' : 'budget';
+  return CUENTAS_DEBITO.slice().sort((x,y)=>(sc[y][b] - sc[x][b]) || (sc[y].total - sc[x].total))[0] || 'nu-deb';
+}
+function refrescarRepartoPago(){
+  const box = document.getElementById('ptReparto'); if(!box) return;
+  const v = (id)=>(document.getElementById(id)||{}).value;
+  const monto = Number(v('ptMonto')||0), moneda = v('ptMoneda')||'MXN';
+  if(!(monto>0)){ box.innerHTML = ''; return; }
+  const rate = Number(v('ptRate')||0);
+  const mxn = moneda==='MXN' ? monto : (rate>0 ? monto*rate : toMXN(monto, moneda));
+  const desde = v('ptDesde')||'otra', cta = desde==='debito' ? ctaDebito(v('ptCtaDesde')) : null;
+  const rp = simularPagoTarjeta(v('ptPersona'), v('ptTarjeta'), desde, cta, mxn, v('ptFecha')||todayISO(), v('ptEditRef')||null);
+  box.innerHTML = htmlRepartoPago(rp, cta, v('ptTarjeta'));
 }
 
-function textoUtiTarjeta(p){ return `Se debe: <b>${fmt(p.budget,'MXN')}</b> del Budget + <b>${fmt(p.mio,'MXN')}</b> tuyo. El pago baja lo utilizado y sale de la cuenta que elijas.`; }
+function textoUtiTarjeta(p, tarjeta){
+  const tot = p.budget + p.mio;
+  if(!(tot > 0.005)) return `No debes nada en tu ${escHtml(labelCuenta(ctaCredito(tarjeta)))}${p.favorMio > 0.005 ? ' (tienes '+fmt(p.favorMio,'MXN')+' a tu favor)' : ''}. El pago queda a tu favor.`;
+  return `Debes <b>${fmt(tot,'MXN')}</b> en tu ${escHtml(labelCuenta(ctaCredito(tarjeta)))}: <b>${fmt(p.budget,'MXN')}</b> de compras del Budget + <b>${fmt(p.mio,'MXN')}</b> de compras tuyas. No tienes que elegir qué parte pagas: la app lo reparte sola.`;
+}
 function opcionesDesdePagoOtro(persona){
   return [['debito','Tarjeta de débito'], ['bote',nombreBudget(persona)], ['efectivo','Efectivo'], ['otra','Otra / no registrada en la app']];
 }
@@ -7176,24 +7355,32 @@ function ecCtaEstado(e){ return (e.cta && ecListaCtas(e.cuenta).includes(e.cta))
 function ecEsCreditoFila(e, f){ const c = f.cuenta || e.cuenta; return c==='credito' || (c==='bote' && esCredito(ecCtaEstado(e))); }
 function ecEsCreditoEstado(e){ return e.cuenta==='credito' || (e.cuenta==='bote' && esCredito(ecCtaEstado(e))); }
 function ecBancoDe(e){ return String(ecCtaEstado(e)).startsWith('rev') ? 'rev' : 'nu'; }
-// Opciones de "¿Con qué pagaste la tarjeta?" (parte de la deuda | desde | cuenta) · v18.4 con icono y en palabras claras
+// Opciones de "¿Con qué pagaste la tarjeta?" (pago | desde | cuenta) · v18.6: sin "parte": la app reparte sola lo del Budget y lo tuyo.
+// (Los valores viejos "mio|…" / "budget|…" se siguen leyendo: la primera parte ya no importa si no es "devolucion".)
 function ecOpcionesOrigenPago(){
   return [
-    ['mio|debito|nu-deb','Tu Nu débito → paga lo tuyo', 'tarjeta'], ['mio|debito|rev-deb','Tu Revolut débito → paga lo tuyo', 'tarjeta'],
-    ['mio|bote|nu-deb','Budget en Nu débito → paga lo tuyo', 'bote'], ['mio|bote|rev-deb','Budget en Revolut débito → paga lo tuyo', 'bote'],
-    ['budget|bote|nu-deb','Budget en Nu débito → paga lo del Budget', 'bote'], ['budget|bote|rev-deb','Budget en Revolut débito → paga lo del Budget', 'bote'],
-    ['mio|efectivo','Efectivo → paga lo tuyo', 'billete'],
-    ['mio|otra','Otra cuenta (fuera de la app) → paga lo tuyo', ''], ['budget|otra','Otra cuenta (fuera de la app) → paga lo del Budget', ''],
+    ['pago|debito|nu-deb','Desde tu Nu débito', 'tarjeta'], ['pago|debito|rev-deb','Desde tu Revolut débito', 'tarjeta'],
+    ['pago|efectivo','En efectivo', 'billete'],
+    ['pago|otra','Desde otra cuenta (fuera de la app)', ''],
     ['devolucion|mio','No es pago: devolución de una compra tuya', ''], ['devolucion|budget','No es pago: devolución de una compra del Budget', '']];
 }
 function ecOrigenPorDefecto(e, f){
   const c = f.cuenta || e.cuenta, b = ecBancoDe(e), parte = c==='bote' ? 'budget' : 'mio';
   if((f.avisos||[]).some(a=>/Devoluci/.test(a)) || /reembolso|devoluci|refund|bonificaci|cashback/.test(sinAcentos(f.desc||''))) return 'devolucion|'+parte;
-  return parte==='budget' ? 'budget|bote|'+b+'-deb' : 'mio|debito|'+b+'-deb';
+  return 'pago|debito|'+b+'-deb';
 }
-// En un estado de débito: ¿qué tarjeta y qué parte se pagó?
-function ecOpcionesTarjetaPagada(){ return [['mio|nu-cred','Nu crédito · lo tuyo','credito'],['budget|nu-cred','Nu crédito · lo del Budget','bote'],['mio|rev-cred','Revolut crédito · lo tuyo','credito'],['budget|rev-cred','Revolut crédito · lo del Budget','bote']]; }
-function ecTarjetaPorDefecto(e, f){ const c = f.cuenta || e.cuenta; return (c==='bote' ? 'budget|' : 'mio|') + ecBancoDe(e) + '-cred'; }
+// En un estado de débito: ¿qué tarjeta se pagó? (pago | tarjeta)
+function ecOpcionesTarjetaPagada(){ return [['pago|nu-cred','Tu Nu crédito','credito'],['pago|rev-cred','Tu Revolut crédito','credito']]; }
+function ecTarjetaPorDefecto(e, f){ return 'pago|' + ecBancoDe(e) + '-cred'; }
+// v18.6: valor viejo "mio|nu-cred" / "budget|rev-cred" → "pago|…" (la parte ya no se elige).
+// v18.6: valor viejo "mio|bote|nu-deb" → "pago|debito|nu-deb" (para que el selector lo muestre).
+function ecOrigenNorm(v){
+  const [parte, desde, cta] = String(v||'').split('|');
+  if(parte==='devolucion') return 'devolucion|'+(desde==='budget' ? 'budget' : 'mio');
+  if(desde==='debito' || desde==='bote') return 'pago|debito|'+ctaDebito(cta);
+  return 'pago|'+(desde==='efectivo' ? 'efectivo' : 'otra');
+}
+function ecTarjetaPagadaNorm(v){ const t = String(v||'').split('|').pop(); return 'pago|'+(CUENTAS_CREDITO.includes(t) ? t : 'nu-cred'); }
 // v18.4: misma regla que al guardar: qué tarjeta física le toca a cada "cuenta".
 function ecCtaPara(e, cuenta){
   const ctaEst = ecCtaEstado(e);
@@ -7250,16 +7437,16 @@ function ecResumenFila(e, f){
     const tarjeta = labelCuenta(cuenta==='credito' ? ecCtaPara(e,'credito') : ecCtaEstado(e));
     const o = String(f.origen || ecOrigenPorDefecto(e,f)); const [parte, desde, cta] = o.split('|');
     if(parte==='devolucion') return 'Devolución en '+tarjeta+' · baja lo que gastaste'+(desde==='budget' ? ' del Budget' : '');
-    const src = desde==='debito' ? labelCuenta(cta)+' (tuyo)' : desde==='bote' ? labelCuenta(cta)+' (Budget)' : desde==='efectivo' ? 'efectivo' : 'otra cuenta';
-    return 'Pago a '+tarjeta+' ('+(parte==='budget' ? 'lo del Budget' : 'lo tuyo')+') · sale de '+src;
+    const src = (desde==='debito' || desde==='bote') ? 'tu '+labelCuenta(ctaDebito(cta)) : desde==='efectivo' ? 'efectivo' : 'otra cuenta';
+    return 'Pago a '+tarjeta+' · sale de '+src+' · la app reparte sola lo del Budget y lo tuyo';
   }
   if(f.tipo==='ingreso') return (cuenta==='abuelo' || cuenta==='otro') ? 'No se guarda: es una tarjeta ajena' : 'Ingreso · entra a '+ecDescCuentaDeb(e, cuenta);
   if(f.tipo==='retiro') return ['bote','arq','debito','abuelo'].includes(cuenta) ? 'Retiro a efectivo · sale de '+ecDescCuentaDeb(e, cuenta) : 'Retiro a efectivo · suma a tu efectivo, no se descuenta de ninguna cuenta de la app';
   if(f.tipo==='pagoTarjeta'){
     if(['abuelo','otro','arq'].includes(cuenta)) return 'No se guarda: es una tarjeta ajena';
-    const [parte, tarjeta] = String(f.tarjetaPagada || ecTarjetaPorDefecto(e,f)).split('|');
-    const src = parte==='budget' && cuenta!=='otra' ? labelCuenta(cuenta==='efectivo' ? 'nu-deb' : ecCtaPara(e,'debito'))+' (Budget)' : ecDescCuenta(e, cuenta);
-    return 'Pago a '+labelCuenta(tarjeta)+' ('+(parte==='budget' ? 'lo del Budget' : 'lo tuyo')+') · sale de '+src;
+    const tarjeta = ecTarjetaPagadaNorm(f.tarjetaPagada || ecTarjetaPorDefecto(e,f)).split('|')[1];
+    const src = (cuenta==='debito' || cuenta==='bote') ? 'tu '+labelCuenta(ecCtaPara(e,'debito')) : ecDescCuenta(e, cuenta);
+    return 'Pago a tu '+labelCuenta(tarjeta)+' · sale de '+src+' · la app reparte sola lo del Budget y lo tuyo';
   }
   return '';
 }
@@ -7305,9 +7492,9 @@ function ecHtmlFila(e, f){
   const avisos = ecAvisosFila(f);
   const faltaNombre = cuenta==='otro' && !ecNombreOtroFila(e, f);
   const cred = ecEsCreditoFila(e, f);
-  const origenSel = f.origen || ecOrigenPorDefecto(e, f), parteDef = cuenta==='bote' ? 'budget' : 'mio', b = ecBancoDe(e);
-  const origPrincipales = ['mio|debito|'+b+'-deb', 'budget|bote|'+b+'-deb', 'devolucion|'+parteDef];
-  const tarjSel = f.tarjetaPagada || ecTarjetaPorDefecto(e, f);
+  const origenSel = ecOrigenNorm(f.origen || ecOrigenPorDefecto(e, f)), parteDef = cuenta==='bote' ? 'budget' : 'mio', b = ecBancoDe(e);
+  const origPrincipales = ['pago|debito|nu-deb', 'pago|debito|rev-deb', 'devolucion|'+parteDef];
+  const tarjSel = ecTarjetaPagadaNorm(f.tarjetaPagada || ecTarjetaPorDefecto(e, f));
   const abierta = !!f.abierta || faltaNombre;
   const ctaAbierta = !!f.cuenta || !!f.ctaAbierta || cuenta==='otro';
   return `
@@ -7545,9 +7732,11 @@ function guardarImportacionEstado(){
         const sb = state.subcats.find(x=>x.id===(f.cat || ecSugerirCategoria(nota))) || subcatV15(state, 'Otros'); sb.gastos.push(g);
         n++; return;
       }
-      const r = {id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde, bolsa: parte==='budget' ? 'budget' : 'mio', tarjeta, importId, ...stamp, notaLibre:nota};
-      if(ctaD && (desde==='debito' || desde==='bote')) r.ctaDesde = ctaDebito(ctaD);
-      r.nota = 'Pago '+labelCuenta(tarjeta)+(r.bolsa==='budget'?' (parte del Budget)':'')+' · '+(r.ctaDesde ? 'desde '+labelCuenta(r.ctaDesde)+' ('+(desde==='bote'?'Budget':'mío')+')' : (desde==='efectivo' ? 'en efectivo' : 'otra cuenta / devolución'))+' · '+nota;
+      // v18.6: sin "parte": la app reparte sola el pago entre lo del Budget y lo tuyo.
+      const desdeN = (desde==='debito' || desde==='bote') ? 'debito' : (desde==='efectivo' ? 'efectivo' : 'otra');
+      const r = {id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde: desdeN, tarjeta, importId, ...stamp, notaLibre:nota};
+      if(desdeN==='debito') r.ctaDesde = ctaDebito(ctaD);
+      r.nota = 'Pago '+labelCuenta(tarjeta)+' · '+(r.ctaDesde ? 'desde '+labelCuenta(r.ctaDesde) : (desdeN==='efectivo' ? 'en efectivo' : 'otra cuenta'))+' · '+nota;
       state.pagosTarjeta.push(r); n++; return;
     } else if(f.tipo==='ingreso'){
       if(cuenta==='abuelo' || cuenta==='otro'){ omitidos.push(nota); return; } // un abono a una tarjeta ajena no es dinero tuyo
@@ -7563,12 +7752,12 @@ function guardarImportacionEstado(){
     } else if(f.tipo==='pagoTarjeta'){
       // Estado de débito (o efectivo): sale de esta cuenta y se elige qué tarjeta y qué parte se pagó.
       const desde = cuenta==='debito' ? 'debito' : cuenta==='bote' ? 'bote' : cuenta==='efectivo' ? 'efectivo' : 'otra';
-      const [parte, tarjeta] = String(f.tarjetaPagada || ecTarjetaPorDefecto(e, f)).split('|');
-      // Lo del Budget de la tarjeta se paga con dinero del Budget (igual que en el formulario): sale como Budget de esa cuenta.
-      const desdeReal = parte==='budget' && desde!=='otra' ? 'bote' : desde;
-      const r = {id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde:desdeReal, bolsa: parte==='budget' ? 'budget' : 'mio', tarjeta: ctaCredito(tarjeta), importId, ...stamp, notaLibre:nota};
-      if(desdeReal==='debito' || desdeReal==='bote') r.ctaDesde = desde==='efectivo' ? 'nu-deb' : ctaDebBudget(desde==='bote'?'bote':'debito');
-      r.nota = 'Pago '+labelCuenta(r.tarjeta)+(r.bolsa==='budget'?' (parte del Budget)':'')+' · '+(r.ctaDesde ? 'desde '+labelCuenta(r.ctaDesde)+' ('+(desdeReal==='bote'?'Budget':'mío')+')' : (desdeReal==='efectivo'?'en efectivo':'otra cuenta'))+' · '+nota;
+      // v18.6: sale de esta cuenta; la app reparte sola qué parte de la deuda (Budget / tuya) baja.
+      const tarjeta = ecTarjetaPagadaNorm(f.tarjetaPagada || ecTarjetaPorDefecto(e, f)).split('|')[1];
+      const desdeReal = desde==='bote' ? 'debito' : desde;
+      const r = {id:base.id, persona, monto:f.monto, moneda:f.moneda, fecha:f.fecha, desde:desdeReal, tarjeta: ctaCredito(tarjeta), importId, ...stamp, notaLibre:nota};
+      if(desdeReal==='debito') r.ctaDesde = ctaDebBudget('debito');
+      r.nota = 'Pago '+labelCuenta(r.tarjeta)+' · '+(r.ctaDesde ? 'desde '+labelCuenta(r.ctaDesde) : (desdeReal==='efectivo'?'en efectivo':'otra cuenta'))+' · '+nota;
       state.pagosTarjeta.push(r);
       n++;
     }
@@ -8194,8 +8383,8 @@ function signoTotal(m){
   if(m.tipo==='ingreso') return (esDestinoBote(m.destino) && !m.esAbuelo) ? +1 : 0;
   if(m.tipo==='gasto-generales' || m.tipo==='gasto-gustos') return (m.quien==='abuelo' || !fueraDelBote(m)) ? -1 : 0;
   if(m.tipo==='retiro-efectivo') return (m.cuenta==='bote' || m.cuenta==='arq' || m.cuenta==='abuelo') ? -1 : 0;
-  if(m.tipo==='pago-tarjeta' && m.bolsa==='budget') return 'neutro'; // v18: pagar la parte del Budget de la tarjeta (ya se contó al comprar)
-  if(m.tipo==='pago-tarjeta' || m.tipo==='pago-otro') return m.desde==='bote' ? -1 : 0;
+  if(m.tipo==='pago-tarjeta') return 0; // v18.6: pagar la tarjeta es pasar dinero entre tus cuentas; no cambia el Budget
+  if(m.tipo==='pago-otro') return m.desde==='bote' ? -1 : 0;
   if(m.tipo==='pago-entre'){
     const s = m.sale==='bote', e = m.entra==='bote';
     if(s && e) return 'neutro';
@@ -8819,7 +9008,8 @@ function pagoDeMov(m){
   if(m.tipo==='personal-ganancia') return 'debito';
   if(m.tipo==='retiro-efectivo') return esDebito(m.cuenta) ? 'debito' : m.cuenta;
   if(m.tipo==='ingreso') return m.destino||'bote';
-  if(m.tipo==='pago-tarjeta' || m.tipo==='pago-otro') return esDebito(m.desde) ? 'debito' : m.desde;
+  if(m.tipo==='pago-tarjeta') return pagoTarjetaDesdeCuenta(m) ? 'debito' : m.desde; // v18.6: los viejos "desde el Budget" ya no tocan el Budget
+  if(m.tipo==='pago-otro') return esDebito(m.desde) ? 'debito' : m.desde;
   if(m.tipo==='pago-entre') return esDebito(m.sale) ? 'debito' : m.sale;
   if(m.tipo==='ahorro-retiro') return 'ahorro';
   if(m.tipo==='transferencia') return 'debito';
@@ -10945,7 +11135,7 @@ function wireSheetEvents(){
     if(![...ingMesSel.options].some(o=>o.value===ym)) ingMesSel.insertAdjacentHTML('beforeend', `<option value="${ym}">${nombreMesLargo(ym)}</option>`);
     ingMesSel.value = ym;
   });
-  // pago de tarjeta de crédito
+  // pago de tarjeta de crédito (v18.6: sin "parte"; la app la reparte sola)
   const doPagoTarjeta = document.getElementById('doPagoTarjeta');
   if(doPagoTarjeta) doPagoTarjeta.addEventListener('click', ()=>{
     const persona = document.getElementById('ptPersona').value;
@@ -10953,47 +11143,40 @@ function wireSheetEvents(){
     if(monto<=0){ alert('Ingresa un monto válido.'); return; }
     const moneda = document.getElementById('ptMoneda').value;
     const fecha = document.getElementById('ptFecha').value||todayISO();
-    const bolsaPt = (document.getElementById('ptParte')||{}).value==='budget' ? 'budget' : 'mio';
-    const desde = bolsaPt==='budget' ? 'bote' : (document.getElementById('ptDesde').value||'otra');
+    const desde = ['debito','efectivo','otra'].includes(document.getElementById('ptDesde').value) ? document.getElementById('ptDesde').value : 'otra';
     const tarjetaPt = ctaCredito((document.getElementById('ptTarjeta')||{}).value);
-    const ctaDesdePt = (desde==='otra' || desde==='efectivo') ? null : ctaDebito((document.getElementById('ptCtaDesde')||{}).value);
+    const ctaDesdePt = desde==='debito' ? ctaDebito((document.getElementById('ptCtaDesde')||{}).value) : null;
     const notaLibre = document.getElementById('ptNota').value.trim();
     const rateInput = document.getElementById('ptRate');
     const stamp = stampRates(monto, moneda, rateInput?rateInput.value:null);
-    const nota = 'Pago '+labelCuenta(tarjetaPt)+(bolsaPt==='budget'?' (parte del Budget)':'')+' · desde ' + (ctaDesdePt ? labelCuenta(ctaDesdePt)+' ('+(desde==='bote'?'Budget':'mío')+')' : labelDesdePagoTarjeta(desde, persona)) + (notaLibre?(' · '+notaLibre):'');
-    const campos = {persona, monto, moneda, fecha, desde, nota, notaLibre, tarjeta:tarjetaPt, bolsa:bolsaPt, ...stamp};
+    const nota = 'Pago '+labelCuenta(tarjetaPt)+' · desde ' + (ctaDesdePt ? labelCuenta(ctaDesdePt) : labelDesdePagoTarjeta(desde, persona)) + (notaLibre?(' · '+notaLibre):'');
+    const campos = {persona, monto, moneda, fecha, desde, nota, notaLibre, tarjeta:tarjetaPt, ...stamp};
     if(ctaDesdePt) campos.ctaDesde = ctaDesdePt;
     const editId = document.getElementById('ptEditRef').value;
     if(!Array.isArray(state.pagosTarjeta)) state.pagosTarjeta = [];
-    if(editId){ const ex = state.pagosTarjeta.find(p=>p.id===editId); if(ex){ Object.assign(ex, campos); if(!ctaDesdePt) delete ex.ctaDesde; } }
+    if(editId){ const ex = state.pagosTarjeta.find(p=>p.id===editId); if(ex){ Object.assign(ex, campos); if(!ctaDesdePt) delete ex.ctaDesde; delete ex.bolsa; } }
     else state.pagosTarjeta.push({id:uid(), ...campos});
     persist(); closeSheet(); render();
   });
-  { // v18: tarjeta / parte / cuenta del pago de tarjeta
+  { // v18.6: tarjeta / de dónde sale / monto → reparto en vivo
     const persona = (document.getElementById('ptPersona')||{}).value;
     const ponerMonto = ()=>{
-      if((document.getElementById('ptEditRef')||{}).value) return;
-      const t = (document.getElementById('ptTarjeta')||{}).value, pa = (document.getElementById('ptParte')||{}).value;
-      const partes = deudaTarjetaPartes(persona, t);
-      const n = document.getElementById('ptUtiNota'); if(n) n.innerHTML = textoUtiTarjeta(partes);
-      const m = document.getElementById('ptMonto'); if(m) m.value = partes[pa]>0.005 ? Math.round(partes[pa]*100)/100 : '';
+      const t = (document.getElementById('ptTarjeta')||{}).value;
+      const partes = deudaTarjetaPartes(persona, t, (document.getElementById('ptEditRef')||{}).value || null);
+      const n = document.getElementById('ptUtiNota'); if(n) n.innerHTML = textoUtiTarjeta(partes, t);
+      if(!(document.getElementById('ptEditRef')||{}).value){ const tot = partes.budget + partes.mio; const m = document.getElementById('ptMonto'); if(m) m.value = tot>0.005 ? Math.round(tot*100)/100 : ''; }
+      refrescarRepartoPago();
     };
     const refrescarDesde = ()=>{
       const ds = document.getElementById('ptDesde'); if(!ds) return;
       const n = document.getElementById('ptDesdeNota'); if(n) n.textContent = notaDesdePagoTarjeta(ds.value);
-      const cw = document.getElementById('ptCtaDesdeWrap'); if(cw) cw.style.display = (ds.value==='otra' || ds.value==='efectivo') ? 'none' : '';
-      const pc = document.getElementById('ptCtaDesde'); if(pc){ const v = pc.value, l = ctasDebitoDe(ds.value); pc.innerHTML = opcionesCta(l, l.includes(v) ? v : l[0]); }
+      const cw = document.getElementById('ptCtaDesdeWrap'); if(cw) cw.style.display = ds.value==='debito' ? '' : 'none';
+      refrescarRepartoPago();
     };
     const tj = document.getElementById('ptTarjeta'); if(tj) tj.addEventListener('change', ponerMonto);
     const ds = document.getElementById('ptDesde'); if(ds) ds.addEventListener('change', refrescarDesde);
-    document.querySelectorAll('[data-pt-parte]').forEach(b=>b.addEventListener('click', ()=>{
-      document.querySelectorAll('[data-pt-parte]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
-      const v = b.getAttribute('data-pt-parte'); document.getElementById('ptParte').value = v;
-      const w = document.getElementById('ptDesdeWrap'); if(w) w.style.display = v==='budget' ? 'none' : '';
-      if(ds){ ds.value = v==='budget' ? 'bote' : (ds.value==='bote' ? 'debito' : ds.value); refrescarDesde(); }
-      const pn = document.getElementById('ptParteNota'); if(pn) pn.textContent = v==='budget' ? 'Lo del Budget ya se restó del Budget cuando compraste: pagarlo no lo vuelve a restar.' : 'Lo que gastaste de tu dinero con esta tarjeta.';
-      ponerMonto();
-    }));
+    ['ptCtaDesde','ptMoneda','ptFecha','ptRate'].forEach(id=>{ const el = document.getElementById(id); if(el) el.addEventListener('change', refrescarRepartoPago); });
+    ['ptMonto','ptRate'].forEach(id=>{ const el = document.getElementById(id); if(el) el.addEventListener('input', refrescarRepartoPago); });
   }
   const ptMonedaSel = document.getElementById('ptMoneda');
   if(ptMonedaSel) ptMonedaSel.addEventListener('change', ()=>{
@@ -11170,5 +11353,3 @@ if('serviceWorker' in navigator){
 </script>
 </body>
 </html>
-
-```
