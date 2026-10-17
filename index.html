@@ -1031,6 +1031,29 @@
   .exp-line.cuenta-jen .who-txt{color:var(--jen);}
   .exp-line.cuenta-isa .who-txt{color:var(--isa);}
   .exp-line.cuenta-jen .who-txt,.exp-line.cuenta-isa .who-txt{font-weight:800;}
+  /* v18.8: en qué cuenta se ve cada movimiento */
+  .cfg-inicio-row{display:flex;align-items:center;justify-content:space-between;gap:12px;} .cfg-inicio-mes{font-size:16px;color:var(--amber);}
+  .exp-line.cuenta-ambas{background:linear-gradient(90deg,var(--jen-soft),var(--isa-soft));box-shadow:inset 3px 0 0 var(--jen),inset 6px 0 0 var(--isa);}
+  .exp-line.cuenta-abuelo{background:var(--gold-soft);box-shadow:inset 3px 0 0 var(--gold);}
+  .exp-line.cuenta-otro{background:var(--brick-soft);box-shadow:inset 3px 0 0 var(--brick);}
+  .cta-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;line-height:1;padding:4px 9px 4px 7px;border-radius:999px;margin-right:6px;vertical-align:1px;white-space:nowrap;border:1px solid transparent;}
+  .cta-badge::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor;flex:none;}
+  .cta-badge.cta-jen{color:var(--jen);background:var(--jen-soft);border-color:color-mix(in srgb,var(--jen) 40%,transparent);}
+  .cta-badge.cta-isa{color:var(--isa);background:var(--isa-soft);border-color:color-mix(in srgb,var(--isa) 40%,transparent);}
+  .cta-badge.cta-ambas{color:var(--ink);background:linear-gradient(90deg,var(--jen-soft),var(--isa-soft));border-color:var(--line);}
+  .cta-badge.cta-ambas::before{background:linear-gradient(90deg,var(--jen) 50%,var(--isa) 50%);}
+  .cta-badge.cta-abuelo{color:var(--gold);background:var(--gold-soft);border-color:color-mix(in srgb,var(--gold) 40%,transparent);}
+  .cta-badge.cta-otro{color:var(--brick);background:var(--brick-soft);border-color:color-mix(in srgb,var(--brick) 40%,transparent);}
+  .cta-de{font-size:10.5px;font-weight:600;color:var(--ink-faint);margin-right:6px;text-transform:lowercase;}
+  .cta-filtro{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:-2px 0 12px;padding:10px 12px;border-radius:var(--radius-md,14px);background:var(--card);border:1px solid var(--line);}
+  .cta-filtro-lbl{font-size:12.5px;font-weight:800;color:var(--ink-soft);display:inline-flex;align-items:center;gap:6px;}
+  .cta-filtro-ops{display:flex;gap:6px;}
+  .cta-op{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13px;font-weight:800;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--ink-soft);cursor:pointer;}
+  .cta-op .cta-dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .cta-op-jen .cta-dot{background:var(--jen);} .cta-op-isa .cta-dot{background:var(--isa);}
+  .cta-op-todas.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .cta-op-jen.on{background:var(--jen);color:#fff;border-color:var(--jen);} .cta-op-jen.on .cta-dot{background:#fff;}
+  .cta-op-isa.on{background:var(--isa);color:#fff;border-color:var(--isa);} .cta-op-isa.on .cta-dot{background:#fff;}
   .mov-buscar{margin-bottom:10px;gap:8px;}
   .mov-buscar .mov-search{height:44px;background:var(--card);border-color:var(--line);border-radius:10px;box-shadow:none;}
   .mov-buscar .mov-search:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-soft);outline:none;}
@@ -1206,7 +1229,7 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.7 · 16 oct 2026 (editar importaciones · acumulado de Jen e Isa por separado · cubrir con lo suyo o con el sobrante de la otra)';
+const APP_VERSION = '18.8 · 17 oct 2026 (diseño nuevo · filtro "¿En qué cuenta se ve?" · euros dentro de Revolut)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
@@ -1580,7 +1603,7 @@ function defaultState(){
     series:[], // movimientos recurrentes: cada mes se crea uno independiente
     importaciones:[], // estados de cuenta importados (para poder deshacer)
     suscripciones:[], // suscripciones de cada una (free trial o mensual)
-    comprasArq:[], // compras de euros en Arq (pesos → euros, con su tipo de cambio)
+    comprasArq:[], // compras de euros en Revolut (pesos → euros, con su tipo de cambio)
     transferencias:[], // v18: pasar dinero entre cuentas (p. ej. Nu → Revolut), sin cambiar el Budget
     cuentasCfg:{},     // v18: saldo inicial / límite de las cuentas nuevas (Revolut)
     porCobrar:[], // Me deben: solo para anotar, no mueve dinero
@@ -2250,7 +2273,7 @@ async function sincronizarUnaVez(){
         avisarCambiosDeNube(cambiosDeNube, quienNube, dispNube);
         return true;
       }
-      // Con un código de hoja viejo, subir podría perder suscripciones / compras de Arq: no se sube hasta actualizarlo.
+      // Con un código de hoja viejo, subir podría perder suscripciones / compras de Euros (Revolut): no se sube hasta actualizarlo.
       if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.7) y crear una versión nueva de la implementación. Lo que registres se queda guardado en este teléfono y se sube en cuanto lo actualices.');
       const ahoraISO = new Date().toISOString();
       const marca = uid();
@@ -2704,7 +2727,7 @@ function crearOcurrencia(se, ym){
     Object.assign(base, stampRates(Number(p.monto)||0, p.moneda||'MXN', rate));
     if(se.tipo==='gasto'){
       const sub = state.subcats.find(x=>x.id===se.subId) || (se.cat==='gustos' ? subcatV15(state, clasificarGastoV15(p.nota)) : null) || state.subcats[0]; if(!sub) return null; sub.gastos.push(base);
-      // Pagado con Arq en euros: al tipo de cambio de la compra.
+      // Pagado con euros (Revolut): al tipo de cambio de la compra.
       if(p.pagadoCon==='arq' && (p.moneda||'MXN')==='EUR'){ const t = tasaArq(p.quien==='ambas' ? (p.pagadoPor||'jen') : p.quien, Number(p.monto)||0, base.id); if(t) Object.assign(base, stampRates(Number(p.monto)||0, 'EUR', t)); }
     } else if(se.tipo==='efectivo'){ base.tipo='gasto'; state.efectivoMovimientos.push(base); }
     else if(se.tipo==='personal'){ if(state.finanzas[se.persona]) state.finanzas[se.persona].gastos.push(base); }
@@ -3156,7 +3179,7 @@ function saldoEfectivoResumen(persona){
 // Retiros viejos sin cuenta = 'otra' (no restan de nada).
 function cuentasRetiroPara(persona){
   const out = [['bote', nombreBudget(persona)]];
-  if(typeof hayArq!=='function' || hayArq()) out.push(['arq', 'Arq ('+nombreBudget(persona)+')']);
+  if(typeof hayArq!=='function' || hayArq()) out.push(['arq', 'Euros (Revolut) · '+nombreBudget(persona)]);
   out.push(['abuelo','Tarjeta del Abuelo']);
   if(persona==='jen') out.push(['ahorro','Ahorro']);
   out.push(['debito','Mi dinero'], ['otra','Otra / no registrada en la app']);
@@ -4514,8 +4537,8 @@ function renderExpLine(g, cat, subId){
   return `
   <div class="exp-line clickable ${claseCuentaPersona(g)}" data-mov-open="${movKey}">
     ${micoHtml(ic)}
-    <div class="desc"><div class="n">${escHtml(g.nota||'Gasto')}</div><div class="d">${fmtDate(g.fecha)}${quienTxt(g)}${lineaEstancia(g)}${g.serieId?' <span class="type-tag">cada mes</span>':''}</div></div>
-    <div class="amt gasto">−${fmt(g.monto,g.moneda||'EUR')}${g.quien==='abuelo'?'<span class="tag-cash">Abuelo</span>':(g.pagadoCon==='arq'?'<span class="tag-cash">Arq</span>':(g.pagadoCon==='efectivo'?'<span class="tag-cash">efectivo</span>':(esDebito(g.pagadoCon)?'<span class="tag-cash">débito</span>':(g.pagadoCon==='credito'?'<span class="tag-cash">crédito</span>':(g.pagadoCon==='otro'?'<span class="tag-cash">pagó '+escHtml(nombreOtroDe(g))+'</span>':'')))))}
+    <div class="desc"><div class="n">${escHtml(g.nota||'Gasto')}</div><div class="d">${fmtDate(g.fecha)} ${htmlCuentaMov(Object.assign({tipo:'gasto-generales'}, g))}${lineaEstancia(g)}${g.serieId?' <span class="type-tag">cada mes</span>':''}</div></div>
+    <div class="amt gasto">−${fmt(g.monto,g.moneda||'EUR')}${g.quien==='abuelo'?'<span class="tag-cash">Abuelo</span>':(g.pagadoCon==='arq'?'<span class="tag-cash">Euros (Revolut)</span>':(g.pagadoCon==='efectivo'?'<span class="tag-cash">efectivo</span>':(esDebito(g.pagadoCon)?'<span class="tag-cash">débito</span>':(g.pagadoCon==='credito'?'<span class="tag-cash">crédito</span>':(g.pagadoCon==='otro'?'<span class="tag-cash">pagó '+escHtml(nombreOtroDe(g))+'</span>':'')))))}
       ${g.moneda && g.moneda!=='MXN' ? `<span class="est">≈ ${fmt(mxn,'MXN')} al momento</span>` : ''}
     </div>
     <span class="chev-mov">${ico('chevright','icon-sm')}</span>
@@ -4821,7 +4844,7 @@ function labelTipoMov(m){
   if(m.tipo==='ingreso' && m.cruceAcum) return 'Acumulado · '+((Number(m.monto)||0) > 0 ? 'su sobrante cubre a '+nombrePersona(otraPersona(m.persona)) : 'cubierto con el sobrante de '+nombrePersona(otraPersona(m.persona)));
   if(m.tipo==='ingreso' && m.traspaso==='sobrante' && (Number(m.monto)||0) < 0) return 'Reposición · lo que se debía → ' + labelDestinoTraspaso(m.destino, m.persona);
   if(m.tipo==='ingreso' && m.traspaso) return 'Traspaso · ' + (m.traspaso==='ahorro' ? 'del ahorro' : 'del sobrante') + ' → ' + labelDestinoTraspaso(m.destino, m.persona);
-  if(m.tipo==='ingreso') return 'Ingreso' + (m.destino==='debito' ? ' · mío' : (m.destino==='efectivo' ? ' · efectivo' : (m.destino==='arq' ? ' · Arq' : ' · Budget'))) + (m.recurrente ? ' · cada mes' : '');
+  if(m.tipo==='ingreso') return 'Ingreso' + (m.destino==='debito' ? ' · mío' : (m.destino==='efectivo' ? ' · efectivo' : (m.destino==='arq' ? ' · Euros (Revolut)' : ' · Budget'))) + (m.recurrente ? ' · cada mes' : '');
   if(m.tipo==='personal-gasto') return m.cuenta==='credito' ? 'Crédito' : 'Débito';
   if(m.tipo==='personal-ganancia') return 'Débito';
   if(m.tipo==='transferencia') return 'Pase entre cuentas · '+labelCuenta(m.desde)+' → '+labelCuenta(m.hacia);
@@ -4841,12 +4864,39 @@ function tagsMovUnicos(m, v, tipoLabel, esGasto){
   if(v.nota) add(v.nota);
   return out.join('');
 }
-function claseCuentaPersona(m){
-  const esGasto = m.tipo==='gasto-generales' || m.tipo==='gasto-gustos' || m.tipo==='personal-gasto';
-  const esCuenta = esDebito(m.pagadoCon) || m.pagadoCon==='credito' || m.tipo==='personal-gasto';
-  if(!esGasto || !esCuenta) return '';
-  const p = m.tipo==='personal-gasto' ? m.persona : (m.pagadoPor && m.pagadoPor!=='ambas' ? m.pagadoPor : (m.quien==='jen'||m.quien==='isa' ? m.quien : ''));
-  return p==='jen' ? 'cuenta-jen' : (p==='isa' ? 'cuenta-isa' : '');
+/* v18.8 — ¿EN QUÉ CUENTA SE VE? Dónde puedes revisar cada movimiento: en las cuentas de Jen, en las de Isa, en las de
+   las dos, en la tarjeta del Abuelo o en las de otra persona. Solo para mostrar y filtrar: no cambia ningún cálculo.
+   {k:'jen'|'isa'|'ambas'|'abuelo'|'otro', personas:[…], label} */
+function cuentaDondeSeVe(m){
+  const P = (p)=>p==='isa' ? 'isa' : 'jen';
+  const una = (p)=>({k:P(p), personas:[P(p)], label:nombrePersona(P(p))});
+  const dos = (label)=>({k:'ambas', personas:['jen','isa'], label: label || 'Jen + Isa'});
+  if(!m) return {k:'', personas:[], label:''};
+  if(m.tipo==='gasto-generales' || m.tipo==='gasto-gustos'){
+    if(m.quien==='abuelo') return {k:'abuelo', personas:[], label:'Abuelo'};
+    if(m.pagadoCon==='otro') return {k:'otro', personas:[], label:'Otro'+(m.otroNombre ? ' · '+m.otroNombre : '')};
+    if(m.quien==='ambas'){ if(m.pagadoPor==='ambas') return dos(); return una(m.pagadoPor || 'jen'); }
+    return una(m.quien);
+  }
+  if(m.tipo==='pago-entre') return dos(nombrePersona(P(m.persona))+' → '+nombrePersona(P(m.a)));
+  return una(m.persona || m.quien);
+}
+function claseCuentaPersona(m){ const c = cuentaDondeSeVe(m); return c.k ? 'cuenta-'+c.k : ''; }
+// Etiqueta de color con la cuenta (grande) y, si les corresponde a las dos, "ambas" en chico.
+function htmlCuentaMov(m){
+  const c = cuentaDondeSeVe(m); if(!c.k) return '';
+  const chico = (m.tipo==='gasto-generales' || m.tipo==='gasto-gustos') && m.quien==='ambas' ? '<span class="cta-de">de ambas</span>' : '';
+  return `<span class="cta-badge cta-${c.k}" title="Se ve en: ${escHtml(c.label)}">${escHtml(c.label)}</span>${chico}`;
+}
+// Filtro "¿En qué cuenta se ve?" (Todas · Jen · Isa). Se recuerda en este teléfono.
+const FILTRO_CUENTA_KEY = 'budgetin_filtro_cuenta';
+let movCuentaFiltro = (()=>{ try{ const v = localStorage.getItem(FILTRO_CUENTA_KEY); return v==='jen' || v==='isa' ? v : 'todas'; }catch(e){ return 'todas'; } })();
+function setMovCuentaFiltro(v){ movCuentaFiltro = v==='jen' || v==='isa' ? v : 'todas'; try{ localStorage.setItem(FILTRO_CUENTA_KEY, movCuentaFiltro); }catch(e){} }
+function pasaFiltroCuenta(m){ return movCuentaFiltro==='todas' || cuentaDondeSeVe(m).personas.includes(movCuentaFiltro); }
+function htmlFiltroCuenta(){
+  const op = [['todas','Todas'],['jen','Jen'],['isa','Isa']];
+  return `<div class="cta-filtro"><span class="cta-filtro-lbl">${ico('card','icon-xs')} ¿En qué cuenta se ve?</span>
+    <div class="cta-filtro-ops">${op.map(([k,l])=>`<button type="button" class="cta-op cta-op-${k} ${movCuentaFiltro===k?'on':''}" data-mov-cuenta="${k}" aria-pressed="${movCuentaFiltro===k}">${k==='todas'?'':`<i class="cta-dot"></i>`}${l}</button>`).join('')}</div></div>`;
 }
 function renderMovLine(m){
   const v = vistaMov(m);
@@ -4862,7 +4912,7 @@ function renderMovLine(m){
   <div class="exp-line clickable ${claseCuentaPersona(m)} ${selectable?'sel-modo':''} ${sel?'sel-on':''}" data-mov-open="${key}">
     ${selectable ? `<span class="sel-chk" aria-hidden="true">${sel?ico('check','icon-xs'):''}</span>` : ''}
     ${micoHtml(iconoMov(m))}
-    <div class="desc"><div class="n">${escHtml(m.nota||m.subNombre||'Movimiento')}</div><div class="d">${m.tipo==='pago-entre'?'<span class="who-txt">'+quienTxt(m)+'</span>':quienTxt(m).replace(/^ · /,'')}${mesTxt}${lineaEstancia(m)}${tagsMovUnicos(m, v, tipoLabel, esGasto)}</div></div>
+    <div class="desc"><div class="n">${escHtml(m.nota||m.subNombre||'Movimiento')}</div><div class="d">${htmlCuentaMov(m)}${mesTxt}${lineaEstancia(m)}${tagsMovUnicos(m, v, tipoLabel, esGasto)}</div></div>
     <div class="amt ${v.neutro?'neutro':(isIncome?'income':'gasto')}">${v.neutro?'↔ ':(isIncome?'+':'−')}${fmt(v.monto,v.moneda)}
       ${v.moneda && v.moneda!=='MXN' ? `<span class="est">≈ ${fmt(v.montoMXN,'MXN')}</span>` : ''}
     </div>
@@ -5500,6 +5550,7 @@ function renderMovimientos(){
   const buscandoTodos = !!q || filtrosActivos()>0;
   const filtered = aplicarFiltrosMov((movFiltro==='total' && !buscandoTodos ? repartirEstanciasMes(collectMovimientos(), movMesTotal) : collectMovimientos())
     .filter(m=>movMatchesChip(m,movFiltro, buscandoTodos))
+    .filter(pasaFiltroCuenta)
     .filter(m=> buscandoTodos || movFiltro==='total' || ymMov(m)===movMes)
     .filter(m=> !q || ((m.nota||'')+' '+(m.subNombre||'')).toLowerCase().includes(q)))
     .sort((a,b)=> (b.fecha||'').localeCompare(a.fecha||''));
@@ -5568,6 +5619,7 @@ function renderMovimientos(){
   <div class="chiprow chiprow-scroll" style="margin-bottom:12px;">
     ${chips.map(([id,label])=>`<button class="chip chip-ico ${movFiltro===id?'on':''}" data-mov-chip="${id}">${ico(ICONO_CHIP[id]||'layers','icon-xs')}${label}</button>`).join('')}
   </div>
+  ${htmlFiltroCuenta()}
   ${resumenCard}
   ${movFiltro==='total' ? renderTotalAcumuladoCard('total') : ''}
   ${renderBuscarMov(movFiltro==='personales' ? 'Buscar en mi dinero…' : 'Buscar por nota o fuente…')}
@@ -5723,6 +5775,12 @@ function renderConfig(){
     </div>
     <div class="small-note" style="margin-top:10px;">Gastado del Budget hasta ahora, todos los meses (categorías, retiros a efectivo y pagos entre ustedes desde el Budget; pagar tus tarjetas no cuenta): ${fmt(gastadoTotal,'MXN')}</div>
   </div>` : `<div class="card"><div class="small-note">Agrega fecha de inicio y fin para ver días totales, días restantes y presupuesto diario proyectado.</div></div>`}
+  <div class="card cfg-inicio-budget">
+    <div class="card-title"><h2>${ico('calendar','icon-sm')} Mes de inicio del Budget</h2></div>
+    <div class="cfg-inicio-row"><div><b class="cfg-inicio-mes">${escHtml(nombreMesLargo(inicioBudgetYM()))}</b>
+      <div class="small-note">Desde este mes cuentan el Total acumulado y el resumen por mes (lo que sobró o se debe de cada una). Lo de antes no cuenta. El Budget de cada mes se calcula igual.</div></div>
+      <button type="button" class="btn btn-outline btn-sm" data-acum-inicio>${ico('edit','icon-sm')} Cambiar</button></div>
+  </div>
   ${renderAjustesInline()}
   `;
 }
@@ -5986,10 +6044,10 @@ function pagadoConExport(m){
   if(m.quien==='abuelo') return 'Tarjeta del Abuelo';
   if(m.pagadoCon==='otro') return 'Otra persona ('+(m.otroNombre||'sin nombre')+')';
   { const c = ctaDeGasto(m); if(c) return (m.pagadoCon==='bote' ? 'Budget' : 'Mi dinero')+' · '+labelCuenta(c); }
-  return {bote:'Budget', arq:'Arq', efectivo:'Efectivo', debito:'Mi dinero · débito', personal:'Mi dinero · débito', credito:'Mi dinero · crédito'}[m.pagadoCon||'bote']||'';
+  return {bote:'Budget', arq:'Euros (Revolut)', efectivo:'Efectivo', debito:'Mi dinero · débito', personal:'Mi dinero · débito', credito:'Mi dinero · crédito'}[m.pagadoCon||'bote']||'';
 }
 function cuentaExport(m){
-  const L = {bote:'Budget', arq:'Arq', debito:'Débito', personal:'Débito', efectivo:'Efectivo', credito:'Crédito', abuelo:'Tarjeta del Abuelo', ahorro:'Ahorro', otra:'Otra'};
+  const L = {bote:'Budget', arq:'Euros (Revolut)', debito:'Débito', personal:'Débito', efectivo:'Efectivo', credito:'Crédito', abuelo:'Tarjeta del Abuelo', ahorro:'Ahorro', otra:'Otra'};
   if(m.tipo==='ingreso') return L[m.destino||'bote'];
   if(m.tipo==='retiro-efectivo') return 'De '+(L[m.cuenta]||'Otra')+' a Efectivo';
   if(m.tipo==='pago-entre') return 'De '+(L[m.sale]||'Otra')+' ('+nombrePersonaExport(m.persona)+') a '+(L[m.entra]||'Otra')+' ('+nombrePersonaExport(m.a)+')';
@@ -6235,7 +6293,7 @@ function openAhorro(editId){
     <div class="num" style="font-size:26px;">${fmt(ahorroSaldoMXN(),'MXN')}</div>
     <div class="small-note" style="margin-bottom:14px;">≈ ${fmt(toEUR(ahorroSaldoMXN()),'EUR')} de referencia</div>
     <div class="note-box">${ico('trend','icon-sm')} <div>Los depósitos automáticos vienen directo de los ingresos marcados con "genera ahorro automático" en Movimientos. Si borras o editas uno de esos ingresos ahí, este saldo se ajusta solo.</div></div>
-    <button class="btn btn-outline btn-block" data-traspaso="ahorro" style="margin-bottom:14px;">${ico('swap','icon-sm')} Pasar a otra cuenta (Budget, Arq, efectivo o débito)</button>
+    <button class="btn btn-outline btn-block" data-traspaso="ahorro" style="margin-bottom:14px;">${ico('swap','icon-sm')} Pasar a otra cuenta (Budget, Euros (Revolut), efectivo o débito)</button>
     <input type="hidden" id="retiroEditId" value="${ex?ex.id:''}">
     <div class="section-label" style="margin:0 4px 8px;">${ex?'Editar retiro':'Registrar retiro'}</div>
     <div class="field"><label>Motivo (obligatorio)</label>
@@ -6283,7 +6341,7 @@ function notaPago(pago, cta){
   return {
     bote:'Se resta del Budget del mes. Elige con qué tarjeta lo pagaste.',
     abuelo:'Cuenta en la meta de la Tarjeta del Abuelo; no resta del Budget. Si es de ambas, Isa te debe la mitad (a tu dinero).',
-    arq:'Sale de tus euros de Arq (tu Budget). Se registra al tipo de cambio al que compraste esos euros.',
+    arq:'Sale de tus euros en Revolut (tu Budget). Se registra al tipo de cambio al que compraste esos euros.',
     debito:'Sale de lo tuyo; no toca el Budget. Elige la tarjeta.',
     credito:'Suma a lo tuyo utilizado de la tarjeta de crédito; no toca el Budget.',
     personal:'Se resta de tu tarjeta de débito; no resta del Budget.',
@@ -6291,7 +6349,7 @@ function notaPago(pago, cta){
     otro:'No resta de ninguna cuenta ni del Budget: queda como deuda tuya con esa persona en "Le debo a otras personas" (Mi dinero). Si es de ambas, la deuda es de quien puso el dinero y la otra le debe la mitad.'
   }[pago]||'';
 }
-// v17: compras a meses (solo débito, crédito o Arq). Se guardan como una serie con fin:
+// v17: compras a meses (solo débito, crédito o Euros (Revolut)). Se guardan como una serie con fin:
 // una mensualidad por mes que se registra sola en la fecha de compra.
 const PAGO_A_MESES = ['debito','credito','arq'];
 function planMesesDe(rec){ const se = serieDe(rec); return se && se.aMeses ? se : null; }
@@ -6454,7 +6512,7 @@ const GV_CAMPOS = [['fecha','Fecha','calendar'],['pago','De dónde sale','card']
 function gvOpcionesPago(persona){
   const o = [];
   ['nu-deb','nu-cred','rev-deb','rev-cred'].forEach(k=>o.push(['bote|'+k, nombreBudget(persona)+' · '+labelCuenta(k), 'bote']));
-  o.push(['arq','Arq (euros del Budget)','arq']);
+  o.push(['arq','Euros (Revolut) · del Budget','arq']);
   if(persona==='jen') o.push(['abuelo','Tarjeta del Abuelo','abuelo']);
   ['nu-deb','rev-deb'].forEach(k=>o.push(['debito|'+k, 'Mi dinero · '+labelCuenta(k), 'tarjeta']));
   ['nu-cred','rev-cred'].forEach(k=>o.push(['credito|'+k, 'Mi dinero · '+labelCuenta(k), 'credito']));
@@ -6725,7 +6783,7 @@ function openRetiroEfectivo(editRef){
       <input type="hidden" id="retQuien" value="${quien}">
     </div>
     <div class="field"><label>¿De dónde lo sacaste?</label>
-      <select id="retCuenta">${opcionesCuentaRetiro(quien, cuenta)}${cuenta==='arq' && !cuentasRetiroPara(quien).some(c=>c[0]==='arq') ? `<option value="arq" selected>Arq</option>` : ''}</select>
+      <select id="retCuenta">${opcionesCuentaRetiro(quien, cuenta)}${cuenta==='arq' && !cuentasRetiroPara(quien).some(c=>c[0]==='arq') ? `<option value="arq" selected>Euros (Revolut)</option>` : ''}</select>
       <div class="small-note" id="retCuentaNota">${notaCuentaRetiro(cuenta)}</div>
     </div>
     <div class="field" id="retCtaWrap" style="${cuenta==='bote'||esDebito(cuenta)?'':'display:none'}"><label>¿De qué cuenta?</label><select id="retCta">${opcionesCta(ctasDebitoDe(cuenta, existing ? existing.cta : ''), cuenta==='bote' && !(existing && existing.cta) ? 'nu-deb' : ctaRet)}</select></div>
@@ -6746,7 +6804,7 @@ function opcionesCuentaRetiro(persona, sel){
 function notaCuentaRetiro(cuenta){
   return {
     bote:'Se resta del Disponible del Budget y de tu parte de ese mes.',
-    arq:'Sale de tus euros (o pesos) de Arq; se resta de tu Budget de ese mes.',
+    arq:'Sale de tus euros (o pesos) de Euros (Revolut); se resta de tu Budget de ese mes.',
     abuelo:'Cuenta como gastado en la meta de la Tarjeta del Abuelo.',
     ahorro:'Se resta del saldo del Ahorro.',
     debito:'Se resta de tu tarjeta de débito (aparte del Budget).',
@@ -7780,7 +7838,7 @@ function juntarImportacionesRepetidas(st){
 }
 function ecCuentasPara(persona){
   const out = [['bote',nombreBudget(persona)]];
-  if(hayArq()) out.push(['arq','Arq ('+nombreBudget(persona)+')']);
+  if(hayArq()) out.push(['arq','Euros (Revolut) · '+nombreBudget(persona)]);
   if(persona==='jen') out.push(['abuelo','Tarjeta del Abuelo']);
   out.push(['debito','Mi dinero · débito'], ['credito','Mi dinero · crédito'], ['efectivo','Efectivo'], ['otro','Otra persona (alguien más lo pagó)']);
   return out;
@@ -7834,7 +7892,7 @@ const EC_GLYPH_CUENTA = {bote:'bote', arq:'arq', abuelo:'abuelo', debito:'tarjet
 function ecDescCuenta(e, cuenta){
   if(cuenta==='bote') return labelCuenta(ecCtaPara(e,'bote'))+' (Budget)';
   if(cuenta==='debito' || cuenta==='credito') return labelCuenta(ecCtaPara(e,cuenta))+' (tuyo)';
-  if(cuenta==='arq') return 'Arq (euros del Budget)';
+  if(cuenta==='arq') return 'Euros (Revolut) · del Budget';
   if(cuenta==='abuelo') return 'Tarjeta del Abuelo';
   if(cuenta==='efectivo') return 'Efectivo';
   if(cuenta==='otro') return 'Otra persona';
@@ -8340,7 +8398,7 @@ function deshacerImportacion(importId){
 /* ------------------------------------------------------------
    PAPELERA, HISTORIAL Y COPIAS — nada se pierde.
    ------------------------------------------------------------ */
-const NOMBRE_COL = {ingresos:'Ingreso', gastos:'Gasto', costos:'Costo de referencia', efectivo:'Efectivo', pagosEntre:'Pago entre nosotras', pagosTarjeta:'Pago de tarjeta', pagosOtros:'Pago a otra persona', series:'Serie recurrente', porCobrar:'Me deben', proyecciones:'Deuda a futuro', finGan:'Ingreso a débito', finGas:'Gasto con tarjeta', ahorro:'Retiro de ahorro', fondoCon:'Gasto grande conocido', fondoMov:'Fondo de gastos grandes', destinos:'Destino', subcats:'Subcategoría', importaciones:'Importación', suscripciones:'Suscripción', comprasArq:'Compra de euros (Arq)', transferencias:'Pase entre cuentas'};
+const NOMBRE_COL = {ingresos:'Ingreso', gastos:'Gasto', costos:'Costo de referencia', efectivo:'Efectivo', pagosEntre:'Pago entre nosotras', pagosTarjeta:'Pago de tarjeta', pagosOtros:'Pago a otra persona', series:'Serie recurrente', porCobrar:'Me deben', proyecciones:'Deuda a futuro', finGan:'Ingreso a débito', finGas:'Gasto con tarjeta', ahorro:'Retiro de ahorro', fondoCon:'Gasto grande conocido', fondoMov:'Fondo de gastos grandes', destinos:'Destino', subcats:'Subcategoría', importaciones:'Importación', suscripciones:'Suscripción', comprasArq:'Compra de euros (Euros (Revolut))', transferencias:'Pase entre cuentas'};
 function describirRegistro(col, r){
   const txt = r.nota || r.fuente || r.concepto || r.nombre || (r.plantilla && (r.plantilla.nota || r.plantilla.fuente || r.plantilla.concepto)) || '';
   const monto = r.monto!=null ? r.monto : (r.montoBruto!=null ? r.montoBruto : (r.plantilla ? (r.plantilla.monto!=null?r.plantilla.monto:r.plantilla.montoBruto) : null));
@@ -8517,7 +8575,7 @@ function openIngreso(editRef, preset){
     <div class="field"><label>¿Para el Budget o tuyo?</label>
       <select id="ingDestino">
         <option value="bote" ${destinoSel==='bote'?'selected':''}>${nombreBudget(persona)}</option>
-        ${hayArq() || destinoSel==='arq' ? `<option value="arq" ${destinoSel==='arq'?'selected':''}>Arq en pesos (${nombreBudget(persona)})</option>` : ''}
+        ${hayArq() || destinoSel==='arq' ? `<option value="arq" ${destinoSel==='arq'?'selected':''}>Pesos para euros (Revolut) · ${nombreBudget(persona)}</option>` : ''}
         <option value="debito" ${destinoSel==='debito'?'selected':''}>Mío (Mi dinero)</option>
         <option value="efectivo" ${destinoSel==='efectivo'?'selected':''}>Efectivo</option>
       </select>
@@ -8549,7 +8607,7 @@ function openIngreso(editRef, preset){
 function notaDestinoIngreso(d){
   return {
     bote:'Suma al Budget del mes que elijas (mamá/papá). En la cuenta queda apartado como "del Budget".',
-    arq:'Suma a tu Budget del mes que elijas y queda en Arq en pesos, listo para comprar euros.',
+    arq:'Suma a tu Budget del mes que elijas y queda en pesos para euros (Revolut), listo para comprar euros.',
     debito:'Es tuyo: suma a lo tuyo en la cuenta que elijas; no toca el Budget.',
     efectivo:'Suma a tu efectivo en esa moneda; no toca el Budget.'
   }[d]||'';
@@ -8572,9 +8630,9 @@ function renderTipoCambioField(prefix, monedaInicial, existente){
 }
 
 /* ============================================================
-   VERSIÓN 15 — Budget total, lugares, Nosotras, suscripciones, Arq.
+   VERSIÓN 15 — Budget total, lugares, Nosotras, suscripciones, Euros (Revolut).
    ============================================================ */
-// Arq y la tarjeta del bote son parte del Budget (mamá / papá).
+// Euros (Revolut) y la tarjeta del bote son parte del Budget (mamá / papá).
 function esDestinoBote(d){ return !d || d==='bote' || d==='arq'; }
 
 /* ---------- Países: bandera y precios relativos (Eurostat 2024, UE-27 = 100) ----------
@@ -8966,7 +9024,7 @@ function renderPrevPagoLibre(deudora){
   </div>${nosLibreMoneda!=='MXN' ? `<div class="small-note">≈ ${fmt(mxn,'MXN')} al tipo de cambio de hoy.</div>` : ''}`;
 }
 
-/* ---------- Arq: pesos → euros al tipo de cambio de la compra ---------- */
+/* ---------- Euros (Revolut): pesos → euros al tipo de cambio de la compra ---------- */
 function comprasArqDe(p){ return (state.comprasArq||[]).filter(c=>c.persona===p).slice().sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'') || (a.creado||0)-(b.creado||0)); }
 function consumosArq(p, excluirId){
   // Cada consumo trae solo la parte de esta persona (con "Ambas", lo que puso cada una).
@@ -8993,7 +9051,7 @@ function tasaArq(p, montoEUR, excluirId){
   if(falta>0.0001){ const r = restantes.length ? restantes[restantes.length-1].rate : (ultima || rateSnapshotFor('EUR')); mxn += falta*r; }
   return mxn/montoEUR;
 }
-// Vuelve a calcular en pesos cada gasto/retiro en euros pagado con Arq, en orden
+// Vuelve a calcular en pesos cada gasto/retiro en euros pagado con Euros (Revolut), en orden
 // (primero se usan los euros que se compraron primero). Así, editar un gasto o
 // agregar una compra nunca cuenta dos veces los mismos euros.
 function recalcularArq(st){
@@ -9028,7 +9086,7 @@ function recalcularArq(st){
     const monto = Number(g.monto)||0; if(!(monto>0)) return;
     // Si "Ambas" y solo una tiene euros comprados, la otra parte se queda con su tipo de cambio actual.
     const faltaEur = Math.max(0, monto - acc.eur);
-    // La parte sin euros de Arq se vale al tipo de cambio que quedó guardado al registrarlo (rateEURMXN), nunca al que esta misma función escribió.
+    // La parte sin euros en Revolut se vale al tipo de cambio que quedó guardado al registrarlo (rateEURMXN), nunca al que esta misma función escribió.
     const mxn = acc.mxn + faltaEur * (Number(g.rateEURMXN)||rateSnapshotFor('EUR')||0);
     const rate = mxn/monto;
     const montoMXN = Math.round(mxn*100)/100;
@@ -9349,7 +9407,7 @@ function opcionesPagoV15(persona, incluirAbuelo){
   const arq = arqResumen(persona);
   const out = [
     {v:'bote', label:nombreBudget(persona), sub:'Budget del viaje', glyph:'bote'},
-    {v:'arq', label:'Arq (euros)', sub: arq.saldoEUR>0.005 ? 'Quedan '+fmt(arq.saldoEUR,'EUR')+(arq.tasaProm?' a '+arq.tasaProm.toFixed(2):'') : nombreBudget(persona)+' · compra euros primero', glyph:'arq'},
+    {v:'arq', label:'Euros (Revolut)', sub: arq.saldoEUR>0.005 ? 'Quedan '+fmt(arq.saldoEUR,'EUR')+(arq.tasaProm?' a '+arq.tasaProm.toFixed(2):'') : nombreBudget(persona)+' · compra euros primero', glyph:'arq'},
   ];
   if(persona==='jen' || incluirAbuelo) out.push({v:'abuelo', label:'Tarjeta del Abuelo', sub:'meta aparte', glyph:'abuelo'});
   out.push(
@@ -9391,7 +9449,7 @@ function opcionesBolsaV18(persona, pagoSel){
   ];
   if(persona==='jen' || pagoSel==='abuelo') out.push({v:'abuelo', label:'Tarjeta del Abuelo', sub:'tope aparte', glyph:'abuelo'});
   out.push({v:'otro', label:'Otra persona', sub:'alguien más lo pagó', glyph:'persona'});
-  if(hayArq() || pagoSel==='arq'){ const arq = arqResumen(persona); out.push({v:'arq', label:'Arq (euros)', sub: arq.saldoEUR>0.005 ? 'Quedan '+fmt(arq.saldoEUR,'EUR') : 'cuenta vieja', glyph:'arq'}); }
+  if(hayArq() || pagoSel==='arq'){ const arq = arqResumen(persona); out.push({v:'arq', label:'Euros (Revolut)', sub: arq.saldoEUR>0.005 ? 'Quedan '+fmt(arq.saldoEUR,'EUR') : 'cuenta vieja', glyph:'arq'}); }
   return out;
 }
 function opcionesCuentaV18(bolsa, extra){
@@ -9417,7 +9475,7 @@ function labelPago(m){
   if(m.quien==='abuelo') return 'Tarjeta del Abuelo';
   if(m.pagadoCon==='otro') return 'Pagó '+nombreOtroDe(m);
   { const c = ctaDeGasto(m); if(c) return (m.pagadoCon==='bote' ? 'Budget' : 'Mi dinero')+' · '+labelCuenta(c); }
-  return {bote:'Budget', arq:'Arq', efectivo:'Efectivo', debito:'Débito', personal:'Débito', credito:'Crédito'}[m.pagadoCon||'bote'] || '';
+  return {bote:'Budget', arq:'Euros (Revolut)', efectivo:'Efectivo', debito:'Débito', personal:'Débito', credito:'Crédito'}[m.pagadoCon||'bote'] || '';
 }
 
 /* ---------- Gráficas dibujadas en la app (funcionan sin internet) ---------- */
@@ -9526,7 +9584,7 @@ const GLYPH_FILTRO_PAGO = {bote:'bote', arq:'arq', abuelo:'abuelo', efectivo:'bi
 function renderFiltrosMov(){
   const conPago = movFiltro==='todos' || movFiltro==='total';
   const n = filtrosActivos();
-  const pagos = [['','Todas'],['bote','Budget'],['arq','Arq'],['abuelo','Abuelo'],['efectivo','Efectivo'],['debito','Mi dinero · débito'],['credito','Mi dinero · crédito'],['otro','Otra persona']];
+  const pagos = [['','Todas'],['bote','Budget'],['arq','Euros (Revolut)'],['abuelo','Abuelo'],['efectivo','Efectivo'],['debito','Mi dinero · débito'],['credito','Mi dinero · crédito'],['otro','Otra persona']];
   return `${n ? `<div class="filtros-bar"><span class="small-note" style="margin:0;">${ico('filter','icon-xs')} ${n} filtro${n===1?'':'s'} activo${n===1?'':'s'}</span><button class="link-quiet" id="movFiltrosLimpiar">Quitar filtros</button></div>` : ''}
   ${movFiltrosAbiertos ? `<div class="card filtros-panel">
     <div class="filtros-head"><span class="filtros-title">${ico('filter','icon-sm')} Filtros</span></div>
@@ -9879,7 +9937,7 @@ function renderAcumulableCard(ym){
 
 /* ---------- Traspasos: ahorro / sobrante → otra cuenta ---------- */
 function labelDestinoTraspaso(destino, persona){
-  return {bote: nombreBudget(persona||'jen'), arq:'Arq ('+nombreBudget(persona||'jen')+')', efectivo:'Efectivo de '+nombrePersona(persona), debito:'Débito de '+nombrePersona(persona)}[destino] || destino;
+  return {bote: nombreBudget(persona||'jen'), arq:'Euros (Revolut) · '+nombreBudget(persona||'jen'), efectivo:'Efectivo de '+nombrePersona(persona), debito:'Débito de '+nombrePersona(persona)}[destino] || destino;
 }
 function disponibleTraspaso(origen, excluirId, persona){
   if(origen==='sobrante' && (persona==='jen' || persona==='isa')) return acumDisponiblePorPersona(excluirId)[persona]; // v18.7: cada una pasa solo lo suyo
@@ -9899,7 +9957,7 @@ function openTraspaso(origenOrEditId, editId){
   const disp = disponibleTraspaso(origen, ex ? ex.id : null, persona);
   const opcionesDestino = (p)=>[
     {v:'bote', label:nombreBudget(p), sub:'cuenta para el Budget del mes', glyph:'bote'},
-    ...(hayArq() || destino==='arq' ? [{v:'arq', label:'Arq (pesos)', sub:nombreBudget(p), glyph:'arq'}] : []),
+    ...(hayArq() || destino==='arq' ? [{v:'arq', label:'Euros (Revolut) · pesos para comprar', sub:nombreBudget(p), glyph:'arq'}] : []),
     {v:'efectivo', label:'Efectivo', sub:'Lo sacaste en efectivo', glyph:'billete'},
     {v:'debito', label:'Mi dinero', sub:'Dinero aparte de '+nombrePersona(p)+' (Nu débito)', glyph:'tarjeta'}];
   openSheet(`
@@ -9978,7 +10036,7 @@ function openDetalleMov(key){
       fila('Faltan', escHtml(fmt(Math.max(0, a.meses-k)*a.cuota, a.moneda||'MXN') + ' · ' + Math.max(0, a.meses-k) + ' mensualidades')); }
     if(m.quien==='ambas') fila('Puso el dinero', escHtml(textoPagadoPor(Object.assign({}, rec, {quien:m.quien, pagadoPor:m.pagadoPor}))));
   }
-  if(m.tipo==='ingreso'){ fila('¿De quién?', nombrePersona(m.persona)); fila('Va a', {bote:'Budget', arq:'Arq (pesos)', debito:'Tarjeta de débito', efectivo:'Efectivo'}[m.destino]||''); if(m.mes) fila('Mes que aplica', nombreMesLargo(m.mes)); if(m.netoMXN!==m.montoMXN) fila('Neto (sin ahorro)', fmt(m.netoMXN,'MXN')); }
+  if(m.tipo==='ingreso'){ fila('¿De quién?', nombrePersona(m.persona)); fila('Va a', {bote:'Budget', arq:'Euros (Revolut) · pesos para comprar', debito:'Tarjeta de débito', efectivo:'Efectivo'}[m.destino]||''); if(m.mes) fila('Mes que aplica', nombreMesLargo(m.mes)); if(m.netoMXN!==m.montoMXN) fila('Neto (sin ahorro)', fmt(m.netoMXN,'MXN')); }
   if(m.tipo==='retiro-efectivo') fila('De', escHtml(labelCuentaRetiro(m.cuenta, m.persona)));
   if(m.tipo==='pago-entre'){ fila('Sale de', escHtml(labelCuentaPagoEntre(m.sale, m.persona))); fila('Llega a', escHtml(labelCuentaPagoEntre(m.entra, m.a))); }
   if(m.cubreDesde && m.cubreHasta) fila('Noches', `${fmtDate(m.cubreDesde)} → ${fmtDate(m.cubreHasta)} (${nochesEntre(m.cubreDesde, m.cubreHasta)})`);
@@ -10115,7 +10173,7 @@ function opcionesLotePago(){
   CUENTAS_BUDGET.forEach(k=>out.push({v:'bote|'+k, label:'Budget · '+CUENTAS[k].corto, glyph:'bote'}));
   CUENTAS_MIO.forEach(k=>out.push({v:(esCredito(k)?'credito|':'debito|')+k, label:'Mi dinero · '+CUENTAS[k].corto, glyph:CUENTAS[k].glyph}));
   out.push({v:'efectivo', label:'Efectivo', glyph:'billete'});
-  if(hayArq()) out.push({v:'arq', label:'Arq (euros)', glyph:'arq'});
+  if(hayArq()) out.push({v:'arq', label:'Euros (Revolut)', glyph:'arq'});
   return out;
 }
 function aplicarCampoLote(g, campo, v, pct){
@@ -10461,19 +10519,19 @@ function renderAvisosSuscripciones(){
   </button>`).join('');
 }
 
-/* ---------- Arq dentro de Budget mamá / papá ---------- */
+/* ---------- Euros (Revolut) dentro de Budget mamá / papá ---------- */
 function renderArqCard(persona){
   const r = arqResumen(persona);
   return `<div class="card" style="border-top:4px solid var(--teal);">
-    <div class="card-title"><h2><span class="pk-ilu sm"><svg viewBox="0 0 64 64">${ILU.arq}</svg></span> Arq</h2><span class="hint">parte de tu ${nombreBudget(persona)}</span></div>
+    <div class="card-title"><h2><span class="pk-ilu sm"><svg viewBox="0 0 64 64">${ILU.arq}</svg></span> Euros (Revolut)</h2><span class="hint">parte de tu ${nombreBudget(persona)}</span></div>
     <div class="stat-grid">
-      <div class="stat-box"><div class="lbl">Pesos en Arq</div><div class="val">${fmt(r.saldoMXN,'MXN')}</div></div>
-      <div class="stat-box"><div class="lbl">Euros en Arq</div><div class="val">${fmt(r.saldoEUR,'EUR')}</div>${r.tasaProm?`<div class="small-note" style="margin-top:4px;">comprados a ${r.tasaProm.toFixed(4)} en promedio</div>`:''}</div>
+      <div class="stat-box"><div class="lbl">Pesos en Euros (Revolut)</div><div class="val">${fmt(r.saldoMXN,'MXN')}</div></div>
+      <div class="stat-box"><div class="lbl">Euros en Revolut</div><div class="val">${fmt(r.saldoEUR,'EUR')}</div>${r.tasaProm?`<div class="small-note" style="margin-top:4px;">comprados a ${r.tasaProm.toFixed(4)} en promedio</div>`:''}</div>
     </div>
-    <div class="small-note" style="margin-top:8px;">Cuando pagas con "Arq (euros)", el gasto se registra al tipo de cambio al que compraste esos euros (primero los más antiguos), no al del día.</div>
+    <div class="small-note" style="margin-top:8px;">Cuando pagas con "Euros (Revolut)", el gasto se registra al tipo de cambio al que compraste esos euros (primero los más antiguos), no al del día.</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
       <button class="btn btn-outline btn-sm" data-arq-comprar="${persona}">${ico('swap','icon-sm')} Comprar euros</button>
-      <button class="btn btn-outline btn-sm" data-open="ingreso" data-destino="arq">${ico('plus','icon-sm')} Depósito a Arq</button>
+      <button class="btn btn-outline btn-sm" data-open="ingreso" data-destino="arq">${ico('plus','icon-sm')} Depósito a Euros (Revolut)</button>
     </div>
     ${r.compras.length ? `<div class="section-label" style="margin:14px 4px 6px;">Compras de euros</div>${r.compras.slice().reverse().map(c=>`
       <div class="exp-line clickable" data-arq-edit="${c.id}">
@@ -10486,8 +10544,8 @@ function openCompraArq(persona, editId){
   const ex = editId ? (state.comprasArq||[]).find(c=>c.id===editId) : null;
   persona = ex ? ex.persona : persona;
   openSheet(`
-    ${sheetHeader(ex ? 'Editar compra de euros' : 'Comprar euros en Arq')}
-    <div class="small-note" style="margin-bottom:12px;">Anota cuántos pesos cambiaste y cuántos euros te dieron. Ese tipo de cambio se usa después en tus gastos pagados con Arq.</div>
+    ${sheetHeader(ex ? 'Editar compra de euros' : 'Comprar euros en Revolut')}
+    <div class="small-note" style="margin-bottom:12px;">Anota cuántos pesos cambiaste y cuántos euros te dieron. Ese tipo de cambio se usa después en tus gastos pagados con Euros (Revolut).</div>
     <div class="field-row">
       <div class="field"><label>Pesos (MXN)</label><input type="number" id="arqMXN" value="${ex?ex.montoMXN:''}" placeholder="0"></div>
       <div class="field"><label>Euros recibidos</label><input type="number" id="arqEUR" value="${ex?ex.montoEUR:''}" placeholder="0"></div>
@@ -10541,7 +10599,7 @@ function renderConQuePago(){
   </div>`;
 }
 
-// En el formulario de gasto: tipo de cambio de Arq para lo que se va a pagar.
+// En el formulario de gasto: tipo de cambio de Euros (Revolut) para lo que se va a pagar.
 function actualizarTasaArqEnForm(){
   const r = document.getElementById('gastoRate'); if(!r) return;
   const q = (document.getElementById('gastoQuien')||{}).value;
@@ -10552,7 +10610,7 @@ function actualizarTasaArqEnForm(){
   const t = tasaArq(pag, monto, ref ? ref.id : null);
   if(t){ r.value = Number(t).toFixed(4); }
   const n = document.getElementById('gastoPagoNota');
-  if(n){ const res = arqResumen(pag); n.textContent = res.saldoEUR>0.005 ? `Sale de tus euros de Arq (quedan ${fmt(res.saldoEUR,'EUR')}). Tipo de cambio de tu compra: ${t?Number(t).toFixed(4):'—'}.` : 'Aún no registras compras de euros en Arq; se usará el último tipo de cambio conocido.'; }
+  if(n){ const res = arqResumen(pag); n.textContent = res.saldoEUR>0.005 ? `Sale de tus euros en Revolut (quedan ${fmt(res.saldoEUR,'EUR')}). Tipo de cambio de tu compra: ${t?Number(t).toFixed(4):'—'}.` : 'Aún no registras compras de euros en Revolut; se usará el último tipo de cambio conocido.'; }
 }
 /* ---------- Eventos de las pantallas nuevas ---------- */
 let inicioVerMas = false, inicioSubcatsAbierto = false;
@@ -10652,7 +10710,7 @@ function wireV15Events(){
     s.avisosVistos[fecha] = true;
     persist(); render();
   });
-  // Arq
+  // Euros (Revolut)
   on('[data-arq-comprar]', 'click', (el)=>openCompraArq(el.getAttribute('data-arq-comprar')));
   on('[data-arq-edit]', 'click', (el)=>openCompraArq(null, el.getAttribute('data-arq-edit')));
   // Inicio
@@ -10700,6 +10758,7 @@ function wireEvents(){
       activeTab='movimientos'; movFiltro = el.getAttribute('data-goto-mov')||'todos'; movBusqueda=''; movMes = mesActual(); movMesTotal = mesActual(); render();
     });
   });
+  document.querySelectorAll('[data-mov-cuenta]').forEach(el=>el.addEventListener('click', ()=>{ setMovCuentaFiltro(el.getAttribute('data-mov-cuenta')); movSel = new Set(); render(); }));
   document.querySelectorAll('[data-mov-chip]').forEach(el=>{
     el.addEventListener('click', ()=>{ movFiltro = el.getAttribute('data-mov-chip'); movSel = new Set(); render(); });
   });
@@ -11194,7 +11253,7 @@ function wireSheetEvents(){
       if(optIsa){ optIsa.disabled = !!esAbuelo; optIsa.classList.toggle('off', !!esAbuelo); }
       if(esAbuelo && gastoQuienSel.value==='isa') elegirEnPicker('gastoQuien', 'jen');
     }
-    // Arq (euros): el tipo de cambio es el de la compra de esos euros.
+    // Euros (Revolut): el tipo de cambio es el de la compra de esos euros.
     if(gastoPagoSel && gastoPagoSel.value==='arq'){
       const mon = document.getElementById('gastoMoneda');
       if(mon && mon.value!=='EUR'){ mon.value = 'EUR'; mon.dispatchEvent(new Event('change')); }
