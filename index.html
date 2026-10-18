@@ -134,6 +134,18 @@
   .stamp .sub-item b{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:14.5px;color:var(--ink);font-weight:700;margin-top:3px;text-transform:none;letter-spacing:normal;}
   .stamp .sub-item b.accent{color:var(--teal);}
   .stamp-bar{margin-top:16px;}
+  .stamp-quien{margin-top:14px;cursor:pointer;}
+  .stamp-quien .sq-k{font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:6px;}
+  .stamp-quien .sq-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .stamp-quien .sq{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--paper-soft);border:1.5px solid var(--line);}
+  .stamp-quien .sq i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--ink-faint);}
+  .stamp-quien .sq b{font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;color:var(--ink);font-weight:800;}
+  .stamp-quien .sq-jen{border-color:color-mix(in srgb,var(--jen) 55%,transparent);} .stamp-quien .sq-jen i{background:var(--jen);}
+  .stamp-quien .sq-isa{border-color:color-mix(in srgb,var(--isa) 55%,transparent);} .stamp-quien .sq-isa i{background:var(--isa);}
+  .stamp-quien .sq-abuelo{border-color:color-mix(in srgb,var(--amber) 55%,transparent);} .stamp-quien .sq-abuelo i{background:var(--amber);}
+  .stamp-quien .sq-otros{border-style:dashed;} .stamp-quien .sq-otros i{background:var(--ink-soft);}
+  .stamp-quien:focus-visible{outline:2px solid var(--teal);outline-offset:4px;border-radius:12px;}
+  .stamp-quien .sq-neg b{color:var(--brick);}
   .stamp-bar-track{height:6px;border-radius:99px;background:var(--card2);overflow:hidden;}
   .stamp-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--teal-deep));}
   .stamp-bar-ends{display:flex;justify-content:space-between;margin-top:6px;font-size:10.5px;color:var(--ink-faint);font-weight:600;}
@@ -813,6 +825,9 @@
   .seg.seg-col{flex-direction:column;} .seg.seg-col > button{width:100%;}
   .mes-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--paper-soft);border-radius:999px;padding:4px;margin:0 0 10px;}
   .mes-nav b{font-size:14px;}
+  .cat-mes-nav{margin:2px 0 10px;}
+  .cat-mes-pasado{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--amber-soft);color:var(--ink);border:1.5px solid var(--amber);border-radius:12px;padding:8px 10px;margin:0 0 10px;font-size:12.5px;}
+  .cat-mes-pasado span{flex:1;min-width:150px;}
   .mes-nav-btn{width:34px;height:34px;border-radius:50%;border:none;background:var(--card);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;}
   .mes-nav-btn:disabled{opacity:.3;cursor:default;}
   .mes-nav-nota{margin:-2px 0 10px;display:flex;align-items:center;gap:6px;}
@@ -1249,7 +1264,7 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.9 · 18 oct 2026 (aprobación de la otra · pagos a la tarjeta en estados de cuenta · ver cómo estaba en una fecha)';
+const APP_VERSION = '18.11 · 18 oct 2026 (cuánto le queda a cada una en lugar del % de aportación · Categorías por mes)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
@@ -2724,6 +2739,33 @@ function ingresosNetos(ym, sinTraspasos){
   });
   return {jenNetoMXN:jen, isaNetoMXN:isa, ahorroAutoMXN:ahorroAuto};
 }
+// v18.11: en lugar del % de aportación (que solo comparaba lo que llegó de mamá contra lo de papá este mes),
+// cuánto le queda a cada una de su propio Budget este mes y cuánto queda de la meta del Abuelo.
+// Jen + Isa + Abuelo = el "Disponible del Budget" grande.
+function budgetQuedaPorPersona(ym){
+  ym = ym || mesActual();
+  const jen = miIngresoMXN('jen', ym) - miGastoBoteMXN('jen', ym);
+  const isa = miIngresoMXN('isa', ym) - miGastoBoteMXN('isa', ym);
+  const abueloMeta = abueloMetaMXN(ym);
+  const abuelo = abueloDisponibleMXN(ym);
+  const total = metaTotalMXN(ym) - gastadoTotalMXN(ym);
+  // En centavos, para que lo que se ve sume exactamente el número grande.
+  const c = (v)=>Math.round(v*100)/100;
+  const r = {jen:c(jen), isa:c(isa), abuelo:c(abuelo), abueloMeta, resto:0, total:c(total)};
+  const verAbuelo = abueloMeta>0 || Math.abs(r.abuelo)>0.004;
+  let dif = c(r.total - (r.jen + r.isa + (verAbuelo ? r.abuelo : 0)));
+  if(Math.abs(dif) >= 0.5) r.resto = dif;                 // caso raro (gasto sin dueña): renglón "Otros"
+  else if(dif){ if(verAbuelo) r.abuelo = c(r.abuelo+dif); else r.isa = c(r.isa+dif); } // centavo de redondeo
+  r.verAbuelo = verAbuelo;
+  return r;
+}
+function htmlQuedaPorPersona(q){
+  const chip = (cls, nombre, v)=>`<span class="sq ${cls}${v < -0.004 ? ' sq-neg' : ''}"><i></i>${nombre} <b>${v < -0.004 ? '−' : ''}${fmt(Math.abs(v),'MXN')}</b></span>`;
+  return `<div class="stamp-quien" data-goto-mov="budget" role="button" tabindex="0" title="Cuánto le queda a cada una de su Budget este mes">
+    <div class="sq-k">Le queda a cada una</div>
+    <div class="sq-row">${chip('sq-jen','Jen',q.jen)}${chip('sq-isa','Isa',q.isa)}${q.verAbuelo ? chip('sq-abuelo','Abuelo',q.abuelo) : ''}${q.resto ? chip('sq-otros','Otros',q.resto) : ''}</div>
+  </div>`;
+}
 function aportacionPct(){
   const {jenNetoMXN, isaNetoMXN} = ingresosNetos(null, true);
   const total = jenNetoMXN+isaNetoMXN;
@@ -3803,7 +3845,7 @@ function renderBalanceStamp(){
   const gastado = gastadoTotalMXN();
   const disp = bote - gastado;
   const ahorroMXN = ahorroSaldoMXN();
-  const {jen,isa} = aportacionPct();
+  const quien = budgetQuedaPorPersona();
   const cubierto = !primerIngresoLlego();
   const pctUsado = bote>0 ? Math.max(0, Math.min(100, gastado/bote*100)) : 0;
   return `
@@ -3825,8 +3867,8 @@ function renderBalanceStamp(){
       <div class="sub-row">
         <div class="sub-item"><span class="k">Budget del mes</span><b>${fmt(bote,'MXN')}</b></div>
         ${perfil==='jen' ? `<div class="sub-item"><span class="k">Ahorro</span><b>${fmt(ahorroMXN,'MXN')}</b></div>` : ''}
-        <div class="sub-item"><span class="k">Aportación</span><b class="accent">Jen ${jen.toFixed(0)}% · Isa ${isa.toFixed(0)}%</b></div>
       </div>
+      ${htmlQuedaPorPersona(quien)}
       <div class="stamp-bar">
         <div class="stamp-bar-track"><div class="stamp-bar-fill" style="width:${pctUsado}%;"></div></div>
         <div class="stamp-bar-ends"><span>Gastado ${fmt(gastado,'MXN')}</span><span>${fmt(bote,'MXN')}</span></div>
@@ -4367,23 +4409,47 @@ function renderCatSummaryRow(c){
 }
 
 /* ---------------- CATEGORIAS ---------------- */
+// v18.10: Categorías suma solo el mes que se ve (por defecto el actual) y deja viajar a meses pasados.
+let catMes = null;
+function mesMinCategorias(){
+  let min = mesActual();
+  const ver = (iso)=>{ const k = iso && ymDe(iso); if(k && k<min) min = k; };
+  state.subcats.forEach(sb=>(sb.gastos||[]).forEach(g=>{ ver(g.fecha); if(g.cubreDesde) ver(g.cubreDesde); }));
+  mesesBudgetTotal().forEach(k=>{ if(k<min) min = k; });
+  const ini = inicioBudgetYM(); // antes del mes de inicio no hay Budget (Movimientos tampoco los muestra)
+  return (ini && min<ini && ini<=mesActual()) ? ini : min;
+}
+function mesCategorias(){
+  const hoy = mesActual();
+  if(!catMes || catMes>hoy) return hoy;
+  const min = mesMinCategorias();
+  return catMes<min ? min : catMes;
+}
+// Gastos de la subcategoría que caen en ese mes (alojamiento: si alguna de sus noches cae en el mes).
+function gastosSubcatDelMes(s, ym){
+  const ini = ym+'-01', fin = finDeMesISO(ym);
+  return (s.gastos||[]).filter(g=> esEstancia(g) ? (g.cubreDesde<=fin && g.cubreHasta>ini) : ymDe(g.fecha||'')===ym);
+}
 function renderCategorias(){
-  const meta = metaTotalMXN(), gastado = gastadoTotalMXN();
-  const plan = planPresupuestoMes();
+  const ym = mesCategorias(), esHoy = ym===mesActual();
+  const meta = metaTotalMXN(ym), gastado = gastadoTotalMXN(ym);
+  const plan = planPresupuestoMes(ym);
   const pais = plan.destino ? paisDe(plan.destino.nombre) : null;
   const pctUso = meta>0 ? Math.min(100, gastado/meta*100) : 0;
   return `
     <div class="card">
-      <div class="card-title"><h2>${ico('layers','icon-sm')} Presupuesto del mes</h2><span class="hint" data-goto-mov="total">Budget total</span></div>
+      <div class="card-title"><h2>${ico('layers','icon-sm')} Presupuesto del mes</h2><span class="hint" data-goto-mov="total" data-goto-mes="${ym}">Budget total</span></div>
+      <div class="mes-nav cat-mes-nav"><button type="button" class="mes-nav-btn" data-cat-mes="-1" aria-label="Mes anterior" ${ym<=mesMinCategorias()?'disabled':''}>${ico('chevleft','icon-sm')}</button><b>${nombreMesLargo(ym)}</b><button type="button" class="mes-nav-btn" data-cat-mes="1" aria-label="Mes siguiente" ${esHoy?'disabled':''}>${ico('chevright','icon-sm')}</button></div>
+      ${esHoy ? '' : `<div class="cat-mes-pasado">${ico('clock','icon-sm')}<span>Viendo <b>${nombreMesLargo(ym)}</b>: solo lo que se gastó ese mes.</span><button type="button" class="link-quiet" data-cat-mes-hoy>Volver a este mes</button></div>`}
       ${renderTripleStat(meta, gastado, meta-gastado, {asignado:'Meta', gastado:'Gastado', disp:'Disponible'})}
       <div class="bar-track" style="margin-top:10px;"><div class="bar-fill" style="width:${pctUso}%;background:${pctUso>=90?'var(--brick)':(pctUso>=75?'var(--amber)':'var(--teal)')}"></div></div>
       <div class="small-note">Todo el Budget total (mamá sin ahorro + papá de Isa + meta del Abuelo) se reparte entre las subcategorías.</div>
       <div class="note-box" style="margin-top:10px;">${ico('pin','icon-sm')}<div>${plan.hayDestinos ? `Primero se aparta <b>lo esencial</b> con precios reales de cada lugar (día por día según dónde estén y lo que cubre el programa), y lo que queda se reparte entre <b>lo opcional</b>.${plan.destino ? ` En <b>${escHtml(banderaDestino(plan.destino))} ${escHtml(plan.destino.nombre)}</b> lo aceptable de alojamiento es <b>hasta ${fmt(plan.topeNoche,'EUR')}/noche</b> para las dos${pais && pais.food ? `; el súper ahí cuesta ${pais.food} y el transporte ${pais.trans} (promedio de Europa = 100)` : ''}.` : ''}` : 'Agrega sus destinos (con fechas) para que lo esencial se calcule con los precios reales de cada lugar.'}</div></div>
-      ${plan.faltante>0.5 ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div><b>Lo esencial no alcanza este mes:</b> se necesitan ${fmt(plan.necesidadEsencial,'MXN')} y la meta es ${fmt(plan.meta,'MXN')} (faltan ${fmt(plan.faltante,'MXN')}). Se repartió proporcional y a lo opcional no le queda nada.</div></div>` : ''}
+      ${plan.faltante>0.5 ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div><b>Lo esencial no alcanza ${esHoy ? 'este mes' : 'en '+escHtml(nombreMesLargo(ym))}:</b> se necesitan ${fmt(plan.necesidadEsencial,'MXN')} y la meta es ${fmt(plan.meta,'MXN')} (faltan ${fmt(plan.faltante,'MXN')}). Se repartió proporcional y a lo opcional no le queda nada.</div></div>` : ''}
       <div class="section-label grupo-lbl" style="margin:14px 4px 6px;">${ico('check','icon-xs')} Esencial primero <span>${fmt(plan.asignadoEsencial,'MXN')}</span></div>
-      ${state.subcats.map((sb,i)=>({sb,i})).filter(x=>plan.porSub[x.sb.id] && plan.porSub[x.sb.id].esencial).map(x=>renderSubcatRow(x.sb,x.i)).join('') || '<div class="small-note">—</div>'}
+      ${state.subcats.map((sb,i)=>({sb,i})).filter(x=>plan.porSub[x.sb.id] && plan.porSub[x.sb.id].esencial).map(x=>renderSubcatRow(x.sb,x.i,ym)).join('') || '<div class="small-note">—</div>'}
       <div class="section-label grupo-lbl" style="margin:14px 4px 6px;">${ico('star','icon-xs')} Con lo que queda <span>${fmt(plan.resto,'MXN')}</span></div>
-      ${state.subcats.map((sb,i)=>({sb,i})).filter(x=>!(plan.porSub[x.sb.id] && plan.porSub[x.sb.id].esencial)).map(x=>renderSubcatRow(x.sb,x.i)).join('')}
+      ${state.subcats.map((sb,i)=>({sb,i})).filter(x=>!(plan.porSub[x.sb.id] && plan.porSub[x.sb.id].esencial)).map(x=>renderSubcatRow(x.sb,x.i,ym)).join('')}
       <button class="btn btn-outline btn-block" style="margin-top:10px;" data-open="nuevaSubcat">${ico('plus','icon-sm')} Agregar subcategoría</button>
     </div>
   `;
@@ -4472,21 +4538,23 @@ function pctSubcatDeGenerales(sub, ym){
   const tot = state.subcats.reduce((a,sb)=>a+(plan.porSub[sb.id]?plan.porSub[sb.id].necesidad+plan.porSub[sb.id].peso:0),0) || 1;
   return (x.necesidad + x.peso)/tot*100;
 }
-function renderSubcatRow(s,i){
-  const gastadoMXN = subcatGastadoTotalMesMXN(s); // este mes, Budget total (bote + Abuelo); alojamiento por noche
-  const presup = presupuestoSubcatMXN(s);
-  const rojo = subcatRebasada(s);
+function renderSubcatRow(s,i,ym){
+  ym = ym || mesActual();
+  const gastadoMXN = subcatGastadoTotalMesMXN(s, ym); // solo ese mes, Budget total (bote + Abuelo); alojamiento por noche
+  const presup = presupuestoSubcatMXN(s, ym);
+  const rojo = subcatRebasada(s, ym);
   const isOpen = openCat===s.id;
-  const pct = pctSubcatDeGenerales(s);
+  const pct = pctSubcatDeGenerales(s, ym);
+  const planYm = planPresupuestoMes(ym);
   return `
   <div>
     <div class="subrow ${rojo?'rebasada':''}" style="cursor:pointer;" data-toggle-sub="${s.id}">
       ${micoHtml(iconoSubcat(s),'sm')}
       <div class="sname">${escHtml(s.nombre)}<span class="badge ${rojo?'badge-bad':'badge-ok'}" style="margin-left:6px;vertical-align:1px;">${pct.toFixed(0)}%</span></div>
-      <div class="samt" style="${rojo?'color:var(--brick);':''}">${fmt(gastadoMXN,'MXN')}<span class="est">de ${fmt(presup,'MXN')}${rojo?' · se pasó':''}${((planPresupuestoMes().porSub[s.id]||{}).ref>0) ? ' · con tu referencia' : (esSubAlojamiento(s) && planPresupuestoMes().topeNoche ? ' · hasta '+fmt(planPresupuestoMes().topeNoche,'EUR')+'/noche' : '')}</span></div>
+      <div class="samt" style="${rojo?'color:var(--brick);':''}">${fmt(gastadoMXN,'MXN')}<span class="est">de ${fmt(presup,'MXN')}${rojo?' · se pasó':''}${((planYm.porSub[s.id]||{}).ref>0) ? ' · con tu referencia' : (esSubAlojamiento(s) && planYm.topeNoche ? ' · hasta '+fmt(planYm.topeNoche,'EUR')+'/noche' : '')}</span></div>
       <button class="subrow-btn">${ico(isOpen?'chevdown':'chevright','icon-sm')}</button>
     </div>
-    ${isOpen ? renderSubcatDetail(s) : ''}
+    ${isOpen ? renderSubcatDetail(s, ym) : ''}
   </div>`;
 }
 function estimadoMensualSubcat(s){
@@ -4503,10 +4571,12 @@ function estimadoMensualSubcat(s){
   const auto = estimadoAutoSubcat(s, d);
   return {monto: auto, fuente: auto>0 ? 'costoVida' : 'ninguna'};
 }
-function renderSubcatDetail(s){
+function renderSubcatDetail(s, ym){
+  ym = ym || mesActual();
+  const delMes = gastosSubcatDelMes(s, ym);
   return `
   <div class="cat-detail" style="margin-left:40px;">
-    ${esSubAlojamiento(s) ? renderEstadoAlojamiento(true) : ''}
+    ${esSubAlojamiento(s) && ym===mesActual() ? renderEstadoAlojamiento(true) : ''}
     <div class="row-between" style="align-items:center;">
       <span style="font-size:12px;font-weight:700;color:var(--ink-soft)">Peso relativo (reparte el costo de vida)</span>
       <input type="number" data-peso-sub="${s.id}" value="${s.peso}" style="width:56px;padding:5px 7px;border-radius:8px;border:1px solid var(--line);background:var(--paper-soft);font-size:12.5px;text-align:center;">
@@ -4523,10 +4593,10 @@ function renderSubcatDetail(s){
         <button class="subrow-btn" data-del-costo="${s.id}|${c.id}">${ico('trash','icon-sm')}</button>
       </div>`).join('') : `<div class="small-note">Sin costos de referencia registrados aún.</div>`}
     <div class="row-between" style="margin-top:12px;">
-      <span style="font-size:12px;font-weight:700;color:var(--ink-soft)">Gastos registrados</span>
+      <span style="font-size:12px;font-weight:700;color:var(--ink-soft)">Gastos de ${nombreMesLargo(ym).split(' de ')[0].toLowerCase()}</span>
       <button class="link-quiet" data-open="gasto" data-cat="generales" data-sub="${s.id}">+ registrar gasto</button>
     </div>
-    ${s.gastos.length ? s.gastos.slice().reverse().map(g=>renderExpLine(g,'generales',s.id)).join('') : `<div class="small-note">Sin gastos todavía.</div>`}
+    ${delMes.length ? delMes.slice().reverse().map(g=>renderExpLine(g,'generales',s.id)).join('') : `<div class="small-note">${s.gastos.length ? 'Sin gastos en '+escHtml(nombreMesLargo(ym))+'.' : 'Sin gastos todavía.'}</div>`}
   </div>`;
 }
 function labelFrecuencia(f){
@@ -6416,7 +6486,7 @@ function borrarCopiasLocales(){
   try{ idbCopias().then(db=>{ try{ const tx = db.transaction('copias','readwrite'); tx.objectStore('copias').clear(); tx.oncomplete = ()=>db.close(); tx.onerror = ()=>db.close(); }catch(e){ try{ db.close(); }catch(e2){} } }).catch(()=>{}); }catch(e){}
 }
 function vistasAlInicio(){
-  activeTab = 'inicio'; movFiltro = 'todos'; movBusqueda = ''; movMes = null; movMesTotal = null; movSel = new Set(); movSelModo = false;
+  activeTab = 'inicio'; catMes = null; movFiltro = 'todos'; movBusqueda = ''; movMes = null; movMesTotal = null; movSel = new Set(); movSelModo = false;
   fichaAbierta = null; personalesResumenAbierto = true; deudasOtrosAbierto = false; meDebenAbierto = false; acumAbierto = null; destinoVerId = null; nosHistLimite = 20;
   movFDesde = ''; movFHasta = ''; movFTipo = 'todos'; movFPago = ''; movFCuenta = ''; movOrden = 'fecha';
 }
@@ -11022,6 +11092,12 @@ function wireV15Events(){
   on('[data-mov-ftipo]', 'click', (el)=>{ movFTipo = el.getAttribute('data-mov-ftipo'); render(); });
   const fp = document.getElementById('movFPago'); if(fp) fp.addEventListener('change', ()=>{ movFPago = fp.value; render(); });
   const mt = document.getElementById('movMesTotal'); if(mt) mt.addEventListener('change', ()=>{ movMesTotal = mt.value; movMes = mt.value; render(); });
+  document.querySelectorAll('[data-cat-mes]').forEach(b=>b.addEventListener('click', ()=>{
+    const n = ymMas(mesCategorias(), Number(b.getAttribute('data-cat-mes')));
+    if(n > mesActual() || n < mesMinCategorias()) return;
+    catMes = n===mesActual() ? null : n; openCat = null; render();
+  }));
+  document.querySelectorAll('[data-cat-mes-hoy]').forEach(b=>b.addEventListener('click', ()=>{ catMes = null; render(); }));
   document.querySelectorAll('[data-mes-nav]').forEach(b=>b.addEventListener('click', ()=>{
     const n = ymMas(movMes||mesActual(), Number(b.getAttribute('data-mes-nav')));
     if(n > mesMaxMov()) return;
@@ -11134,14 +11210,16 @@ function wireEvents(){
   const themeToggleBtn = document.getElementById('themeToggleBtn');
   if(themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTema);
   document.querySelectorAll('[data-tab]').forEach(el=>{
-    el.addEventListener('click', ()=>{ activeTab = el.getAttribute('data-tab'); render(); });
+    el.addEventListener('click', ()=>{ activeTab = el.getAttribute('data-tab'); if(activeTab==='categorias') catMes = null; render(); });
   });
   document.querySelectorAll('[data-tab-to]').forEach(el=>{
-    el.addEventListener('click', ()=>{ activeTab = el.getAttribute('data-tab-to'); openCat=null; render(); });
+    el.addEventListener('click', ()=>{ activeTab = el.getAttribute('data-tab-to'); openCat=null; if(activeTab==='categorias') catMes = null; render(); });
   });
+  document.querySelectorAll('.stamp-quien').forEach(el=>el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); el.click(); } }));
   document.querySelectorAll('[data-goto-mov]').forEach(el=>{
     el.addEventListener('click', ()=>{
-      activeTab='movimientos'; movFiltro = el.getAttribute('data-goto-mov')||'todos'; movBusqueda=''; movMes = mesActual(); movMesTotal = mesActual(); render();
+      const gm = el.getAttribute('data-goto-mes'); const ymIr = (gm && /^\d{4}-\d{2}$/.test(gm) && gm<=mesActual()) ? gm : mesActual();
+      activeTab='movimientos'; movFiltro = el.getAttribute('data-goto-mov')||'todos'; movBusqueda=''; movMes = ymIr; movMesTotal = ymIr; render();
     });
   });
   document.querySelectorAll('[data-mov-cuenta]').forEach(el=>el.addEventListener('click', ()=>{ setMovCuentaFiltro(el.getAttribute('data-mov-cuenta')); movSel = new Set(); render(); }));
