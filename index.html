@@ -135,6 +135,13 @@
   .stamp .sub-item b.accent{color:var(--teal);}
   .stamp-bar{margin-top:16px;}
   .stamp-quien{margin-top:14px;cursor:pointer;}
+  .bp-desglose{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--paper-soft);border:1px solid var(--line);}
+  .bp-desglose .bp-tit{font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-bottom:6px;}
+  .bp-linea{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--ink-soft);padding:3px 0;}
+  .bp-linea span{display:flex;align-items:center;gap:8px;} .bp-linea i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--ink-faint);}
+  .bp-linea b{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);font-weight:700;white-space:nowrap;}
+  .bp-dep i{background:var(--teal);} .bp-apl i{background:var(--plum);} .bp-aho i{background:var(--amber);} .bp-pas i{background:var(--isa);}
+  .bp-tot{border-top:1px dashed var(--line);margin-top:4px;padding-top:6px;font-weight:700;color:var(--ink);}
   .stamp-quien .sq-k{font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:6px;}
   .stamp-quien .sq-row{display:flex;flex-wrap:wrap;gap:6px;}
   .stamp-quien .sq{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--paper-soft);border:1.5px solid var(--line);}
@@ -1264,7 +1271,7 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.11 · 18 oct 2026 (cuánto le queda a cada una en lugar del % de aportación · Categorías por mes)';
+const APP_VERSION = '18.12 · 18 oct 2026 (Budget mamá/papá con lo acumulado · cuánto le queda a cada una · Categorías por mes)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
@@ -2762,7 +2769,7 @@ function budgetQuedaPorPersona(ym){
 function htmlQuedaPorPersona(q){
   const chip = (cls, nombre, v)=>`<span class="sq ${cls}${v < -0.004 ? ' sq-neg' : ''}"><i></i>${nombre} <b>${v < -0.004 ? '−' : ''}${fmt(Math.abs(v),'MXN')}</b></span>`;
   return `<div class="stamp-quien" data-goto-mov="budget" role="button" tabindex="0" title="Cuánto le queda a cada una de su Budget este mes">
-    <div class="sq-k">Le queda a cada una</div>
+    <div class="sq-k">Le queda a cada una este mes</div>
     <div class="sq-row">${chip('sq-jen','Jen',q.jen)}${chip('sq-isa','Isa',q.isa)}${q.verAbuelo ? chip('sq-abuelo','Abuelo',q.abuelo) : ''}${q.resto ? chip('sq-otros','Otros',q.resto) : ''}</div>
   </div>`;
 }
@@ -5993,14 +6000,22 @@ function renderMovimientosBase(){
   } else if(movFiltro==='total'){
     resumenCard = renderBudgetTotalCard(movMesTotal);
   } else if(movFiltro==='budget'){
-    const meta = miIngresoMXN(perfil);
-    const gastado = miGastoBoteMXN(perfil);
-    const disp = meta - gastado;
+    const bp = budgetPersonaConAcumulado(perfil);
+    const quienDeposita = perfil==='isa' ? 'papá' : 'mamá';
+    const lineaBp = (cls, txt, v)=>`<div class="bp-linea ${cls}"><span><i></i>${txt}</span><b style="${v < -0.004 ? 'color:var(--brick);' : ''}">${v < -0.004 ? '−' : (cls==='bp-dep' || Math.abs(v) < 0.005 ? '' : '+')}${fmt(Math.abs(v),'MXN')}</b></div>`;
     resumenCard = `
     <div class="card" style="border-top:4px solid var(--${colorPerfil(perfil)});">
       <div class="card-title"><h2>${ico('wallet','icon-sm')} ${nombreBudget(perfil)}</h2></div>
-      ${renderTripleStat(meta, gastado, disp, {asignado:'Meta', gastado:'Gastado', disp:'Disponible'})}
-      <div class="small-note" style="margin-top:8px;">Lo que ${perfil==='isa'?'tu papá':'tu mamá'} deposita este mes vs. tu parte de los gastos del Budget (lo compartido cuenta a la mitad). Es solo de este mes. No incluye lo pagado con efectivo, débito, crédito ni tarjeta del Abuelo; sí los retiros a efectivo hechos desde el Budget. Pagar tu tarjeta de crédito no cambia el Budget.</div>
+      ${renderTripleStat(bp.meta, bp.gastado, bp.disp, {asignado:'Meta', gastado:'Gastado', disp:'Disponible'})}
+      <div class="bp-desglose">
+        <div class="bp-tit">Así se forma la Meta</div>
+        ${lineaBp('bp-dep', 'Depósito de '+quienDeposita+' este mes', bp.deposito)}
+        ${Math.abs(bp.aplicadoAcum) > 0.004 ? lineaBp('bp-apl', 'Acumulado que ya se aplicó a este mes', bp.aplicadoAcum) : ''}
+        ${bp.aplicadoAhorro ? lineaBp('bp-aho', 'Del ahorro a este mes', bp.aplicadoAhorro) : ''}
+        ${lineaBp('bp-pas', bp.pasado < -0.004 ? 'Lo que faltó en meses pasados' : 'Acumulado de meses pasados', bp.pasado)}
+        <div class="bp-linea bp-tot"><span>Meta</span><b>${fmt(bp.meta,'MXN')}</b></div>
+      </div>
+      <div class="small-note" style="margin-top:8px;">La Meta es lo que ${perfil==='isa'?'tu papá':'tu mamá'} deposita este mes más lo que te sobró (o faltó) de meses pasados desde ${nombreMesLargo(inicioBudgetYM()).toLowerCase()}, incluido lo que ya pasaste a este mes. Gastado es tu parte de los gastos del Budget de este mes (lo compartido cuenta a la mitad). No incluye lo pagado con efectivo, débito, crédito ni tarjeta del Abuelo; sí los retiros a efectivo hechos desde el Budget. Pagar tu tarjeta de crédito no cambia el Budget.</div>
     </div>` + renderArqCard(perfil);
   }
 
@@ -6249,6 +6264,28 @@ function acumuladoPorPersonaMXN(antesDeYM){
   });
   out.jen = Math.round(out.jen*100)/100; out.isa = Math.round(out.isa*100)/100;
   return out;
+}
+// v18.12: Budget mamá / papá con lo acumulado. Meta = depósito del mes + lo del acumulado (o ahorro) ya aplicado a este
+// mes + lo que quedó de meses pasados y aún no se usa. Lo que se "usa" sale del acumulado y entra al mes: no se cuenta dos veces.
+function budgetPersonaConAcumulado(p){
+  const ym = mesActual();
+  const total = ingresosNetos(ym)[p==='jen' ? 'jenNetoMXN' : 'isaNetoMXN'];
+  const deposito = ingresosNetos(ym, true)[p==='jen' ? 'jenNetoMXN' : 'isaNetoMXN'];
+  let aplicadoAcum = 0, noRestado = 0;
+  const hoy = todayISO(), ini = inicioBudgetYM();
+  state.ingresos.forEach(i=>{
+    if(i.persona!==p || i.traspaso!=='sobrante' || esCruceAcum(i) || !esDestinoBote(i.destino) || esIngresoAbuelo(i) || !ingresoAplicaEnMes(i, ym)) return;
+    aplicadoAcum += netoIngresoMXN(i);
+    // El acumulado solo descuenta lo usado con fecha hasta hoy y desde el mes de inicio: si ya cuenta en este mes, aquí sí se descuenta (no dos veces).
+    if((i.fecha||'') > hoy || ymDe(i.fecha||'') < ini) noRestado += brutoIngresoMXN(i);
+  });
+  const c = (v)=>Math.round(v*100)/100;
+  const r = {deposito:c(deposito), aplicadoAcum:c(aplicadoAcum), pasado:c((acumuladoPorPersonaMXN()[p] || 0) - noRestado)};
+  r.aplicadoAhorro = c(total - deposito - aplicadoAcum);
+  r.meta = c(r.deposito + r.aplicadoAcum + r.aplicadoAhorro + r.pasado); // suma de lo que se ve, centavo por centavo
+  r.gastado = c(miGastoBoteMXN(p));
+  r.disp = c(r.meta - r.gastado);
+  return r;
 }
 // Lo acumulado de cada una en un mes cerrado (para el desglose).
 function netoMesPersonaMXN(p, ym){ return miIngresoMXN(p, ym) - miGastoBoteMXN(p, ym); }
