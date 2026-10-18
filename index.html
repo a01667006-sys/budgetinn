@@ -1031,6 +1031,26 @@
   .exp-line.cuenta-jen .who-txt{color:var(--jen);}
   .exp-line.cuenta-isa .who-txt{color:var(--isa);}
   .exp-line.cuenta-jen .who-txt,.exp-line.cuenta-isa .who-txt{font-weight:800;}
+  /* v18.9: ver cómo estaba en una fecha */
+  .fv-boton{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:-2px 0 12px;padding:10px 14px;border-radius:999px;border:1.5px dashed color-mix(in srgb,var(--plum) 60%,transparent);background:var(--plum-soft);color:var(--plum);font:inherit;font-weight:800;font-size:13.5px;cursor:pointer;}
+  .fv-banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-2px 0 12px;padding:12px 14px;border-radius:var(--radius-md,14px);background:linear-gradient(90deg,var(--plum-soft),var(--amber-soft));border:1.5px solid var(--plum);}
+  .fv-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--plum);color:#fff;flex:none;}
+  .fv-txt{flex:1;min-width:180px;font-size:14px;} .fv-txt small{display:block;font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .fv-acc{display:flex;gap:6px;flex-wrap:wrap;} .fv-cambiar{background:transparent;border:1.5px solid var(--plum);color:var(--plum);} .fv-salir{background:var(--plum);color:#fff;border:none;}
+  .vista-fecha .exp-line{cursor:default;}
+  /* v18.9: pendientes de aprobar */
+  .pend-card{border-top:4px solid var(--amber);}
+  .pend-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--line);}
+  .pend-line:first-of-type{border-top:none;}
+  .pend-line .desc{flex:1;min-width:0;} .pend-line .n{font-weight:700;} .pend-line .d{font-size:12px;color:var(--ink-soft);margin-top:3px;}
+  .pend-line.rech{opacity:.85;}
+  .pend-acc{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:999px;margin-right:4px;vertical-align:1px;}
+  .pend-acc.pend-crear{background:var(--teal-soft);color:var(--teal-deep);} .pend-acc.pend-editar{background:var(--amber-soft);color:var(--amber);} .pend-acc.pend-borrar{background:var(--brick-soft);color:var(--brick);}
+  .pend-badge{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--amber-soft);color:var(--amber);border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);}
+  .pend-badge.rech{background:var(--brick-soft);color:var(--brick);border-color:color-mix(in srgb,var(--brick) 40%,transparent);}
+  .pend-acc-btns{display:flex;gap:6px;width:100%;justify-content:flex-end;}
+  .pend-ok{background:var(--teal);color:#fff;border:none;} .pend-no{background:var(--brick-soft);color:var(--brick);border:1px solid var(--brick);}
+  .aviso-pend{border-color:var(--amber);} .aviso-pend.rech{border-color:var(--brick);}
   /* v18.8: en qué cuenta se ve cada movimiento */
   .cfg-inicio-row{display:flex;align-items:center;justify-content:space-between;gap:12px;} .cfg-inicio-mes{font-size:16px;color:var(--amber);}
   .exp-line.cuenta-ambas{background:linear-gradient(90deg,var(--jen-soft),var(--isa-soft));box-shadow:inset 3px 0 0 var(--jen),inset 6px 0 0 var(--isa);}
@@ -1229,15 +1249,16 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.8 · 17 oct 2026 (diseño nuevo · filtro "¿En qué cuenta se ve?" · euros dentro de Revolut)';
+const APP_VERSION = '18.9 · 18 oct 2026 (aprobación de la otra · pagos a la tarjeta en estados de cuenta · ver cómo estaba en una fecha)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
-const APP_BUILD = 22; // v18.7: el sobrante de una puede cubrir lo que debe la otra (registros ligados "cruceAcum" que la 18.6 leería como Budget del mes): la app vieja ve este número en la hoja y pide actualizar. Antes: v18.6: pagar una tarjeta ya no guarda "parte" y nunca cambia el Budget (las versiones anteriores lo contarían distinto)
+const APP_BUILD = 23; // v18.9: registros en las cuentas de la otra esperan su aprobación (colección "pendientes"; la app vieja los ignoraría). Antes 22: v18.7: el sobrante de una puede cubrir lo que debe la otra (registros ligados "cruceAcum" que la 18.6 leería como Budget del mes): la app vieja ve este número en la hoja y pide actualizar. Antes: v18.6: pagar una tarjeta ya no guarda "parte" y nunca cambia el Budget (las versiones anteriores lo contarían distinto)
 // (20 = v18.5: "no es deuda", fecha de inicio del Budget, importaciones con nombre (las versiones anteriores no lo entienden)
 // Versión mínima del código de la hoja (Apps Script) que sabe juntar las colecciones nuevas.
-const SCRIPT_MIN = 37;
+const SCRIPT_MIN = 38; // v18.9: Apps Script v3.8 (junta la colección "pendientes")
 let syncVersionNube = null;
+let fechaVistaActiva = null; // v18.9: "ver cómo estaba en una fecha" (solo lectura)
 const Storage = {
   load(){
     try{
@@ -1247,6 +1268,8 @@ const Storage = {
     return memoryStore.data || null;
   },
   save(state){
+    if(fechaVistaActiva) return false; // v18.9: viendo una fecha pasada nunca se guarda
+    try{ snapGuardado = tomarSnapshot(state); }catch(e){} // v18.9: base para saber qué cambiaste tú
     const raw = JSON.stringify(state);
     try{
       localStorage.setItem(STORAGE_KEY, raw);
@@ -1474,6 +1497,7 @@ function migrateState(s){
   if(!Array.isArray(s.efectivoGastos)) s.efectivoGastos=[];
   if(!Array.isArray(s.pagosEntre)) s.pagosEntre=[];
   if(!Array.isArray(s.pagosTarjeta)) s.pagosTarjeta=[];
+  if(!Array.isArray(s.pendientes)) s.pendientes=[]; // v18.9
   if(!Array.isArray(s.pagosOtros)) s.pagosOtros=[];
   if(!Array.isArray(s.series)) s.series=[];
   if(!Array.isArray(s.importaciones)) s.importaciones=[];
@@ -1633,13 +1657,131 @@ function defaultState(){
 
 let state = migrateState(Storage.load()) || defaultState();
 if(!state.destinoActualId && state.destinos.length){ state.destinoActualId = state.destinos[0].id; }
+/* v18.9 — APROBACIÓN DE LA OTRA. Lo que registras, cambias o borras en las cuentas de la otra no se guarda directo:
+   queda en state.pendientes hasta que ella lo apruebe en su teléfono (no cuenta en ningún número mientras tanto).
+   Se revisa en persist() contra la última copia guardada, así cubre todos los formularios, importaciones, ediciones y borrados.
+   No aplica a lo que llega de la sincronización, a restaurar copias ni a lo que la app crea sola (meses de "cada mes"). */
+const COLS_APROB = new Set(['gastos','ingresos','efectivo','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','proyecciones','finGan','finGas','comprasArq','transferencias']);
+let snapGuardado = null, noInterceptar = 0;
+function cfgPersona(st, p){ const f = (st.finanzas||{})[p] || {}; return {inicial: f.inicial, credito: f.credito, cuentas: ((st.cuentasCfg||{})[p]) || null}; }
+function tomarSnapshot(st){
+  const m = new Map();
+  try{ recorrerRegistros(st).forEach(e=>{ if(COLS_APROB.has(e.col)) m.set(e.k, {col:e.col, loc:e.loc, txt:JSON.stringify(e.rec)}); });
+    ['jen','isa'].forEach(p=>m.set('cfg:'+p, {col:'cfg', loc:p, txt:JSON.stringify(cfgPersona(st, p))})); }catch(err){ return null; }
+  return m;
+}
+function aprobacionActiva(){ return !(typeof window!=='undefined' && window.__sinAprobacion) && (perfil==='jen' || perfil==='isa'); }
+// ¿En las cuentas de quién se ve este registro? (misma idea que la etiqueta "¿En qué cuenta se ve?")
+function duenasRegistro(col, r){
+  if(!r) return [];
+  const P = (p)=>p==='isa' ? 'isa' : (p==='jen' ? 'jen' : null);
+  const uno = (p)=>{ const x = P(p); return x ? [x] : []; };
+  if(col==='gastos' || (col==='series' && r.plantilla && r.plantilla.pagadoCon)){
+    const g = col==='series' ? r.plantilla : r;
+    if(g.quien==='abuelo') return [];
+    if(g.pagadoCon==='otro') return g.quien==='ambas' ? [] : uno(g.quien);
+    if(g.quien==='ambas') return g.pagadoPor==='ambas' ? ['jen','isa'] : uno(g.pagadoPor || 'jen'); // "ambas" que pagó una: solo su cuenta
+    return uno(g.quien);
+  }
+  if(col==='series') return uno((r.plantilla||{}).persona || (r.plantilla||{}).quien);
+  if(col==='pagosEntre'){ const out = []; if(['debito','bote','efectivo','arq'].includes(r.sale) || esDebito(r.sale)) out.push(...uno(r.de)); if(['debito','bote','efectivo','arq'].includes(r.entra) || esDebito(r.entra)) out.push(...uno(r.a)); return [...new Set(out)]; }
+  if(col==='finGan' || col==='finGas') return []; // se decide por loc (ver tocaOtra)
+  return uno(r.persona || r.quien);
+}
+function tocaOtra(col, rec, loc, otra){ if(col==='finGan' || col==='finGas') return loc===otra; return duenasRegistro(col, rec).includes(otra); }
+// Dónde vive cada registro (para sacarlo o regresarlo).
+function arregloDe(st, col, loc, crear){
+  if(col==='ingresos') return st.ingresos;
+  if(col==='gastos'){
+    if(loc==='gustos') return st.gustosGastos;
+    const sid = String(loc||'').replace(/^sub:/,''); const sb = (st.subcats||[]).find(x=>x.id===sid) || (st.subcats||[]).find(x=>/^otros$/i.test(String(x.nombre||'').trim())) || (st.subcats||[])[0];
+    return sb ? sb.gastos : st.gustosGastos;
+  }
+  if(col==='efectivo') return st.efectivoMovimientos;
+  if(col==='pagosEntre') return st.pagosEntre; if(col==='pagosTarjeta') return st.pagosTarjeta; if(col==='pagosOtros') return st.pagosOtros;
+  if(col==='series') return st.series; if(col==='porCobrar') return st.porCobrar; if(col==='proyecciones') return st.deudasProyectadas;
+  if(col==='finGan' || col==='finGas'){ const f = st.finanzas[loc]; if(!f) return []; return col==='finGan' ? f.ganancias : f.gastos; }
+  if(col==='comprasArq'){ if(!Array.isArray(st.comprasArq)) st.comprasArq = []; return st.comprasArq; }
+  if(col==='transferencias'){ if(!Array.isArray(st.transferencias)) st.transferencias = []; return st.transferencias; }
+  return [];
+}
+function quitarRegistroDe(st, col, id){
+  const quita = (a)=>{ if(!Array.isArray(a)) return; for(let i=a.length-1;i>=0;i--){ if(a[i] && a[i].id===id) a.splice(i,1); } };
+  if(col==='gastos'){ (st.subcats||[]).forEach(sb=>quita(sb.gastos)); quita(st.gustosGastos); return; }
+  if(col==='finGan' || col==='finGas'){ ['jen','isa'].forEach(p=>{ const f = (st.finanzas||{})[p]; if(f) quita(col==='finGan' ? f.ganancias : f.gastos); }); return; }
+  quita(arregloDe(st, col, ''));
+}
+function ponerRegistroEn(st, col, loc, rec){ quitarRegistroDe(st, col, rec.id); arregloDe(st, col, loc).push(rec); }
+function interceptarAjenos(){
+  if(noInterceptar || !snapGuardado || fechaVistaActiva || !aprobacionActiva()) return 0;
+  const otra = perfil==='jen' ? 'isa' : 'jen';
+  const ahora = recorrerRegistros(state).filter(e=>COLS_APROB.has(e.col));
+  const enAhora = new Map(ahora.map(e=>[e.k, e]));
+  // Todo lo que cambió desde la última vez que se guardó (lo que la app crea sola no cuenta).
+  const todos = [];
+  ahora.forEach(e=>{
+    const auto = sellosFijos.has(e.rec); // lo creó la app sola (meses de "cada mes"): solo va si va con su serie
+    const prev = snapGuardado.get(e.k);
+    if(!prev){ todos.push({accion:'crear', k:e.k, col:e.col, loc:e.loc, rec:e.rec, auto}); return; }
+    if(JSON.stringify(e.rec)===prev.txt && e.loc===prev.loc) return;
+    todos.push({accion:'editar', k:e.k, col:e.col, loc:e.loc, rec:e.rec, antes:JSON.parse(prev.txt), locAntes:prev.loc, auto});
+  });
+  snapGuardado.forEach((prev, k)=>{ if(prev.col==='cfg' || enAhora.has(k)) return; todos.push({accion:'borrar', k, col:prev.col, loc:prev.loc, rec:JSON.parse(prev.txt)}); });
+  const toca = (c)=>tocaOtra(c.col, c.rec, c.loc, otra) || (c.antes && tocaOtra(c.col, c.antes, c.locAntes, otra));
+  const elegidos = new Set(todos.filter(c=>!c.auto && toca(c)));
+  // Lo que va junto se manda junto: las dos mitades de un cruce y una serie con sus meses (al crear, cambiar o borrar).
+  let crece = true;
+  while(crece){
+    crece = false;
+    const cruces = new Set(), series = new Set();
+    elegidos.forEach(c=>{ [c.rec, c.antes].forEach(r=>{ if(!r) return; if(r.cruceAcum) cruces.add(r.cruceAcum); if(r.serieId) series.add(r.serieId); }); if(c.col==='series') series.add(c.rec.id); });
+    todos.forEach(c=>{ if(elegidos.has(c)) return; const rs = [c.rec, c.antes].filter(Boolean);
+      if(rs.some(r=>(r.cruceAcum && cruces.has(r.cruceAcum)) || (r.serieId && series.has(r.serieId))) || (c.col==='series' && series.has(c.rec.id))){ elegidos.add(c); crece = true; } });
+  }
+  const cambios = [...elegidos];
+  // Configuración de la otra (saldo inicial, límite de crédito, cuentas): también espera su aprobación.
+  const cfgAntes = snapGuardado.get('cfg:'+otra), cfgAhora = cfgPersona(state, otra);
+  const cambioCfg = cfgAntes && JSON.stringify(cfgAhora)!==cfgAntes.txt;
+  if(!cambios.length && !cambioCfg) return 0;
+  const grupo = uid(), t = Date.now();
+  if(!Array.isArray(state.pendientes)) state.pendientes = [];
+  const agregar = (p)=>{
+    // Un solo pendiente por registro: si ya mandaste un cambio a lo mismo, el nuevo lo reemplaza (se queda el "antes" original).
+    const previo = state.pendientes.find(y=>y.por===perfil && y.estado!=='rechazado' && y.col===p.col && (y.rec||{}).id===(p.rec||{}).id && y.accion!=='crear');
+    if(previo && p.accion!=='crear'){ if(previo.antes && p.accion==='editar'){ p.antes = previo.antes; p.locAntes = previo.locAntes; } state.pendientes = state.pendientes.filter(y=>y!==previo); }
+    state.pendientes.push(p);
+  };
+  cambios.forEach(c=>{
+    if(c.accion==='crear') quitarRegistroDe(state, c.col, c.rec.id);
+    else ponerRegistroEn(state, c.col, c.accion==='editar' ? c.locAntes : c.loc, c.accion==='editar' ? c.antes : c.rec); // se queda como estaba
+    const p = {id:uid(), accion:c.accion, col:c.col, loc:c.loc, rec:JSON.parse(JSON.stringify(c.rec)), por:perfil, para:otra, grupo, creado:t};
+    if(c.accion==='editar'){ p.antes = c.antes; p.locAntes = c.locAntes; }
+    agregar(p);
+  });
+  if(cambioCfg){
+    const antes = JSON.parse(cfgAntes.txt);
+    if(!state.finanzas[otra]) state.finanzas[otra] = {inicial:0, ganancias:[], gastos:[], credito:{limite:0}};
+    state.finanzas[otra].inicial = antes.inicial; state.finanzas[otra].credito = antes.credito;
+    if(!state.cuentasCfg || typeof state.cuentasCfg!=='object') state.cuentasCfg = {};
+    if(antes.cuentas) state.cuentasCfg[otra] = antes.cuentas; else delete state.cuentasCfg[otra];
+    agregar({id:uid(), accion:'editar', col:'cfg', loc:otra, rec:{id:'cfg-'+otra, ...JSON.parse(JSON.stringify(cfgAhora))}, antes:{id:'cfg-'+otra, ...antes}, por:perfil, para:otra, grupo, creado:t});
+  }
+  const n = cambios.length + (cambioCfg ? 1 : 0);
+  setTimeout(()=>{ try{ mostrarToast(n===1 ? 'Se mandó a '+nombrePersona(otra)+' para que lo apruebe: es de sus cuentas.' : n+' movimientos se mandaron a '+nombrePersona(otra)+' para que los apruebe: son de sus cuentas.', 'ok'); }catch(e){} }, 50);
+  return n;
+}
+// Guardar sin revisar aprobaciones (reinicio, restaurar copia, aplicar una aprobación).
+function persistSistema(){ noInterceptar++; try{ persist(); } finally { noInterceptar--; } }
 function persist(){
+  if(fechaVistaActiva) return; // v18.9: viendo una fecha pasada no se guarda nada
+  try{ interceptarAjenos(); }catch(e){ try{ console.error(e); }catch(_){} }
   try{ recalcularArq(); }catch(e){}
   const cambio = sellarCambios();
   Storage.save(state);
   guardarCopiaLocal();
   if(cambio){ marcarPendiente(true); programarSync(); }
 }
+snapGuardado = tomarSnapshot(state); // v18.9: lo que había al abrir la app
 
 /* ------------------------------------------------------------
    Carga las cantidades que ya platicamos como punto de partida —
@@ -1683,7 +1825,7 @@ function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toStrin
 // Fechas SIEMPRE en la hora local del celular (no la de Londres/UTC): así un
 // gasto a la 1 a.m. del día 1 cae en el mes correcto.
 function isoLocal(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function todayISO(){ return isoLocal(new Date()); }
+function todayISO(){ return fechaVistaActiva || isoLocal(new Date()); } // v18.9: en "ver una fecha", hoy es ese día
 function mesActual(){ return todayISO().slice(0,7); }
 function ymDe(iso){ return (iso||'').slice(0,7); }
 function ymMas(ym, n){ let y=+ym.slice(0,4), m=+ym.slice(5,7)+n; while(m>12){m-=12;y++;} while(m<1){m+=12;y--;} return y+'-'+String(m).padStart(2,'0'); }
@@ -1782,10 +1924,11 @@ function recorrerRegistros(st){
   add('suscripciones', st.suscripciones);
   add('comprasArq', st.comprasArq);
   add('transferencias', st.transferencias);
+  add('pendientes', st.pendientes); // v18.9: lo que una registró en las cuentas de la otra y espera su aprobación
   (st.subcats||[]).forEach(sb=>{ if(sb && sb.id) out.push({k:'subcats:'+sb.id, col:'subcats', rec:sb, loc:''}); });
   return out;
 }
-const CLAVES_NO_CONFIG = ['ingresos','subcats','gustosGastos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','rates','ratesMeta','syncUrl','_borrados','_cfgU','efectivoGastos','_syncMarca','_papelera','importaciones','suscripciones','comprasArq','transferencias','cuentasCfg','reinicioId','reinicioEn','reinicioPor'];
+const CLAVES_NO_CONFIG = ['ingresos','subcats','gustosGastos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','rates','ratesMeta','syncUrl','_borrados','_cfgU','efectivoGastos','_syncMarca','_papelera','importaciones','suscripciones','comprasArq','transferencias','cuentasCfg','reinicioId','reinicioEn','reinicioPor','pendientes'];
 function configDe(st){
   const c = {};
   Object.keys(st).forEach(k=>{ if(!CLAVES_NO_CONFIG.includes(k) && k!=='finanzas' && k!=='ahorro' && k!=='fondoGrande') c[k]=st[k]; });
@@ -1818,8 +1961,8 @@ function mergeStates(L, R){
     limpiar(pierde);
     const solo = JSON.parse(JSON.stringify(gana));
     // Solo los registros nuevos: ajustes, marcas de borrado y papelera del lado viejo no cuentan.
-    Object.keys(solo).forEach(k=>{ if(!['subcats','gustosGastos','ingresos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','importaciones','suscripciones','comprasArq','transferencias','finanzas','ahorro','fondoGrande'].includes(k)) solo[k] = gana[k]; });
-    ['subcats','gustosGastos','ingresos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','importaciones','suscripciones','comprasArq','transferencias','finanzas','ahorro','fondoGrande'].forEach(k=>{ if(pierde[k]!==undefined) solo[k] = pierde[k]; });
+    Object.keys(solo).forEach(k=>{ if(!['subcats','gustosGastos','ingresos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','importaciones','suscripciones','comprasArq','transferencias','pendientes','finanzas','ahorro','fondoGrande'].includes(k)) solo[k] = gana[k]; });
+    ['subcats','gustosGastos','ingresos','efectivoMovimientos','pagosEntre','pagosTarjeta','pagosOtros','series','porCobrar','deudasProyectadas','destinos','importaciones','suscripciones','comprasArq','transferencias','pendientes','finanzas','ahorro','fondoGrande'].forEach(k=>{ if(pierde[k]!==undefined) solo[k] = pierde[k]; });
     solo._borrados = {}; solo._papelera = {}; solo._cfgU = {}; solo.reinicioId = gana.reinicioId; solo.reinicioEn = gana.reinicioEn; if(gana.reinicioPor) solo.reinicioPor = gana.reinicioPor;
     return mergeStates(solo, gana);
   }
@@ -1964,6 +2107,7 @@ function mergeStates(L, R){
   base.suscripciones = de('suscripciones').map(e=>e.rec);
   base.comprasArq = de('comprasArq').map(e=>e.rec);
   base.transferencias = de('transferencias').map(e=>e.rec);
+  base.pendientes = de('pendientes').map(e=>e.rec);
   if(base.destinoActualId) base.destinoActualId = destinoDe(base.destinoActualId);
   base.syncUrl = L.syncUrl;
   delete base._syncMarca;
@@ -2274,7 +2418,7 @@ async function sincronizarUnaVez(){
         return true;
       }
       // Con un código de hoja viejo, subir podría perder suscripciones / compras de Euros (Revolut): no se sube hasta actualizarlo.
-      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.7) y crear una versión nueva de la implementación. Lo que registres se queda guardado en este teléfono y se sube en cuanto lo actualices.');
+      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.8) y crear una versión nueva de la implementación. Lo que registres se queda guardado en este teléfono y se sube en cuanto lo actualices.');
       const ahoraISO = new Date().toISOString();
       const marca = uid();
       const disp = miDispositivo();
@@ -2410,7 +2554,7 @@ function openPorQueSync(){
     <div class="note-box" style="margin-bottom:12px;">${ico('alert','icon-sm')}<div>${escHtml(syncError||'No se pudo sincronizar.')}</div></div>
     ${es404 || viejo ? `<div class="small-note" style="margin-bottom:8px;"><b>Cómo arreglarlo (una sola vez):</b></div>
     <ol class="pasos-sync">
-      ${viejo ? '<li>Abre tu hoja de Google → Extensiones → Apps Script y pega el código nuevo (v3.7) completo. Guarda.</li>' : ''}
+      ${viejo ? '<li>Abre tu hoja de Google → Extensiones → Apps Script y pega el código nuevo (v3.8) completo. Guarda.</li>' : ''}
       <li>Arriba a la derecha: <b>Implementar → Gestionar implementaciones</b>.</li>
       <li>Toca el lápiz (editar) de la implementación activa → en <b>Versión</b> elige <b>Nueva versión</b> → <b>Implementar</b>. Así la URL no cambia.</li>
       <li>Copia la <b>URL de la aplicación web</b> (termina en /exec). Debe estar en "Ejecutar como: yo" y "Quién tiene acceso: cualquier persona".</li>
@@ -3597,7 +3741,7 @@ function render(){
         ${syncEstado.estado==='version' ? `<div class="banner-warn" style="margin-bottom:12px;padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.4;">${ico('alert','icon-sm')} El otro teléfono ya usa una versión más nueva de Budgetin (${syncVersionNube}). Cierra esta app por completo y vuelve a abrirla para actualizarla. Mientras tanto no se sincroniza, para no borrar sus datos.</div>` : ''}
         ${activeTab==='inicio' ? renderAvisoRespaldo() : ''}
         ${renderAvisosTarjetas()}
-        ${activeTab==='inicio' ? renderAvisosAcumulado() : ''}
+        ${activeTab==='inicio' ? renderAvisosPendientes() + renderAvisosAcumulado() + renderAvisoPagosTarjeta() : ''}
         ${renderAvisosSuscripciones()}
         ${activeTab==='inicio' ? renderInicio() : ''}
         ${activeTab==='nosotras' ? renderNosotras() : ''}
@@ -5214,6 +5358,127 @@ function renderAvisosAcumulado(){
     <span class="aviso-acc"><button type="button" class="btn btn-primary btn-sm" data-usar-acum-p="${a.p}">Cubrir con este mes</button><button type="button" class="link-quiet" data-acum-visto="${escHtml(a.clave)}">Entendido</button></span>
   </div>`; }).join('');
 }
+/* v18.9 — PENDIENTES DE APROBAR (pantallas). */
+const NOMBRE_COL_PEND = {cfg:'Saldo inicial / límite de las cuentas', gastos:'Gasto', ingresos:'Ingreso', efectivo:'Efectivo', pagosEntre:'Pago entre ustedes', pagosTarjeta:'Pago de tarjeta', pagosOtros:'Pago a otra persona', series:'Movimiento de cada mes', porCobrar:'Me deben', proyecciones:'Deuda a futuro', finGan:'Ingreso a débito', finGas:'Gasto con tarjeta', comprasArq:'Compra de euros', transferencias:'Pase entre cuentas'};
+function pendientesPara(p){ return (state.pendientes||[]).filter(x=>x.para===p && x.estado!=='rechazado'); }
+function pendientesPor(p){ return (state.pendientes||[]).filter(x=>x.por===p); }
+function textoPendiente(x){
+  const r = x.rec || {}, pl = r.plantilla || {};
+  if(x.col==='cfg'){ const a = x.antes||{}; const partes = []; if(JSON.stringify(a.inicial)!==JSON.stringify(r.inicial)) partes.push('saldo inicial de Nu débito: '+fmt(Number(a.inicial)||0,'MXN')+' → '+fmt(Number(r.inicial)||0,'MXN')); if(JSON.stringify(a.credito)!==JSON.stringify(r.credito)) partes.push('límite de Nu crédito: '+fmt(Number((a.credito||{}).limite)||0,'MXN')+' → '+fmt(Number((r.credito||{}).limite)||0,'MXN')); if(JSON.stringify(a.cuentas)!==JSON.stringify(r.cuentas)) partes.push('saldos iniciales / límites de Revolut'); return {nota:'Cambio en las cuentas de '+nombrePersona(x.para), monto:0, moneda:'MXN', fecha:'', accion:'Cambio', tipo:'Configuración', detalle: partes.join(' · ')}; }
+  const nota = r.nota || r.fuente || r.notaLibre || r.concepto || pl.nota || pl.fuente || NOMBRE_COL_PEND[x.col] || 'Movimiento';
+  const monto = r.monto!=null ? r.monto : (r.montoBruto!=null ? r.montoBruto : (pl.monto!=null ? pl.monto : pl.montoBruto));
+  const accion = x.accion==='crear' ? 'Nuevo' : (x.accion==='editar' ? 'Cambio' : 'Borrar');
+  let detalle = '';
+  if(x.accion==='editar' && x.antes){ const ma = x.antes.monto!=null ? x.antes.monto : x.antes.montoBruto; if(ma!=null && Number(ma)!==Number(monto)) detalle = 'antes '+fmt(Number(ma)||0, x.antes.moneda||r.moneda||'MXN'); }
+  return {nota, monto: Number(monto)||0, moneda: r.moneda || pl.moneda || 'MXN', fecha: r.fecha || '', accion, tipo: NOMBRE_COL_PEND[x.col] || '', detalle};
+}
+function htmlLineaPendiente(x, conBotones){
+  const t = textoPendiente(x), rech = x.estado==='rechazado';
+  return `<div class="pend-line ${rech?'rech':''}" data-pend="${x.id}">
+    <div class="desc"><div class="n"><span class="pend-acc pend-${x.accion}">${t.accion}</span> ${escHtml(t.nota)}</div>
+      <div class="d">${t.fecha ? escHtml(fmtDate(t.fecha))+' · ' : ''}${escHtml(t.tipo)}${t.detalle ? ' · '+escHtml(t.detalle) : ''}
+        ${rech ? `<span class="pend-badge rech">Rechazado por ${escHtml(nombrePersona(x.para))}</span>` : `<span class="pend-badge">Pendiente · lo aprueba ${escHtml(nombrePersona(x.para))}</span>`}</div></div>
+    <div class="amt neutro">${fmt(Math.abs(t.monto), t.moneda)}</div>
+    ${conBotones ? `<div class="pend-acc-btns"><button type="button" class="btn btn-sm pend-ok" data-pend-aprobar="${x.id}">${ico('check','icon-xs')} Aprobar</button><button type="button" class="btn btn-sm pend-no" data-pend-rechazar="${x.id}">${ico('x','icon-xs')} Rechazar</button></div>`
+      : (rech ? `<div class="pend-acc-btns"><button type="button" class="link-quiet" data-pend-quitar="${x.id}">Entendido</button></div>` : `<div class="pend-acc-btns"><button type="button" class="link-quiet" data-pend-quitar="${x.id}">Cancelar</button></div>`)}
+  </div>`;
+}
+// Los que van juntos se aprueban / rechazan juntos (los dos registros de un cruce, una serie y sus meses).
+function pendientesLigados(x){
+  const todos = (state.pendientes||[]).filter(y=>y.grupo===x.grupo);
+  const out = new Set([x]); let crece = true;
+  while(crece){
+    crece = false;
+    const cruces = new Set(), series = new Set(), ids = new Set();
+    out.forEach(y=>{ const r = y.rec||{}; if(r.cruceAcum) cruces.add(r.cruceAcum); if(r.serieId) series.add(r.serieId); if(y.col==='series') series.add(r.id); ids.add(r.id); if(r.deGasto) ids.add(r.deGasto); });
+    todos.forEach(y=>{ if(out.has(y)) return; const r = y.rec||{};
+      if((r.cruceAcum && cruces.has(r.cruceAcum)) || (r.serieId && series.has(r.serieId)) || (y.col==='series' && series.has(r.id)) || (r.deGasto && ids.has(r.deGasto)) || ids.has(r.id) && false){ out.add(y); crece = true; }
+      else if([...out].some(z=>(z.rec||{}).deGasto && (z.rec||{}).deGasto===r.id)){ out.add(y); crece = true; } });
+  }
+  return [...out];
+}
+function ubicacionActual(col, id){ const e = recorrerRegistros(state).find(e=>e.col===col && e.rec && e.rec.id===id); return e || null; }
+function aplicarPendiente(x){
+  const rec = JSON.parse(JSON.stringify(x.rec));
+  if(x.col==='cfg'){
+    const p = x.loc; if(!state.finanzas[p]) state.finanzas[p] = {inicial:0, ganancias:[], gastos:[], credito:{limite:0}};
+    const a = x.antes||{}, cambia = (k)=>JSON.stringify(a[k])!==JSON.stringify(rec[k]);
+    if(cambia('inicial')) state.finanzas[p].inicial = rec.inicial;
+    if(cambia('credito')) state.finanzas[p].credito = rec.credito;
+    if(cambia('cuentas')){ if(!state.cuentasCfg || typeof state.cuentasCfg!=='object') state.cuentasCfg = {}; if(rec.cuentas) state.cuentasCfg[p] = rec.cuentas; else delete state.cuentasCfg[p]; }
+    return;
+  }
+  if(x.accion==='borrar'){ quitarRegistroDe(state, x.col, rec.id); return; }
+  if(x.accion==='crear'){ ponerRegistroEn(state, x.col, x.loc, rec); return; }
+  // editar: solo se aplica lo que se cambió (lo que la dueña cambió después se respeta); si ya lo borró, no se revive.
+  const act = ubicacionActual(x.col, rec.id);
+  if(!act) return;
+  const a = x.antes || {}, nuevo = JSON.parse(JSON.stringify(act.rec));
+  new Set([...Object.keys(a), ...Object.keys(rec)]).forEach(k=>{ if(k==='_u') return; if(JSON.stringify(a[k])!==JSON.stringify(rec[k])){ if(rec[k]===undefined) delete nuevo[k]; else nuevo[k] = rec[k]; } });
+  ponerRegistroEn(state, x.col, x.loc!==x.locAntes ? x.loc : act.loc, nuevo);
+}
+function aprobarPendientes(ids){
+  const set = new Set(); ids.forEach(id=>{ const x = (state.pendientes||[]).find(y=>y.id===id && y.estado!=='rechazado' && (!perfil || y.para===perfil)); if(x) pendientesLigados(x).filter(y=>y.estado!=='rechazado').forEach(y=>set.add(y)); }); // solo la dueña de la cuenta aprueba
+  if(!set.size) return 0;
+  // primero las series (para que sus meses ya tengan a dónde pertenecer)
+  [...set].sort((a,b)=>(a.col==='series'?0:1)-(b.col==='series'?0:1)).forEach(aplicarPendiente);
+  state.pendientes = (state.pendientes||[]).filter(y=>!set.has(y));
+  persistSistema();
+  return set.size;
+}
+function rechazarPendientes(ids){
+  const set = new Set(); ids.forEach(id=>{ const x = (state.pendientes||[]).find(y=>y.id===id); if(x) pendientesLigados(x).forEach(y=>set.add(y)); });
+  set.forEach(x=>{ x.estado = 'rechazado'; x.rechazadoEn = Date.now(); });
+  persistSistema();
+  return set.size;
+}
+function quitarPendientes(ids){ const set = new Set(ids); (state.pendientes||[]).filter(y=>set.has(y.id)).forEach(y=>pendientesLigados(y).forEach(z=>set.add(z.id))); state.pendientes = (state.pendientes||[]).filter(y=>!set.has(y.id)); persistSistema(); }
+function openPendientes(){
+  if(!perfil){ mostrarToast('Elige primero quién eres (Jen o Isa).', 'error'); return; }
+  const para = pendientesPara(perfil), mios = pendientesPor(perfil), otra = nombrePersona(perfil==='jen'?'isa':'jen');
+  openSheet(`
+    ${sheetHeader('Pendientes de aprobar')}
+    ${para.length ? `<div class="small-note" style="margin-bottom:8px;">${escHtml(otra)} registró esto en tus cuentas. No cuenta en ningún número hasta que lo apruebes.</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;"><button class="btn btn-sm pend-ok" id="pendAprobarTodo" style="flex:1;">${ico('check','icon-sm')} Aprobar todo (${para.length})</button><button class="btn btn-sm pend-no" id="pendRechazarTodo" style="flex:1;">${ico('x','icon-sm')} Rechazar todo</button></div>
+      ${para.map(x=>htmlLineaPendiente(x, true)).join('')}` : `<div class="small-note" style="margin-bottom:10px;">No tienes nada por aprobar.</div>`}
+    ${mios.length ? `<h3 class="pc-sub">Lo que mandaste a ${escHtml(otra)}</h3>${mios.map(x=>htmlLineaPendiente(x, false)).join('')}` : ''}
+  `);
+  wirePendientes(document.getElementById('overlay'), true);
+}
+function wirePendientes(root, enHoja){
+  if(!root) return;
+  const despues = ()=>{ if(enHoja){ if(pendientesPara(perfil).length || pendientesPor(perfil).length) openPendientes(); else closeSheet(); } render(); };
+  root.querySelectorAll('[data-pend-aprobar]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); const n = aprobarPendientes([b.getAttribute('data-pend-aprobar')]); despues(); mostrarToast(n===1 ? 'Aprobado: ya cuenta en tus cuentas.' : n+' aprobados.', 'ok'); }));
+  root.querySelectorAll('[data-pend-rechazar]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); rechazarPendientes([b.getAttribute('data-pend-rechazar')]); despues(); mostrarToast('Rechazado: no se guardó. '+nombrePersona(perfil==='jen'?'isa':'jen')+' verá el aviso.', 'ok'); }));
+  root.querySelectorAll('[data-pend-quitar]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); quitarPendientes([b.getAttribute('data-pend-quitar')]); despues(); }));
+  const at = root.querySelector('#pendAprobarTodo'); if(at) at.addEventListener('click', ()=>{ const n = aprobarPendientes(pendientesPara(perfil).map(x=>x.id)); despues(); mostrarToast(n+' aprobado'+(n===1?'':'s')+'.', 'ok'); });
+  const rt = root.querySelector('#pendRechazarTodo'); if(rt) rt.addEventListener('click', ()=>{ if(!confirm('¿Rechazar todo? No se va a guardar nada de esto.')) return; rechazarPendientes(pendientesPara(perfil).map(x=>x.id)); despues(); });
+}
+function renderAvisosPendientes(){
+  if(!perfil) return '';
+  const para = pendientesPara(perfil), rech = pendientesPor(perfil).filter(x=>x.estado==='rechazado'), otra = nombrePersona(perfil==='jen'?'isa':'jen');
+  let out = '';
+  if(para.length) out += `<div class="aviso-sus aviso-tarj aviso-pend"><span class="acum-ico">${ico('clock','icon-sm')}</span><span><b>${escHtml(otra)}</b> registró <b>${para.length} movimiento${para.length===1?'':'s'}</b> en tus cuentas. No cuenta${para.length===1?'':'n'} hasta que lo${para.length===1?'':'s'} apruebes.</span><span class="aviso-acc"><button type="button" class="btn btn-primary btn-sm" data-pend-abrir>Revisar</button></span></div>`;
+  if(rech.length) out += `<div class="aviso-sus aviso-tarj aviso-pend rech"><span class="acum-ico">${ico('alert','icon-sm')}</span><span><b>${escHtml(otra)}</b> rechazó ${rech.length} movimiento${rech.length===1?'':'s'} que registraste en sus cuentas: no se guardaron.</span><span class="aviso-acc"><button type="button" class="btn btn-primary btn-sm" data-pend-abrir>Ver</button></span></div>`;
+  return out;
+}
+function renderCardPendientesMov(){
+  if(!perfil) return '';
+  const lista = (state.pendientes||[]).filter(x=>x.para===perfil || x.por===perfil);
+  if(!lista.length) return '';
+  const para = lista.filter(x=>x.para===perfil && x.estado!=='rechazado');
+  return `<div class="card pend-card"><div class="card-title"><h2>${ico('clock','icon-sm')} Pendientes de aprobar</h2><button type="button" class="hint" data-pend-abrir>${para.length ? 'Revisar ('+para.length+')' : 'ver'}</button></div>
+    <div class="small-note" style="margin-top:-6px;margin-bottom:6px;">No cuentan en ningún número hasta que la dueña de la cuenta los apruebe.</div>
+    ${lista.slice(0,6).map(x=>htmlLineaPendiente(x, x.para===perfil && x.estado!=='rechazado')).join('')}
+    ${lista.length>6 ? `<button type="button" class="link-quiet" data-pend-abrir>Ver los ${lista.length}</button>` : ''}</div>`;
+}
+// Aviso: pagos a la tarjeta que se guardaron como gasto (de tus cuentas).
+function renderAvisoPagosTarjeta(){
+  if(!perfil) return '';
+  const n = gastosQueParecenPagoTarjeta().filter(g=>cuentaDondeSeVe(Object.assign({tipo:'gasto-generales'}, g)).personas.includes(perfil)).length;
+  if(!n || avisosTarjetaVistos()['ptc|'+perfil+'|'+n]) return '';
+  return `<div class="aviso-sus aviso-tarj"><span class="pk-ilu sm"><svg viewBox="0 0 64 64" aria-hidden="true">${ILU.credito}</svg></span><span>Encontré <b>${n} pago${n===1?'':'s'} a tu tarjeta de crédito</b> que se guardaron como gasto: restan como compra y la tarjeta sigue diciendo que debes lo mismo.</span><span class="aviso-acc"><button type="button" class="btn btn-primary btn-sm" data-ptc-abrir>Revisar</button><button type="button" class="link-quiet" data-acum-visto="ptc|${perfil}|${n}">Entendido</button></span></div>`;
+}
 // Tarjeta "Tarjetas de crédito" en Inicio.
 function renderTarjetasCreditoInicio(){
   const lista = tarjetasCreditoDe(perfil);
@@ -5540,7 +5805,61 @@ function repartirEstanciasMes(lista, ym){
 }
 let movSelModo = false, movSel = new Set(), movVistaKeys = [];
 function claveLineaMov(m){ return [m.tipo, m.id, m.subId || m.persona || ''].join('|'); }
+/* v18.9 — VER CÓMO ESTABA EN UNA FECHA. Cada sección (Budget total, Budget mamá/papá, Mi dinero, Efectivo) tiene su
+   propio botón y su propia fecha. Se dibuja con una copia de los datos sin nada posterior a ese día y con "hoy" = ese
+   día, así cada número (Budget del mes, acumulado, cuentas, efectivo) es el de ese día. Solo lectura: no se guarda nada. */
+const SECCIONES_FECHA = {total:'Budget total', budget:'Budget', personales:'Mi dinero', efectivo:'Efectivo'};
+let fechaVista = {};
+function seccionConFecha(){ return SECCIONES_FECHA[movFiltro] ? movFiltro : null; }
+function estadoHasta(D){
+  const c = JSON.parse(JSON.stringify(state));
+  const ok = (r)=>!r || !r.fecha || String(r.fecha) <= D;
+  const f = (a)=>Array.isArray(a) ? a.filter(ok) : a;
+  c.ingresos = f(c.ingresos); c.gustosGastos = f(c.gustosGastos); c.efectivoMovimientos = f(c.efectivoMovimientos);
+  (c.subcats||[]).forEach(sb=>{ sb.gastos = f(sb.gastos); });
+  c.pagosEntre = f(c.pagosEntre); c.pagosTarjeta = f(c.pagosTarjeta); c.pagosOtros = f(c.pagosOtros);
+  c.porCobrar = f(c.porCobrar); c.deudasProyectadas = f(c.deudasProyectadas); c.comprasArq = f(c.comprasArq); c.transferencias = f(c.transferencias);
+  ['jen','isa'].forEach(p=>{ const fz = (c.finanzas||{})[p]; if(fz){ fz.ganancias = f(fz.ganancias); fz.gastos = f(fz.gastos); } });
+  if(c.ahorro) c.ahorro.movimientos = f(c.ahorro.movimientos);
+  c.pendientes = [];
+  return c;
+}
+function htmlBotonFecha(){
+  const sec = seccionConFecha(); if(!sec) return '';
+  const D = fechaVista[sec];
+  if(D) return `<div class="fv-banner"><span class="fv-ico">${ico('clock','icon-sm')}</span><span class="fv-txt">Viendo <b>${escHtml(SECCIONES_FECHA[sec]==='Budget' ? nombreBudget(perfil||'jen') : SECCIONES_FECHA[sec])}</b> como estaba el <b>${escHtml(fmtDate(D))}</b><small>Solo los movimientos hasta ese día y lo que había ese día. No se puede registrar ni cambiar nada aquí.</small></span>
+    <span class="fv-acc"><button type="button" class="btn btn-sm fv-cambiar" data-fecha-vista>${ico('calendar','icon-xs')} Otra fecha</button><button type="button" class="btn btn-sm fv-salir" data-fecha-vista-salir>Volver a hoy</button></span></div>`;
+  return `<button type="button" class="fv-boton" data-fecha-vista>${ico('calendar','icon-sm')} Ver cómo estaba ${SECCIONES_FECHA[sec]==='Budget' ? 'mi '+escHtml(nombreBudget(perfil||'jen')) : (sec==='personales' ? 'Mi dinero' : (sec==='efectivo' ? 'mi efectivo' : 'el Budget total'))} en una fecha</button>`;
+}
+function openFechaVista(){
+  const sec = seccionConFecha(); if(!sec) return;
+  const hoy = isoLocal(new Date());
+  openSheet(`
+    ${sheetHeader('Ver cómo estaba en una fecha')}
+    <div class="small-note" style="margin-bottom:10px;">Elige un día: verás ${escHtml(SECCIONES_FECHA[sec]==='Budget' ? 'tu '+nombreBudget(perfil||'jen') : SECCIONES_FECHA[sec])} como estaba al terminar ese día (los movimientos hasta ese día y cuánto había en cada cuenta). Solo es para ver.</div>
+    <div class="field"><label>${ico('calendar','icon-xs')} Fecha</label><input type="date" id="fvFecha" max="${hoy}" value="${fechaVista[sec] || hoy}"></div>
+    <button class="btn btn-primary btn-block" id="doFechaVista">${ico('clock','icon-sm')} Ver ese día</button>
+  `);
+  document.getElementById('doFechaVista').addEventListener('click', ()=>{
+    const v = document.getElementById('fvFecha').value;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){ mostrarToast('Elige una fecha.', 'error'); return; }
+    if(v >= hoy) delete fechaVista[sec]; else fechaVista[sec] = v;
+    closeSheet(); render();
+  });
+}
 function renderMovimientos(){
+  const secF = seccionConFecha(), D = secF ? fechaVista[secF] : null;
+  if(!D || fechaVistaActiva) return htmlBotonFecha() + renderMovimientosBase();
+  const st0 = state, mm0 = movMes, mt0 = movMesTotal, ymD = D.slice(0,7);
+  let html = '';
+  try{
+    state = estadoHasta(D); fechaVistaActiva = D;
+    movMes = ymD; if(movFiltro==='total') movMesTotal = ymD; // el mes de ese día (solo mientras se dibuja)
+    html = renderMovimientosBase();
+  } finally { state = st0; fechaVistaActiva = null; movMes = mm0; movMesTotal = mt0; }
+  return htmlBotonFecha() + `<div class="vista-fecha">${html}</div>`;
+}
+function renderMovimientosBase(){
   const chips = chipsForPerfil();
   if(!chips.some(c=>c[0]===movFiltro)) movFiltro='todos';
   const q = movBusqueda.trim().toLowerCase();
@@ -5620,6 +5939,7 @@ function renderMovimientos(){
     ${chips.map(([id,label])=>`<button class="chip chip-ico ${movFiltro===id?'on':''}" data-mov-chip="${id}">${ico(ICONO_CHIP[id]||'layers','icon-xs')}${label}</button>`).join('')}
   </div>
   ${htmlFiltroCuenta()}
+  ${fechaVistaActiva ? '' : renderCardPendientesMov()}
   ${resumenCard}
   ${movFiltro==='total' ? renderTotalAcumuladoCard('total') : ''}
   ${renderBuscarMov(movFiltro==='personales' ? 'Buscar en mi dinero…' : 'Buscar por nota o fuente…')}
@@ -6139,7 +6459,7 @@ async function reiniciarTodo(){
     try{
       const res = await fetchSync(state.syncUrl, {cache:'no-store'});
       const payload = await res.json();
-      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.7).');
+      if(!(Number(payload && payload.script) >= SCRIPT_MIN)) throw new Error('Falta pegar el código nuevo de la hoja (Apps Script v3.8).');
       const disp = miDispositivo();
       const body = JSON.stringify({ updatedAt: new Date().toISOString(), baseUpdatedAt: payload.updatedAt || null, appBuild: APP_BUILD, quien: perfil||'', dispositivo: disp.nombre, dispositivoId: disp.id, cambios: 0, data: nuevo });
       const r2 = await fetchSync(state.syncUrl, { method:'POST', body }, 60000);
@@ -6162,7 +6482,7 @@ function aplicarReinicioLocal(nuevo, pendiente){
   // Se empieza como si fuera la primera vez: nada de lo anterior queda como "borrado" ni en la papelera.
   const meta = leerMetaSync();
   guardarMetaSync({huellas:null, pendiente:!!pendiente, pendienteDesde: pendiente ? Date.now() : null, pendientes:[], ultima: meta.ultima || null});
-  persist();
+  persistSistema();
   state._borrados = {}; state._papelera = {};
   Storage.save(state); rebasarHuellas(); marcarPendiente(!!pendiente);
   borrarCopiasLocales();
@@ -7154,7 +7474,7 @@ function aplicarImportar(modo){
   const url = state.syncUrl;
   if(modo==='reemplazar'){
     state = datos; state.syncUrl = url;
-    persist(); // lo que ya no está queda marcado como borrado; lo del respaldo queda como lo más nuevo
+    persistSistema(); // lo que ya no está queda marcado como borrado; lo del respaldo queda como lo más nuevo
     recorrerRegistros(state).forEach(e=>{ e.rec._u = Date.now(); }); state._cfgU = Date.now();
     Object.keys(state._borrados||{}).forEach(k=>{ if(recorrerRegistros(state).some(e=>e.k===k)) delete state._borrados[k]; });
     Storage.save(state); rebasarHuellas(); marcarPendiente(true); programarSync(300);
@@ -7419,7 +7739,13 @@ const EC_CATEGORIAS = [
 ];
 const EC_GUSTOS = /netflix|spotify|cine|cinema|concert|concierto|disney|hbo|max\b|prime video|apple\.com\/bill|youtube/;
 const EC_ATM = /\batm\b|cajero|cash withdrawal|retiro en cajero|retiro de efectivo|disposicion de efectivo|bankomat/;
-const EC_ENTRE = /top.?up|recarga|transfer to|transferencia a (mi|tu|cuenta propia)|entre cuentas|to eur\b|to mxn\b|exchanged|conversion|converted|cambio de divisa|\bwise\b|revolut|pago a (tu|la) tarjeta|pago tarjeta|pago tdc/;
+const EC_ENTRE = /top.?up|recarga|transfer to|transferencia a (mi|tu|cuenta propia)|entre cuentas|to eur\b|to mxn\b|exchanged|conversion|converted|cambio de divisa|\bwise\b|(transferencia|envio|a|hacia|to|desde|from) (mi |tu )?revolut\b|pago a (tu|la) tarjeta|pago tarjeta|pago tdc/;
+// v18.9: pago a tu propia tarjeta de crédito (en un estado de débito). Ej. "Pago a tu tarjeta de crédito Nu".
+const EC_PAGO_TDC = /pago (a |de |para )?(tu |la |mi )?(tarjeta|tdc)|\bpago tdc\b|pago (a |de )?(tu |mi )?(nu|revolut) ?(credito|card)|credit card (payment|repayment)|card repayment/;
+// Solo se marca solo si es TU tarjeta (Nu / Revolut / "tu tarjeta" / TDC) y no de alguien más o de otra tienda/banco.
+const EC_PAGO_PROPIO = /\b(tu|mi) tarjeta\b|\btdc\b|\bnu\b|revolut|card repayment|credit card/;
+const EC_PAGO_AJENO = /mama|papa|\bmom\b|\bdad\b|abuel|herman|liverpool|banamex|bbva|santander|hsbc|banorte|scotiabank|\bamex\b|american express|palacio|coppel|spotify|netflix|de (la|mi|su) (mama|papa|tia|tio|amig)/;
+function ecTarjetaDelTexto(d, banco){ return /revolut/.test(d) ? 'rev-cred' : (/\bnu\b/.test(d) ? 'nu-cred' : (banco==='revolut' ? 'rev-cred' : 'nu-cred')); }
 function ecSugerirCategoria(desc){
   const d = sinAcentos(desc);
   if(EC_GUSTOS.test(d)){ const sb = subcatV15(state, clasificarGastoV15(desc)); return sb.id; }
@@ -7500,6 +7826,12 @@ function ecPrepararFilas(leidas, banco, cuentaForzada){
     const d = sinAcentos(r.desc + ' ' + (r.tipoBanco||''));
     const fila = {i, fecha:r.fecha, desc:r.desc, monto: Math.round(Math.abs(r.montoSigno)*100)/100, moneda: r.moneda||'MXN', tipo: r.montoSigno<0 ? 'gasto' : 'ingreso', incluir:true, avisos:[], cat:'', quien:'yo', cuenta:'', rate:null, rateEditado:false};
     if(EC_ATM.test(d)){ fila.tipo='retiro'; fila.incluir=false; fila.avisos.push('Retiro de cajero: se guarda como retiro a efectivo (el gasto cuenta cuando uses ese efectivo)'); }
+    else if(r.montoSigno<0 && cuentaDef!=='credito' && EC_PAGO_TDC.test(d)){
+      // v18.9: en un estado de débito, el pago a tu tarjeta de crédito no es gasto: sale de aquí y baja lo que debes.
+      fila.tipo='pagoTarjeta'; fila.tarjetaPagada = 'pago|'+ecTarjetaDelTexto(d, banco);
+      if(EC_PAGO_PROPIO.test(d) && !EC_PAGO_AJENO.test(d)) fila.avisos.push('Pago a tu '+labelCuenta(ecTarjetaDelTexto(d, banco))+': no es gasto, baja lo que debes de la tarjeta');
+      else { fila.incluir = false; fila.avisos.push('Parece un pago a una tarjeta: si es tuya, elige cuál; si es de alguien más o de una tienda, cámbialo a "Gasto"'); }
+    }
     else if(r.neutral || EC_ENTRE.test(d) || /topup|exchange|transfer/.test(sinAcentos(r.tipoBanco||''))){
       if(fila.tipo==='ingreso' && cuentaDef==='credito'){ fila.tipo='pagoTarjeta'; fila.avisos.push('Pago a la tarjeta: no es un ingreso, baja lo que debes de la tarjeta'); }
       else fila.avisos.push('Parece dinero que pasaste entre tus cuentas: no es gasto ni ingreso, por eso no está marcado');
@@ -7634,6 +7966,7 @@ function openImportarEstado(){
     <input type="file" id="ecArchivo" accept=".txt,.csv,.tsv,.pdf,.xlsx,.xls,.ods,text/plain,text/csv,application/pdf" hidden>
     <button class="btn btn-outline btn-block" id="ecAdjuntar">${ico('file','icon-sm')} Adjuntar archivo (PDF, Excel, CSV o texto)</button>
     <div class="small-note" id="ecEstadoLectura" style="margin-top:8px;">Para PDF y Excel la app necesita internet la primera vez que abre uno.</div>
+    ${(()=>{ const n = gastosQueParecenPagoTarjeta().length; return n ? `<button class="btn btn-outline btn-block" id="ecRevisarPagos" style="margin-top:12px;border-color:var(--amber);color:var(--amber);">${ico('card','icon-sm')} Revisar pagos a la tarjeta guardados como gasto (${n})</button>` : ''; })()}
     ${imps.length ? `<h3 class="pc-sub">Importaciones anteriores</h3>${imps.map(im=>htmlLineaImportacion(im)).join('')}` : ''}
   `);
   const $ = (id)=>document.getElementById(id);
@@ -7656,6 +7989,7 @@ function openImportarEstado(){
     catch(e){ $('ecEstadoLectura').textContent = /internet/.test(e.message||'') ? 'Para leer PDF o Excel se necesita internet la primera vez. Conéctate o pega el texto.' : 'No pude leer ese archivo. Prueba copiando y pegando el texto.'; }
   });
   wireLineasImportacion(document.getElementById('overlay'));
+  if($('ecRevisarPagos')) $('ecRevisarPagos').addEventListener('click', ()=>openRevisarPagosTarjeta());
 }
 // v18.5: nombre de cada importación. Por omisión sale del nombre del archivo; se cambia DESPUÉS de guardar.
 function nombreDeArchivo(nombre){
@@ -7804,6 +8138,43 @@ function openEditarImportacion(id){
   if(!e.filas.length){ mostrarToast('Los movimientos de esa importación no se pueden revisar aquí; edítalos uno por uno en Movimientos.', 'error'); return; }
   ecEstado = e;
   openRevisionEstado();
+}
+/* v18.9 — PAGOS A LA TARJETA QUE SE GUARDARON COMO GASTO (importados antes de la 18.9). Se convierten en pagos:
+   salen de la cuenta de débito y bajan lo que se debe de la tarjeta (ya no restan del Budget ni de tu dinero como compra). */
+function gastosQueParecenPagoTarjeta(){
+  return gastosCategoria().filter(g=>(Number(g.monto)||0) > 0 && g.quien!=='abuelo' && ['debito','bote','personal'].includes(g.pagadoCon) && !esCredito(g.cta) && EC_PAGO_TDC.test(sinAcentos(String(g.nota||'')).toLowerCase()))
+    .sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+}
+function convertirGastoEnPagoTarjeta(g, tarjeta){
+  const persona = g.quien==='ambas' ? (g.pagadoPor==='isa' ? 'isa' : 'jen') : (g.quien==='isa' ? 'isa' : 'jen');
+  const nota = String(g.nota||'');
+  const r = {id:uid(), persona, monto:g.monto, moneda:g.moneda||'MXN', fecha:g.fecha, desde:'debito', ctaDesde: ctaDebito(g.cta), tarjeta: ctaCredito(tarjeta || ecTarjetaDelTexto(sinAcentos(nota).toLowerCase(), '')), notaLibre: nota, deGasto: g.id};
+  ['montoMXN','rateMXN','montoEUR','rateEURMXN','importId','firmaEc','creado'].forEach(k=>{ if(g[k]!==undefined) r[k] = g[k]; });
+  r.nota = 'Pago '+labelCuenta(r.tarjeta)+' · desde '+labelCuenta(r.ctaDesde)+' · '+nota;
+  state.subcats.forEach(sb=>{ sb.gastos = sb.gastos.filter(x=>x.id!==g.id); });
+  state.gustosGastos = (state.gustosGastos||[]).filter(x=>x.id!==g.id);
+  if(!Array.isArray(state.pagosTarjeta)) state.pagosTarjeta = [];
+  state.pagosTarjeta.push(r);
+  return r;
+}
+function openRevisarPagosTarjeta(){
+  const lista = gastosQueParecenPagoTarjeta();
+  if(!lista.length){ mostrarToast('No hay pagos a la tarjeta guardados como gasto.', 'ok'); return; }
+  openSheet(`
+    ${sheetHeader('Pagos a la tarjeta guardados como gasto')}
+    <div class="small-note" style="margin-bottom:10px;">Estos movimientos parecen pagos a tu tarjeta de crédito, pero se guardaron como gasto: restan como compra y la tarjeta sigue diciendo que debes lo mismo. Al convertirlos salen de tu cuenta de débito y bajan lo que debes (no tocan el Budget).</div>
+    <div class="ga-lista">${lista.map(g=>{ const t = ecTarjetaDelTexto(sinAcentos(String(g.nota||'')).toLowerCase(), ''); const c = cuentaDondeSeVe(Object.assign({tipo:'gasto-generales'}, g));
+      return `<div class="ga-fila pt-fila"><input type="checkbox" data-ptc="${g.id}" checked style="width:auto;"><span class="desc"><b>${escHtml(g.nota||'Pago')}</b> · ${escHtml(fmtDate(g.fecha))} · ${fmt(mxnOf(g),'MXN')} ${htmlCuentaMov(Object.assign({tipo:'gasto-generales'}, g))}<small>Estaba como gasto ${g.pagadoCon==='bote'?'del Budget':'de Mi dinero'} en ${escHtml(labelCuenta(ctaDebito(g.cta)))}</small></span>
+        <select data-ptc-tarjeta="${g.id}" class="pkx-nativo" style="width:auto;">${CUENTAS_CREDITO.map(k=>`<option value="${k}" ${k===t?'selected':''}>${CUENTAS[k].corto}</option>`).join('')}</select></div>`; }).join('')}</div>
+    <button class="btn btn-primary btn-block" id="doConvertirPagos" style="margin-top:12px;">${ico('card','icon-sm')} Convertir los marcados en pagos a la tarjeta</button>
+  `);
+  document.getElementById('doConvertirPagos').addEventListener('click', ()=>{
+    const marcados = [...document.querySelectorAll('[data-ptc]')].filter(c=>c.checked).map(c=>c.getAttribute('data-ptc'));
+    if(!marcados.length){ mostrarToast('No marcaste ninguno.', 'error'); return; }
+    marcados.forEach(id=>{ const g = gastosCategoria().find(x=>x.id===id); const sel = document.querySelector(`[data-ptc-tarjeta="${id}"]`); if(g) convertirGastoEnPagoTarjeta(g, sel ? sel.value : null); });
+    persist(); closeSheet(); render();
+    mostrarToast(marcados.length+' pago'+(marcados.length===1?'':'s')+' a la tarjeta corregido'+(marcados.length===1?'':'s')+'.', 'ok');
+  });
 }
 function hashTexto(t){ let h = 5381; t = String(t||''); for(let i=0;i<t.length;i++){ h = ((h<<5) + h + t.charCodeAt(i)) | 0; } return (h>>>0).toString(36); }
 function firmaFilaEstado(persona, cta, f){ return hashTexto([persona, cta, f.tipo||'', f.fecha, Number(f.monto).toFixed(2), f.moneda, sinAcentos(f.desc||'').replace(/\s+/g,' ').trim()].join('|')); }
@@ -8390,8 +8761,9 @@ function deshacerImportacion(importId){
     arr.splice(i,1); n++; } } };
   quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta);
   state.subcats.forEach(sb=>quitar(sb.gastos));
-  state.importaciones = (state.importaciones||[]).filter(im=>im.id!==importId);
-  persist(); render();
+  persist(); // v18.9: lo que es de las cuentas de la otra se queda (espera su aprobación)…
+  if(!registrosDeImportacion(importId).length){ state.importaciones = (state.importaciones||[]).filter(im=>im.id!==importId); persist(); } // …y la importación sigue mientras tenga movimientos
+  render();
   return n;
 }
 
@@ -9395,6 +9767,15 @@ function iconosSeg(root){
 function mejorarSelects(root){ try{ (root||document).querySelectorAll('select:not(.pkx-nativo)').forEach(mejorarSelect); }catch(e){} iconosSeg(root); }
 if(typeof document!=='undefined'){
   document.addEventListener('click', (e)=>{ if(!e.target.closest || !e.target.closest('.pkx')) cerrarListasPkx(null); });
+  // v18.9: en "ver cómo estaba en una fecha" no se registra ni se cambia nada.
+  const BLOQ_FECHA = '[data-mes-nav],[data-mov-open],[data-open],[data-transferir],[data-usar-acum],[data-usar-acum-p],[data-traspaso],#movSelToggle,[data-acum-inicio],[data-acum-antes],#saveAbueloMeta,[data-pend-aprobar],[data-pend-rechazar],[data-pend-quitar],.sel-bar button,input,select,textarea';
+  document.addEventListener('click', (e)=>{
+    const t = e.target && e.target.closest ? e.target : null; if(!t || !t.closest('.vista-fecha')) return;
+    const b = t.closest(BLOQ_FECHA); if(!b) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    try{ mostrarToast('Estás viendo una fecha pasada: toca "Volver a hoy" para registrar o cambiar.', 'error'); }catch(_){}
+  }, true);
+  document.addEventListener('focusin', (e)=>{ const t = e.target; if(t && t.closest && t.closest('.vista-fecha') && /^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) t.blur(); }, true);
   try{
     let pkxPend = false;
     new MutationObserver(()=>{ if(pkxPend) return; pkxPend = true; Promise.resolve().then(()=>{ pkxPend = false; mejorarSelects(document); }); }).observe(document.documentElement, {childList:true, subtree:true});
@@ -10649,6 +11030,11 @@ function wireV15Events(){
   }));
   document.querySelectorAll('[data-acum-toggle]').forEach(b=>b.addEventListener('click', ()=>{ const l = b.getAttribute('data-acum-toggle'); acumAbierto = acumAbierto===l ? null : l; render(); }));
   document.querySelectorAll('[data-usar-acum]').forEach(b=>b.addEventListener('click', ()=>openUsarAcumulado()));
+  document.querySelectorAll('[data-fecha-vista]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); openFechaVista(); }));
+  document.querySelectorAll('[data-fecha-vista-salir]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); const sec = seccionConFecha(); if(sec) delete fechaVista[sec]; render(); }));
+  document.querySelectorAll('[data-pend-abrir]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); openPendientes(); }));
+  document.querySelectorAll('[data-ptc-abrir]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); openRevisarPagosTarjeta(); }));
+  wirePendientes(document.getElementById('app'), false);
   document.querySelectorAll('[data-usar-acum-p]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); openUsarAcumulado(null, {persona: b.getAttribute('data-usar-acum-p')}); }));
   document.querySelectorAll('[data-acum-visto]').forEach(el=>el.addEventListener('click', (e)=>{ e.stopPropagation(); marcarAvisoTarjeta(el.getAttribute('data-acum-visto')); render(); }));
   document.querySelectorAll('[data-tope-abuelo]').forEach(b=>b.addEventListener('click', ()=>openTopeAbuelo(b.getAttribute('data-tope-abuelo'))));
@@ -10981,7 +11367,7 @@ function wireEvents(){
   });
   const seedBtn = document.getElementById('seedBtn');
   if(seedBtn) seedBtn.addEventListener('click', ()=>{
-    cargarValoresIniciales();
+    noInterceptar++; try{ cargarValoresIniciales(); } finally { noInterceptar--; } // v18.9: los datos de ejemplo no esperan aprobación
     render();
   });
   const saveConfig = document.getElementById('saveConfig');
@@ -11982,7 +12368,7 @@ setInterval(pintarBarraPendiente, 10000);
 // toma esos datos (así una pestaña vieja no borra lo que hizo la otra).
 window.addEventListener('storage', (e)=>{
   if(e.key!==STORAGE_KEY || !e.newValue) return;
-  try{ const nuevo = migrateState(JSON.parse(e.newValue)); if(nuevo){ if((Number(nuevo.reinicioEn)||0) !== (Number(state.reinicioEn)||0)){ copiasMemoria = {}; ultimaCopiaTs = 0; } const url = state.syncUrl; state = nuevo; if(!state.syncUrl) state.syncUrl = url; recordarRegistros(); render(); } }catch(err){}
+  try{ const nuevo = migrateState(JSON.parse(e.newValue)); if(nuevo){ if((Number(nuevo.reinicioEn)||0) !== (Number(state.reinicioEn)||0)){ copiasMemoria = {}; ultimaCopiaTs = 0; } const url = state.syncUrl; state = nuevo; if(!state.syncUrl) state.syncUrl = url; try{ snapGuardado = tomarSnapshot(state); }catch(_){} /* v18.9: lo de la otra pestaña no es "tuyo nuevo" */ recordarRegistros(); render(); } }catch(err){}
 });
 window.addEventListener('online', ()=>{ if(state.syncUrl) sincronizar(); });
 document.addEventListener('visibilitychange', ()=>{
