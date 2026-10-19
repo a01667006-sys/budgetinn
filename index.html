@@ -167,6 +167,7 @@
   .deuda-tipo-lbl{display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
   .bp-cl{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--ink-soft);padding:3px 0;} .bp-cl span{display:flex;align-items:center;gap:8px;} .bp-cl i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--ink-faint);} .bp-cl b{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);font-weight:700;white-space:nowrap;}
   .bp-cl-tot{border-top:1px dashed var(--line);margin-top:4px;padding-top:6px;font-weight:700;color:var(--ink);}
+  .bp-mitad{margin-top:10px;padding:10px 12px;border-radius:12px;border:1.5px dashed var(--line);display:flex;gap:8px;align-items:flex-start;font-size:13px;}
   .bp-cobro{margin-top:10px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);cursor:pointer;}
   .bp-cobro-mas{border-color:color-mix(in srgb,var(--teal) 55%,transparent);background:var(--teal-soft);} .bp-cobro-mas i{background:var(--teal);}
   .bp-cobro-menos{border-color:color-mix(in srgb,var(--brick) 45%,transparent);} .bp-cobro-menos i{background:var(--brick);}
@@ -1303,7 +1304,7 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.13 · 19 oct 2026 (Budget real · deudas dentro del Budget y personales · compensar eligiendo · pases entre ustedes · corregir registros)';
+const APP_VERSION = '18.13.1 · 19 oct 2026 (la corrección ya no se aplica dos veces; Gastado sin pases; parte 50/50)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
@@ -2457,6 +2458,7 @@ async function sincronizarUnaVez(){
         if((Number(state.reinicioEn)||0) > reinicioAntes) reinicioDesdeOtroTelefono(state.reinicioPor);
         if(generarRecurrentes()>0){ sellarCambios(); Storage.save(state); }
         if(recalcularArq()){ sellarCambios(); Storage.save(state); }
+        try{ const dob = repararCorreccionDoble(); if(dob){ sellarCambios(); Storage.save(state); snapGuardado = tomarSnapshot(state); setTimeout(()=>mostrarToast('La corrección se había aplicado dos veces: se quitó lo repetido.', 'ok'), 400); } }catch(e){}
         { const rep = juntarImportacionesRepetidas(state); if(rep){ sellarCambios(); Storage.save(state); setTimeout(()=>mostrarToast('Las dos importaron el mismo estado de cuenta: '+rep+' movimiento'+(rep===1?'':'s')+' repetido'+(rep===1?'':'s')+' se quitaron (están en la papelera).', 'ok'), 400); } }
         // ¿Cuántas cosas llegaron del otro teléfono?
         const huellasDespues = huellasDe(state);
@@ -3265,6 +3267,10 @@ function budgetGastoRealMXN(p, ym){
   return gastos + retirosEfectivoMXN('bote', p, ym) + pagosOtrosDesdeBoteMXN(p, ym) + pases;
 }
 function budgetRealMesMXN(p, ym){ return miIngresoMXN(p, ym) - budgetGastoRealMXN(p, ym); }
+// v18.13.1: pases entre ustedes que entraron (+) o salieron (−) del Budget de p en el mes.
+function pasesBudgetNetoMXN(p, ym){ ym = ym || mesActual(); return (state.pagosEntre||[]).filter(x=>ymDe(x.fecha||'')===ym).reduce((a,x)=>{ const m = mxnOf(x); if(x.a===p && x.entra==='bote') a += m; if(x.de===p && x.sale==='bote') a -= m; return a; }, 0); }
+// v18.13.1: lo que le toca a cada una de los gastos del Budget (lo suyo + la mitad de lo de ambas), sin importar quién pagó: así se ve el 50/50.
+function parteConsumoMesMXN(p, ym){ ym = ym || mesActual(); return gastosCategoria().filter(cuentaEnBote).reduce((a,g)=>{ const m = montoEnMesMXN(g, ym); if(g.quien===p) return a + m; if(g.quien==='ambas') return a + m*0.5; return a; }, 0); }
 // v18.5: cuánto de cada pago entre ustedes saldó gastos que se pagaron con el Budget.
 function porcionBudgetDePagos(){
   const out = {};
@@ -5589,6 +5595,14 @@ function aplicarPendiente(x){
 function aprobarPendientes(ids){
   const set = new Set(); ids.forEach(id=>{ const x = (state.pendientes||[]).find(y=>y.id===id && y.estado!=='rechazado' && (!perfil || y.para===perfil)); if(x) pendientesLigados(x).filter(y=>y.estado!=='rechazado').forEach(y=>set.add(y)); }); // solo la dueña de la cuenta aprueba
   if(!set.size) return 0;
+  // v18.13.1: cambios que van juntos (corrección, pase) que YA se aplicaron (lo que iban a borrar ya no existe): no se aplican otra vez.
+  { const L = [...set], borra = L.filter(y=>y.accion==='borrar'), liga = L.some(y=>(y.rec||{}).ligaPend);
+    const corr = L.some(y=>y.accion==='crear' && String((y.rec||{}).ligaPend||'').startsWith('corr1913-'));
+    if(liga && ((borra.length && borra.every(y=>!ubicacionActual(y.col, y.rec.id))) || (corr && !pasosCorreccion1913().length))){
+      state.pendientes = (state.pendientes||[]).filter(y=>!set.has(y)); persistSistema();
+      try{ mostrarToast('Eso ya se había aplicado (se hizo desde el otro teléfono): no se aplicó otra vez.', 'ok'); }catch(e){}
+      return 0;
+    } }
   // primero las series (para que sus meses ya tengan a dónde pertenecer)
   [...set].sort((a,b)=>(a.col==='series'?0:1)-(b.col==='series'?0:1)).forEach(aplicarPendiente);
   state.pendientes = (state.pendientes||[]).filter(y=>!set.has(y));
@@ -6104,12 +6118,14 @@ function renderMovimientosBase(){
         ${lineaBp('bp-dep', 'Depósito de '+quienDeposita+' este mes', bp.deposito)}
         ${Math.abs(bp.aplicadoAcum) > 0.004 ? lineaBp('bp-apl', 'Acumulado que ya se aplicó a este mes', bp.aplicadoAcum) : ''}
         ${bp.aplicadoAhorro ? lineaBp('bp-aho', 'Del ahorro a este mes', bp.aplicadoAhorro) : ''}
+        ${Math.abs(bp.pases) > 0.004 ? lineaBp('bp-apl', bp.pases > 0 ? 'Te pasó '+nombrePersona(otraPersona(perfil))+' a tu Budget' : 'Le pasaste a '+nombrePersona(otraPersona(perfil))+' de tu Budget', bp.pases) : ''}
         ${lineaBp('bp-pas', bp.pasado < -0.004 ? 'Lo que faltó en meses pasados' : 'Acumulado de meses pasados', bp.pasado)}
         <div class="bp-linea bp-tot"><span>Meta</span><b>${fmt(bp.meta,'MXN')}</b></div>
       </div>
+      <div class="bp-mitad">${ico('users','icon-xs')} <span>Lo que le toca a cada una de los gastos del Budget este mes (lo compartido a la mitad): <b>tú ${fmt(bp.parte,'MXN')}</b> · ${escHtml(nombrePersona(otraPersona(perfil)))} ${fmt(bp.parteOtra,'MXN')}. Lo que una pagó de más se lo debe la otra (abajo).</span></div>
       ${htmlPorCobrarBudget(perfil, bp.disp)}
       ${htmlMovimientosBudget(perfil)}
-      <div class="small-note" style="margin-top:8px;">Es el dinero real de tu Budget: la Meta es lo que ${perfil==='isa'?'tu papá':'tu mamá'} deposita este mes más lo que te sobró (o lo que gastaste de más) en meses pasados desde ${nombreMesLargo(inicioBudgetYM()).toLowerCase()}. Gastado es lo que pagaste con tu Budget este mes: un gasto de ambas que pagaste tú cuenta completo (${perfil==='isa'?'Jen':'Isa'} te debe la mitad en Nosotras) y lo que te pasen o pases desde el Budget también cuenta. No incluye lo pagado con efectivo, débito, crédito ni tarjeta del Abuelo. Pagar tu tarjeta de crédito no cambia el Budget.</div>
+      <div class="small-note" style="margin-top:8px;">Es el dinero real de tu Budget: la Meta es lo que ${perfil==='isa'?'tu papá':'tu mamá'} deposita este mes más lo que te sobró (o lo que gastaste de más) en meses pasados desde ${nombreMesLargo(inicioBudgetYM()).toLowerCase()}. Gastado es lo que pagaste con tu Budget este mes: un gasto de ambas que pagaste tú cuenta completo (${perfil==='isa'?'Jen':'Isa'} te debe la mitad en Nosotras). Lo que se pasan entre ustedes de Budget a Budget no es gasto: aparece arriba, en «Así se forma la Meta». No incluye lo pagado con efectivo, débito, crédito ni tarjeta del Abuelo. Pagar tu tarjeta de crédito no cambia el Budget.</div>
     </div>` + renderArqCard(perfil);
   }
 
@@ -6381,9 +6397,12 @@ function budgetPersonaConAcumulado(p){
   const c = (v)=>Math.round(v*100)/100;
   const r = {deposito:c(deposito), aplicadoAcum:c(aplicadoAcum), pasado:c((acumuladoPorPersonaMXN()[p] || 0) - noRestado)};
   r.aplicadoAhorro = c(total - deposito - aplicadoAcum);
-  r.meta = c(r.deposito + r.aplicadoAcum + r.aplicadoAhorro + r.pasado); // suma de lo que se ve, centavo por centavo
-  r.gastado = c(budgetGastoRealMXN(p));
+  // v18.13.1: lo que se pasaron entre ustedes (Budget a Budget) va aparte de lo gastado: te pasaron (+) / pasaste (−).
+  r.pases = c(pasesBudgetNetoMXN(p, ym));
+  r.meta = c(r.deposito + r.aplicadoAcum + r.aplicadoAhorro + r.pasado + r.pases); // suma de lo que se ve, centavo por centavo
+  r.gastado = c(budgetGastoRealMXN(p) + pasesBudgetNetoMXN(p, ym));
   r.disp = c(r.meta - r.gastado);
+  r.parte = c(parteConsumoMesMXN(p, ym)); r.parteOtra = c(parteConsumoMesMXN(otraPersona(p), ym));
   return r;
 }
 // v18.13: lo que te deben (o debes) DENTRO del Budget, y cómo quedarías si se salda.
@@ -11090,6 +11109,26 @@ function pasosCorreccion1913(){
   const comp = (state.pagosEntre||[]).filter(p=>p.compensacion===C.comp); if(comp.length) pasos.push({k:'comp', txt:'Rehacer la compensación del 18 oct por separación (Budget con Budget, personal con personal), con las deudas ya corregidas', ids:comp.map(p=>p.id)});
   return pasos;
 }
+// v18.13.1: si "Corregir registros" se hizo en los dos teléfonos y se aplicó dos veces, quita lo que creó la segunda vez.
+// Se queda con la que se hizo primero (mismo resultado en los dos teléfonos). Lo que se editó o borró es igual en las dos.
+function repararCorreccionDoble(){
+  const C = CORR1913, originales = new Set([C.vueloPago, ...C.reposiciones]);
+  const creados = (state.pagosEntre||[]).filter(p=>String(p.ligaPend||'').startsWith('corr1913-') && !originales.has(p.id));
+  const ligas = [...new Set(creados.map(p=>p.ligaPend))];
+  if(ligas.length < 2) return 0;
+  const primero = (lg)=>Math.min(...creados.filter(p=>p.ligaPend===lg).map(p=>Number(p.creado)||Infinity));
+  ligas.sort((a,b)=>(primero(a)-primero(b)) || a.localeCompare(b));
+  // Solo se quita lo que repite exactamente un pase que ya dejó la primera corrección (mismas personas, cuentas, monto, fecha y nota).
+  const queda = ligas[0], firma = (p)=>[p.de,p.a,p.sale||'',p.entra||'',Number(p.monto).toFixed(2),p.moneda||'',p.fecha||'',p.compensacion?'c':'',p.nota||''].join('|');
+  const disp = {}; creados.filter(p=>p.ligaPend===queda).forEach(p=>{ const f=firma(p); disp[f]=(disp[f]||0)+1; });
+  const fuera = new Set();
+  ligas.slice(1).forEach(lg=>{ const ps = creados.filter(p=>p.ligaPend===lg); const cnt={}; ps.forEach(p=>{ const f=firma(p); cnt[f]=(cnt[f]||0)+1; });
+    if(ps.length && ps.every(p=>(cnt[firma(p)]||0) <= (disp[firma(p)]||0))) ps.forEach(p=>fuera.add(p.id)); });
+  if(!fuera.size) return 0;
+  state.pagosEntre = state.pagosEntre.filter(p=>!fuera.has(p.id));
+  if(state.correccion1913 && Array.isArray(state.correccion1913.nuevos) && state.correccion1913.nuevos.some(id=>fuera.has(id))){ state.correccion1913.liga = queda; state.correccion1913.nuevos = creados.filter(p=>p.ligaPend===queda).map(p=>p.id); }
+  return fuera.size;
+}
 function correccion1913Disponible(){ return !hayPendienteLigado('corr1913') && pasosCorreccion1913().length > 0; }
 // Hace todos los cambios en memoria (sin guardar). Sirve para la vista previa y para aplicarlos.
 function hacerCorreccion1913(liga){
@@ -13090,6 +13129,7 @@ if(migrarDatosV15(state, true)) Storage.save(state);
 verificarHuellasAlIniciar();
 recordarRegistros();
 try{ migracionV18(); }catch(e){}
+try{ if(repararCorreccionDoble()){ persistSistema(); setTimeout(()=>mostrarToast('La corrección se había aplicado dos veces: se quitó lo repetido.', 'ok'), 600); } }catch(e){}
 render();
 // Intenta traer el tipo de cambio real al abrir. Si no hay internet
 // (Wifi débil en el camino, o el sandbox de Claude lo bloquea), la app
