@@ -142,6 +142,38 @@
   .bp-linea b{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);font-weight:700;white-space:nowrap;}
   .bp-dep i{background:var(--teal);} .bp-apl i{background:var(--plum);} .bp-aho i{background:var(--amber);} .bp-pas i{background:var(--isa);}
   .bp-tot{border-top:1px dashed var(--line);margin-top:4px;padding-top:6px;font-weight:700;color:var(--ink);}
+  .comp-cols{display:grid;grid-template-columns:1fr;gap:12px;} @media (min-width:720px){ .comp-cols{grid-template-columns:1fr 1fr;} }
+  .comp-col-t{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);margin-bottom:6px;}
+  .comp-mes{border:1px solid var(--line);border-radius:12px;padding:6px 8px;margin-bottom:8px;max-height:320px;overflow:auto;}
+  .comp-mes-h{display:flex;gap:6px;align-items:center;font-size:13px;padding:4px 2px;position:sticky;top:0;background:var(--card);}
+  .comp-it{display:flex;gap:8px;align-items:flex-start;padding:6px 4px;border-top:1px dashed var(--line);font-size:13px;cursor:pointer;}
+  .comp-it.on{background:var(--teal-soft);border-radius:8px;} .comp-it .desc{flex:1;min-width:0;} .comp-it small{display:block;color:var(--ink-faint);font-size:11px;}
+  .comp-it input,.comp-mes-h input{width:auto;margin-top:2px;}
+  .comp-res{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--paper-soft);border:1px solid var(--line);}
+  .comp-det{margin-bottom:8px;} .comp-det summary{cursor:pointer;padding:6px 0;}
+  .corr-pasos{margin:0 0 6px 18px;padding:0;font-size:13px;} .corr-pasos li{margin-bottom:6px;}
+  .corr-tabla{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:6px;}
+  .corr-row{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:6px;padding:7px 10px;font-size:12.5px;border-top:1px solid var(--line);} .corr-row:first-child{border-top:none;}
+  .corr-h{background:var(--paper-soft);font-weight:800;font-size:11px;text-transform:uppercase;color:var(--ink-soft);} .corr-d{font-weight:700;}
+  .corr-ok,.corr-mal{display:flex;gap:6px;align-items:flex-start;margin-top:10px;padding:8px 10px;border-radius:10px;font-size:12.5px;} .corr-ok{background:var(--teal-soft);color:var(--teal-deep);} .corr-mal{background:var(--amber-soft);color:var(--ink);}
+  .nos-sep-mini{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-size:12.5px;} .nos-sep-mini > span{cursor:pointer;}
+  .nos-seps{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .nos-sep{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:10px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper-soft);color:var(--ink);font:inherit;text-align:left;cursor:pointer;}
+  .nos-sep.on{border-color:var(--teal);background:var(--teal-soft);} .nos-sep-personal.on{border-color:var(--plum);background:var(--plum-soft);}
+  .nos-sep-n{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);display:flex;gap:5px;align-items:center;}
+  .nos-sep-v{font-size:13px;} .nos-sep-v b{font-family:'Plus Jakarta Sans',sans-serif;}
+  .sep-tag{display:inline-block;padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:700;} .sep-budget{background:var(--teal-soft);color:var(--teal-deep);} .sep-personal{background:var(--plum-soft);color:var(--plum);}
+  .deuda-tipo-wrap{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+  .deuda-tipo-lbl{display:block;font-size:12px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+  .bp-cl{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--ink-soft);padding:3px 0;} .bp-cl span{display:flex;align-items:center;gap:8px;} .bp-cl i{width:8px;height:8px;border-radius:50%;flex:none;background:var(--ink-faint);} .bp-cl b{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);font-weight:700;white-space:nowrap;}
+  .bp-cl-tot{border-top:1px dashed var(--line);margin-top:4px;padding-top:6px;font-weight:700;color:var(--ink);}
+  .bp-cobro{margin-top:10px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);cursor:pointer;}
+  .bp-cobro-mas{border-color:color-mix(in srgb,var(--teal) 55%,transparent);background:var(--teal-soft);} .bp-cobro-mas i{background:var(--teal);}
+  .bp-cobro-menos{border-color:color-mix(in srgb,var(--brick) 45%,transparent);} .bp-cobro-menos i{background:var(--brick);}
+  .bp-cobro-cero{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--ink-soft);cursor:default;}
+  .bp-movs{margin-top:10px;padding:8px 12px;border-radius:12px;background:var(--paper-soft);border:1px solid var(--line);}
+  .bp-movs summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);list-style:none;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .bp-movs .bp-cl{font-size:12.5px;} .bp-mov-ing i{background:var(--teal);} .bp-mov-gas i{background:var(--brick);} .bp-mov-pase i{background:var(--plum);}
   .stamp-quien .sq-k{font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:6px;}
   .stamp-quien .sq-row{display:flex;flex-wrap:wrap;gap:6px;}
   .stamp-quien .sq{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:600;color:var(--ink-soft);background:var(--paper-soft);border:1.5px solid var(--line);}
@@ -1271,11 +1303,11 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.12 · 18 oct 2026 (Budget mamá/papá con lo acumulado · cuánto le queda a cada una · Categorías por mes)';
+const APP_VERSION = '18.13 · 19 oct 2026 (Budget real · deudas dentro del Budget y personales · compensar eligiendo · pases entre ustedes · corregir registros)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
-const APP_BUILD = 23; // v18.9: registros en las cuentas de la otra esperan su aprobación (colección "pendientes"; la app vieja los ignoraría). Antes 22: v18.7: el sobrante de una puede cubrir lo que debe la otra (registros ligados "cruceAcum" que la 18.6 leería como Budget del mes): la app vieja ve este número en la hoja y pide actualizar. Antes: v18.6: pagar una tarjeta ya no guarda "parte" y nunca cambia el Budget (las versiones anteriores lo contarían distinto)
+const APP_BUILD = 24; // v18.13: deudas por separación (deudaTipo en gastos; salda/soloAFavor en pagos entre ustedes): la app vieja las contaría distinto y pide actualizar. Antes 23: v18.9: registros en las cuentas de la otra esperan su aprobación (colección "pendientes"; la app vieja los ignoraría). Antes 22: v18.7: el sobrante de una puede cubrir lo que debe la otra (registros ligados "cruceAcum" que la 18.6 leería como Budget del mes): la app vieja ve este número en la hoja y pide actualizar. Antes: v18.6: pagar una tarjeta ya no guarda "parte" y nunca cambia el Budget (las versiones anteriores lo contarían distinto)
 // (20 = v18.5: "no es deuda", fecha de inicio del Budget, importaciones con nombre (las versiones anteriores no lo entienden)
 // Versión mínima del código de la hoja (Apps Script) que sabe juntar las colecciones nuevas.
 const SCRIPT_MIN = 38; // v18.9: Apps Script v3.8 (junta la colección "pendientes")
@@ -1755,10 +1787,11 @@ function interceptarAjenos(){
   let crece = true;
   while(crece){
     crece = false;
-    const cruces = new Set(), series = new Set();
-    elegidos.forEach(c=>{ [c.rec, c.antes].forEach(r=>{ if(!r) return; if(r.cruceAcum) cruces.add(r.cruceAcum); if(r.serieId) series.add(r.serieId); }); if(c.col==='series') series.add(c.rec.id); });
+    const cruces = new Set(), series = new Set(), ligas = new Set();
+    elegidos.forEach(c=>{ [c.rec, c.antes].forEach(r=>{ if(!r) return; if(r.cruceAcum) cruces.add(r.cruceAcum); if(r.serieId) series.add(r.serieId); if(r.ligaPend) ligas.add(r.ligaPend); }); if(c.col==='series') series.add(c.rec.id); });
     todos.forEach(c=>{ if(elegidos.has(c)) return; const rs = [c.rec, c.antes].filter(Boolean);
-      if(rs.some(r=>(r.cruceAcum && cruces.has(r.cruceAcum)) || (r.serieId && series.has(r.serieId))) || (c.col==='series' && series.has(c.rec.id))){ elegidos.add(c); crece = true; } });
+      // v18.13: "ligaPend" = cambios que van juntos (convertir en pase, Corregir registros): también lo tuyo espera, para que nunca quede a medias.
+      if(rs.some(r=>(r.cruceAcum && cruces.has(r.cruceAcum)) || (r.serieId && series.has(r.serieId)) || (r.ligaPend && ligas.has(r.ligaPend))) || (c.col==='series' && series.has(c.rec.id))){ elegidos.add(c); crece = true; } });
   }
   const cambios = [...elegidos];
   // Configuración de la otra (saldo inicial, límite de crédito, cuentas): también espera su aprobación.
@@ -2751,8 +2784,8 @@ function ingresosNetos(ym, sinTraspasos){
 // Jen + Isa + Abuelo = el "Disponible del Budget" grande.
 function budgetQuedaPorPersona(ym){
   ym = ym || mesActual();
-  const jen = miIngresoMXN('jen', ym) - miGastoBoteMXN('jen', ym);
-  const isa = miIngresoMXN('isa', ym) - miGastoBoteMXN('isa', ym);
+  const jen = budgetRealMesMXN('jen', ym);
+  const isa = budgetRealMesMXN('isa', ym);
   const abueloMeta = abueloMetaMXN(ym);
   const abuelo = abueloDisponibleMXN(ym);
   const total = metaTotalMXN(ym) - gastadoTotalMXN(ym);
@@ -3221,6 +3254,17 @@ function miGastoBoteMXN(persona, ym){
   const pagosEntre = delMes.reduce((a,p)=>a + efectoBudgetPagoEntre(p, persona, xbPorPago), 0);
   return gastos + retirosEfectivoMXN('bote', persona, ym) + pagosTarjetaDesdeBoteMXN(persona, ym) + pagosOtrosDesdeBoteMXN(persona, ym) + pagosEntre;
 }
+/* v18.13 — BUDGET REAL POR PERSONA. Lo que de verdad salió del Budget de cada una: lo que pagó con su Budget (un gasto de
+   ambas completo si lo pagó ella; con "pagaron las dos", su parte), sus retiros y pagos a otras personas desde el Budget, y los
+   pases entre ustedes que salen de su Budget (+) o le entran (−). Lo que se deben va aparte, en Nosotras. Es lo mismo que
+   "Del Budget" en sus cuentas, y Jen + Isa = el Budget total. */
+function budgetGastoRealMXN(p, ym){
+  ym = ym || mesActual();
+  const gastos = gastosCategoria().filter(cuentaEnBote).reduce((a,g)=>{ const f = partePago(g, p); return f ? a + montoEnMesMXN(g, ym)*f : a; }, 0);
+  const pases = (state.pagosEntre||[]).filter(x=>ymDe(x.fecha||'')===ym).reduce((a,x)=>{ const m = mxnOf(x); if(x.de===p && x.sale==='bote') a += m; if(x.a===p && x.entra==='bote') a -= m; return a; }, 0);
+  return gastos + retirosEfectivoMXN('bote', p, ym) + pagosOtrosDesdeBoteMXN(p, ym) + pases;
+}
+function budgetRealMesMXN(p, ym){ return miIngresoMXN(p, ym) - budgetGastoRealMXN(p, ym); }
 // v18.5: cuánto de cada pago entre ustedes saldó gastos que se pagaron con el Budget.
 function porcionBudgetDePagos(){
   const out = {};
@@ -3298,14 +3342,57 @@ function partePago(g, persona){
 // Quién le debe a quién por un gasto de ambas: {acreedor, deudor, monto} o null.
 function deudaDeGastoAmbas(g){
   if(!g || g.quien!=='ambas') return null;
-  const total = mxnOf(g); if(!(total>0)) return null;
-  if(g.pagadoPor==='jen' || g.pagadoPor==='isa') return {acreedor:g.pagadoPor, deudor:otraPersona(g.pagadoPor), monto: total/2};
+  if(g.pagadoCon==='efectivo' || g.deudaTipo==='ninguna') return null; // v18.13: lo pagado en efectivo (o su devolución) no genera deuda entre ustedes
+  const total = mxnOf(g); if(!total) return null;
+  // v18.13: si no se anotó quién pagó, pagó quien lo tiene en sus cuentas (Jen por omisión, igual que en sus saldos) y la otra le debe la mitad.
+  const pp = (g.pagadoPor==='jen' || g.pagadoPor==='isa') ? g.pagadoPor : (g.pagadoPor==='ambas' ? 'ambas' : pagadorFisico(g));
+  if(pp==='jen' || pp==='isa'){
+    // v18.13: devolución (monto negativo) de un gasto de ambas: a quien le regresaron el dinero le debe la mitad a la otra.
+    if(total < 0) return {acreedor:otraPersona(pp), deudor:pp, monto: -total/2};
+    return {acreedor:pp, deudor:otraPersona(pp), monto: total/2};
+  }
   if(g.pagadoPor==='ambas'){
     const dif = total*(parteJenDe(g) - 0.5); // >0: Jen puso de más
     if(Math.abs(dif) < 0.005) return null;
     return dif>0 ? {acreedor:'jen', deudor:'isa', monto:dif} : {acreedor:'isa', deudor:'jen', monto:-dif};
   }
   return null;
+}
+// v18.13: separación de la deuda de un gasto de ambas: 'budget' (se pagó con el Budget) o 'personal' (débito, crédito,
+// otra persona, Tarjeta del Abuelo). Se puede cambiar a mano con g.deudaTipo.
+function tipoDeudaGasto(g){
+  if(g && (g.deudaTipo==='budget' || g.deudaTipo==='personal')) return g.deudaTipo;
+  if(!g || g.quien==='abuelo') return 'personal';
+  return fueraDelBote(g) ? 'personal' : 'budget';
+}
+// Qué separación salda un pago entre ustedes: p.salda, o automático (si sale o entra al Budget → Budget; si no, personal).
+function saldaPago(p){
+  if(p && (p.salda==='budget' || p.salda==='personal')) return p.salda;
+  if(p && p.sale==='compensacion') return 'budget';
+  return (p && (p.sale==='bote' || p.entra==='bote')) ? 'budget' : 'personal';
+}
+const NOMBRE_SEP = {budget:'Dentro del Budget', personal:'Personal'};
+// Qué deuda genera un gasto: 'ninguna' (efectivo o marcado así), 'budget' o 'personal'.
+function claseDeudaGasto(g){ return (g && (g.pagadoCon==='efectivo' || g.deudaTipo==='ninguna')) ? 'ninguna' : tipoDeudaGasto(g); }
+// v18.13: compras que pudieron tener una devolución (para elegirla en el formulario).
+function comprasParaDevolucion(ex){
+  const desde = sumarDiasISO(todayISO(), -120);
+  return gastosCategoria().filter(g=>mxnOf(g)>0 && (g.fecha||'')>=desde && (!ex || g.id!==ex.id)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')).slice(0,80);
+}
+// Una devolución copia de su compra quién la pagó, a quién corresponde y en qué separación va la deuda (no la cuenta a la que llegó).
+function copiarDeCompra(dev, orig){
+  if(!dev || !orig) return;
+  dev.quien = orig.quien; dev.pagadoPor = orig.pagadoPor || null;
+  if(orig.parteJen!=null) dev.parteJen = orig.parteJen; else delete dev.parteJen;
+  if(orig.repartoAbuelo) dev.repartoAbuelo = orig.repartoAbuelo; else delete dev.repartoAbuelo;
+  // Bolsa (Budget / tuyo) igual que la compra, solo si es la misma clase de cuenta (no cambia de qué cuenta es el dinero).
+  const fam = (k)=>(k==='bote' || k==='debito' || k==='personal') ? 'deb' : k;
+  if(fam(orig.pagadoCon)===fam(dev.pagadoCon)) dev.pagadoCon = orig.pagadoCon;
+  // v18.13: la deuda va en la misma separación que la compra; si la compra fue en efectivo (sin deuda), la devolución tampoco.
+  const kd = claseDeudaGasto(orig);
+  delete dev.deudaTipo;
+  if(kd==='ninguna') dev.deudaTipo = 'ninguna'; else if(kd!==tipoDeudaGasto(dev)) dev.deudaTipo = kd;
+  dev.devDe = orig.id;
 }
 function textoPagadoPor(g){
   if(!g || g.quien!=='ambas') return '';
@@ -3413,7 +3500,8 @@ function deudasPendientes(){
     if(g.quien==='abuelo'){
       if(g.repartoAbuelo!=='ambas') return;
       const mitadAb = mxnOf(g)/2;
-      if(mitadAb<=0) return;
+      if(!mitadAb) return;
+      if(mitadAb < 0){ jenLeDebeAIsa += -mitadAb; detalle.push({ id:g.id, fecha:g.fecha, nota:g.nota||g.subNombre||'Gasto compartido', subNombre:g.subNombre, mitad:-mitadAb, pagadoPor:'isa', viaAbuelo:true, deudor:'jen' }); return; } // v18.13: devolución
       isaLeDebeAJen += mitadAb;
       detalle.push({ id:g.id, fecha:g.fecha, nota:g.nota||g.subNombre||'Gasto compartido', subNombre:g.subNombre, mitad:mitadAb, pagadoPor:'jen', viaAbuelo:true, deudor:'isa' });
       return;
@@ -3435,7 +3523,7 @@ function deudasPendientes(){
   });
   const neto = (isaLeDebeAJen - pagadoIsaAJen) - (jenLeDebeAIsa - pagadoJenAIsa); // >0 → Isa le debe a Jen; <0 → Jen le debe a Isa
   detalle.sort((a,b)=> (b.fecha||'').localeCompare(a.fecha||''));
-  return { jenLeDebeAIsa, isaLeDebeAJen, pagadoJenAIsa, pagadoIsaAJen, neto, detalle };
+  return { jenLeDebeAIsa, isaLeDebeAJen, pagadoJenAIsa, pagadoIsaAJen, neto, netoPor: netoDeudaPorSeparacion(), detalle };
 }
 function nombrePersona(p){ return p==='isa' ? 'Isa' : 'Jen'; }
 function otraPersona(p){ return p==='isa' ? 'jen' : 'isa'; }
@@ -4218,7 +4306,10 @@ function renderDeudasCard(){
         <div class="deuda-col-amt" style="color:${isaPos.color};">${isaPos.txt}</div>
       </div>
     </div>
-    <div class="small-note" style="margin-top:8px;">${Math.abs(neto)>=0.01 ? 'Verde = le deben · Rojo = debe. De gastos compartidos que una puso y la otra aún no salda.' : 'Sin gastos compartidos pendientes de saldar — están a mano.'} Toca un nombre para ver lo que le deben y registrar pagos.</div>
+    ${(()=>{ const np = d.netoPor || netoDeudaPorSeparacion(); const t = (v)=>Math.abs(v)<0.005 ? 'a mano' : (v>0 ? 'Isa le debe a Jen <b>'+fmt(v,'MXN')+'</b>' : 'Jen le debe a Isa <b>'+fmt(-v,'MXN')+'</b>');
+      return `<div class="nos-sep-mini"><span data-nos-sep-ir="budget"><span class="sep-tag sep-budget">Budget</span> ${t(np.budget)}</span><span data-nos-sep-ir="personal"><span class="sep-tag sep-personal">Personal</span> ${t(np.personal)}</span></div>`; })()}
+    ${correccion1913Disponible() ? `<div class="aviso-sus aviso-tarj" style="margin-top:8px;"><span class="acum-ico">${ico('edit','icon-sm')}</span><span>Hay registros por corregir (lo que revisamos el 19 oct).</span><span class="aviso-acc"><button type="button" class="btn btn-primary btn-sm" id="inicioCorregir">Revisar</button></span></div>` : ''}
+    <div class="small-note" style="margin-top:8px;">${Math.abs(neto)>=0.01 ? 'Verde = le deben · Rojo = debe (las dos separaciones juntas). De gastos compartidos que una puso y la otra aún no salda.' : 'Sin gastos compartidos pendientes de saldar — están a mano.'} Toca un nombre para ver lo que le deben y registrar pagos.</div>
     ${(false && hayDetalle) ? `
       <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:10px;">
         ${d.detalle.map(x=> x.esPago ? `
@@ -5418,6 +5509,7 @@ function renderAvisosTarjetas(){
 }
 // v18.7: aviso cuando alguien debe de meses pasados (p. ej. registró tarde gastos del Budget de un mes que ya cerró).
 function avisosAcumulado(){
+  return []; // v18.13: con el Budget real, lo que una puso de más o de menos se salda en Nosotras (ya no hay "Cubrir")
   if(!perfil) return [];
   const pp = acumuladoPorPersonaMXN(), vistos = avisosTarjetaVistos(), tard = gastosTardios(30);
   return ['jen','isa'].filter(p=>pp[p] < -0.5).map(p=>{
@@ -5466,10 +5558,10 @@ function pendientesLigados(x){
   const out = new Set([x]); let crece = true;
   while(crece){
     crece = false;
-    const cruces = new Set(), series = new Set(), ids = new Set();
-    out.forEach(y=>{ const r = y.rec||{}; if(r.cruceAcum) cruces.add(r.cruceAcum); if(r.serieId) series.add(r.serieId); if(y.col==='series') series.add(r.id); ids.add(r.id); if(r.deGasto) ids.add(r.deGasto); });
+    const cruces = new Set(), series = new Set(), ids = new Set(), ligas = new Set();
+    out.forEach(y=>{ const r = y.rec||{}; if(r.cruceAcum) cruces.add(r.cruceAcum); if(r.serieId) series.add(r.serieId); if(y.col==='series') series.add(r.id); ids.add(r.id); if(r.deGasto) ids.add(r.deGasto); if(r.ligaPend) ligas.add(r.ligaPend); if((y.antes||{}).ligaPend) ligas.add(y.antes.ligaPend); });
     todos.forEach(y=>{ if(out.has(y)) return; const r = y.rec||{};
-      if((r.cruceAcum && cruces.has(r.cruceAcum)) || (r.serieId && series.has(r.serieId)) || (y.col==='series' && series.has(r.id)) || (r.deGasto && ids.has(r.deGasto)) || ids.has(r.id) && false){ out.add(y); crece = true; }
+      if((r.cruceAcum && cruces.has(r.cruceAcum)) || (r.serieId && series.has(r.serieId)) || (r.ligaPend && ligas.has(r.ligaPend)) || ((y.antes||{}).ligaPend && ligas.has(y.antes.ligaPend)) || (y.col==='series' && series.has(r.id)) || (r.deGasto && ids.has(r.deGasto)) || ids.has(r.id) && false){ out.add(y); crece = true; }
       else if([...out].some(z=>(z.rec||{}).deGasto && (z.rec||{}).deGasto===r.id)){ out.add(y); crece = true; } });
   }
   return [...out];
@@ -5666,7 +5758,7 @@ function renderFichasDinero(persona){
   const budgetTot = Object.values(sc).reduce((a,c)=>a+c.budget,0), mioTot = Object.values(sc).reduce((a,c)=>a+c.mio,0), ahorroTot = Object.values(sc).reduce((a,c)=>a+c.ahorro,0);
   const netoTot = budgetTot + mioTot + ahorroTot;
   const detalleBudget = (()=>{ // v18.7: de dónde sale "Del Budget": lo de este mes + lo acumulado de meses pasados (+ lo que no entra en ninguno)
-    const esteMes = miIngresoMXN(persona) - miGastoBoteMXN(persona), pasados = acumuladoPorPersonaMXN()[persona], cruceAj = state.ingresos.filter(i=>esCruceAcum(i) && i.persona===persona && (i.fecha||'')<=todayISO() && ymDe(i.fecha||'')>=inicioBudgetYM()).reduce((a,i)=>a+brutoIngresoMXN(i),0), otros = budgetTot - esteMes - pasados - cruceAj;
+    const esteMes = budgetRealMesMXN(persona), pasados = acumuladoPorPersonaMXN()[persona], cruceAj = state.ingresos.filter(i=>esCruceAcum(i) && i.persona===persona && (i.fecha||'')<=todayISO() && ymDe(i.fecha||'')>=inicioBudgetYM()).reduce((a,i)=>a+brutoIngresoMXN(i),0), otros = budgetTot - esteMes - pasados - cruceAj;
     const f = (v)=>(v<-0.004?'−':'')+fmt(Math.abs(v),'MXN');
     const otraP = nombrePersona(persona==='jen'?'isa':'jen');
     const cruceTxt = Math.abs(cruceAj)>0.5 ? (cruceAj>0 ? ` + <b>${fmt(cruceAj,'MXN')}</b> con los que tu sobrante cubrió a ${escHtml(otraP)} (siguen en tu cuenta: si ${escHtml(otraP)} los necesita, pásaselos)` : ` − <b>${fmt(-cruceAj,'MXN')}</b> que te cubrió ${escHtml(otraP)} con su sobrante (siguen en su cuenta)`) : '';
@@ -6015,7 +6107,9 @@ function renderMovimientosBase(){
         ${lineaBp('bp-pas', bp.pasado < -0.004 ? 'Lo que faltó en meses pasados' : 'Acumulado de meses pasados', bp.pasado)}
         <div class="bp-linea bp-tot"><span>Meta</span><b>${fmt(bp.meta,'MXN')}</b></div>
       </div>
-      <div class="small-note" style="margin-top:8px;">La Meta es lo que ${perfil==='isa'?'tu papá':'tu mamá'} deposita este mes más lo que te sobró (o faltó) de meses pasados desde ${nombreMesLargo(inicioBudgetYM()).toLowerCase()}, incluido lo que ya pasaste a este mes. Gastado es tu parte de los gastos del Budget de este mes (lo compartido cuenta a la mitad). No incluye lo pagado con efectivo, débito, crédito ni tarjeta del Abuelo; sí los retiros a efectivo hechos desde el Budget. Pagar tu tarjeta de crédito no cambia el Budget.</div>
+      ${htmlPorCobrarBudget(perfil, bp.disp)}
+      ${htmlMovimientosBudget(perfil)}
+      <div class="small-note" style="margin-top:8px;">Es el dinero real de tu Budget: la Meta es lo que ${perfil==='isa'?'tu papá':'tu mamá'} deposita este mes más lo que te sobró (o lo que gastaste de más) en meses pasados desde ${nombreMesLargo(inicioBudgetYM()).toLowerCase()}. Gastado es lo que pagaste con tu Budget este mes: un gasto de ambas que pagaste tú cuenta completo (${perfil==='isa'?'Jen':'Isa'} te debe la mitad en Nosotras) y lo que te pasen o pases desde el Budget también cuenta. No incluye lo pagado con efectivo, débito, crédito ni tarjeta del Abuelo. Pagar tu tarjeta de crédito no cambia el Budget.</div>
     </div>` + renderArqCard(perfil);
   }
 
@@ -6186,6 +6280,11 @@ function renderConfig(){
       <div class="small-note">Desde este mes cuentan el Total acumulado y el resumen por mes (lo que sobró o se debe de cada una). Lo de antes no cuenta. El Budget de cada mes se calcula igual.</div></div>
       <button type="button" class="btn btn-outline btn-sm" data-acum-inicio>${ico('edit','icon-sm')} Cambiar</button></div>
   </div>
+  <div class="card cfg-nombres-banco">
+    <div class="card-title"><h2>${ico('swap','icon-sm')} Nombres en los estados de cuenta</h2></div>
+    <div class="small-note" style="margin-bottom:8px;">Al importar, un renglón con el nombre de la otra se propone como pase entre ustedes (no como gasto o ingreso). Separa varios nombres con comas.</div>
+    ${['jen','isa'].map(p=>`<div class="field"><label>${nombrePersona(p)} aparece como</label><input type="text" data-nombres-banco="${p}" value="${escHtml(nombresBancoDe(p).join(', '))}"></div>`).join('')}
+  </div>
   ${renderAjustesInline()}
   `;
 }
@@ -6255,7 +6354,7 @@ function acumuladoTotalMXN(){ return carryoverAcumuladoMXN() + balanceMes().disp
 function esCruceAcum(i){ return !!(i && i.traspaso==='sobrante' && i.cruceAcum); }
 function acumuladoPorPersonaMXN(antesDeYM){
   const meses = resumenPorMes(), hasta = antesDeYM || mesActual(), out = {jen:0, isa:0};
-  Object.keys(meses).forEach(ym=>{ if(ym < hasta) ['jen','isa'].forEach(p=>{ out[p] += miIngresoMXN(p, ym) - miGastoBoteMXN(p, ym); }); });
+  Object.keys(meses).forEach(ym=>{ if(ym < hasta) ['jen','isa'].forEach(p=>{ out[p] += budgetRealMesMXN(p, ym); }); });
   const hoy = todayISO();
   state.ingresos.forEach(i=>{
     if(i.traspaso!=='sobrante' || ymDe(i.fecha||'') < inicioBudgetYM() || out[i.persona]==null) return;
@@ -6283,12 +6382,44 @@ function budgetPersonaConAcumulado(p){
   const r = {deposito:c(deposito), aplicadoAcum:c(aplicadoAcum), pasado:c((acumuladoPorPersonaMXN()[p] || 0) - noRestado)};
   r.aplicadoAhorro = c(total - deposito - aplicadoAcum);
   r.meta = c(r.deposito + r.aplicadoAcum + r.aplicadoAhorro + r.pasado); // suma de lo que se ve, centavo por centavo
-  r.gastado = c(miGastoBoteMXN(p));
+  r.gastado = c(budgetGastoRealMXN(p));
   r.disp = c(r.meta - r.gastado);
   return r;
 }
+// v18.13: lo que te deben (o debes) DENTRO del Budget, y cómo quedarías si se salda.
+function htmlPorCobrarBudget(p, disp){
+  const n = netoDeudaPorSeparacion().budget, v = p==='jen' ? n : -n, otra = nombrePersona(otraPersona(p));
+  if(Math.abs(v) < 0.005) return `<div class="bp-cobro bp-cobro-cero">${ico('check','icon-xs')} Dentro del Budget, ${escHtml(otra)} y tú están a mano.</div>`;
+  return `<div class="bp-cobro ${v>0?'bp-cobro-mas':'bp-cobro-menos'}" data-tab-to="nosotras">
+    <div class="bp-cl"><span><i></i>${v>0 ? escHtml(otra)+' te debe del Budget' : 'Le debes a '+escHtml(otra)+' del Budget'}</span><b>${v>0?'+':'−'}${fmt(Math.abs(v),'MXN')}</b></div>
+    <div class="bp-cl bp-cl-tot"><span>Si se salda Budget a Budget</span><b>${(disp+v)<-0.004?'−':''}${fmt(Math.abs(disp+v),'MXN')}</b></div>
+  </div>`;
+}
+// v18.13: "Movimientos de tu Budget" de este mes: qué entró y qué salió de tu Budget, uno por uno.
+function movimientosBudgetMes(p, ym){
+  ym = ym || mesActual();
+  const out = [];
+  state.ingresos.forEach(i=>{ if(i.persona!==p || !esDestinoBote(i.destino) || esIngresoAbuelo(i) || esCruceAcum(i) || !ingresoAplicaEnMes(i, ym)) return;
+    out.push({fecha:i.fecha||ym+'-01', txt: i.traspaso==='sobrante' ? (netoIngresoMXN(i)<0 ? 'Reposición de meses pasados' : 'Del acumulado de meses pasados') : (i.traspaso==='ahorro' ? 'Del ahorro' : (i.fuente||'Ingreso')), v: netoIngresoMXN(i), tipo:'ing'}); });
+  gastosCategoria().filter(cuentaEnBote).forEach(g=>{ const f = partePago(g, p); if(!f) return; const m = montoEnMesMXN(g, ym)*f; if(Math.abs(m) < 0.005) return;
+    out.push({fecha:g.fecha, txt:(g.nota||'Gasto')+(g.quien==='ambas' ? (f<1 ? ' · tu parte' : ' · de ambas, lo pagaste tú') : ''), v:-m, tipo:'gas'}); });
+  (state.pagosEntre||[]).filter(x=>ymDe(x.fecha||'')===ym).forEach(x=>{ const m = mxnOf(x);
+    if(x.de===p && x.sale==='bote') out.push({fecha:x.fecha, txt:'Le pasaste a '+nombrePersona(x.a)+' ('+(x.entra==='bote'?'a su Budget':'a su dinero')+')', v:-m, tipo:'pase'});
+    if(x.a===p && x.entra==='bote') out.push({fecha:x.fecha, txt:nombrePersona(x.de)+' te pasó ('+(x.sale==='bote'?'de su Budget':'de su dinero')+')', v:m, tipo:'pase'}); });
+  retirosEfectivoCuenta('bote', p, ym).forEach(m=>out.push({fecha:m.fecha, txt:'Retiro a efectivo', v:-mxnOf(m), tipo:'gas'}));
+  (state.pagosOtros||[]).filter(t=>t.desde==='bote' && t.persona===p && ymDe(t.fecha||'')===ym).forEach(t=>out.push({fecha:t.fecha, txt:t.nota||'Pago a otra persona', v:-mxnOf(t), tipo:'gas'}));
+  return out.sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+}
+function htmlMovimientosBudget(p){
+  const L = movimientosBudgetMes(p);
+  if(!L.length) return '';
+  const ent = L.filter(x=>x.v>0).reduce((a,x)=>a+x.v,0), sal = L.filter(x=>x.v<0).reduce((a,x)=>a-x.v,0);
+  return `<details class="bp-movs"><summary>${ico('layers','icon-xs')} Movimientos de tu Budget este mes <span class="muted">· ${L.length} · entró ${fmt(ent,'MXN')} · salió ${fmt(sal,'MXN')}</span></summary>
+    ${L.map(x=>`<div class="bp-cl bp-mov-${x.tipo}"><span><i></i>${escHtml(fmtDate(x.fecha))} · ${escHtml(x.txt)}</span><b style="${x.v<0?'color:var(--brick);':'color:var(--teal-deep);'}">${x.v<0?'−':'+'}${fmt(Math.abs(x.v),'MXN')}</b></div>`).join('')}
+  </details>`;
+}
 // Lo acumulado de cada una en un mes cerrado (para el desglose).
-function netoMesPersonaMXN(p, ym){ return miIngresoMXN(p, ym) - miGastoBoteMXN(p, ym); }
+function netoMesPersonaMXN(p, ym){ return budgetRealMesMXN(p, ym); }
 // v18.7: gastos de meses ya cerrados que se registraron después (hace poco). Explican por qué cambió (o no) el acumulado.
 function gastosTardios(dias){
   const desde = Date.now() - (dias||30)*864e5, hoyYM = mesActual();
@@ -6850,6 +6981,9 @@ function openGasto(cat, subId, editRef, pagoPreset, ctaPreset){
       </div>
     </div>
     <label class="rec-chk gasto-dev"><input type="checkbox" id="gastoDevolucion" style="width:auto;" ${existing && Number(existing.monto)<0 ? 'checked' : ''}> Es una devolución (te regresaron dinero: resta del gasto)</label>
+    <div class="field" id="gastoDevDeWrap" style="${existing && Number(existing.monto)<0 ? '' : 'display:none'}"><label>${ico('handcoin','icon-xs')} ¿De qué compra es la devolución? (opcional)</label>
+      <select id="gastoDevDe"><option value="">— No sé / ninguna —</option>${comprasParaDevolucion(existing).map(g=>`<option value="${escHtml(g.id)}" ${existing && existing.devDe===g.id ? 'selected' : ''}>${escHtml(fmtDate(g.fecha))} · ${escHtml(String(g.nota||'Gasto').slice(0,40))} · ${fmt(mxnOf(g),'MXN')}</option>`).join('')}</select>
+      <div class="small-note">Si la eliges, la devolución copia de la compra quién la pagó y a quién corresponde: así nadie cobra de más ni de menos.</div></div>
     <div class="field" id="subcatFieldWrap">
       <label>${ico('layers','icon-xs')} Categoría</label>
       ${pickerHtml('gastoSub', opcionesSubcatV15(), subSel ? subSel.id : '', 'Elige la categoría')}
@@ -6900,6 +7034,12 @@ function openGasto(cat, subId, editRef, pagoPreset, ctaPreset){
         </div>
       </div>
       <div class="small-note" id="pagadoPorNota" style="margin-top:6px;">${notaPagadoPor(pagadoPorSel)}</div>
+      <div class="deuda-tipo-wrap" id="deudaTipoWrap">
+        <label class="deuda-tipo-lbl">Lo que se deban por este gasto va en</label>
+        <div class="seg seg-sm" id="deudaTipoSeg"><button type="button" data-deuda-tipo="budget">Dentro del Budget</button><button type="button" data-deuda-tipo="personal">Personal</button></div>
+        <input type="hidden" id="gastoDeudaTipo" value="${existing && (existing.deudaTipo==='budget'||existing.deudaTipo==='personal') ? existing.deudaTipo : ''}">
+        <div class="small-note" id="deudaTipoNota"></div>
+      </div>
     </div>
     <details class="mas-detalles" id="gastoMasDetalles" ${existing && (existing.nota || existing.fecha!==todayISO()) ? 'open' : ''}>
       <summary>${ico('chevright','icon-sm')}<span><b>Más detalles</b><small>Fecha, nota, tipo de cambio, a meses y si se repite</small></span></summary>
@@ -7270,9 +7410,12 @@ function openSaldoInicialEfectivo(editRef){
 // Baja la deuda y mueve el dinero entre las cuentas elegidas.
 function openPagoEntre(personaClick, editId, preset){
   const ex = editId ? (state.pagosEntre||[]).find(p=>p.id===editId) : null;
-  const neto = deudasPendientes().neto;
-  let de;
   preset = preset || {};
+  // v18.13: desde Nosotras se propone lo de la separación que estás viendo (Budget o personal), no la suma de las dos.
+  const sepCtx = preset.salda || (!ex && activeTab==='nosotras' ? (nosotrasSep||'budget') : null);
+  if(sepCtx && !ex && !preset.salda) preset = Object.assign({}, preset, {salda: sepCtx});
+  const neto = sepCtx ? netoDeudaPorSeparacion()[sepCtx] : deudasPendientes().neto;
+  let de;
   const aplica = ex ? (Array.isArray(ex.aplica) ? ex.aplica : []) : (preset.aplica || []);
   if(ex) de = ex.de;
   else if(preset.de) de = preset.de;
@@ -7283,7 +7426,11 @@ function openPagoEntre(personaClick, editId, preset){
   const moneda = ex ? (ex.moneda||'MXN') : (preset.moneda || 'MXN');
   const montoIni = ex ? ex.monto : (preset.monto ? Math.round(preset.monto*100)/100 : (Math.abs(neto)>=0.01 ? Math.round(Math.abs(neto)*100)/100 : ''));
   const itemsInfo = aplica.length ? (()=>{ const {items} = deudaItems(); return aplica.map(ap=>{ const it = items.find(i=>i.k===ap.k); return `<div class="det-row"><span>${escHtml(it?it.nota:'Gasto')}</span><b>${fmt(Number(ap.montoMXN)||0,'MXN')}</b></div>`; }).join(''); })() : '';
-  const sale = ex ? ex.sale : (preset.noDeuda ? 'debito' : 'bote'), entra = ex ? ex.entra : (preset.noDeuda ? 'debito' : 'bote');
+  // v18.13: lo del Budget se paga Budget → Budget y lo personal, personal → personal (automático; se puede cambiar).
+  const saldaPre = ex ? (ex.salda||'') : (preset.salda||'');
+  const porSep = saldaPre==='personal' || preset.noDeuda ? 'debito' : 'bote';
+  const sale = ex ? ex.sale : (preset.sale || porSep), entra = ex ? ex.entra : (preset.entra || porSep);
+  const noDeudaIni = (ex && ex.noDeuda) || (!ex && preset.noDeuda);
   const opts = (p, sel)=>cuentasPagoEntre(p).map(([k,l])=>`<option value="${k}" ${k===sel?'selected':''}>${l}</option>`).join('');
   openSheet(`
     ${sheetHeader(ex ? 'Editar pago entre nosotras' : (preset.noDeuda ? 'Pasarle dinero' : 'Pago entre nosotras'))}
@@ -7296,7 +7443,12 @@ function openPagoEntre(personaClick, editId, preset){
       <div class="seg"><button class="${de==='jen'?'on':''}" data-pe-de="jen">Jen le pagó a Isa</button><button class="${de==='isa'?'on':''}" data-pe-de="isa">Isa le pagó a Jen</button></div>
       <input type="hidden" id="peDe" value="${de}">
     </div>
-    ${itemsInfo ? '' : `<label class="rec-chk pe-nodeuda"><input type="checkbox" id="peNoDeuda" style="width:auto;" ${(ex && ex.noDeuda) || (!ex && preset.noDeuda) ? 'checked' : ''}> No es deuda: solo le pasas dinero (no paga nada de lo que se deben)</label>`}
+    <div class="field"><label>¿Qué deuda paga?</label>
+      <div class="seg seg-sm" id="peSaldaSeg"><button type="button" data-pe-salda="budget">Dentro del Budget</button><button type="button" data-pe-salda="personal">Personal</button>${itemsInfo ? '' : `<button type="button" data-pe-salda="no">No es deuda</button>`}</div>
+      <input type="hidden" id="peSalda" value="${escHtml(saldaPre)}">
+      <input type="checkbox" id="peNoDeuda" hidden ${noDeudaIni ? 'checked' : ''}>
+      <div class="small-note" id="peSaldaNota"></div>
+    </div>
     <div class="field-row">
       <div class="field"><label>Monto</label><input type="number" id="peMonto" placeholder="0" value="${montoIni}"></div>
       <div class="field"><label>Moneda</label><select id="peMoneda">${currencyOptions(moneda)}</select></div>
@@ -7889,10 +8041,26 @@ function movEsDe(m, p){
 }
 // Busca un movimiento igual ya registrado: misma dirección, misma persona, mismo monto (o casi, si es otra moneda)
 // y fecha cercana (las tarjetas cobran días después). Cada movimiento guardado solo se usa una vez (usados).
+let ecDupPersona = null;
+// v18.13: los duplicados se buscan al leer el archivo con tu perfil; si el estado es de la otra, se vuelven a buscar con ella.
+function ecRecalcularDups(e){
+  const usados = new Set();
+  try{
+    ecDupPersona = e.persona;
+    e.filas.forEach(f=>{
+      if(f.dupResuelto || f.quitada) return;
+      const tenia = !!f.dup, fx = f.tipo==='pase' ? Object.assign({}, f, {tipo: f.signo<0 ? 'gasto' : 'ingreso'}) : f; // un pase se compara como lo que dice el banco (salida o entrada)
+      const dm = ecDuplicadoDe(fx, usados, ecEsCreditoEstado(e));
+      if(dm){ if(!tenia){ f.incluir = false; f.avisos = f.avisos || []; f.avisos.unshift('Posible duplicado: ya tienes uno igual'); }
+        f.dup = {desc: dm.nota || dm.subNombre || labelTipoMov(dm) || 'Movimiento', fecha: dm.fecha, monto: Number(dm.monto)||0, moneda: dm.moneda||'MXN', tipo: labelTipoMov(dm)}; }
+      else if(tenia){ delete f.dup; f.avisos = (f.avisos||[]).filter(a=>!/^Posible duplicado/.test(a)); if(f.moneda in (state.rates||{})) f.incluir = true; }
+    });
+  } finally { ecDupPersona = null; }
+}
 function ecDuplicadoDe(fila, usados, credito){
   const f = new Date(fila.fecha+'T00:00:00');
   const dirs = dirFila(fila, credito===undefined ? (ecEstado ? ecEsCreditoEstado(ecEstado) : false) : credito);
-  const p = perfil;
+  const p = ecDupPersona || perfil; // v18.13: en la revisión se vuelve a buscar con la dueña del estado de cuenta
   const tasaFila = fila.moneda==='MXN' ? 1 : (Number(fila.rate) || rateSnapshotFor(fila.moneda) || 0);
   const mxnFila = fila.monto * tasaFila;
   return collectMovimientos().find(m=>{
@@ -7926,12 +8094,31 @@ function ecCuentaNu(texto){
   const debito = /cuenta nu|cajita|rendimiento|cuenta de debito|tarjeta de debito|saldo en tu cuenta/.test(t);
   return debito && !credito ? 'debito' : 'credito';
 }
+// v18.13: nombres con los que aparece cada una en los estados de cuenta (para proponer "Pase entre nosotras").
+const NOMBRES_BANCO_DEF = {jen:['JENNY JARAMILLO ROMERO','JENNY JARAMILLO','Jen'], isa:['ISABEL RODRIGUEZ MARTINEZ','ISABEL RODRIGUEZ']};
+function nombresBancoDe(p){ const v = state.nombresBanco && Array.isArray(state.nombresBanco[p]) ? state.nombresBanco[p] : NOMBRES_BANCO_DEF[p]; return (v||[]).map(x=>String(x||'').trim()).filter(x=>x.length>=3); }
+// Palabra completa (así "Jen" no coincide con "Jenny" ni "Isa" con "Visa").
+function contieneNombre(d, n){ const t = sinAcentos(n).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s+'); return new RegExp('(^|[^a-z0-9])'+t+'($|[^a-z0-9])').test(d); }
+function ecPasesCon(desc){ const d = sinAcentos(String(desc||'')).toLowerCase(); return ['jen','isa'].filter(p=>nombresBancoDe(p).some(n=>contieneNombre(d, n))); }
+function ecPaseCon(desc){ return ecPasesCon(desc)[0] || null; }
+// En la revisión: un renglón con el nombre de la otra se propone como pase (no es gasto ni ingreso). Si cambias quién es la
+// dueña del estado, se vuelve a decidir (salvo que lo hayas cambiado a mano).
+function ecAjustarPases(e){
+  if(!e || ecEsCreditoEstado(e)) return;
+  const otra = otraPersona(e.persona);
+  e.filas.forEach(f=>{
+    if(!f.paseCon || f.paseManual) return;
+    const conOtra = (f.paseCons||[f.paseCon]).includes(otra); // un renglón puede traer los dos nombres (ordenante y beneficiario)
+    if(conOtra && f.tipo!=='pase'){ f.tipoAntesPase = f.tipo; f.tipo = 'pase'; if(!(f.dup && !f.dupResuelto)) f.incluir = true; f.avisos = (f.avisos||[]).filter(a=>!/entre tus cuentas/.test(a)); f.avisos.unshift('Lleva el nombre de '+nombrePersona(otra)+': se propone como pase entre ustedes (no es gasto ni ingreso)'); }
+    else if(!conOtra && f.tipo==='pase'){ f.tipo = f.tipoAntesPase || (f.signo<0 ? 'gasto' : 'ingreso'); f.avisos = (f.avisos||[]).filter(a=>!/se propone como pase/.test(a)); }
+  });
+}
 function ecPrepararFilas(leidas, banco, cuentaForzada){
   const cuentaDef = cuentaForzada || EC_CUENTA_DEF[banco] || 'debito';
   const usados = new Set();
   return leidas.map((r, i)=>{
     const d = sinAcentos(r.desc + ' ' + (r.tipoBanco||''));
-    const fila = {i, fecha:r.fecha, desc:r.desc, monto: Math.round(Math.abs(r.montoSigno)*100)/100, moneda: r.moneda||'MXN', tipo: r.montoSigno<0 ? 'gasto' : 'ingreso', incluir:true, avisos:[], cat:'', quien:'yo', cuenta:'', rate:null, rateEditado:false};
+    const fila = {i, fecha:r.fecha, desc:r.desc, monto: Math.round(Math.abs(r.montoSigno)*100)/100, moneda: r.moneda||'MXN', tipo: r.montoSigno<0 ? 'gasto' : 'ingreso', incluir:true, avisos:[], cat:'', quien:'yo', cuenta:'', rate:null, rateEditado:false, signo: r.montoSigno<0 ? -1 : 1, paseCon: ecPaseCon(r.desc), paseCons: ecPasesCon(r.desc)};
     if(EC_ATM.test(d)){ fila.tipo='retiro'; fila.incluir=false; fila.avisos.push('Retiro de cajero: se guarda como retiro a efectivo (el gasto cuenta cuando uses ese efectivo)'); }
     else if(r.montoSigno<0 && cuentaDef!=='credito' && EC_PAGO_TDC.test(d)){
       // v18.9: en un estado de débito, el pago a tu tarjeta de crédito no es gasto: sale de aquí y baja lo que debes.
@@ -8217,6 +8404,15 @@ function ecFilaDeRegistro(e, col, r, i){
     cuentaFila(['bote','arq','debito','abuelo'].includes(r.cuenta) ? r.cuenta : 'efectivo');
     return f;
   }
+  if(col==='pagosEntre'){
+    if(r.sale==='compensacion') return null;
+    const sale = r.de===e.persona; f.tipo = 'pase'; f.signo = sale ? -1 : 1; f.paseCon = otraPersona(e.persona); f.paseManual = true;
+    f.desc = r.notaLibre || String(r.nota||'').replace(/^Pase · /,'');
+    const own = sale ? r.sale : r.entra; f.paseOtro = sale ? r.entra : r.sale;
+    const oc = sale ? r.ctaSale : r.ctaEntra; if(oc) f.ctaOrig = oc;
+    cuentaFila(own==='bote' ? 'bote' : 'debito');
+    return f;
+  }
   if(col==='pagosTarjeta'){
     f.tipo = 'pagoTarjeta'; f.desc = r.notaLibre || String(r.nota||'').replace(/^Pago [^·]*· [^·]*· /,'');
     const credEst = ecEsCreditoEstado(e);
@@ -8393,20 +8589,29 @@ function ecEsPagoRealFila(e, f){ return ecEsPagoFila(e, f) && !ecEsDevolucionFil
 function ecEsDevolucionFila(e, f){ return (f.tipo==='ingreso' || f.tipo==='pagoTarjeta') && ecEsCreditoFila(e,f) && String(f.origen||ecOrigenPorDefecto(e,f)).startsWith('devolucion'); }
 // Rojo − sale · verde + entra · gris ↔ entre tus cuentas
 function ecClaseFila(e, f){
+  if(f.tipo==='pase') return 'neutro';
   if(f.tipo==='gasto') return 'out';
   if(ecEsDevolucionFila(e,f)) return 'in';
   if(f.tipo==='ingreso' && !ecEsCreditoFila(e,f)) return 'in';
   return 'neutro';
 }
 function ecIconoFila(e, f){
+  if(f.tipo==='pase') return {glyph:'flechas'};
   if(f.tipo==='gasto'){ const sb = state.subcats.find(x=>x.id===f.cat); return sb ? iconoSubcat(sb) : {glyph:'maleta'}; }
   if(ecEsDevolucionFila(e,f)) return {glyph:'alcancia'};
   if(ecEsPagoFila(e,f)) return {glyph:'credito'};
   if(f.tipo==='retiro') return {glyph:'billete'};
   return {glyph:'alcancia'};
 }
+function ecPaseLados(e, f){
+  const cuenta = f.cuenta || e.cuenta, own = cuenta==='bote' ? 'bote' : (cuenta==='debito' ? 'debito' : 'otra');
+  const otro = f.paseOtro || (own==='otra' ? 'debito' : own), sale = f.signo<0;
+  return {own, otro, de: sale ? e.persona : otraPersona(e.persona), a: sale ? otraPersona(e.persona) : e.persona, sale: sale ? own : otro, entra: sale ? otro : own};
+}
 function ecResumenFila(e, f){
   const cuenta = f.cuenta || e.cuenta, nombre = nombrePersona(e.persona);
+  if(f.tipo==='pase'){ const L = ecPaseLados(e, f), txt = (k)=>k==='bote' ? 'Budget' : (k==='debito' ? 'su dinero' : 'otra cuenta');
+    return 'Pase · '+nombrePersona(L.de)+' ('+txt(L.sale)+') → '+nombrePersona(L.a)+' ('+txt(L.entra)+') · paga deudas '+(saldaPago({sale:L.sale, entra:L.entra})==='budget' ? 'del Budget' : 'personales'); }
   const pagoOtro = 'lo pagó '+(ecNombreOtroFila(e,f) || 'otra persona (falta el nombre)');
   if(f.tipo==='gasto'){
     const sb = state.subcats.find(x=>x.id===f.cat);
@@ -8449,6 +8654,7 @@ function ecOpcionesTipo(e, f){
     ['pagoTarjeta', cred ? 'Pago a esta tarjeta' : 'Pago a una tarjeta de crédito', {glyph:'credito', mas: cred && f.tipo!=='pagoTarjeta'}],
     ['retiro', 'Retiro a efectivo', {glyph:'billete', mas: cred}],
   ];
+  if(!cred) ops.push(['pase', 'Pase entre nosotras (con '+nombrePersona(otraPersona(e.persona))+')', {glyph:'flechas', mas: !f.paseCon && f.tipo!=='pase'}]);
   return ops.map(([v,l,x])=>ecOpt(v, l, f.tipo, x)).join('');
 }
 function ecOpcionesCuentaFila(e, f){
@@ -8459,9 +8665,9 @@ function ecOpcionesCuentaFila(e, f){
 function ecResumen(){
   const vis = ecFilasVisibles(), sel = vis.filter(f=>f.incluir);
   const g = sel.filter(f=>f.tipo==='gasto').length, i = sel.filter(f=>f.tipo==='ingreso' && !ecEsCreditoFila(ecEstado, f)).length;
-  const pg = sel.filter(f=>ecEsPagoRealFila(ecEstado, f)).length, dv = sel.filter(f=>ecEsDevolucionFila(ecEstado, f)).length, o = sel.length-g-i-pg-dv;
+  const pg = sel.filter(f=>ecEsPagoRealFila(ecEstado, f)).length, dv = sel.filter(f=>ecEsDevolucionFila(ecEstado, f)).length, ps = sel.filter(f=>f.tipo==='pase').length, o = sel.length-g-i-pg-dv-ps;
   const dups = vis.filter(f=>f.dup && !f.dupResuelto).length;
-  const partes = [g ? g+' gasto'+(g===1?'':'s') : '', i ? i+' ingreso'+(i===1?'':'s') : '', pg ? pg+' pago'+(pg===1?'':'s')+' de tarjeta' : '', dv ? dv+(dv===1?' devolución':' devoluciones') : '', o ? o+' retiro'+(o===1?'':'s') : ''].filter(Boolean);
+  const partes = [g ? g+' gasto'+(g===1?'':'s') : '', i ? i+' ingreso'+(i===1?'':'s') : '', pg ? pg+' pago'+(pg===1?'':'s')+' de tarjeta' : '', dv ? dv+(dv===1?' devolución':' devoluciones') : '', ps ? ps+(ps===1?' pase':' pases')+' entre ustedes' : '', o ? o+' retiro'+(o===1?'':'s') : ''].filter(Boolean);
   return `${ecEstado.invertido ? 'Parece un estado de tarjeta de crédito: los cargos se tomaron como gastos (si no, usa "Invertir"). ' : ''}${vis.length} leídos · <b>${sel.length} elegidos para guardar</b>${partes.length?` (${partes.join(', ')})`:''}${dups?` · <b style="color:var(--amber);">${dups} posible${dups===1?'':'s'} duplicado${dups===1?'':'s'} por revisar</b>`:''}${ecEstado.omitidos?' · '+ecEstado.omitidos+' líneas sin movimiento ignoradas':''}. Nada se guarda hasta que lo elijas.`;
 }
 function ecFechaCorta(iso){ try{ return new Date(iso+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric', month:'short'}).replace('.',''); }catch(e){ return iso; } }
@@ -8504,6 +8710,7 @@ function ecHtmlFila(e, f){
           </div>` : ''}
           ${(f.tipo==='ingreso' || f.tipo==='pagoTarjeta') && cred ? `<label class="ec-campo ec-origen"><span>${ico('swap','icon-xs')} ¿Con qué pagaste la tarjeta?</span><select data-ec="origen">${ecOpcionesOrigenPago().map(([k,l,g])=>ecOpt(k, l, origenSel, {glyph: g || undefined, ico: g ? undefined : (k.startsWith('devolucion') ? 'handcoin' : 'swap'), icoCls: k.startsWith('devolucion') ? 'in' : '', mas: !origPrincipales.includes(k)})).join('')}</select></label>` : ''}
           ${f.tipo==='pagoTarjeta' && !cred && !['abuelo','otro','arq'].includes(cuenta) ? `<label class="ec-campo ec-origen"><span>${ico('card','icon-xs')} Pagaste</span><select data-ec="tarjetaPagada">${ecOpcionesTarjetaPagada().map(([k,l,g])=>ecOpt(k, l, tarjSel, {glyph:g, mas: !k.endsWith(b+'-cred')})).join('')}</select></label>` : ''}
+          ${f.tipo==='pase' ? (()=>{ const L = ecPaseLados(e, f), otraN = nombrePersona(otraPersona(e.persona)); return `<label class="ec-campo"><span>${ico('swap','icon-xs')} ${f.signo<0 ? '¿A qué dinero de '+escHtml(otraN)+' llegó?' : '¿De qué dinero de '+escHtml(otraN)+' salió?'}</span><select data-ec="paseOtro">${ecOpt('bote', 'Su Budget', L.otro, {glyph:'bote'})}${ecOpt('debito', 'Su dinero (personal)', L.otro, {glyph:'tarjeta'})}</select></label>`; })() : ''}
           ${f.moneda!=='MXN' ? `<label class="ec-campo ec-rate"><span>${ico('swap','icon-xs')} Tipo de cambio (pesos por 1 ${escHtml(f.moneda)})</span><input type="number" step="0.0001" data-ec="rate" value="${f.rate==null?'':f.rate}" placeholder="buscando…"></label>` : ''}
           <div class="ec-cta-linea">
             <span class="pk-ilu sm"><svg viewBox="0 0 64 64" aria-hidden="true">${ILU[EC_GLYPH_CUENTA[cuenta]]||ILU.tarjeta}</svg></span>
@@ -8520,6 +8727,8 @@ function ecContarElegidos(){ return ecFilasVisibles().filter(f=>f.incluir).lengt
 function ecPuedeMarcar(f){ return !(f.dup && !f.dupResuelto) && (f.moneda in (state.rates||{})); }
 function openRevisionEstado(){
   const e = ecEstado;
+  try{ ecAjustarPases(e); }catch(err){}
+  try{ if(e && !e.editImportId && e._dupPara !== e.persona){ if(e._dupPara!==undefined || e.persona!==perfil) ecRecalcularDups(e); e._dupPara = e.persona; } }catch(err){}
   const scrollAntes = (()=>{ const sh = document.querySelector('#overlay .sheet'), ov = document.getElementById('overlay'); return {sh: sh ? sh.scrollTop : 0, ov: ov ? ov.scrollTop : 0}; })();
   setTimeout(()=>{ const sh = document.querySelector('#overlay .sheet'), ov = document.getElementById('overlay'); if(sh && scrollAntes.sh) sh.scrollTop = scrollAntes.sh; if(ov && scrollAntes.ov) ov.scrollTop = scrollAntes.ov; }, 0);
   const cuentas = ecCuentasPara(e.persona);
@@ -8633,9 +8842,10 @@ function openRevisionEstado(){
         else if(campo==='monto'){ f.monto = Math.abs(Number(inp.value)||0); }
         else if(campo==='rate'){ f.rate = Number(inp.value)||null; f.rateEditado = true; }
         else f[campo] = inp.value;
+        if(campo==='tipo') f.paseManual = true; // v18.13: lo elegiste tú: ya no se cambia solo
         if(campo==='tipo' && f.tipo==='gasto' && !f.cat) f.cat = ecSugerirCategoria(f.desc) || subcatV15(state, 'Otros').id;
         if(campo==='tipo' || campo==='moneda' || campo==='cuenta'){ if(campo==='moneda'){ f.rate = f.moneda==='MXN' ? 1 : null; f.rateEditado=false; ecCargarTasas(); } f.abierta = true; openRevisionEstado(); if(campo==='cuenta' && f.cuenta==='otro'){ const n = document.querySelector(`[data-ec-fila="${f.i}"] [data-ec="otroNombre"]`); if(n && n.focus) n.focus(); } return; }
-        if(campo==='otroNombre' || campo==='desc' || campo==='cat' || campo==='quien' || campo==='origen' || campo==='tarjetaPagada' || campo==='monto') ecRefrescarFila(f);
+        if(campo==='otroNombre' || campo==='desc' || campo==='cat' || campo==='quien' || campo==='origen' || campo==='tarjetaPagada' || campo==='monto' || campo==='paseOtro') ecRefrescarFila(f);
         const r = document.getElementById('ecResumen'); if(r) r.innerHTML = ecResumen();
         const gn = document.getElementById('ecGuardarN'); if(gn) gn.textContent = ecContarElegidos();
       });
@@ -8703,7 +8913,7 @@ function guardarImportacionEstado(){
     const intoc = new Set(e.intocables||[]);
     registrosDeImportacion(importId).forEach(([c, r])=>{ if(!intoc.has(r.id)) viejos[r.id] = {c, r}; });
     const quitar = (arr)=>{ for(let k=arr.length-1;k>=0;k--){ if(arr[k] && viejos[arr[k].id] && arr[k].importId===importId) arr.splice(k,1); } };
-    quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta); state.subcats.forEach(sb=>quitar(sb.gastos));
+    quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta); quitar(state.pagosEntre||[]); state.subcats.forEach(sb=>quitar(sb.gastos));
   }
   sel.forEach(f=>{
     const cuenta = f.cuenta || e.cuenta;
@@ -8712,6 +8922,16 @@ function guardarImportacionEstado(){
     const base = {id:(e.editImportId && f.recId && viejos[f.recId]) ? f.recId : uid(), monto:f.monto, moneda:f.moneda, fecha:f.fecha, nota, importId, ...stamp};
     const ctaFila = (c)=>(e.editImportId && f.ctaOrig && f.cuentaOrig===cuenta && ecCtaEstado(e)===e.ctaOrig) ? f.ctaOrig : ctaPara(c); // al editar, la tarjeta que ya tenía
     firmas[base.id] = (e.editImportId && f.firmaOrig) ? f.firmaOrig : firmaFilaEstado(persona, ctaEst, f); // al editar, sigue siendo el mismo renglón del estado
+    if(f.tipo==='pase'){
+      // v18.13: pase entre ustedes (no es gasto ni ingreso). Si toca las cuentas de la otra, espera su aprobación.
+      const L = ecPaseLados(e, f), otraP = otraPersona(persona);
+      const r = {id:base.id, de:L.de, a:L.a, monto:f.monto, moneda:f.moneda, fecha:f.fecha, sale:L.sale, entra:L.entra, nota:'Pase · '+nota, notaLibre:nota, importId, ...stamp};
+      const ctaOwn = (L.own==='bote' || L.own==='debito') ? ctaFila(L.own) : null;
+      if(L.de===persona){ if(ctaOwn) r.ctaSale = ctaOwn; if(L.entra==='bote'||L.entra==='debito') r.ctaEntra = 'nu-deb'; }
+      else { if(ctaOwn) r.ctaEntra = ctaOwn; if(L.sale==='bote'||L.sale==='debito') r.ctaSale = 'nu-deb'; }
+      if(!Array.isArray(state.pagosEntre)) state.pagosEntre = [];
+      state.pagosEntre.push(r); n++; return;
+    }
     if(f.tipo==='gasto'){
       const g = {...base};
       if(cuenta==='abuelo'){ g.quien='abuelo'; g.pagadoCon='bote'; g.pagadoPor=null; g.repartoAbuelo = f.quien==='ambas' ? 'ambas' : 'jen'; }
@@ -8765,7 +8985,7 @@ function guardarImportacionEstado(){
     // Cada movimiento que sigue siendo del mismo tipo recupera lo que tenía y la revisión no maneja (cuándo se registró,
     // noches de alojamiento, "cada mes", % personalizado…). Si cambió de tipo, va con id nuevo (el viejo se borra).
     registrosDeImportacion(importId).forEach(([,r])=>{ if(firmas[r.id]) r.firmaEc = firmas[r.id]; }); // antes de ordenar los campos
-    const CONTROLA = new Set(['id','monto','montoBruto','moneda','montoMXN','montoEUR','rateMXN','rateEURMXN','fecha','nota','notaLibre','fuente','quien','pagadoPor','pagadoCon','cta','ctaDesde','otroNombre','repartoAbuelo','tarjeta','desde','destino','mes','cuenta','tipo','persona','firmaEc','importId','origen','ahorroAuto','ahorroAutoMonto','recurrente']);
+    const CONTROLA = new Set(['de','a','sale','entra','ctaSale','ctaEntra','id','monto','montoBruto','moneda','montoMXN','montoEUR','rateMXN','rateEURMXN','fecha','nota','notaLibre','fuente','quien','pagadoPor','pagadoCon','cta','ctaDesde','otroNombre','repartoAbuelo','tarjeta','desde','destino','mes','cuenta','tipo','persona','firmaEc','importId','origen','ahorroAuto','ahorroAutoMonto','recurrente']);
     registrosDeImportacion(importId).forEach(([c, r])=>{
       const v = viejos[r.id]; if(!v) return;
       if(v.c!==c){ r.id = uid(); return; }
@@ -8810,6 +9030,7 @@ function registrosDeImportacion(importId){
   state.subcats.forEach(sb=>(sb.gastos||[]).forEach(r=>{ if(r.importId===importId) out.push(['gastos', r]); }));
   (state.efectivoMovimientos||[]).forEach(r=>{ if(r.importId===importId) out.push(['efectivo', r]); });
   (state.pagosTarjeta||[]).forEach(r=>{ if(r.importId===importId) out.push(['pagosTarjeta', r]); });
+  (state.pagosEntre||[]).forEach(r=>{ if(r.importId===importId) out.push(['pagosEntre', r]); });
   return out;
 }
 function ultimaImportacion(){
@@ -8866,8 +9087,10 @@ function deshacerImportacion(importId){
     // Si ese movimiento ya era el primer mes de algo "cada mes", ese mes no se vuelve a crear solo.
     if(r.serieId && r.serieYM){ const se = (state.series||[]).find(x=>x.id===r.serieId); if(se){ if(!Array.isArray(se.omitidos)) se.omitidos = []; if(!se.omitidos.includes(r.serieYM)) se.omitidos.push(r.serieYM); } }
     arr.splice(i,1); n++; } } };
-  quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta);
+  quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta); quitar(state.pagosEntre||[]);
   state.subcats.forEach(sb=>quitar(sb.gastos));
+  // v18.13: lo de esta importación que esperaba la aprobación de la otra también se quita (si no, al aprobarlo quedaría suelto)
+  state.pendientes = (state.pendientes||[]).filter(y=>!(y.accion==='crear' && (y.rec||{}).importId===importId && y.estado!=='rechazado'));
   persist(); // v18.9: lo que es de las cuentas de la otra se queda (espera su aprobación)…
   if(!registrosDeImportacion(importId).length){ state.importaciones = (state.importaciones||[]).filter(im=>im.id!==importId); persist(); } // …y la importación sigue mientras tenga movimientos
   render();
@@ -9436,16 +9659,19 @@ function deudaItems(){
     if(g.quien==='abuelo'){
       if(g.repartoAbuelo!=='ambas') return;
       deudor='isa'; acreedor='jen'; mitad = mxnOf(g)/2; viaAbuelo = true;
+      if(mitad < 0){ deudor='jen'; acreedor='isa'; mitad = -mitad; } // v18.13: devolución: se reparte al revés
     } else if(g.quien==='ambas'){
       const dd = deudaDeGastoAmbas(g); if(!dd) return;
       acreedor = dd.acreedor; deudor = dd.deudor; mitad = dd.monto;
     } else return;
     if(!(mitad>0)) return;
-    items.push({k:'gastos:'+g.id, id:g.id, subId:sb.id, fecha:g.fecha, nota:g.nota||sb.nombre, subNombre:sb.nombre, deudor, acreedor, mitad, viaAbuelo, dosPusieron: g.pagadoPor==='ambas', pagado:0, pagos:[], delBudget: !viaAbuelo && !fueraDelBote(g)});
+    const sep = viaAbuelo ? 'personal' : tipoDeudaGasto(g);
+    items.push({k:'gastos:'+g.id, id:g.id, subId:sb.id, fecha:g.fecha, nota:g.nota||sb.nombre, subNombre:sb.nombre, deudor, acreedor, mitad, viaAbuelo, dosPusieron: g.pagadoPor==='ambas', pagado:0, pagos:[], delBudget: sep==='budget', sep, devolucion: mxnOf(g) < 0});
   }));
   const porK = {}; items.forEach(it=>{ porK[it.k] = it; });
-  const libres = {jen:0, isa:0};
-  const colas = {jen:[], isa:[]}; // v18: lo que sobró de cada pago (para saber con qué pago se saldó cada gasto)
+  // v18.13: cada separación (Budget / personal) se salda aparte: lo que sobra de un pago va a las deudas de SU separación.
+  const colas = {budget:{jen:[], isa:[]}, personal:{jen:[], isa:[]}}; // lo que sobró de cada pago
+  const directo = {budget:{jen:0, isa:0}, personal:{jen:0, isa:0}}; // "pagó por la otra" (p. ej. un vuelo): queda a su favor, no salda sus propias deudas
   (state.pagosEntre||[]).filter(p=>!p.noDeuda).slice().sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'')).forEach(p=>{
     let resto = mxnOf(p);
     (Array.isArray(p.aplica) ? p.aplica : []).forEach(ap=>{
@@ -9454,30 +9680,50 @@ function deudaItems(){
       if(x>0){ it.pagado += x; it.pagos.push({id:p.id, x}); }
       resto -= x;
     });
-    if(resto>0.004 && (p.de==='jen'||p.de==='isa')) colas[p.de].push({id:p.id, resto, excluye: new Set(Array.isArray(p.excluye)?p.excluye:[])});
+    if(resto>0.004 && (p.de==='jen'||p.de==='isa')){
+      if(p.soloAFavor) directo[saldaPago(p)][p.de] += resto;
+      else colas[saldaPago(p)][p.de].push({id:p.id, resto, excluye: new Set(Array.isArray(p.excluye)?p.excluye:[])});
+    }
   });
-  // Lo que se pagó sin elegir gastos va a las deudas más viejas de esa persona.
-  ['jen','isa'].forEach(d=>{
-    items.filter(i=>i.deudor===d).sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'')).forEach(it=>{
+  // Lo que se pagó sin elegir gastos va a las deudas más viejas de esa persona, en la misma separación.
+  const aFavorPor = {budget:{jen:0, isa:0}, personal:{jen:0, isa:0}};
+  ['budget','personal'].forEach(sep=>['jen','isa'].forEach(d=>{
+    items.filter(i=>i.deudor===d && i.sep===sep).sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'')).forEach(it=>{
       let falta = it.mitad - it.pagado;
-      for(const c of colas[d]){
+      for(const c of colas[sep][d]){
         if(falta<=0.004) break;
         if(c.resto<=0.004 || c.excluye.has(it.k)) continue;
         const x = Math.min(falta, c.resto); it.pagado += x; it.pagos.push({id:c.id, x}); c.resto -= x; falta -= x;
       }
     });
-    libres[d] = colas[d].reduce((a,c)=>a+Math.max(0,c.resto),0);
+    aFavorPor[sep][d] = colas[sep][d].reduce((a,c)=>a+Math.max(0,c.resto),0) + directo[sep][d];
+  }));
+  items.forEach(it=>{ it.restanteExacto = Math.max(0, it.mitad - it.pagado); it.restante = Math.round(it.restanteExacto*100)/100; it.saldado = it.restante<=0.005; });
+  // Si las dos pagaron de más (en la misma separación), solo queda la diferencia.
+  const aFavorExacto = {budget:{}, personal:{}};
+  ['budget','personal'].forEach(sep=>{ const L = aFavorPor[sep], m = Math.min(L.jen, L.isa); aFavorExacto[sep] = {jen: L.jen-m, isa: L.isa-m}; L.jen = Math.round((L.jen-m)*100)/100; L.isa = Math.round((L.isa-m)*100)/100; });
+  const libres = {jen: Math.round((aFavorPor.budget.jen + aFavorPor.personal.jen)*100)/100, isa: Math.round((aFavorPor.budget.isa + aFavorPor.personal.isa)*100)/100};
+  return {items, aFavor:libres, aFavorPor, aFavorExacto};
+}
+// v18.13: neto por separación (>0 → Isa le debe a Jen).
+function netoDeudaPorSeparacion(di){
+  di = di || deudaItems();
+  const out = {};
+  ['budget','personal'].forEach(sep=>{
+    // Sin redondear renglón por renglón (se redondea una sola vez al final): nada se cobra de más ni de menos.
+    const debe = (d)=>di.items.filter(i=>i.sep===sep && i.deudor===d).reduce((a,i)=>a+(i.restanteExacto!=null ? i.restanteExacto : i.restante),0);
+    const af = di.aFavorExacto || di.aFavorPor;
+    const v = (debe('isa') + af[sep].jen) - (debe('jen') + af[sep].isa);
+    out[sep] = Math.round(v*100)/100;
   });
-  items.forEach(it=>{ it.restante = Math.max(0, Math.round((it.mitad - it.pagado)*100)/100); it.saldado = it.restante<=0.005; });
-  // Si las dos pagaron de más, solo queda la diferencia.
-  const m = Math.min(libres.jen, libres.isa); libres.jen = Math.round((libres.jen-m)*100)/100; libres.isa = Math.round((libres.isa-m)*100)/100;
-  return {items, aFavor:libres};
+  return out;
 }
 
 // v16: si "deudora" paga cierta cantidad (MXN), qué gastos se saldan (del más viejo al más nuevo).
-function simularPagoLibre(deudora, montoMXN){
+function simularPagoLibre(deudora, montoMXN, sep){
   const ver = otraPersona(deudora);
-  const {items, aFavor} = deudaItems();
+  sep = sep || nosotrasSep || 'budget';
+  const di = deudaItems(), items = di.items.filter(i=>i.sep===sep), aFavor = di.aFavorPor[sep];
   let resto = Math.max(0, Number(montoMXN)||0);
   const lineas = [];
   items.filter(i=>i.deudor===deudora && !i.saldado).sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'') || String(a.id).localeCompare(String(b.id))).forEach(i=>{
@@ -9856,7 +10102,7 @@ function mejorarSelect(sel){
 }
 // v18.4: los botones de opción (Jen / Isa, Lo mío / Lo del Budget, etc.) también llevan icono.
 // Solo dibujos (sin letras) para no cambiar el texto del botón.
-const SEG_ICO = {deb:'ilu:tarjeta', cred:'ilu:credito', jen:'dot:teal', isa:'dot:plum', ambas:'dot:gold', mio:'ilu:tarjeta', budget:'ilu:bote', sin:'ico:check', con:'ico:trend', mitad:'ico:swap', custom:'ico:edit', mensual:'ico:repeat', trial:'ico:clock', hoy:'ico:clock', semana:'ico:calendar', mes:'ico:layers', bote:'ilu:bote', debito:'ilu:tarjeta', credito:'ilu:credito', efectivo:'ilu:billete', otra:'ico:swap', otro:'ilu:persona'};
+const SEG_ICO = {personal:'ilu:tarjeta', no:'ico:x', deb:'ilu:tarjeta', cred:'ilu:credito', jen:'dot:teal', isa:'dot:plum', ambas:'dot:gold', mio:'ilu:tarjeta', budget:'ilu:bote', sin:'ico:check', con:'ico:trend', mitad:'ico:swap', custom:'ico:edit', mensual:'ico:repeat', trial:'ico:clock', hoy:'ico:clock', semana:'ico:calendar', mes:'ico:layers', bote:'ilu:bote', debito:'ilu:tarjeta', credito:'ilu:credito', efectivo:'ilu:billete', otra:'ico:swap', otro:'ilu:persona'};
 function iconosSeg(root){
   try{
     (root||document).querySelectorAll('.seg > button').forEach(b=>{
@@ -10224,7 +10470,7 @@ function renderTotalAcumuladoCard(lugar){
   const filas = abierto ? desgloseAcumulado() : [];
   const tardios = abierto ? gastosTardios(30) : [];
   const alguienDebe = pp.jen < -0.5 || pp.isa < -0.5, algoSobra = pp.jen > 0.5 || pp.isa > 0.5;
-  const pill = (p)=>`<span class="acum-p">${avatarPersona(p)}<span>${escHtml(nombrePersona(p))}</span><b style="color:${col(pp[p])};">${txt(pp[p])}</b><small>${pp[p] < -0.004 ? 'debe' : (pp[p] > 0.004 ? 'sobró' : 'en cero')}</small></span>`;
+  const pill = (p)=>`<span class="acum-p">${avatarPersona(p)}<span>${escHtml(nombrePersona(p))}</span><b style="color:${col(pp[p])};">${txt(pp[p])}</b><small>${pp[p] < -0.004 ? 'gastó de más' : (pp[p] > 0.004 ? 'sobró' : 'en cero')}</small></span>`;
   return `<div class="card acum-card">
     <button type="button" class="acum-head" data-acum-toggle="${lugar}" aria-expanded="${abierto}">
       <span class="acum-ico">${ico('piggy','icon-sm')}</span>
@@ -10245,10 +10491,10 @@ function renderTotalAcumuladoCard(lugar){
         ${tardios.length>10 ? `<div class="small-note">y ${tardios.length-10} más.</div>` : ''}</div>` : ''}
       ${(()=>{ const n = gastosBudgetAntesDeInicio().length; return n ? `<div class="note-box" style="margin:8px 0;">${ico('alert','icon-sm')}<div>Hay ${n} gasto${n===1?'':'s'} marcado${n===1?'':'s'} como Budget antes de ${escHtml(nombreMesLargo(inicioBudgetYM()).toLowerCase())}: no cuentan aquí. <button type="button" class="link-quiet" data-acum-antes>Revisar</button></div></div>` : ''; })()}
       <div class="small-note">Cuenta desde ${escHtml(nombreMesLargo(inicioBudgetYM()).toLowerCase())}. <button type="button" class="link-quiet" data-acum-inicio>Cambiar mes de inicio</button></div>
-      <div class="small-note">Se acumula tanto lo que sobra (+) como lo que se debe (−), de cada una por separado: lo de Jen sale del Budget de mamá y lo de Isa del Budget de papá (los gastos de ambas, a la mitad). Un gasto de un mes que ya cerró cuenta en su mes y queda aquí, no en el Budget de este mes. ${nombreMesLargo(mesActual())} va dejando ${txt(esteMes)}: se suma (o resta) al cerrar el mes. Lo que uses en un mes y no se gaste regresa aquí al cerrar ese mes. El tope del Abuelo no se acumula.</div>
+      <div class="small-note">Se acumula tanto lo que sobra (+) como lo que se gastó de más (−), de cada una por separado: lo que entró a su Budget menos lo que pagó con él (un gasto de ambas cuenta completo para quien lo pagó; lo que la otra le debe está en Nosotras). Un gasto de un mes que ya cerró cuenta en su mes y queda aquí, no en el Budget de este mes. ${nombreMesLargo(mesActual())} va dejando ${txt(esteMes)}: se suma (o resta) al cerrar el mes. Lo que uses en un mes y no se gaste regresa aquí al cerrar ese mes. El tope del Abuelo no se acumula.</div>
     </div>` : ''}
     <div class="acum-acc">
-      <button class="btn btn-outline btn-sm" data-usar-acum ${alguienDebe||algoSobra?'':'disabled'}>${ico(alguienDebe?'minus':'plus','icon-sm')} ${alguienDebe ? 'Cubrir lo que se debe' : 'Usar en este mes'}</button>
+      ${algoSobra ? `<button class="btn btn-outline btn-sm" data-usar-acum>${ico('plus','icon-sm')} Usar en este mes</button>` : ''}
       ${total>0.5 ? `<button class="link-quiet" data-traspaso="sobrante">Pasar a otra cuenta</button>` : ''}
     </div>
   </div>`;
@@ -10314,12 +10560,12 @@ function openUsarAcumulado(editId, opts){
   // Primera opción: cada una cubre (o usa) solo lo suyo con su propio Budget.
   let persona = ex ? ex.persona : (opts.persona || null);
   if(!persona){
-    const debe = ['jen','isa'].filter(p=>disp[p] < -0.5), sobra = ['jen','isa'].filter(p=>disp[p] > 0.5);
-    persona = debe.length ? (debe.includes(perfil) ? perfil : debe[0]) : (sobra.includes(perfil) ? perfil : (sobra[0] || perfil));
+    const sobra = ['jen','isa'].filter(p=>disp[p] > 0.5); // v18.13: ya no se "cubre" lo que se debe (se salda en Nosotras)
+    persona = sobra.includes(perfil) ? perfil : (sobra[0] || perfil);
   }
   const otra = otraPersona(persona);
   // Segunda opción: el sobrante de la otra cubre lo que debe esta (o al revés).
-  const cruceDe = disp[persona] < -0.5 && disp[otra] > 0.5 ? otra : (disp[persona] > 0.5 && disp[otra] < -0.5 ? persona : null);
+  const cruceDe = null; // v18.13: sin cruces nuevos (lo que una pone por la otra se salda en Nosotras)
   const cruceA = cruceDe ? otraPersona(cruceDe) : null;
   const cruceMax = cruceDe ? Math.round(Math.min(disp[cruceDe], -disp[cruceA])*100)/100 : 0;
   const txt = v => (v<-0.004?'−':(v>0.004?'+':''))+fmt(Math.abs(v),'MXN');
@@ -10702,8 +10948,277 @@ function deshacerLote(antes){
   mostrarToast(saltados ? `Se regresaron ${hechos}; ${saltados} ya habían cambiado y se dejaron como están.` : 'Se regresaron los cambios.', 'ok');
 }
 
+/* ---------- v18.13: cambios que van juntos (con aprobación de la otra si tocan sus cuentas) ---------- */
+// Marca primero los registros que se van a tocar (sin aprobación: solo es una marca) y luego hace los cambios. Si algo toca
+// las cuentas de la otra, TODO lo marcado espera su aprobación junto (nunca queda a medias).
+function aplicarLigado(existentes, mutar, prefijo){
+  const liga = (prefijo||'lg')+'-'+uid();
+  existentes.forEach(r=>{ if(r) r.ligaPend = liga; });
+  persistSistema();
+  mutar(liga);
+  persist();
+  return liga;
+}
+function hayPendienteLigado(prefijo){ return (state.pendientes||[]).some(y=>y.estado!=='rechazado' && String(((y.rec||{}).ligaPend)||'').startsWith(prefijo)); }
+function quitarGastoDeState(id){ state.subcats.forEach(sb=>{ sb.gastos = sb.gastos.filter(x=>x.id!==id); }); state.gustosGastos = (state.gustosGastos||[]).filter(x=>x.id!==id); }
+function buscarGasto(id){ return gastosCategoria().find(g=>g.id===id) || null; }
+
+/* ---------- v18.13: pases que se guardaron como gasto de una + ingreso de la otra ---------- */
+function paresParaPase(){
+  const no = new Set(state.noPases||[]);
+  const ini = inicioBudgetYM()+'-01'; // v18.13: lo de antes del Budget no se toca (eran pases personales de otra época)
+  const gastos = gastosCategoria().filter(g=>mxnOf(g)>0 && (g.fecha||'')>=ini && g.quien!=='abuelo' && !esEstancia(g) && ['bote','debito','personal'].includes(g.pagadoCon) && (g.quien==='jen' || g.quien==='isa' || (g.quien==='ambas' && (g.pagadoPor==='jen' || g.pagadoPor==='isa'))))
+    .sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
+  const ingresos = state.ingresos.filter(i=>!i.traspaso && (i.destino==='bote' || i.destino==='debito') && !esIngresoAbuelo(i) && !i.recurrente);
+  const usados = new Set(), out = [];
+  gastos.forEach(g=>{
+    const de = pagadorFisico(g), a = otraPersona(de), m = mxnOf(g);
+    let mejor = null, dd = 99;
+    ingresos.forEach(i=>{ if(i.persona!==a || usados.has(i.id) || Math.abs(brutoIngresoMXN(i) - m) > 0.01 || no.has(g.id+'|'+i.id)) return;
+      const d = Math.abs(nochesEntre(g.fecha||'', i.fecha||'')); if(d<=4 && d<dd){ mejor = i; dd = d; } });
+    if(mejor){ usados.add(mejor.id); const nombre = ecPaseCon(g.nota)===a || ecPaseCon(mejor.fuente)===de || /transfer|traspaso|spei/i.test(sinAcentos((g.nota||'')+' '+(mejor.fuente||''))); out.push({g, i:mejor, de, a, nombre}); }
+  });
+  return out;
+}
+function paseDePar(par, liga){
+  const {g, i, de, a} = par;
+  const r = {id:uid(), de, a, monto:g.monto, moneda:g.moneda||'MXN', fecha:g.fecha, sale: g.pagadoCon==='bote' ? 'bote' : 'debito', entra: i.destino==='bote' ? 'bote' : 'debito', nota:'Pase · '+(g.nota||''), notaLibre: g.nota||''};
+  ['montoMXN','rateMXN','montoEUR','rateEURMXN','importId','firmaEc'].forEach(k=>{ if(g[k]!==undefined && g[k]!==null) r[k] = g[k]; });
+  r.ctaSale = ctaDebito(g.cta); r.ctaEntra = ctaDebito(i.cta);
+  if(par.noDeuda) r.noDeuda = true;
+  if(liga) r.ligaPend = liga;
+  return r;
+}
+function convertirParesEnPase(pares, prefijo){
+  if(!pares.length) return null;
+  const recs = []; pares.forEach(p=>{ recs.push(p.g, p.i); });
+  return aplicarLigado(recs, (liga)=>{
+    if(!Array.isArray(state.pagosEntre)) state.pagosEntre = [];
+    pares.forEach(par=>{
+      const pe = paseDePar(par, liga);
+      quitarGastoDeState(par.g.id);
+      state.ingresos = state.ingresos.filter(x=>x.id!==par.i.id);
+      // el renglón del estado de cuenta de quien recibió ya no regresa al juntar
+      if(par.i.importId && par.i.firmaEc){ const im = (state.importaciones||[]).find(x=>x.id===par.i.importId); if(im){ const q = new Set(im.firmasQuitadas||[]); q.add(par.i.firmaEc); im.firmasQuitadas = [...q]; } }
+      state.pagosEntre.push(pe);
+    });
+  }, prefijo||'pase');
+}
+function openRevisarPases(){
+  const lista = paresParaPase();
+  if(!lista.length){ mostrarToast('No encontré pases guardados como gasto e ingreso.', 'ok'); return; }
+  const txt = (k)=>k==='bote' ? 'Budget' : 'su dinero';
+  openSheet(`
+    ${sheetHeader('Pases guardados como gasto e ingreso')}
+    <div class="small-note" style="margin-bottom:10px;">Una le pasó dinero a la otra, pero quedó como un gasto de una y un ingreso de la otra (mismo monto, fechas cercanas). Así infla lo gastado y lo que entró. Al convertirlo queda un solo pase entre ustedes; los saldos de las cuentas no cambian.</div>
+    <div class="small-note" style="margin-bottom:8px;">Nada viene marcado: marca los que sí fueron un pase y elige si pagó deudas entre ustedes o fue solo pasarle dinero.</div>
+    <div class="ga-lista">${lista.map((p,n)=>`<div class="ga-fila"><input type="checkbox" data-par="${n}" style="width:auto;"><span class="desc"><b>${nombrePersona(p.de)} → ${nombrePersona(p.a)} · ${fmt(mxnOf(p.g),'MXN')}</b> · ${escHtml(fmtDate(p.g.fecha))}<small>Gasto de ${nombrePersona(p.de)}: «${escHtml(p.g.nota||'')}» (${txt(p.g.pagadoCon==='bote'?'bote':'debito')}) · Ingreso de ${nombrePersona(p.a)}: «${escHtml(p.i.fuente||'')}» (${txt(p.i.destino==='bote'?'bote':'debito')})${p.nombre?'':' · <b>revisa: no lleva el nombre de la otra</b>'}</small>
+      <select data-par-tipo="${n}" class="pkx-nativo" style="width:auto;margin-top:6px;"><option value="deuda" ${(p.g.pagadoCon==='bote'||p.i.destino==='bote')?'selected':''}>Paga deudas entre ustedes</option><option value="no" ${(p.g.pagadoCon==='bote'||p.i.destino==='bote')?'':'selected'}>No es deuda (solo le pasó dinero)</option></select></span><button type="button" class="link-quiet" data-par-no="${n}">No es pase</button></div>`).join('')}</div>
+    <button class="btn btn-primary btn-block" id="doConvertirPases" style="margin-top:12px;">${ico('swap','icon-sm')} Convertir los marcados en pase</button>
+    ${aprobacionActiva() ? `<div class="small-note" style="margin-top:8px;">Si tocan las cuentas de ${nombrePersona(otraPersona(perfil))}, le llegan para que los apruebe (todo junto).</div>` : ''}
+  `);
+  document.querySelectorAll('[data-par-no]').forEach(b=>b.addEventListener('click', ()=>{ const p = lista[Number(b.getAttribute('data-par-no'))]; if(!Array.isArray(state.noPases)) state.noPases = []; state.noPases.push(p.g.id+'|'+p.i.id); persistSistema(); openRevisarPases(); }));
+  document.getElementById('doConvertirPases').addEventListener('click', ()=>{
+    const marcados = [...document.querySelectorAll('[data-par]')].filter(c=>c.checked).map(c=>{ const n = c.getAttribute('data-par'), sel = document.querySelector(`[data-par-tipo="${n}"]`); return Object.assign({}, lista[Number(n)], {noDeuda: !!(sel && sel.value==='no')}); });
+    if(!marcados.length){ mostrarToast('No marcaste ninguno.', 'error'); return; }
+    convertirParesEnPase(marcados); closeSheet(); render();
+    mostrarToast(marcados.length===1 ? 'Listo: quedó como pase entre ustedes.' : marcados.length+' convertidos en pases.', 'ok');
+  });
+}
+
+/* ---------- v18.13: devoluciones que no coinciden con su compra ---------- */
+const PAL_GENERICAS = new Set(['compra','compras','devolucion','reembolso','www','com','glovo','glovoapp','app','pago','cargo','abono','transferencia','spei','mx','me']);
+function palabrasClave(t){ return sinAcentos(String(t||'')).toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>=4 && !PAL_GENERICAS.has(w)); }
+function compraDeDevolucion(dev){
+  if(dev.devDe){ const o = buscarGasto(dev.devDe); if(o) return o; }
+  const pk = new Set(palabrasClave(dev.nota)); if(!pk.size) return null;
+  const desde = sumarDiasISO(dev.fecha||todayISO(), -90);
+  const cand = gastosCategoria().filter(g=>mxnOf(g)>0 && (g.fecha||'')>=desde && (g.fecha||'')<=(dev.fecha||'9999') && palabrasClave(g.nota).some(w=>pk.has(w)));
+  if(!cand.length) return null;
+  const m = Math.abs(mxnOf(dev));
+  return cand.sort((a,b)=>Math.abs(mxnOf(a)-m) - Math.abs(mxnOf(b)-m))[0];
+}
+function devolucionNoCoincide(dev, o){
+  if(!o) return false;
+  if(dev.quien!==o.quien) return true;
+  if(o.quien==='ambas' && (dev.pagadoPor||null)!==(o.pagadoPor||null)) return true;
+  if(claseDeudaGasto(dev)!==claseDeudaGasto(o) && o.quien==='ambas') return true;
+  return false;
+}
+function devolucionesQueNoCoinciden(){
+  const no = new Set(state.noDevs||[]);
+  return gastosCategoria().filter(g=>mxnOf(g)<0 && !no.has(g.id)).map(d=>({d, o:compraDeDevolucion(d)})).filter(x=>devolucionNoCoincide(x.d, x.o));
+}
+function textoQuienPago(g){ return g.quien==='ambas' ? 'de ambas, pagó '+nombrePersona(g.pagadoPor||'jen') : (g.quien==='abuelo' ? 'Abuelo' : 'solo '+nombrePersona(g.quien)); }
+function openRevisarDevoluciones(){
+  const lista = devolucionesQueNoCoinciden();
+  if(!lista.length){ mostrarToast('Todas las devoluciones coinciden con su compra.', 'ok'); return; }
+  openSheet(`
+    ${sheetHeader('Devoluciones que no coinciden con su compra')}
+    <div class="small-note" style="margin-bottom:10px;">Una devolución debe repartirse igual que su compra. Si no, a una le toca de más y a la otra de menos.</div>
+    <div class="ga-lista">${lista.map((x,n)=>`<div class="ga-fila"><input type="checkbox" data-dev="${n}" checked style="width:auto;"><span class="desc"><b>${escHtml(x.d.nota||'Devolución')}</b> · ${escHtml(fmtDate(x.d.fecha))} · ${fmt(mxnOf(x.d),'MXN')}<small>Está como ${escHtml(textoQuienPago(x.d))}. La compra «${escHtml(x.o.nota||'')}» (${escHtml(fmtDate(x.o.fecha))}, ${fmt(mxnOf(x.o),'MXN')}) es ${escHtml(textoQuienPago(x.o))}.</small></span><button type="button" class="link-quiet" data-dev-no="${n}">Está bien así</button></div>`).join('')}</div>
+    <button class="btn btn-primary btn-block" id="doIgualarDevs" style="margin-top:12px;">Igualar las marcadas a su compra</button>
+  `);
+  document.querySelectorAll('[data-dev-no]').forEach(b=>b.addEventListener('click', ()=>{ const x = lista[Number(b.getAttribute('data-dev-no'))]; if(!Array.isArray(state.noDevs)) state.noDevs = []; state.noDevs.push(x.d.id); persistSistema(); openRevisarDevoluciones(); }));
+  document.getElementById('doIgualarDevs').addEventListener('click', ()=>{
+    const marcados = [...document.querySelectorAll('[data-dev]')].filter(c=>c.checked).map(c=>lista[Number(c.getAttribute('data-dev'))]);
+    if(!marcados.length){ mostrarToast('No marcaste ninguna.', 'error'); return; }
+    marcados.forEach(x=>copiarDeCompra(x.d, x.o)); persist(); closeSheet(); render();
+    mostrarToast('Listo: '+marcados.length+' devolución'+(marcados.length===1?'':'es')+' igualada'+(marcados.length===1?'':'s')+' a su compra.', 'ok');
+  });
+}
+
+/* ---------- v18.13: CORREGIR REGISTROS (los de Jen e Isa, revisados con ellas el 19 oct 2026) ---------- */
+const CORR1913 = {
+  pase13386: {g:'82lz592gyx3k', i:'p48fuc0go5ar'}, pase1000: {g:'s7hg3m88o5ar', i:'6oq4ljpxyx3k'},
+  flatio:'676cci7imcqv', flatioDev:'s5d9e04wbjs0', fee:'h19uh6py35gc', feeDev:'b6i9cx5ebjs0',
+  vuelo:'zmo40x79g1w2', vueloPago:'xofxrqax3tov', zedwell:'n24j2j75rpbv', phantom:'qar93w8nq4ke',
+  reposiciones:['t0wh9pcojuz3','vonkicd3qe9k','l2jb5cb1qlg6','ux5n2kqp71si','nhypggbnr8bv'], comp:'ze7ditapze1a', compFecha:'2026-10-18'
+};
+// Los pasos que todavía aplican (cada uno revisa que sus registros sigan ahí y sin cambios de fondo).
+function pasosCorreccion1913(){
+  const C = CORR1913, pasos = [];
+  const g1 = buscarGasto(C.pase13386.g), i1 = state.ingresos.find(x=>x.id===C.pase13386.i);
+  if(g1 && i1 && Math.abs(mxnOf(g1)-13386)<0.01 && Math.abs(brutoIngresoMXN(i1)-13386)<0.01) pasos.push({k:'p1', txt:'$13,386 del 27 sep (gasto de Isa + ingreso de Jen) → un pase de Isa (Budget) a Jen (Budget)', par:{g:g1, i:i1, de:'isa', a:'jen'}});
+  const g2 = buscarGasto(C.pase1000.g), i2 = state.ingresos.find(x=>x.id===C.pase1000.i);
+  if(g2 && i2 && Math.abs(mxnOf(g2)-1000)<0.01 && Math.abs(brutoIngresoMXN(i2)-1000)<0.01) pasos.push({k:'p2', txt:'$1,000 del 29 sep (gasto de Jen + ingreso de Isa) → un pase de Jen (Budget) a Isa (personal)', par:{g:g2, i:i2, de:'jen', a:'isa'}});
+  const fl = buscarGasto(C.flatio); if(fl && fl.quien==='jen') pasos.push({k:'fl', txt:'Pago a Flatio del 28 sep ($16,471.67): de "solo Jen" a "de ambas, pagó Jen", igual que su reembolso del 1 oct (Isa transfirió y Jen pagó: cada una recupera su mitad, nadie paga de más)'});
+  const fd = buscarGasto(C.feeDev), fe = buscarGasto(C.fee); if(fd && fe && fd.quien==='ambas') pasos.push({k:'fee', txt:'Reembolso de $20.21 (1 oct): igual que su cargo del 28 sep (débito de Jen, solo Jen)'});
+  const vu = buscarGasto(C.vuelo); if(vu && vu.quien==='jen' && Math.abs(mxnOf(vu)-8905)<0.01) pasos.push({k:'vu', txt:'Vuelo de Isa: Jen le pagó a su mamá $8,905 por la mitad de Isa → queda como deuda personal de Isa (Isa ya pagó $4,075 de eso)'});
+  const ze = buscarGasto(C.zedwell); if(ze && vu && Math.abs(mxnOf(vu)-8905)<0.01) pasos.push({k:'ze', txt:'Tu mitad del hotel Zedwell ($3,390.39, del Budget) se cancela contra lo que falta del vuelo; Phantom ($2,802.63) sigue pendiente'});
+  const rep = C.reposiciones.filter(id=>state.ingresos.some(x=>x.id===id)); if(rep.length) pasos.push({k:'rep', txt:'Borrar '+rep.length+' reposición'+(rep.length===1?'':'es')+' del 17–18 oct ("Del sobrante" / "Reposición de lo que se debía"): se hicieron con los números mal registrados', ids:rep});
+  const comp = (state.pagosEntre||[]).filter(p=>p.compensacion===C.comp); if(comp.length) pasos.push({k:'comp', txt:'Rehacer la compensación del 18 oct por separación (Budget con Budget, personal con personal), con las deudas ya corregidas', ids:comp.map(p=>p.id)});
+  return pasos;
+}
+function correccion1913Disponible(){ return !hayPendienteLigado('corr1913') && pasosCorreccion1913().length > 0; }
+// Hace todos los cambios en memoria (sin guardar). Sirve para la vista previa y para aplicarlos.
+function hacerCorreccion1913(liga){
+  const C = CORR1913, pasos = pasosCorreccion1913(), tiene = (k)=>pasos.find(p=>p.k===k);
+  const marca = (r)=>{ if(r && liga) r.ligaPend = liga; return r; };
+  if(!Array.isArray(state.pagosEntre)) state.pagosEntre = [];
+  ['p1','p2'].forEach(k=>{ const p = tiene(k); if(!p) return; const pe = paseDePar(p.par, liga);
+    pe.nota = k==='p1' ? 'Pase · Isa le pasó a Jen para el alojamiento (Flatio)' : 'Pase · Jen le regresó a Isa'; pe.salda = 'budget';
+    quitarGastoDeState(p.par.g.id); state.ingresos = state.ingresos.filter(x=>x.id!==p.par.i.id);
+    if(p.par.i.importId && p.par.i.firmaEc){ const im = (state.importaciones||[]).find(x=>x.id===p.par.i.importId); if(im){ const q = new Set(im.firmasQuitadas||[]); q.add(p.par.i.firmaEc); im.firmasQuitadas = [...q]; } }
+    state.pagosEntre.push(pe); });
+  if(tiene('fl')){ const fl = buscarGasto(C.flatio); fl.quien = 'ambas'; fl.pagadoPor = 'jen'; delete fl.parteJen; const fd = buscarGasto(C.flatioDev); if(fd) fd.devDe = fl.id; }
+  if(tiene('fee')){ const fd = buscarGasto(C.feeDev), fe = buscarGasto(C.fee); copiarDeCompra(fd, fe); fd.pagadoCon = fe.pagadoCon; fd.cta = fe.cta || fd.cta; }
+  let vueloId = null;
+  if(tiene('vu')){ const vu = buscarGasto(C.vuelo);
+    const pe = marca({id:uid(), de:'jen', a:'isa', monto:vu.monto, moneda:vu.moneda||'MXN', montoMXN:mxnOf(vu), rateMXN:1, fecha:vu.fecha, sale:'debito', ctaSale: ctaDebito(vu.cta), entra:'otra', salda:'personal', soloAFavor:true, nota:'Vuelo de Isa: Jen le pagó a su mamá la mitad de Isa', notaLibre: vu.nota||''});
+    quitarGastoDeState(vu.id); state.pagosEntre.push(pe); vueloId = pe.id;
+    const vp = (state.pagosEntre||[]).find(p=>p.id===C.vueloPago); if(vp){ vp.salda = 'personal'; vp.soloAFavor = true; delete vp.noDeuda; } }
+  if(tiene('rep')) state.ingresos = state.ingresos.filter(x=>!C.reposiciones.includes(x.id));
+  if(tiene('comp')) state.pagosEntre = state.pagosEntre.filter(p=>p.compensacion!==C.comp);
+  if(tiene('ze')){ const ze = buscarGasto(C.zedwell), m = Math.round(mxnOf(ze)/2*100)/100, grupo = 'c1913z-'+uid();
+    state.pagosEntre.push(marca({id:uid(), de:'jen', a:'isa', monto:m, moneda:'MXN', rateMXN:1, montoMXN:m, fecha:C.compFecha, sale:'compensacion', entra:'compensacion', compensacion:grupo, salda:'budget', nota:'Compensación', notaLibre:'Tu mitad de Zedwell contra el vuelo de Isa', aplica:[{k:'gastos:'+ze.id, montoMXN:m}]}));
+    state.pagosEntre.push(marca({id:uid(), de:'isa', a:'jen', monto:m, moneda:'MXN', rateMXN:1, montoMXN:m, fecha:C.compFecha, sale:'compensacion', entra:'compensacion', compensacion:grupo, salda:'personal', soloAFavor:true, nota:'Compensación', notaLibre:'Parte del vuelo de Isa (contra la mitad de Jen de Zedwell)', aplica:[]})); }
+  if(tiene('comp')){
+    // Se vuelve a compensar lo que había hasta el 18 oct, cada separación con lo suyo (del más viejo al más nuevo).
+    ['budget','personal'].forEach(sep=>{
+      const its = deudaItems().items.filter(i=>i.sep===sep && !i.saldado && (i.fecha||'')<=C.compFecha && i.id!==C.zedwell && i.id!==C.phantom);
+      const lado = (d)=>its.filter(i=>i.deudor===d).sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'') || String(a.id).localeCompare(String(b.id)));
+      const ex = (i)=>i.restanteExacto!=null ? i.restanteExacto : i.restante;
+      const J = lado('jen'), I = lado('isa'), m = Math.min(J.reduce((a,i)=>a+ex(i),0), I.reduce((a,i)=>a+ex(i),0));
+      if(!(m>0.004)) return;
+      const reparte = (L)=>{ let r = m; const out = []; L.forEach(i=>{ if(r<=1e-6) return; const x = Math.min(ex(i), r); r -= x; out.push({k:i.k, montoMXN:x}); }); return out; };
+      const grupo = 'c1913'+sep[0]+'-'+uid();
+      ['jen','isa'].forEach(de=>state.pagosEntre.push(marca({id:uid(), de, a:otraPersona(de), monto:Math.round(m*100)/100, moneda:'MXN', rateMXN:1, montoMXN:m, fecha:C.compFecha, sale:'compensacion', entra:'compensacion', compensacion:grupo, salda:sep, nota:'Compensación', notaLibre:'Rehecha el 19 oct ('+NOMBRE_SEP[sep].toLowerCase()+')', aplica: reparte(de==='jen' ? J : I)})));
+    });
+  }
+  return vueloId;
+}
+// Números para la vista previa: lo que cambia (y lo que no debe cambiar).
+function fotoCorreccion(){
+  const r = (v)=>Math.round(v*100)/100;
+  const di = deudaItems(), np = netoDeudaPorSeparacion(di);
+  const cuentas = {}; ['jen','isa'].forEach(p=>{ const sc = saldosCuentas(p); cuentas[p] = r(Object.values(sc).reduce((a,c)=>a+c.total,0)); });
+  return {cuentas, budget:{jen: r(acumuladoPorPersonaMXN().jen + budgetRealMesMXN('jen')), isa: r(acumuladoPorPersonaMXN().isa + budgetRealMesMXN('isa'))}, total: r(acumuladoTotalMXN()), deuda: np,
+    pendientes: di.items.filter(i=>!i.saldado).length};
+}
+function simularCorreccion1913(){
+  const st0 = state, antes = fotoCorreccion();
+  try{ state = JSON.parse(JSON.stringify(st0)); hacerCorreccion1913(null); return {antes, despues: fotoCorreccion()}; }
+  finally { state = st0; }
+}
+function openCorregirRegistros(){
+  const pasos = pasosCorreccion1913();
+  if(hayPendienteLigado('corr1913')){ mostrarToast('La corrección ya se mandó y espera la aprobación de la otra.', 'ok'); return; }
+  if(!pasos.length){ mostrarToast('No hay nada que corregir.', 'ok'); return; }
+  const {antes, despues} = simularCorreccion1913();
+  const f = (v)=>(v<-0.004?'−':'')+fmt(Math.abs(v),'MXN');
+  const deu = (v)=>Math.abs(v)<0.005 ? 'a mano' : (v>0 ? 'Isa le debe a Jen '+fmt(v,'MXN') : 'Jen le debe a Isa '+fmt(-v,'MXN'));
+  const cuentasIgual = ['jen','isa'].every(p=>Math.abs(antes.cuentas[p]-despues.cuentas[p])<0.01);
+  // El Budget total solo puede moverse por el reembolso de $20.21 (era de un cargo de tu débito, no del Budget).
+  const feeDev = pasos.some(p=>p.k==='fee') ? buscarGasto(CORR1913.feeDev) : null, esperado = feeDev && feeDev.pagadoCon==='bote' ? mxnOf(feeDev) : 0;
+  const totalIgual = Math.abs((despues.total - antes.total) - esperado) < 0.01;
+  const fila = (lbl, a, d)=>`<div class="corr-row"><span>${lbl}</span><span class="corr-a">${a}</span><span class="corr-d">${d}</span></div>`;
+  openSheet(`
+    ${sheetHeader('Corregir registros')}
+    <div class="small-note" style="margin-bottom:10px;">Lo revisamos el 19 oct. Esto es lo que se va a cambiar:</div>
+    <ol class="corr-pasos">${pasos.map(p=>`<li>${escHtml(p.txt)}</li>`).join('')}</ol>
+    <div class="small-note" style="margin:6px 0 10px;">La tarjeta de la mamá de Jen no se toca (queda fuera del Budget; la mitad de Isa sigue como deuda personal). Ojo con el vuelo: 8,905 − 4,075 = 4,830 (no 4,066). Después de cancelar Zedwell, a Isa le quedan ${fmt(8905-4075-3390.39,'MXN')} del vuelo; si fueron otros montos, edita el pago del vuelo en Nosotras.</div>
+    <div class="corr-tabla"><div class="corr-row corr-h"><span></span><span>Antes</span><span>Después</span></div>
+      ${fila('Budget de Jen (real)', f(antes.budget.jen), f(despues.budget.jen))}
+      ${fila('Budget de Isa (real)', f(antes.budget.isa), f(despues.budget.isa))}
+      ${fila('Deudas dentro del Budget', deu(antes.deuda.budget), deu(despues.deuda.budget))}
+      ${fila('Deudas personales', deu(antes.deuda.personal), deu(despues.deuda.personal))}
+      ${fila('Total acumulado del Budget', f(antes.total), f(despues.total))}
+      ${fila('Saldos de las cuentas de Jen', f(antes.cuentas.jen), f(despues.cuentas.jen))}
+      ${fila('Saldos de las cuentas de Isa', f(antes.cuentas.isa), f(despues.cuentas.isa))}
+    </div>
+    <div class="${cuentasIgual && totalIgual ? 'corr-ok' : 'corr-mal'}">${ico(cuentasIgual && totalIgual ? 'check' : 'alert','icon-sm')} ${cuentasIgual && totalIgual ? 'Los saldos de sus cuentas no cambian: solo se acomoda de quién es cada cosa.'+(Math.abs(esperado)>0.004 ? ' El Total acumulado cambia '+f(esperado)+' porque el reembolso de '+fmt(-esperado,'MXN')+' era de un cargo de tu débito (no del Budget).' : ' El Budget total tampoco cambia.') : 'Algo movería los saldos de las cuentas: no se puede aplicar así.'}</div>
+    ${aprobacionActiva() ? `<div class="small-note" style="margin-top:8px;">Hay registros de ${nombrePersona(otraPersona(perfil))}: todo le llega junto para que lo apruebe. Hasta entonces no cambia nada.</div>` : ''}
+    <button class="btn btn-primary btn-block" id="doCorregir" ${cuentasIgual && totalIgual ? '' : 'disabled'} style="margin-top:12px;">Corregir</button>
+  `);
+  document.getElementById('doCorregir').addEventListener('click', ()=>{
+    const C = CORR1913, recs = [];
+    const firmasAntes = JSON.stringify((state.importaciones||[]).map(im=>[im.id, im.firmasQuitadas||[]]));
+    pasosCorreccion1913().forEach(p=>{ if(p.par){ recs.push(p.par.g, p.par.i); } });
+    [C.flatio, C.flatioDev, C.fee, C.feeDev, C.vuelo, C.zedwell].forEach(id=>{ const g = buscarGasto(id); if(g) recs.push(g); });
+    C.reposiciones.forEach(id=>{ const x = state.ingresos.find(i=>i.id===id); if(x) recs.push(x); });
+    (state.pagosEntre||[]).forEach(p=>{ if(p.compensacion===C.comp || p.id===C.vueloPago) recs.push(p); });
+    // v18.13: para poder deshacerla, se guarda cómo estaba cada registro que se toca y qué se creó.
+    const antes = recorrerRegistros(state).filter(e=>recs.includes(e.rec)).map(e=>{ const r = JSON.parse(JSON.stringify(e.rec)); delete r.ligaPend; return {col:e.col, loc:e.loc, rec:r}; });
+    const idsAntes = new Set(antes.map(a=>a.rec.id));
+    const liga = aplicarLigado(recs, (lg)=>hacerCorreccion1913(lg), 'corr1913');
+    const nuevos = [...recorrerRegistros(state).map(e=>e.rec), ...(state.pendientes||[]).filter(y=>y.accion==='crear').map(y=>y.rec)].filter(r=>r && r.ligaPend===liga && !idsAntes.has(r.id)).map(r=>r.id);
+    state.correccion1913 = {liga, fecha: todayISO(), antes, nuevos, firmasAntes: JSON.parse(firmasAntes)};
+    persistSistema();
+    closeSheet(); render();
+    mostrarToast(hayPendienteLigado('corr1913') ? 'Listo: la corrección le llegó a '+nombrePersona(otraPersona(perfil))+' para que la apruebe.' : 'Listo: registros corregidos.', 'ok');
+  });
+}
+// ¿Se puede deshacer la corrección? (ya se aplicó y no hay nada esperando aprobación)
+function correccion1913Deshacible(){
+  const c = state.correccion1913; if(!c || !Array.isArray(c.nuevos) || hayPendienteLigado('corr1913')) return false;
+  const ids = new Set(recorrerRegistros(state).map(e=>e.rec.id));
+  return c.nuevos.some(id=>ids.has(id));
+}
+function deshacerCorreccion1913(){
+  const c = state.correccion1913; if(!c) return;
+  const nuevos = new Set(c.nuevos||[]), idsAntes = new Set((c.antes||[]).map(a=>a.rec.id));
+  const tocados = recorrerRegistros(state).filter(e=>nuevos.has(e.rec.id) || idsAntes.has(e.rec.id)).map(e=>e.rec);
+  aplicarLigado(tocados, (liga)=>{
+    recorrerRegistros(state).filter(e=>nuevos.has(e.rec.id)).forEach(e=>quitarRegistroDe(state, e.col, e.rec.id));
+    (c.antes||[]).forEach(a=>ponerRegistroEn(state, a.col, a.loc, Object.assign(JSON.parse(JSON.stringify(a.rec)), {ligaPend: liga})));
+    (c.firmasAntes||[]).forEach(([id, fq])=>{ const im = (state.importaciones||[]).find(x=>x.id===id); if(im){ if(fq.length) im.firmasQuitadas = fq.slice(); else delete im.firmasQuitadas; } });
+  }, 'corr1913undo');
+  delete state.correccion1913; persistSistema();
+}
+function htmlHerramientasNosotras(){
+  const np = paresParaPase().length, nd = devolucionesQueNoCoinciden().length, corr = correccion1913Disponible(), undo = correccion1913Deshacible();
+  if(!np && !nd && !corr && !undo) return '';
+  return `<div class="card nos-revisar"><div class="card-title"><h2>${ico('alert','icon-sm')} Por revisar</h2></div>
+    ${corr ? `<div class="aviso-sus aviso-tarj"><span class="acum-ico">${ico('edit','icon-sm')}</span><span><b>Corregir registros</b> (lo que revisamos el 19 oct: Flatio, los pases de $13,386 y $1,000, el vuelo y las reposiciones). Primero ves qué cambia.</span><span class="aviso-acc"><button type="button" class="btn btn-primary btn-sm" id="nosCorregir">Revisar</button></span></div>` : ''}
+    ${undo ? `<div class="small-note" style="margin-bottom:8px;">${ico('check','icon-xs')} Ya se corrigieron los registros del 19 oct. <button type="button" class="link-quiet" id="nosDeshacerCorr">Deshacer la corrección</button></div>` : ''}
+    ${np ? `<div class="aviso-sus aviso-tarj"><span class="acum-ico">${ico('swap','icon-sm')}</span><span><b>${np}</b> ${np===1?'pase quedó':'pases quedaron'} como gasto de una + ingreso de la otra.</span><span class="aviso-acc"><button type="button" class="btn btn-outline btn-sm" id="nosPases">Ver</button></span></div>` : ''}
+    ${nd ? `<div class="aviso-sus aviso-tarj"><span class="acum-ico">${ico('handcoin','icon-sm')}</span><span><b>${nd}</b> ${nd===1?'devolución no coincide':'devoluciones no coinciden'} con su compra.</span><span class="aviso-acc"><button type="button" class="btn btn-outline btn-sm" id="nosDevs">Ver</button></span></div>` : ''}
+  </div>`;
+}
+
 /* ---------- Pestaña Nosotras ---------- */
-let nosotrasVer = null, nosotrasBusqueda = '', nosotrasSel = {}, nosotrasSaldados = false, nosHistLimite = 20;
+let nosotrasVer = null, nosotrasBusqueda = '', nosotrasSel = {}, nosotrasSaldados = false, nosHistLimite = 20, nosotrasSep = 'budget';
 // v18: de qué cuenta a qué cuenta fue un pago entre ustedes.
 function cuentaPagoTxt(persona, k, cta){
   if(k==='compensacion') return 'compensación';
@@ -10726,45 +11241,97 @@ function htmlPagosDeItem(i){
       <div class="nos-pago-acc">${pe.sale==='compensacion' ? '' : `<button type="button" class="link-quiet" data-nos-editpago="${escHtml(id)}">Editar pago</button>`}<button type="button" class="link-quiet" data-nos-pend="${escHtml(i.k)}|${escHtml(id)}">Marcar como pendiente otra vez</button></div></div></div>`;
   }).join('')}</div>`;
 }
-// Compensar: si las dos se deben, se cancelan las deudas hasta donde alcance (no se mueve dinero).
-function planCompensacion(){
+// v18.13: Compensar eligiendo qué se cancela con qué. Se cancela lo menor de los dos lados; lo que sobre del lado mayor
+// queda pendiente (en el último renglón marcado). Lista agrupada por mes, con buscador y "marcar todo el mes".
+let compSel = {}, compBusq = '', compCruzar = false;
+function planCompensacionSel(){
   const {items} = deudaItems();
-  const lado = (d)=>items.filter(i=>i.deudor===d && !i.saldado).sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'') || String(a.id).localeCompare(String(b.id)));
-  const J = lado('jen'), I = lado('isa');
-  const tJ = J.reduce((a,i)=>a+i.restante,0), tI = I.reduce((a,i)=>a+i.restante,0);
-  const m = Math.round(Math.min(tJ, tI)*100)/100;
-  const reparte = (lista)=>{ let r = m; const out = []; lista.forEach(i=>{ if(r<=0.004) return; const x = Math.round(Math.min(i.restante, r)*100)/100; r -= x; out.push({k:i.k, nota:i.nota, montoMXN:x, completo: x>=i.restante-0.005, queda: Math.max(0, Math.round((i.restante-x)*100)/100), mitad:i.mitad}); }); return out; };
-  return {monto: m, jen: m>0 ? reparte(J) : [], isa: m>0 ? reparte(I) : []};
+  const elegidos = (d)=>items.filter(i=>i.deudor===d && !i.saldado && compSel[i.k]).sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||'') || String(a.id).localeCompare(String(b.id)));
+  const J = elegidos('jen'), I = elegidos('isa');
+  const ex = (i)=>i.restanteExacto!=null ? i.restanteExacto : i.restante; // sin redondear renglón por renglón: no quedan centavos sueltos
+  const eJ = J.reduce((a,i)=>a+ex(i),0), eI = I.reduce((a,i)=>a+ex(i),0), mE = Math.min(eJ, eI);
+  const tJ = Math.round(eJ*100)/100, tI = Math.round(eI*100)/100, m = Math.round(mE*100)/100;
+  const reparte = (lista)=>{ let r = mE; const out = []; lista.forEach(i=>{ if(r<=1e-6) return; const x = Math.min(ex(i), r); r -= x; out.push({k:i.k, nota:i.nota, sep:i.sep, montoMXN:x, completo: x>=ex(i)-0.005, queda: Math.max(0, Math.round((ex(i)-x)*100)/100), mitad:i.mitad}); }); return out; };
+  const seps = new Set([...J, ...I].map(i=>i.sep));
+  return {monto:m, tJ, tI, jen: m>0 ? reparte(J) : [], isa: m>0 ? reparte(I) : [], cruza: seps.size > 1, quedaDe: tJ>tI ? 'jen' : (tI>tJ ? 'isa' : null), queda: Math.round(Math.abs(tJ-tI)*100)/100};
+}
+// Compatibilidad: el plan automático de antes (todo lo pendiente de la separación elegida, del más viejo al más nuevo).
+function planCompensacion(){
+  const {items} = deudaItems(), sep = nosotrasSep || 'budget';
+  const lado = (d)=>items.filter(i=>i.deudor===d && !i.saldado && i.sep===sep);
+  const tJ = lado('jen').reduce((a,i)=>a+i.restante,0), tI = lado('isa').reduce((a,i)=>a+i.restante,0);
+  return {monto: Math.round(Math.min(tJ, tI)*100)/100};
+}
+function htmlCompensarCuerpo(){
+  const {items} = deudaItems(), sep = nosotrasSep || 'budget';
+  const q = sinAcentos(compBusq.trim());
+  const visibles = items.filter(i=>!i.saldado && (compCruzar || i.sep===sep) && (!q || sinAcentos((i.nota||'')+' '+(i.subNombre||'')).includes(q)));
+  const pl = planCompensacionSel();
+  const lado = (d)=>{
+    const L = visibles.filter(i=>i.deudor===d).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+    if(!L.length) return `<div class="small-note">Nada pendiente${q?' con esa búsqueda':''}.</div>`;
+    const meses = {}; L.forEach(i=>{ const k = ymDe(i.fecha||''); (meses[k] = meses[k] || []).push(i); });
+    return Object.keys(meses).sort().reverse().map(ym=>{ const M = meses[ym], todos = M.every(i=>compSel[i.k]), tot = M.reduce((a,i)=>a+i.restante,0);
+      return `<div class="comp-mes"><label class="comp-mes-h"><input type="checkbox" data-comp-mes="${d}|${ym}" ${todos?'checked':''}> <b>${escHtml(nombreMesLargo(ym))}</b> <span class="muted">· ${M.length} · ${fmt(tot,'MXN')}</span></label>
+        ${M.map(i=>{ const pl1 = (d==='jen'?pl.jen:pl.isa).find(x=>x.k===i.k);
+          return `<label class="comp-it ${compSel[i.k]?'on':''}"><input type="checkbox" data-comp-k="${escHtml(i.k)}" ${compSel[i.k]?'checked':''}><span class="desc">${escHtml(i.nota)}<small>${escHtml(fmtDate(i.fecha))} · <span class="sep-tag sep-${i.sep}">${i.sep==='budget'?'Budget':'Personal'}</span>${pl1 && !pl1.completo ? ' · se cancelan '+fmt(pl1.montoMXN,'MXN')+', quedan '+fmt(pl1.queda,'MXN') : ''}</small></span><b>${fmt(i.restante,'MXN')}</b></label>`; }).join('')}</div>`; }).join('');
+  };
+  return `
+    <div class="small-note" style="margin-bottom:10px;">Marca qué se compensa de cada lado. Se cancela lo menor de los dos totales; lo que sobre queda pendiente. No se mueve dinero de ninguna cuenta.</div>
+    <input type="text" class="mov-search" id="compBuscar" placeholder="Buscar por nombre..." value="${escHtml(compBusq)}">
+    <label class="rec-chk" style="margin:6px 0 10px;"><input type="checkbox" id="compCruzar" style="width:auto;" ${compCruzar?'checked':''}> Mostrar también ${sep==='budget'?'lo personal':'lo del Budget'} (cruzar separaciones)</label>
+    <div class="comp-cols">
+      <div class="comp-col"><div class="comp-col-t">Lo que Jen le debe a Isa</div>${lado('jen')}</div>
+      <div class="comp-col"><div class="comp-col-t">Lo que Isa le debe a Jen</div>${lado('isa')}</div>
+    </div>
+    <div class="comp-res">
+      <div class="bp-linea"><span>Marcado de Jen</span><b>${fmt(pl.tJ,'MXN')}</b></div>
+      <div class="bp-linea"><span>Marcado de Isa</span><b>${fmt(pl.tI,'MXN')}</b></div>
+      <div class="bp-linea bp-tot"><span>Se cancela de cada lado</span><b>${fmt(pl.monto,'MXN')}</b></div>
+      ${pl.monto>0.004 && pl.queda>0.004 ? `<div class="small-note" style="margin-top:6px;">Queda pendiente <b>${fmt(pl.queda,'MXN')}</b> de lo que ${nombrePersona(pl.quedaDe)} le debe a ${nombrePersona(otraPersona(pl.quedaDe))}.</div>` : ''}
+      ${pl.cruza ? `<div class="rp-aviso">${ico('alert','icon-xs')} <span>Estás cruzando Budget con personal: una deuda del Budget se cancela con una personal. El Budget de quien la cobraba no recupera ese dinero (lo recibe en lo personal).</span></div>` : ''}
+    </div>
+    <button class="btn btn-primary btn-block" id="doCompensar" ${pl.monto>0.004?'':'disabled'} style="margin-top:12px;">${pl.monto>0.004 ? 'Compensar '+fmt(pl.monto,'MXN') : 'Marca renglones de los dos lados'}</button>`;
+}
+function wireCompensar(){
+  const body = document.getElementById('compBody'); if(!body) return;
+  const re = ()=>{ body.innerHTML = htmlCompensarCuerpo(); wireCompensar(); };
+  body.querySelectorAll('[data-comp-k]').forEach(el=>el.addEventListener('change', ()=>{ const k = el.getAttribute('data-comp-k'); if(el.checked) compSel[k] = true; else delete compSel[k]; re(); }));
+  body.querySelectorAll('[data-comp-mes]').forEach(el=>el.addEventListener('change', ()=>{
+    const [d, ym] = el.getAttribute('data-comp-mes').split('|'), sep = nosotrasSep || 'budget', q = sinAcentos(compBusq.trim());
+    deudaItems().items.filter(i=>i.deudor===d && !i.saldado && ymDe(i.fecha||'')===ym && (compCruzar || i.sep===sep) && (!q || sinAcentos((i.nota||'')+' '+(i.subNombre||'')).includes(q))).forEach(i=>{ if(el.checked) compSel[i.k] = true; else delete compSel[i.k]; });
+    re(); }));
+  const b = document.getElementById('compBuscar'); if(b){ b.addEventListener('keyup', (e)=>{ compBusq = b.value; if(e.key==='Enter') re(); }); b.addEventListener('change', ()=>{ compBusq = b.value; re(); }); }
+  const c = document.getElementById('compCruzar'); if(c) c.addEventListener('change', ()=>{ compCruzar = c.checked; if(!compCruzar){ const sep = nosotrasSep || 'budget'; const its = deudaItems().items; Object.keys(compSel).forEach(k=>{ const it = its.find(i=>i.k===k); if(!it || it.sep!==sep) delete compSel[k]; }); } re(); });
+  const go = document.getElementById('doCompensar'); if(go) go.addEventListener('click', ()=>{
+    const p2 = planCompensacionSel(); if(!(p2.monto>0.004)) return;
+    const mExacto = Math.min(p2.jen.reduce((a,l)=>a+l.montoMXN,0), p2.isa.reduce((a,l)=>a+l.montoMXN,0));
+    if(p2.cruza && !confirm('Vas a cancelar una deuda del Budget con una personal. ¿Seguro?')) return;
+    const grupo = uid(), fecha = todayISO();
+    const sepDe = (L)=>{ const s1 = new Set(L.map(l=>l.sep)); return s1.size===1 ? [...s1][0] : 'budget'; };
+    ['jen','isa'].forEach(de=>{ const L = de==='jen' ? p2.jen : p2.isa;
+      state.pagosEntre.push({id:uid(), de, a:otraPersona(de), monto:p2.monto, moneda:'MXN', rateMXN:1, montoMXN:mExacto, fecha, sale:'compensacion', entra:'compensacion', compensacion:grupo, salda: sepDe(L), nota:'Compensación', notaLibre:'', aplica:L.map(l=>({k:l.k, montoMXN:l.montoMXN}))});
+    });
+    compSel = {};
+    persist(); closeSheet(); render();
+    mostrarToast('Listo: se compensaron '+fmt(p2.monto,'MXN')+' de cada lado.'+(p2.queda>0.004 ? ' Quedan pendientes '+fmt(p2.queda,'MXN')+'.' : ''), 'ok');
+  });
 }
 function openCompensar(){
-  const pl = planCompensacion();
-  if(!(pl.monto>0.004)){ mostrarToast('No hay deudas de las dos para compensar.', 'error'); return; }
-  const lista = (arr)=>arr.map(l=>`<div class="det-row"><span>${escHtml(l.nota)}</span><b>${l.completo ? 'saldado' : fmt(l.montoMXN,'MXN')+' de '+fmt(l.mitad,'MXN')+' · faltan '+fmt(l.queda,'MXN')}</b></div>`).join('');
-  openSheet(`
-    ${sheetHeader('Compensar deudas')}
-    <div class="small-note" style="margin-bottom:12px;">Las dos se deben algo: se cancela <b>${fmt(pl.monto,'MXN')}</b> de cada lado, del gasto más viejo al más nuevo. No se mueve dinero de ninguna cuenta.</div>
-    <div class="field"><label>Lo que Jen le debía a Isa</label><div class="det-rows">${lista(pl.jen)}</div></div>
-    <div class="field"><label>Lo que Isa le debía a Jen</label><div class="det-rows">${lista(pl.isa)}</div></div>
-    <button class="btn btn-primary btn-block" id="doCompensar">Compensar ${fmt(pl.monto,'MXN')}</button>
-  `);
-  document.getElementById('doCompensar').addEventListener('click', ()=>{
-    const p2 = planCompensacion(); if(!(p2.monto>0.004)){ closeSheet(); return; }
-    const grupo = uid(), fecha = todayISO();
-    const nota = (de)=>'Compensación · '+(de==='jen' ? p2.jen : p2.isa).map(l=>l.nota).join(', ');
-    ['jen','isa'].forEach(de=>{
-      state.pagosEntre.push({id:uid(), de, a:otraPersona(de), monto:p2.monto, moneda:'MXN', rateMXN:1, montoMXN:p2.monto, fecha, sale:'compensacion', entra:'compensacion', compensacion:grupo, nota:nota(de), notaLibre:'', aplica:(de==='jen'?p2.jen:p2.isa).map(l=>({k:l.k, montoMXN:l.montoMXN}))});
-    });
-    persist(); closeSheet(); render();
-    mostrarToast('Listo: se compensaron '+fmt(p2.monto,'MXN')+' de cada lado.', 'ok');
-  });
+  compSel = {}; compBusq = ''; compCruzar = false;
+  openSheet(`${sheetHeader('Compensar deudas · '+NOMBRE_SEP[nosotrasSep||'budget'].toLowerCase())}<div id="compBody">${htmlCompensarCuerpo()}</div>`);
+  wireCompensar();
 }
 function openCompensacionDetalle(pe){
   const grupo = (state.pagosEntre||[]).filter(p=>p.compensacion===pe.compensacion);
+  const {items} = deudaItems();
+  const lado = (p)=>(Array.isArray(p.aplica)?p.aplica:[]).map(ap=>{ const it = items.find(i=>i.k===ap.k); return `<div class="det-row"><span>${escHtml(it?it.nota:'Gasto')}${it?` <small class="muted">· ${escHtml(fmtDate(it.fecha))} · ${it.sep==='budget'?'Budget':'Personal'}${it.restante>0.005?' · quedan '+fmt(it.restante,'MXN'):''}</small>`:''}</span><b>${fmt(Number(ap.montoMXN)||0,'MXN')}</b></div>`; }).join('') || '<div class="small-note">—</div>';
+  const m = Math.min(...grupo.map(p=>Number(p.montoMXN)||mxnOf(p)));
   openSheet(`
     ${sheetHeader('Compensación')}
-    <div class="small-note" style="margin-bottom:12px;">${escHtml(textoPagoEntre(pe))}. Se canceló ${fmt(Number(pe.monto)||0,'MXN')} de cada lado; no se movió dinero.</div>
-    <div class="det-rows" style="margin-bottom:14px;">${grupo.map(p=>`<div class="det-row"><span>${nombrePersona(p.de)} → ${nombrePersona(p.a)}</span><b>${escHtml((p.nota||'').replace(/^Compensación · /,''))}</b></div>`).join('')}</div>
-    <button class="btn btn-outline btn-block" id="deshacerComp" style="color:var(--brick);">Deshacer la compensación</button>
+    <div class="small-note" style="margin-bottom:12px;">Compensación del ${escHtml(fmtDate(pe.fecha))}: se canceló ${fmt(m,'MXN')} de cada lado; no se movió dinero.</div>
+    ${grupo.map(p=>`<details class="comp-det" ${grupo.length<=2?'':''}><summary><b>${nombrePersona(p.de)} → ${nombrePersona(p.a)}</b> <span class="muted">· ${(Array.isArray(p.aplica)?p.aplica.length:0)} renglones · ${fmt(Number(p.montoMXN)||mxnOf(p),'MXN')}</span></summary><div class="det-rows">${lado(p)}</div></details>`).join('')}
+    <button class="btn btn-outline btn-block" id="deshacerComp" style="color:var(--brick);margin-top:12px;">Deshacer la compensación</button>
   `);
   document.getElementById('deshacerComp').addEventListener('click', ()=>{ quitarMovimiento('pago-entre', pe.id); persist(); closeSheet(); render(); mostrarToast('Se deshizo la compensación.', 'ok'); });
 }
@@ -10801,9 +11368,11 @@ function openPendienteOtraVez(k, pagoId){
   }));
 }
 function renderNosotras(){
-  const d = deudasPendientes();
-  const {items, aFavor} = deudaItems();
-  const neto = d.neto;
+  // v18.13: dos separaciones: lo que se deben dentro del Budget y lo personal. Cada una se paga y se compensa aparte.
+  const di = deudaItems(), netoPor = netoDeudaPorSeparacion(di), sep = nosotrasSep==='personal' ? 'personal' : 'budget';
+  const items = di.items.filter(i=>i.sep===sep), aFavor = di.aFavorPor[sep];
+  const neto = netoPor[sep];
+  const hayCompensable = ['jen','isa'].every(p=>di.items.some(i=>i.deudor===p && !i.saldado));
   const pos = {jen:fmtPosicionDeuda(neto), isa:fmtPosicionDeuda(-neto)};
   const ver = nosotrasVer || (neto>0.005 ? 'jen' : (neto<-0.005 ? 'isa' : perfil)); // acreedora
   const deudora = otraPersona(ver);
@@ -10816,14 +11385,16 @@ function renderNosotras(){
   const netoVer = ver==='jen' ? neto : -neto;
   const selTotal = pend.reduce((a,i)=>a+(nosotrasSel[i.k]!==undefined ? Math.min(i.restante, Math.max(0, Number(nosotrasSel[i.k])||0)) : 0),0);
   const q = sinAcentos(nosotrasBusqueda.trim());
+  const compVistas = new Set();
   const historial = [
-    ...items.map(i=>({tipo:'item', fecha:i.fecha, i})),
-    ...(state.pagosEntre||[]).map(p=>({tipo:'pago', fecha:p.fecha, p}))
+    ...di.items.map(i=>({tipo:'item', fecha:i.fecha, i})),
+    ...(state.pagosEntre||[]).filter(p=>{ if(!p.compensacion) return true; if(compVistas.has(p.compensacion)) return false; compVistas.add(p.compensacion); return true; }).map(p=>({tipo:'pago', fecha:p.fecha, p}))
   ].filter(x=>{
     if(!q) return true;
-    const t = x.tipo==='item' ? x.i.nota+' '+x.i.subNombre : (x.p.nota||'')+' pago';
+    const t = x.tipo==='item' ? x.i.nota+' '+x.i.subNombre : (x.p.compensacion ? 'compensación' : (x.p.nota||'')+' pago');
     return sinAcentos(t).includes(q);
   }).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  const resumenComp = (p)=>{ const g = (state.pagosEntre||[]).filter(x=>x.compensacion===p.compensacion); const n = g.reduce((a,x)=>a+(Array.isArray(x.aplica)?x.aplica.length:0),0); const m = Math.min(...g.map(x=>Number(x.montoMXN)||mxnOf(x))); return {n, m}; };
   const lineaItem = (i, conSel)=>`
     <div class="exp-line nos-item ${i.saldado?'saldado':''}">
       ${conSel ? `<label class="nos-chk"><input type="checkbox" data-nos-sel="${escHtml(i.k)}" ${nosotrasSel[i.k]!==undefined?'checked':''}></label>` : ''}
@@ -10832,20 +11403,24 @@ function renderNosotras(){
       <div class="amt ${i.saldado?'':'gasto'}">${i.saldado ? 'Saldado' : fmt(i.restante,'MXN')}${!i.saldado && i.pagado>0.005 ? `<span class="est">de ${fmt(i.mitad,'MXN')}</span>` : ''}</div>
     </div>
     ${conSel && nosotrasSel[i.k]!==undefined ? `<div class="nos-parcial"><label>¿Cuánto paga de este? (MXN)</label><input type="number" step="0.01" data-nos-monto="${escHtml(i.k)}" value="${nosotrasSel[i.k]}" max="${i.restante}"></div>` : ''}`;
-  return `
+  return `${htmlHerramientasNosotras()}
   <div class="card card-deudas">
     <div class="card-title"><h2>${ico('users','icon-sm')} Cuentas entre nosotras</h2></div>
+    <div class="nos-seps">${['budget','personal'].map(k=>{ const v = netoPor[k], txt = Math.abs(v)<0.005 ? 'A mano' : (v>0 ? 'Isa le debe a Jen' : 'Jen le debe a Isa');
+      return `<button type="button" class="nos-sep nos-sep-${k} ${sep===k?'on':''}" data-nos-sep="${k}"><span class="nos-sep-n">${k==='budget'?ico('wallet','icon-xs'):ico('card','icon-xs')} ${NOMBRE_SEP[k]}</span><span class="nos-sep-v">${txt}${Math.abs(v)<0.005?'':' <b>'+fmt(Math.abs(v),'MXN')+'</b>'}</span></button>`; }).join('')}</div>
+    <div class="small-note" style="margin:6px 0 10px;">${sep==='budget' ? 'Dentro del Budget: gastos de ambas pagados con el Budget. Se pagan de Budget a Budget.' : 'Personal: gastos de ambas pagados con su dinero (débito, crédito u otra persona). Se pagan entre su dinero personal. Lo pagado en efectivo no genera deuda.'}</div>
     <div class="deuda-cols">
       ${['jen','isa'].map(p=>`<div class="deuda-col ${ver===p?'on':''}" data-nos-ver="${p}" style="cursor:pointer;">
         <div class="deuda-col-name">${nombrePersona(p)}</div>
         <div class="deuda-col-amt" style="color:${pos[p].color};">${pos[p].txt}</div>
       </div>`).join('')}
     </div>
-    <div class="small-note" style="margin-top:8px;">Verde = le deben · Rojo = debe. Toca un nombre para ver lo que le deben.</div>
+    <div class="small-note" style="margin-top:8px;">${NOMBRE_SEP[sep]} · Verde = le deben · Rojo = debe. Toca un nombre para ver lo que le deben.</div>
+    ${hayCompensable ? `<button class="btn btn-outline btn-sm" id="nosCompensar" style="margin-top:10px;">${ico('swap','icon-sm')} Compensar…</button>` : ''}
   </div>
   <div class="card">
-    <div class="card-title"><h2>Lo que ${nombrePersona(deudora)} le debe a ${nombrePersona(ver)}</h2><span class="hint">${fmt(totalPend,'MXN')}</span></div>
-    ${contraPend>0.005 ? `<div class="note-box" style="margin:-2px 0 10px;flex-wrap:wrap;"><span>${netoVer>0.005 ? `En neto ${nombrePersona(deudora)} le debe <b>${fmt(netoVer,'MXN')}</b>` : (netoVer<-0.005 ? `En neto es ${nombrePersona(ver)} quien debe <b>${fmt(-netoVer,'MXN')}</b>` : 'En neto están a mano')}, porque ${nombrePersona(ver)} también le debe ${fmt(contraPend,'MXN')} a ${nombrePersona(deudora)} (toca su nombre arriba para verlo).</span>${planCompensacion().monto>0.004 ? `<button class="btn btn-outline btn-sm" id="nosCompensar" style="margin-top:8px;">${ico('swap','icon-sm')} Compensar ${fmt(planCompensacion().monto,'MXN')}</button>` : ''}</div>` : ''}
+    <div class="card-title"><h2>Lo que ${nombrePersona(deudora)} le debe a ${nombrePersona(ver)} · ${NOMBRE_SEP[sep].toLowerCase()}</h2><span class="hint">${fmt(totalPend,'MXN')}</span></div>
+    ${contraPend>0.005 ? `<div class="note-box" style="margin:-2px 0 10px;flex-wrap:wrap;"><span>${netoVer>0.005 ? `En neto ${nombrePersona(deudora)} le debe <b>${fmt(netoVer,'MXN')}</b>` : (netoVer<-0.005 ? `En neto es ${nombrePersona(ver)} quien debe <b>${fmt(-netoVer,'MXN')}</b>` : 'En neto están a mano')}, porque ${nombrePersona(ver)} también le debe ${fmt(contraPend,'MXN')} a ${nombrePersona(deudora)} (toca su nombre arriba para verlo).</span></div>` : ''}
     ${(pend.length || extraVer) ? `<div class="nos-libre">
       <label for="nosLibreMonto">¿Cuánto pagó ${nombrePersona(deudora)}? <span class="muted">(cualquier cantidad)</span></label>
       <div class="nos-libre-row"><input type="number" step="0.01" min="0" id="nosLibreMonto" placeholder="0" value="${escHtml(nosLibreMonto)}"><select id="nosLibreMoneda" aria-label="Moneda">${['MXN','EUR'].map(m=>`<option ${m===nosLibreMoneda?'selected':''}>${m}</option>`).join('')}</select><button class="btn btn-primary btn-sm" id="nosLibrePagar" data-deudora="${deudora}">Registrar</button></div>
@@ -10853,7 +11428,7 @@ function renderNosotras(){
     </div>` : ''}
     ${pend.length ? `<div class="small-note" style="margin:-4px 0 6px;">O marca los gastos que ${nombrePersona(deudora)} va a pagar. Puedes pagar solo una parte: el gasto sigue apareciendo con lo que falta.</div>` : ''}
     ${pend.length ? pend.map(i=>lineaItem(i, true)).join('') : (extraVer ? '' : `<div class="small-note">${nombrePersona(deudora)} no le debe nada a ${nombrePersona(ver)}. 🎉</div>`)}
-    ${extraVer ? `<div class="exp-line nos-item"><span class="nos-chk"></span>${micoHtml(iconoMov({tipo:'pago-entre'}),'sm')}<div class="desc"><div class="n">Pagado de más por ${nombrePersona(ver)}</div><div class="d">${nombrePersona(ver)} le pagó más de lo que debía; ${nombrePersona(deudora)} se lo regresa</div></div><div class="amt gasto">${fmt(extraVer,'MXN')}</div></div>` : ''}
+    ${extraVer ? `<div class="exp-line nos-item"><span class="nos-chk"></span>${micoHtml(iconoMov({tipo:'pago-entre'}),'sm')}<div class="desc"><div class="n">Pagado de más por ${nombrePersona(ver)}</div><div class="d">${nombrePersona(ver)} le pagó de más o pagó algo por ${nombrePersona(deudora)} (p. ej. un vuelo); ${nombrePersona(deudora)} se lo regresa</div></div><div class="amt gasto">${fmt(extraVer,'MXN')}</div></div>` : ''}
     ${(pend.length || extraVer) ? `<div class="det-actions" style="margin-top:12px;">
       <button class="btn btn-primary" id="nosPagarSel" ${selTotal>0?'':'disabled'}>Pagar lo marcado${selTotal>0?' · '+fmt(selTotal,'MXN'):''}</button>
       <button class="btn btn-outline" id="nosPagarTodo" data-deudora="${deudora}">Pagar todo · ${fmt(totalPend,'MXN')}</button>
@@ -10866,13 +11441,13 @@ function renderNosotras(){
     ${historial.length ? listaPorDia(historial.slice(0, nosHistLimite), x=> x.tipo==='item' ? `
       <div class="exp-line clickable" data-mov-open="gasto-generales|${x.i.id}|${x.i.subId}">
         ${micoHtml(iconoMov({tipo:'gasto-generales', subId:x.i.subId}),'sm')}
-        <div class="desc"><div class="n">${escHtml(x.i.nota)}</div><div class="d">${escHtml(x.i.subNombre)} · ${nombrePersona(x.i.deudor)} le debe a ${nombrePersona(x.i.acreedor)}</div></div>
+        <div class="desc"><div class="n">${escHtml(x.i.nota)}</div><div class="d">${escHtml(x.i.subNombre)} · ${nombrePersona(x.i.deudor)} le debe a ${nombrePersona(x.i.acreedor)} · <span class="sep-tag sep-${x.i.sep}">${x.i.sep==='budget'?'Budget':'Personal'}</span>${x.i.devolucion?' · devolución':''}</div></div>
         <div class="amt ${x.i.saldado?'':'gasto'}">${fmt(x.i.mitad,'MXN')}${x.i.saldado?'<span class="est">saldado</span>':(x.i.pagado>0.005?`<span class="est">faltan ${fmt(x.i.restante,'MXN')}</span>`:'')}</div>
       </div>` : `
       <div class="exp-line clickable" data-mov-open="pago-entre|${x.p.id}|">
         ${micoHtml(iconoMov({tipo:'pago-entre'}),'sm')}
-        <div class="desc"><div class="n">${escHtml(x.p.nota||'Pago entre nosotras')}</div><div class="d">${x.p.sale==='compensacion' ? 'compensación' : 'pago · de '+escHtml(cuentaPagoTxt(x.p.de, x.p.sale, x.p.ctaSale))+' a '+escHtml(cuentaPagoTxt(x.p.a, x.p.entra, x.p.ctaEntra))}${Array.isArray(x.p.aplica)&&x.p.aplica.length?' · '+x.p.aplica.length+' '+(x.p.aplica.length===1?'gasto':'gastos'):''}</div></div>
-        <div class="amt ${x.p.sale==='compensacion'?'neutro':'income'}">${x.p.sale==='compensacion'?'↔ ':''}${fmt(x.p.monto, x.p.moneda||'MXN')}</div>
+        <div class="desc"><div class="n">${x.p.compensacion ? (()=>{ const r = resumenComp(x.p); return 'Compensación · '+r.n+' '+(r.n===1?'renglón':'renglones'); })() : escHtml(x.p.nota||'Pago entre nosotras')}</div><div class="d">${x.p.sale==='compensacion' ? 'se cancelaron deudas, no se movió dinero · toca para ver el detalle' : 'pago · de '+escHtml(cuentaPagoTxt(x.p.de, x.p.sale, x.p.ctaSale))+' a '+escHtml(cuentaPagoTxt(x.p.a, x.p.entra, x.p.ctaEntra))+(x.p.noDeuda ? ' · no es deuda' : ' · <span class="sep-tag sep-'+saldaPago(x.p)+'">'+(saldaPago(x.p)==='budget'?'Budget':'Personal')+'</span>')}${!x.p.compensacion && Array.isArray(x.p.aplica)&&x.p.aplica.length?' · '+x.p.aplica.length+' '+(x.p.aplica.length===1?'gasto':'gastos'):''}</div></div>
+        <div class="amt ${x.p.sale==='compensacion'?'neutro':'income'}">${x.p.sale==='compensacion'?'↔ '+fmt(resumenComp(x.p).m,'MXN') : fmt(x.p.monto, x.p.moneda||'MXN')}</div>
       </div>`) : emptyMini(q ? 'Nada coincide con esa búsqueda.' : 'Todavía no hay gastos compartidos ni pagos.', 'wallet')}
     ${historial.length > nosHistLimite ? `<button class="btn btn-outline btn-block" id="nosVerMas" style="margin-top:10px;">${ico('chevdown','icon-sm')} Ver más (${historial.length - nosHistLimite} más)</button>` : ''}
   </div>`;
@@ -11061,7 +11636,7 @@ function openCompraArq(persona, editId){
 function fuentesDinero(p){
   const efectivo = saldoEfectivoResumen(p).reduce((a,r)=>a+toMXN(r.saldo, r.moneda),0);
   const lista = [
-    {k:'budget', nombre: nombreBudget(p)+' (50/50)', monto: miIngresoMXN(p) - miGastoBoteMXN(p), glyph:'bote', nota:'Tu mitad de lo compartido sale de aquí; la otra mitad del budget de '+(p==='isa'?'Jen':'Isa')+'.'},
+    {k:'budget', nombre: nombreBudget(p), monto: budgetRealMesMXN(p), glyph:'bote', nota:'Lo que queda en tu Budget este mes. Lo compartido que pagues tú, '+(p==='isa'?'Jen':'Isa')+' te debe la mitad (en Nosotras).'},
     {k:'abuelo', nombre:'Tarjeta del Abuelo', monto: abueloDisponibleMXN(), glyph:'abuelo', nota:'Meta del mes.'},
     {k:'sobrante', nombre:'Sobrante de meses anteriores', monto: acumDisponiblePorPersona()[p], glyph:'alcancia', nota:'Lo tuyo que se ha ido juntando (lo de '+(p==='isa'?'Jen':'Isa')+' va aparte).'},
     {k:'efectivo', nombre:'Efectivo', monto: efectivo, glyph:'billete', nota:'Tu efectivo (en pesos aprox.).'},
@@ -11074,7 +11649,7 @@ function renderConQuePago(){
   const f = fuentesDinero(perfil);
   const iAhora = f.findIndex(x=>x.monto>0.5);
   const otra = otraPersona(perfil);
-  const otroBudget = miIngresoMXN(otra) - miGastoBoteMXN(otra);
+  const otroBudget = budgetRealMesMXN(otra);
   return `<div class="card">
     <div class="card-title"><h2>${ico('wallet','icon-sm')} ¿Con qué pago ahora?</h2><span class="hint">en este orden</span></div>
     ${f.map((x,i)=>`<div class="cqp-row ${i===iAhora?'ahora':''} ${x.monto<=0.5?'agotado':''}">
@@ -11154,6 +11729,7 @@ function wireV15Events(){
   document.querySelectorAll('[data-esperado]').forEach(b=>b.addEventListener('click', ()=>abrirIngresoEsperado(b.getAttribute('data-esperado'))));
   // Nosotras
   on('[data-nos-ver]', 'click', (el)=>{ nosotrasVer = el.getAttribute('data-nos-ver'); nosotrasSel = {}; render(); });
+  on('[data-nos-sep]', 'click', (el)=>{ nosotrasSep = el.getAttribute('data-nos-sep')==='personal' ? 'personal' : 'budget'; nosotrasVer = null; nosotrasSel = {}; nosotrasSaldados = false; render(); });
   on('[data-nos-sel]', 'change', (el)=>{
     const k = el.getAttribute('data-nos-sel');
     if(el.checked){ const it = deudaItems().items.find(i=>i.k===k); nosotrasSel[k] = it ? it.restante : 0; } else delete nosotrasSel[k];
@@ -11168,14 +11744,14 @@ function wireV15Events(){
     const aplica = items.filter(i=>nosotrasSel[i.k]!==undefined && !i.saldado).map(i=>({k:i.k, montoMXN:Math.min(i.restante, Math.max(0, Number(nosotrasSel[i.k])||0))})).filter(a=>a.montoMXN>0);
     if(!aplica.length) return;
     const it0 = items.find(i=>i.k===aplica[0].k);
-    openPagoEntre(null, null, {de: it0.deudor, aplica, monto: aplica.reduce((a,x)=>a+x.montoMXN,0)});
+    openPagoEntre(null, null, {de: it0.deudor, aplica, monto: aplica.reduce((a,x)=>a+x.montoMXN,0), salda: nosotrasSep});
   });
   const pt = document.getElementById('nosPagarTodo'); if(pt) pt.addEventListener('click', ()=>{
     const deudora = pt.getAttribute('data-deudora');
     const di = deudaItems();
-    const aplica = di.items.filter(i=>i.deudor===deudora && !i.saldado).map(i=>({k:i.k, montoMXN:i.restante}));
-    const extra = di.aFavor[otraPersona(deudora)]>0.005 ? di.aFavor[otraPersona(deudora)] : 0;
-    openPagoEntre(null, null, {de: deudora, aplica, monto: Math.round((aplica.reduce((a,x)=>a+x.montoMXN,0) + extra)*100)/100});
+    const aplica = di.items.filter(i=>i.deudor===deudora && !i.saldado && i.sep===nosotrasSep).map(i=>({k:i.k, montoMXN: i.restanteExacto!=null ? i.restanteExacto : i.restante}));
+    const af = di.aFavorPor[nosotrasSep][otraPersona(deudora)], extra = af>0.005 ? af : 0;
+    openPagoEntre(null, null, {de: deudora, aplica, monto: Math.round((aplica.reduce((a,x)=>a+x.montoMXN,0) + extra)*100)/100, salda: nosotrasSep});
   });
   { const li = document.getElementById('nosLibreMonto'), lm = document.getElementById('nosLibreMoneda'), lb = document.getElementById('nosLibrePagar');
     const refrescar = ()=>{ const pv = document.getElementById('nosLibrePrev'); if(pv && lb) pv.innerHTML = renderPrevPagoLibre(lb.getAttribute('data-deudora')); };
@@ -11186,12 +11762,19 @@ function wireV15Events(){
       const monto = Number(nosLibreMonto)||0;
       if(!(monto>0)){ alert('Escribe cuánto pagó.'); return; }
       const mxn = nosLibreMoneda==='MXN' ? monto : monto*rateSnapshotFor(nosLibreMoneda);
-      const r = simularPagoLibre(deudora, mxn);
-      openPagoEntre(null, null, {de: deudora, aplica: r.lineas.map(l=>({k:l.k, montoMXN:l.aplica})), monto, moneda: nosLibreMoneda, libre:true});
+      const r = simularPagoLibre(deudora, mxn, nosotrasSep);
+      openPagoEntre(null, null, {de: deudora, aplica: r.lineas.map(l=>({k:l.k, montoMXN:l.aplica})), monto, moneda: nosLibreMoneda, libre:true, salda: nosotrasSep});
       nosLibreMonto = '';
     }); }
   const vs = document.getElementById('nosVerSaldados'); if(vs) vs.addEventListener('click', ()=>{ nosotrasSaldados = !nosotrasSaldados; render(); });
   { const c = document.getElementById('nosCompensar'); if(c) c.addEventListener('click', openCompensar); }
+  { const c = document.getElementById('nosCorregir'); if(c) c.addEventListener('click', openCorregirRegistros); }
+  { const c = document.getElementById('inicioCorregir'); if(c) c.addEventListener('click', openCorregirRegistros); }
+  document.querySelectorAll('[data-nombres-banco]').forEach(el=>el.addEventListener('change', ()=>{ const p = el.getAttribute('data-nombres-banco'); if(!state.nombresBanco || typeof state.nombresBanco!=='object') state.nombresBanco = {}; state.nombresBanco[p] = el.value.split(',').map(x=>x.trim()).filter(Boolean); persist(); mostrarToast('Guardado.', 'ok'); }));
+  on('[data-nos-sep-ir]', 'click', (el)=>{ activeTab = 'nosotras'; nosotrasSep = el.getAttribute('data-nos-sep-ir'); nosotrasVer = null; nosotrasSel = {}; render(); });
+  { const c = document.getElementById('nosPases'); if(c) c.addEventListener('click', openRevisarPases); }
+  { const c = document.getElementById('nosDeshacerCorr'); if(c) c.addEventListener('click', ()=>{ if(!confirm('¿Deshacer la corrección del 19 oct? Todo regresa como estaba antes (si tocaste esos registros después, también regresan).')) return; deshacerCorreccion1913(); render(); mostrarToast(hayPendienteLigado('corr1913') ? 'Se mandó a '+nombrePersona(otraPersona(perfil))+' para que lo apruebe.' : 'Listo: la corrección se deshizo.', 'ok'); }); }
+  { const c = document.getElementById('nosDevs'); if(c) c.addEventListener('click', openRevisarDevoluciones); }
   { const vm = document.getElementById('nosVerMas'); if(vm) vm.addEventListener('click', ()=>{ nosHistLimite += 20; render(); }); }
   document.querySelectorAll('[data-nos-editpago]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); openPagoEntre(null, b.getAttribute('data-nos-editpago')); }));
   document.querySelectorAll('[data-nos-pend]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); const v = b.getAttribute('data-nos-pend'); const i = v.lastIndexOf('|'); openPendienteOtraVez(v.slice(0,i), v.slice(i+1)); }));
@@ -11663,6 +12246,21 @@ function wireSheetEvents(){
       const nt = document.getElementById('pagadoPorNota'); if(nt) nt.textContent = notaPagadoPor(v);
     });
   });
+  { const dv = document.getElementById('gastoDevolucion'), dw = document.getElementById('gastoDevDeWrap'); if(dv && dw) dv.addEventListener('change', ()=>{ dw.style.display = dv.checked ? '' : 'none'; }); }
+  // v18.13: separación de la deuda (automática según con qué se pagó; se puede cambiar)
+  const refrescarDeudaTipo = ()=>{
+    const h = document.getElementById('gastoDeudaTipo'); if(!h) return;
+    const pagoV = (document.getElementById('gastoPago')||{}).value || 'bote';
+    const auto = tipoDeudaGasto({pagadoCon: pagoV==='abuelo' ? 'bote' : pagoV, quien: pagoV==='abuelo' ? 'abuelo' : 'ambas'});
+    const efectivo = pagoV==='efectivo';
+    const v = h.value || auto;
+    document.querySelectorAll('[data-deuda-tipo]').forEach(b=>b.classList.toggle('on', b.getAttribute('data-deuda-tipo')===v));
+    const seg = document.getElementById('deudaTipoSeg'); if(seg) seg.style.display = efectivo ? 'none' : '';
+    const nt = document.getElementById('deudaTipoNota');
+    if(nt) nt.textContent = efectivo ? 'Pagado en efectivo: no genera deuda entre ustedes.' : (h.value && h.value!==auto ? 'Lo cambiaste a mano.' : (auto==='budget' ? 'Automático: se pagó con el Budget, la deuda se paga Budget a Budget.' : 'Automático: se pagó con dinero personal, la deuda se paga entre su dinero personal.'));
+  };
+  document.querySelectorAll('[data-deuda-tipo]').forEach(el=>el.addEventListener('click', ()=>{ const h = document.getElementById('gastoDeudaTipo'); if(h) h.value = el.getAttribute('data-deuda-tipo'); refrescarDeudaTipo(); }));
+  { const gp = document.getElementById('gastoPago'); if(gp) gp.addEventListener('change', refrescarDeudaTipo); refrescarDeudaTipo(); }
   // "Ambas": 50/50 o personalizado (lo que puso cada una; la otra parte se calcula sola)
   document.querySelectorAll('[data-reparto]').forEach(el=>{
     el.addEventListener('click', ()=>{
@@ -11793,6 +12391,8 @@ function wireSheetEvents(){
     const esDevolucion = !!(document.getElementById('gastoDevolucion')||{}).checked;
     let monto = Number(document.getElementById('gastoMonto').value||0);
     if(esDevolucion) monto = -Math.abs(monto); // v18.5: devolución = gasto negativo
+    const devDeId = esDevolucion ? ((document.getElementById('gastoDevDe')||{}).value || '') : '';
+    const devOrig = devDeId ? gastosCategoria().find(x=>x.id===devDeId) : null;
     const eraDevolucion = (()=>{ try{ const er = document.getElementById('gastoEditRef'); const ref = er && er.value ? JSON.parse(er.value.replace(/&apos;/g,"'")) : null; const g = ref ? gastosCategoria().find(x=>x.id===ref.id) : null; return !!(g && Number(g.monto) < 0); }catch(e){ return false; } })();
     if(monto===0 || (monto<0 && !eraDevolucion && !esDevolucion)){ alert('Ingresa un monto válido.'); return; }
     if(!(document.getElementById('gastoSub')||{}).value){ marcarFaltante('gastoSub'); alert('Elige la categoría.'); return; }
@@ -11819,6 +12419,8 @@ function wireSheetEvents(){
     const repartoAbuelo = pago==='abuelo' ? (quienSelVal==='ambas' ? 'ambas' : 'jen') : null;
     const pagadoPorEl = document.getElementById('gastoPagadoPor');
     const pagadoPor = quien==='ambas' ? (pagadoPorEl ? (pagadoPorEl.value || null) : perfil) : null;
+    const deudaTipoEl = document.getElementById('gastoDeudaTipo');
+    const deudaTipo = quien==='ambas' && deudaTipoEl && (deudaTipoEl.value==='budget'||deudaTipoEl.value==='personal') && deudaTipoEl.value!==tipoDeudaGasto({pagadoCon: pago==='abuelo' ? 'bote' : pago, quien}) ? deudaTipoEl.value : null;
     let parteJen = null;
     if(pagadoPor==='ambas'){
       const rep = (document.getElementById('gastoReparto')||{}).value || 'mitad';
@@ -11886,6 +12488,8 @@ function wireSheetEvents(){
       state.gustosGastos = state.gustosGastos.filter(g=>g.id!==existing.id);
       Object.assign(existing, {monto, moneda, fecha, quien, pagadoPor, nota, pagadoCon, ...stamp});
       if(parteJen!==null) existing.parteJen = parteJen; else delete existing.parteJen;
+      if(deudaTipo) existing.deudaTipo = deudaTipo; else delete existing.deudaTipo;
+      if(devOrig) copiarDeCompra(existing, devOrig); else if(!esDevolucion || !devDeId) delete existing.devDe;
       if(repartoAbuelo) existing.repartoAbuelo = repartoAbuelo; else delete existing.repartoAbuelo;
       if(otroNombre) existing.otroNombre = otroNombre; else delete existing.otroNombre;
       ponerCta(existing);
@@ -11918,7 +12522,9 @@ function wireSheetEvents(){
     const stampGuardar = planMeses ? stampRates(montoGuardar, moneda, rateUsar) : stamp;
     const gasto = {id:uid(), monto:montoGuardar, moneda, fecha, quien, pagadoPor, nota, pagadoCon, ...stampGuardar};
     if(parteJen!==null) gasto.parteJen = parteJen;
+    if(deudaTipo) gasto.deudaTipo = deudaTipo;
     if(repartoAbuelo) gasto.repartoAbuelo = repartoAbuelo;
+    if(devOrig) copiarDeCompra(gasto, devOrig);
     if(otroNombre) gasto.otroNombre = otroNombre;
     ponerCta(gasto);
     aplicarEstancia(gasto);
@@ -12133,7 +12739,26 @@ function wireSheetEvents(){
   });
   const refrescarPeCtas = ()=>{
     [['peSale','peCtaSaleWrap','peCtaSale'],['peEntra','peCtaEntraWrap','peCtaEntra']].forEach(([s,w,c])=>{ const se = document.getElementById(s), wr = document.getElementById(w), ce = document.getElementById(c); if(se && wr) wr.style.display = (se.value==='bote'||esDebito(se.value)) ? '' : 'none'; if(se && ce){ const v = ce.value, l = ctasDebitoDe(se.value); ce.innerHTML = opcionesCta(l, l.includes(v) ? v : l[0]); } });
+    refrescarPeSalda();
   };
+  // v18.13: qué deuda salda el pago (automático según de dónde sale / a dónde llega; se puede cambiar)
+  const refrescarPeSalda = ()=>{
+    const h = document.getElementById('peSalda'), nd = document.getElementById('peNoDeuda'); if(!h) return;
+    const auto = saldaPago({sale:(document.getElementById('peSale')||{}).value, entra:(document.getElementById('peEntra')||{}).value});
+    const v = nd && nd.checked ? 'no' : (h.value || auto);
+    document.querySelectorAll('[data-pe-salda]').forEach(b=>b.classList.toggle('on', b.getAttribute('data-pe-salda')===v));
+    const nt = document.getElementById('peSaldaNota');
+    if(nt) nt.textContent = v==='no' ? 'Solo le pasas dinero: no paga nada de lo que se deben.' : ((h.value && h.value!==auto) ? 'Lo cambiaste a mano: paga deudas '+(v==='budget'?'del Budget':'personales')+'.' : (v==='budget' ? 'Automático: sale o llega al Budget, así que paga lo que se deben dentro del Budget.' : 'Automático: va de dinero personal a dinero personal, así que paga lo que se deben de lo personal.'));
+  };
+  document.querySelectorAll('[data-pe-salda]').forEach(el=>el.addEventListener('click', ()=>{
+    const v = el.getAttribute('data-pe-salda'), h = document.getElementById('peSalda'), nd = document.getElementById('peNoDeuda');
+    if(nd) nd.checked = v==='no'; if(h) h.value = v==='no' ? '' : v;
+    // Al elegir la separación se proponen las cuentas de esa separación (se pueden cambiar).
+    const se = document.getElementById('peSale'), en = document.getElementById('peEntra'), q = v==='budget' ? 'bote' : 'debito';
+    if(v!=='no' && se && en && !(document.getElementById('peEditRef')||{}).value){ se.value = q; en.value = q; }
+    refrescarPeCtas();
+  }));
+  refrescarPeSalda();
   ['peSale','peEntra'].forEach(id=>{ const e = document.getElementById(id); if(e) e.addEventListener('change', refrescarPeCtas); });
   const peMonedaSel = document.getElementById('peMoneda');
   if(peMonedaSel) peMonedaSel.addEventListener('change', ()=>{
@@ -12160,6 +12785,8 @@ function wireSheetEvents(){
     const nota = (noDeuda ? `${nombrePersona(de)} le pasó dinero a ${nombrePersona(a)} (no es deuda)` : `${nombrePersona(de)} le pagó a ${nombrePersona(a)}`) + (notaLibre?(' · '+notaLibre):'');
     const campos = {de, a, monto, moneda, fecha, sale, entra, nota, notaLibre, ...stamp};
     if(noDeuda) campos.noDeuda = true;
+    const saldaV = (document.getElementById('peSalda')||{}).value;
+    if(!noDeuda && (saldaV==='budget' || saldaV==='personal')) campos.salda = saldaV;
     campos.ctaSale = (sale==='bote'||esDebito(sale)) ? ctaDebito((document.getElementById('peCtaSale')||{}).value) : null;
     campos.ctaEntra = (entra==='bote'||esDebito(entra)) ? ctaDebito((document.getElementById('peCtaEntra')||{}).value) : null;
     if(!campos.ctaSale) delete campos.ctaSale; if(!campos.ctaEntra) delete campos.ctaEntra;
@@ -12168,7 +12795,7 @@ function wireSheetEvents(){
     try{ aplica = JSON.parse((document.getElementById('peAplica')||{}).value.replace(/&apos;/g,"'")||'[]')||[]; }catch(err){ aplica = []; }
     if((document.getElementById('peLibre')||{}).value==='1' && !document.getElementById('peEditRef').value){
       // "Pagar cualquier cantidad": se recalcula con el monto final en pesos (por si cambiaron el tipo de cambio).
-      aplica = simularPagoLibre(de, mxnOf(campos)).lineas.map(l=>({k:l.k, montoMXN:l.aplica}));
+      aplica = simularPagoLibre(de, mxnOf(campos), campos.salda || saldaPago(campos)).lineas.map(l=>({k:l.k, montoMXN:l.aplica}));
     }
     if(noDeuda) aplica = [];
     if(aplica.length){
@@ -12180,7 +12807,7 @@ function wireSheetEvents(){
     if(!Array.isArray(state.pagosEntre)) state.pagosEntre = [];
     if(editId){
       const ex = state.pagosEntre.find(p=>p.id===editId);
-      if(ex){ Object.assign(ex, campos); if(!campos.ctaSale) delete ex.ctaSale; if(!campos.ctaEntra) delete ex.ctaEntra; if(!noDeuda){ delete ex.noDeuda; } else { delete ex.aplica; } }
+      if(ex){ Object.assign(ex, campos); if(!campos.ctaSale) delete ex.ctaSale; if(!campos.ctaEntra) delete ex.ctaEntra; if(!campos.salda) delete ex.salda; if(!noDeuda){ delete ex.noDeuda; } else { delete ex.aplica; } }
     } else {
       state.pagosEntre.push({id:uid(), ...campos});
     }
