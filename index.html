@@ -1304,7 +1304,7 @@
 const memoryStore = {};
 const STORAGE_KEY = 'ruta_compartida_budget_v1';
 // Se muestra al final de Configuración para confirmar qué versión tiene cada teléfono.
-const APP_VERSION = '18.13.1 · 19 oct 2026 (la corrección ya no se aplica dos veces; Gastado sin pases; parte 50/50)';
+const APP_VERSION = '18.13.2 · 19 oct 2026 (aplicar a este mes lo acumulado, sobre o falte)';
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
@@ -10513,7 +10513,7 @@ function renderTotalAcumuladoCard(lugar){
       <div class="small-note">Se acumula tanto lo que sobra (+) como lo que se gastó de más (−), de cada una por separado: lo que entró a su Budget menos lo que pagó con él (un gasto de ambas cuenta completo para quien lo pagó; lo que la otra le debe está en Nosotras). Un gasto de un mes que ya cerró cuenta en su mes y queda aquí, no en el Budget de este mes. ${nombreMesLargo(mesActual())} va dejando ${txt(esteMes)}: se suma (o resta) al cerrar el mes. Lo que uses en un mes y no se gaste regresa aquí al cerrar ese mes. El tope del Abuelo no se acumula.</div>
     </div>` : ''}
     <div class="acum-acc">
-      ${algoSobra ? `<button class="btn btn-outline btn-sm" data-usar-acum>${ico('plus','icon-sm')} Usar en este mes</button>` : ''}
+      ${(algoSobra || alguienDebe) ? `<button class="btn btn-outline btn-sm" data-usar-acum>${ico('plus','icon-sm')} Aplicar a este mes</button>` : ''}
       ${total>0.5 ? `<button class="link-quiet" data-traspaso="sobrante">Pasar a otra cuenta</button>` : ''}
     </div>
   </div>`;
@@ -10557,6 +10557,8 @@ function acumDisponiblePorPersona(excluirId){
     if(i.id===excluirId){ if((i.fecha||'') <= hoy) pp[i.persona] += v; return; } // al editar: como si no existiera
     if((i.fecha||'') > hoy) pp[i.persona] -= v; // con fecha futura: ya está prometido
   });
+  // v18.13.2: lo que ya se mandó a aprobar (usar o reponer) también cuenta, para no aplicarlo dos veces.
+  (state.pendientes||[]).forEach(y=>{ const i = y && y.rec; if(!y || y.accion!=='crear' || y.col!=='ingresos' || !i || i.traspaso!=='sobrante' || pp[i.persona]==null || i.id===excluirId || ymDe(i.fecha||'') < inicioBudgetYM()) return; pp[i.persona] -= brutoIngresoMXN(i); });
   pp.jen = Math.round(pp.jen*100)/100; pp.isa = Math.round(pp.isa*100)/100;
   return pp;
 }
@@ -10579,8 +10581,8 @@ function openUsarAcumulado(editId, opts){
   // Primera opción: cada una cubre (o usa) solo lo suyo con su propio Budget.
   let persona = ex ? ex.persona : (opts.persona || null);
   if(!persona){
-    const sobra = ['jen','isa'].filter(p=>disp[p] > 0.5); // v18.13: ya no se "cubre" lo que se debe (se salda en Nosotras)
-    persona = sobra.includes(perfil) ? perfil : (sobra[0] || perfil);
+    const conAlgo = ['jen','isa'].filter(p=>Math.abs(disp[p]) > 0.5); // v18.13.2: lo que sobró (+) o lo que se gastó de más (−)
+    persona = conAlgo.includes(perfil) ? perfil : (conAlgo[0] || perfil);
   }
   const otra = otraPersona(persona);
   // Segunda opción: el sobrante de la otra cubre lo que debe esta (o al revés).
