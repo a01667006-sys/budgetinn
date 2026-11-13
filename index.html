@@ -2129,6 +2129,45 @@
   :root:not([data-theme="light"]) .stamp.hero.hero-neg .amount,:root:not([data-theme="light"]) .stamp.hero .sq.sq-neg b{color:#ff6a85;}
   :root:not([data-theme="light"]) .tab-inicio .acum-card{--brick:#ff6a85;--teal:#3cf2a0;--teal-deep:#3cf2a0;}
   :root:not([data-theme="light"]) .alert-card,:root:not([data-theme="light"]) .aviso-def{border-color:#ff4f6d;}
+
+  /* ---- v19 · etapa 4: burbujas de ayuda, esperado, incluido por destino ---- */
+  .tip-src{display:none !important;}
+  .tip-chip{display:inline-flex;align-items:center;gap:6px;min-height:34px;margin:6px 0 4px;padding:4px 12px 4px 8px;border-radius:999px;border:1px solid color-mix(in srgb,var(--jen) 30%,var(--line));cursor:help;font:600 13px var(--f-text);color:var(--ink);
+    background:linear-gradient(135deg,color-mix(in srgb,var(--jen) 16%,transparent),color-mix(in srgb,var(--isa) 14%,transparent));transition:transform .15s, box-shadow .2s;position:relative;}
+  .tip-chip::after{content:"";position:absolute;inset:-6px 0;} /* área de toque de 44 px */
+  .tip-chip .icon{width:18px;height:18px;padding:2px;border-radius:50%;box-sizing:border-box;color:#fff;background:linear-gradient(135deg,#2f6bff,#c13bff);}
+  .tip-chip:hover,.tip-chip:focus-visible{transform:translateY(-1px);box-shadow:0 10px 24px -14px color-mix(in srgb,var(--jen) 80%,transparent);outline:none;}
+  .tip-i{display:inline-grid;place-items:center;width:30px;height:30px;margin:-6px -4px -6px 2px;padding:0;border:none;background:none;cursor:help;color:var(--ink-soft);vertical-align:middle;position:relative;}
+  .tip-i::after{content:"";position:absolute;inset:-7px;}
+  .tip-i .icon{width:16px;height:16px;transition:color .15s, transform .15s;} .tip-i:hover .icon,.tip-i:focus-visible .icon{color:var(--jen);transform:scale(1.15);}
+  .tip-pop{position:fixed;z-index:9999;display:none;padding:14px 16px;border-radius:20px;font:500 14.5px/1.5 var(--f-text);color:var(--ink);pointer-events:auto;
+    background:radial-gradient(240px 140px at 100% 0%, color-mix(in srgb,var(--isa) 26%,transparent), transparent 70%), radial-gradient(240px 140px at 0% 100%, color-mix(in srgb,var(--jen) 26%,transparent), transparent 70%), color-mix(in srgb,var(--card) 86%,transparent);
+    -webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);
+    box-shadow:0 24px 60px -24px rgba(8,10,20,.55),0 0 0 1px color-mix(in srgb,var(--jen) 10%,transparent);
+    opacity:0;transform:translateY(-6px) scale(.97);transform-origin:var(--tip-x,50%) top;transition:opacity .18s ease, transform .22s cubic-bezier(.2,.9,.3,1.2);}
+  .tip-pop.arriba{transform-origin:var(--tip-x,50%) bottom;transform:translateY(6px) scale(.97);}
+  .tip-pop.on{opacity:1;transform:none;}
+  .tip-pop::before{content:"";position:absolute;top:-6px;left:calc(var(--tip-x,50%) - 6px);width:12px;height:12px;transform:rotate(45deg);background:inherit;border-left:1px solid color-mix(in srgb,var(--ink) 12%,transparent);border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);border-radius:3px 0 0 0;}
+  .tip-pop.arriba::before{top:auto;bottom:-6px;transform:rotate(225deg);}
+  .tip-pop b{color:var(--ink);font-weight:700;} .tip-pop .icon{display:none;}
+  :root[data-theme="light"] .tip-pop{background:radial-gradient(240px 140px at 100% 0%, rgba(192,38,211,.12), transparent 70%), radial-gradient(240px 140px at 0% 100%, rgba(37,99,235,.12), transparent 70%), rgba(255,255,255,.9);}
+  @media (prefers-reduced-motion:reduce){ .tip-pop{transition:opacity .1s;} }
+  .esp-editar{display:inline-flex;align-items:center;gap:5px;margin-top:6px;min-height:36px;padding:4px 12px;border-radius:999px;border:1px dashed var(--line);background:var(--card2);color:var(--ink);font:500 13.5px var(--f-text);cursor:pointer;position:relative;}
+  .esp-editar::after{content:"";position:absolute;inset:-4px 0;} .esp-editar small{color:var(--ink-soft);font-size:13px;}
+  .estimado-nota{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;padding:8px 12px;border-radius:16px;font-size:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--abu) 22%,transparent),color-mix(in srgb,var(--amber) 10%,transparent));}
+  .estimado-nota span{flex:1;min-width:0;}
+  .covsub-list{display:grid;gap:8px;margin-bottom:6px;}
+  .covsub-row{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px;border-radius:18px;background:var(--card2);border:1px solid var(--line);flex-wrap:wrap;}
+  .covsub-row.covsub-total{background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 18%,var(--card2)),var(--card2));border-color:color-mix(in srgb,var(--teal) 40%,var(--line));}
+  .covsub-row.covsub-parcial{background:linear-gradient(135deg,color-mix(in srgb,var(--amber) 16%,var(--card2)),var(--card2));}
+  .covsub-n{flex:1;min-width:110px;font-weight:600;font-size:15px;}
+  .covsub-seg{display:flex;gap:3px;padding:3px;border-radius:999px;background:var(--card);}
+  .covsub-seg button{min-height:40px;padding:0 12px;border:none;border-radius:999px;background:none;color:var(--ink-soft);font:600 13.5px var(--f-text);cursor:pointer;}
+  .covsub-seg button.on{background:var(--btn-bg);color:var(--btn-fg);}
+  @media (max-width:899px){ .covsub-seg button{min-height:44px;} }
+
+  @media (min-width:900px){ .covsub-list{grid-template-columns:1fr 1fr;} }
+  @media (max-width:899px){ .covsub-row{padding:6px 6px 6px 10px;gap:8px;} .covsub-n{min-width:0;flex-basis:calc(100% - 50px);} .covsub-seg{width:100%;} .covsub-seg button{flex:1;} }
 </style>
 </head>
 <body>
@@ -2213,6 +2252,7 @@ const ICONS = {
   chevdown:'<path d="M5 8.5 12 15l7-6.5"/>',
   chevright:'<path d="M8.5 5l7 7-7 7"/>',
   chevleft:'<path d="M15.5 5l-7 7 7 7"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.4"/>',
   food:'<path d="M6 3v7a2 2 0 0 0 2 2v9"/><path d="M6 3v7M9 3v7"/><path d="M17 3c-1.7 0-3 2-3 5s1 5 1 5v10"/>',
   bed:'<path d="M3 18v-8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3"/><path d="M3 18v3"/><path d="M21 18v3"/><path d="M3 15h18v-2a2 2 0 0 0-2-2h-6"/>',
   bus:'<rect x="3.5" y="5" width="17" height="12" rx="2.5"/><path d="M3.5 11h17"/><circle cx="7.5" cy="19.5" r="1.3"/><circle cx="16.5" cy="19.5" r="1.3"/>',
@@ -4321,8 +4361,8 @@ function presupuestoDiasMes(ym){
       let v = 0;
       if(hayDestinos){
         const d = destinoParaDia(iso), r = refDiaMXN(sb, d, iso, ym), c = claveEsencial(sb);
-        if(r!==null) v = r;
-        else if(c==='tentre') v = llegadas.has(iso) ? 1 : 0;
+        if(r!==null) v = r * covSubDestino(sb, d);
+        else if(c==='tentre') v = llegadas.has(iso) ? covSubDestino(sb, d) : 0;
         else if(c) v = necesidadEsencialDiaEUR(c, sb, d) * eur;
         else v = pesoBaseDestino(sb, d) * coverageMultiplierForSub(sb, d);
       }
@@ -4373,7 +4413,7 @@ function barrasSubcatsPeriodo(pp, limite){
     const sinPres = !(f.presup > 0.5), cerca = !rojo && !sinPres && f.gastado >= f.presup*0.8;
     const tono = rojo ? 'pasado' : (cerca ? 'cerca' : 'bien'), etiqueta = rojo ? 'Se pasó' : (cerca ? 'Cerca' : '');
     return `<div class="sc-row sc-${tono} ${rojo?'rojo':''}">${micoHtml(iconoSubcat(f.s),'sm')}<div class="sc-main">
-      <div class="sc-top"><span class="sc-name">${escHtml(f.s.nombre)} <em>${f.pct.toFixed(0)}%</em>${etiqueta ? ` <span class="sc-tag">${ico(rojo?'alert':'clock','icon-xs')}${etiqueta}</span>` : ''}</span><span class="sc-amt">${fmt(f.gastado,'MXN')} <small>${sinPres ? 'sin presupuesto asignado' : 'de '+fmt(f.presup,'MXN')}</small></span></div>
+      <div class="sc-top"><span class="sc-name">${escHtml(f.s.nombre)} <em>${f.pct.toFixed(0)}%</em><button type="button" class="tip-i" data-tip="${escHtml(comoSeCalculo(f.s, ymDe(pp.desde||todayISO())))}" aria-label="Cómo se calculó ${escHtml(f.s.nombre)}">${ico('info','icon-xs')}</button>${etiqueta ? ` <span class="sc-tag">${ico(rojo?'alert':'clock','icon-xs')}${etiqueta}</span>` : ''}</span><span class="sc-amt">${fmt(f.gastado,'MXN')} <small>${sinPres ? 'sin presupuesto asignado' : 'de '+fmt(f.presup,'MXN')}</small></span></div>
       <div class="sc-track"><div class="sc-fill" style="width:${Math.min(100, f.gastado/max*100).toFixed(1)}%;"></div>${sinPres ? '' : `<div class="sc-mark" style="left:${Math.min(100, f.presup/max*100).toFixed(1)}%"></div>`}</div>
     </div></div>`; }).join('')}</div>`;
 }
@@ -4899,9 +4939,11 @@ function categoriaDisponibleMXN(cat){
 function coverageMultiplier(v){
   return {total:0, parcial:0.5, no:1}[v] ?? 1;
 }
+// v19: cada categoría sin cobertura propia se puede marcar por destino: Incluido (0) / Parcial (½) / No incluido (normal).
+function covSubDestino(sub, d){ if(!d || !sub || sub.coberturaKey) return 1; const v = (d.coberturaSub||{})[sub.id]; return v ? coverageMultiplier(v) : 1; }
 function coverageMultiplierForSub(sub, destino){
   if(!destino) return 1;
-  if(!sub.coberturaKey) return 1;
+  if(!sub.coberturaKey) return covSubDestino(sub, destino);
   if(sub.coberturaKey==='comida'){
     const vals = ['desayuno','comida','cena'].map(k=>coverageMultiplier(destino.cobertura[k]));
     return vals.reduce((a,b)=>a+b,0)/vals.length;
@@ -5477,8 +5519,41 @@ function ingresosEsperadosMes(ym){
   ].map(e=>{
     const llegados = delMes.filter(i=>deFuente(i, e));
     const u = ultimo(e);
-    return Object.assign(e, {llegados, total: llegados.reduce((a,i)=>a+netoIngresoMXN(i),0), esperado: u ? Number(u.montoBruto)||0 : 0, moneda: u ? (u.moneda||'MXN') : 'MXN', fuenteUlt: u ? u.fuente : e.fuente});
+    const ov = ((state.ingresoEsperado||{})[ym]||{})[e.clave]; // v19: lo que Jen anotó que se espera este mes
+    const esperado = u ? Number(u.montoBruto)||0 : 0, moneda = u ? (u.moneda||'MXN') : 'MXN';
+    return Object.assign(e, {llegados, total: llegados.reduce((a,i)=>a+netoIngresoMXN(i),0), esperado, moneda, fuenteUlt: u ? u.fuente : e.fuente,
+      esperadoMes: ov && Number(ov.monto)>=0 ? Number(ov.monto) : esperado, monedaMes: ov ? (ov.moneda||'MXN') : moneda, esperadoAnotado: !!ov});
   });
+}
+// v19: lo que todavía no llega este mes (solo mes actual y futuros). Sirve SOLO para repartir el presupuesto por categoría.
+function ingresoEsperadoPendienteMXN(ym){
+  ym = ym || mesActual(); if(ym < mesActual()) return 0;
+  try{ return ingresosEsperadosMes(ym).filter(e=>!e.llegados.length).reduce((a,e)=>a + (toMXN(Number(e.esperadoMes)||0, e.monedaMes||'MXN')||0), 0); }catch(e){ return 0; }
+}
+function openEsperadoMes(clave){
+  const ym = mesActual(), e = ingresosEsperadosMes(ym).find(x=>x.clave===clave); if(!e) return;
+  openSheet(`${sheetHeader('Esperado de '+escHtml(e.nombre), nombreMesLargo(ym))}
+    <div class="small-note" style="margin-bottom:14px;">Con esto se reparte el presupuesto de cada categoría mientras el depósito no llega. Cuando llega, se usa lo real. No cambia tu Budget ni tu disponible.</div>
+    <div class="field-row">
+      <div class="field"><label>${ico('wallet','icon-xs')} ¿Cuánto esperas?</label><input type="number" id="espMonto" inputmode="decimal" value="${e.esperadoMes||''}" placeholder="${e.esperado||0}"></div>
+      <div class="field"><label>Moneda</label><select id="espMoneda">${currencyOptions(e.monedaMes||'MXN')}</select></div>
+    </div>
+    ${e.esperado ? `<div class="small-note" style="margin:-6px 0 14px;">La vez pasada: ${fmt(e.esperado, e.moneda)}</div>` : ''}
+    <button class="btn btn-primary btn-block" id="espGuardar">${ico('check','icon-sm')} Guardar</button>
+    ${e.esperadoAnotado ? `<button class="btn btn-ghost btn-block" id="espQuitar" style="margin-top:8px;">Usar lo de la vez pasada</button>` : ''}`);
+  const guardar = (val)=>{
+    if(!state.ingresoEsperado || typeof state.ingresoEsperado!=='object') state.ingresoEsperado = {};
+    const m = Object.assign({}, state.ingresoEsperado[ym]||{});
+    if(val===null) delete m[clave]; else m[clave] = val;
+    state.ingresoEsperado = Object.assign({}, state.ingresoEsperado, {[ym]: m});
+    persist(); closeSheet(); render(); mostrarToast('Listo: el reparto por categoría usa ese monto.', 'ok');
+  };
+  document.getElementById('espGuardar').addEventListener('click', ()=>{
+    const v = Number(document.getElementById('espMonto').value);
+    if(!(v>=0)){ mostrarToast('Escribe un monto.', 'error'); return; }
+    guardar({monto: v, moneda: document.getElementById('espMoneda').value||'MXN'});
+  });
+  const q = document.getElementById('espQuitar'); if(q) q.addEventListener('click', ()=>guardar(null));
 }
 function otrosIngresosBudgetMes(ym){
   const usados = new Set(); ingresosEsperadosMes(ym).forEach(e=>e.llegados.forEach(i=>usados.add(i.id)));
@@ -5503,7 +5578,7 @@ function renderIngresosEsperados(){
     <div class="card-title"><h2>${ico('calendar','icon-sm')} Ingresos de ${nombreMesLargo(ym).toLowerCase()}</h2><span class="hint" data-goto-mov="total">ver todos</span></div>
     ${lista.map(e=>`<div class="esp-line ${e.llegados.length?'ok':''}">
       ${avatarPersona(e.persona)}
-      <div class="desc"><div class="n">${escHtml(e.nombre)}</div><div class="d">${e.llegados.length ? textoLlegadas(e.llegados, ym) : ('Pendiente'+(e.cuando?' · deposita '+e.cuando:'')+(e.esperado?' · la vez pasada '+fmt(e.esperado, e.moneda):''))}</div></div>
+      <div class="desc"><div class="n">${escHtml(e.nombre)}</div><div class="d">${e.llegados.length ? textoLlegadas(e.llegados, ym) : ('Pendiente'+(e.cuando?' · deposita '+e.cuando:''))}${e.llegados.length ? '' : `<button type="button" class="esp-editar" data-esperado-editar="${e.clave}" aria-label="Cambiar lo esperado de ${escHtml(e.nombre)}">${ico('edit','icon-xs')} Esperado: <b>${fmt(e.esperadoMes||0, e.monedaMes||'MXN')}</b>${e.esperadoAnotado?'':' <small>(la vez pasada)</small>'}</button>`}</div></div>
       ${e.llegados.length ? `<div class="esp-ok">${ico('check','icon-sm')} +${fmt(e.total,'MXN')}</div>` : `<button class="btn btn-outline btn-sm" data-esperado="${e.clave}">${ico('plus','icon-xs')} Registrar</button>`}
     </div>`).join('')}
     ${otros.length ? `<div class="esp-line ok">
@@ -5861,7 +5936,8 @@ function renderCategorias(){
       <div class="bar-track" style="margin-top:10px;"><div class="bar-fill" style="width:${pctUso}%;background:${pctUso>=90?'var(--brick)':(pctUso>=75?'var(--amber)':'var(--teal)')}"></div></div>
       <div class="small-note">Todo el Budget total (mamá sin ahorro + papá de Isa + meta del Abuelo) se reparte entre las subcategorías.</div>
       <div class="note-box" style="margin-top:10px;">${ico('pin','icon-sm')}<div>${plan.hayDestinos ? `Primero se aparta <b>lo esencial</b> con precios reales de cada lugar (día por día según dónde estén y lo que cubre el programa), y lo que queda se reparte entre <b>lo opcional</b>.${plan.destino ? ` En <b>${escHtml(banderaDestino(plan.destino))} ${escHtml(plan.destino.nombre)}</b> lo aceptable de alojamiento es <b>hasta ${fmt(plan.topeNoche,'EUR')}/noche</b> para las dos${pais && pais.food ? `; el súper ahí cuesta ${pais.food} y el transporte ${pais.trans} (promedio de Europa = 100)` : ''}.` : ''}` : 'Agrega sus destinos (con fechas) para que lo esencial se calcule con los precios reales de cada lugar.'}</div></div>
-      ${plan.faltante>0.5 ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div><b>Lo esencial no alcanza ${esHoy ? 'este mes' : 'en '+escHtml(nombreMesLargo(ym))}:</b> se necesitan ${fmt(plan.necesidadEsencial,'MXN')} y la meta es ${fmt(plan.meta,'MXN')} (faltan ${fmt(plan.faltante,'MXN')}). Se repartió proporcional y a lo opcional no le queda nada.</div></div>` : ''}
+      ${plan.faltante>0.5 ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div><b>Lo necesario de ${esHoy ? 'este mes' : escHtml(nombreMesLargo(ym))} es ${fmt(plan.totalRef + plan.necesidadEsencial,'MXN')} y tienen ${fmt(plan.metaPlan,'MXN')}${plan.estimado>0.5 ? ' (con lo esperado)' : ''}.</b> Faltan ${fmt(plan.faltante,'MXN')}: lo necesario se ajustó al ${Math.round((plan.escala||0)*100)}% y a lo opcional no le queda nada.</div></div>` : ''}
+      ${plan.estimado>0.5 ? `<div class="estimado-nota">${ico('clock','icon-xs')}<span>Incluye <b>${fmt(plan.estimado,'MXN')}</b> esperado que aún no llega.</span><button type="button" class="link-quiet" data-ver-esperados>Cambiar</button></div>` : ''}
       <div class="section-label grupo-lbl" style="margin:14px 4px 6px;">${ico('check','icon-xs')} Esencial primero <span>${fmt(plan.asignadoEsencial,'MXN')}</span></div>
       ${state.subcats.map((sb,i)=>({sb,i})).filter(x=>plan.porSub[x.sb.id] && plan.porSub[x.sb.id].esencial).map(x=>renderSubcatRow(x.sb,x.i,ym)).join('') || '<div class="small-note">—</div>'}
       <div class="section-label grupo-lbl" style="margin:14px 4px 6px;">${ico('star','icon-xs')} Con lo que queda <span>${fmt(plan.resto,'MXN')}</span></div>
@@ -5950,7 +6026,7 @@ function renderSugerenciaDestino(){
 function pctSubcatDeGenerales(sub, ym){
   const plan = planPresupuestoMes(ym);
   const x = plan.porSub[sub.id]; if(!x) return 0;
-  if(plan.meta>0) return x.presup/plan.meta*100;
+  if((plan.metaPlan||plan.meta)>0) return x.presup/(plan.metaPlan||plan.meta)*100;
   const tot = state.subcats.reduce((a,sb)=>a+(plan.porSub[sb.id]?plan.porSub[sb.id].necesidad+plan.porSub[sb.id].peso:0),0) || 1;
   return (x.necesidad + x.peso)/tot*100;
 }
@@ -5966,7 +6042,7 @@ function renderSubcatRow(s,i,ym){
   <div>
     <div class="subrow ${rojo?'rebasada':''}" style="cursor:pointer;" data-toggle-sub="${s.id}">
       ${micoHtml(iconoSubcat(s),'sm')}
-      <div class="sname">${escHtml(s.nombre)}<span class="badge ${rojo?'badge-bad':'badge-ok'}" style="margin-left:6px;vertical-align:1px;">${pct.toFixed(0)}%</span></div>
+      <div class="sname">${escHtml(s.nombre)}<span class="badge ${rojo?'badge-bad':'badge-ok'}" style="margin-left:6px;vertical-align:1px;">${pct.toFixed(0)}%</span><button type="button" class="tip-i" data-tip="${escHtml(comoSeCalculo(s, ym))}" aria-label="Cómo se calculó ${escHtml(s.nombre)}">${ico('info','icon-xs')}</button></div>
       <div class="samt" style="${rojo?'color:var(--brick);':''}">${fmt(gastadoMXN,'MXN')}<span class="est">de ${fmt(presup,'MXN')}${rojo?' · se pasó':''}${((planYm.porSub[s.id]||{}).ref>0) ? ' · con tu referencia' : (esSubAlojamiento(s) && planYm.topeNoche ? ' · hasta '+fmt(planYm.topeNoche,'EUR')+'/noche' : '')}</span></div>
       <button class="subrow-btn">${ico(isOpen?'chevdown':'chevright','icon-sm')}</button>
     </div>
@@ -6250,6 +6326,12 @@ function renderDestinoDetalle(d){
           </select>
         </div>`).join('')}
     </div>
+    <div class="section-label" style="margin:16px 4px 6px;">¿Qué más está incluido aquí?</div>
+    <div class="small-note" style="margin:-2px 4px 10px;">Si algo ya viene incluido (por ejemplo, lavadora en el depa), márcalo y no se le aparta dinero en este lugar. Ese dinero pasa a lo demás.</div>
+    <div class="covsub-list">${state.subcats.filter(sb=>!sb.coberturaKey).map(sb=>{ const v = (d.coberturaSub||{})[sb.id] || 'no'; return `
+      <div class="covsub-row covsub-${v}">${micoHtml(iconoSubcat(sb),'sm')}<span class="covsub-n">${escHtml(sb.nombre)}</span>
+        <div class="covsub-seg" role="group" aria-label="${escHtml(sb.nombre)} en ${escHtml(d.nombre)}">${[['total','Incluido'],['parcial','Parcial'],['no','No']].map(([k,l])=>`<button type="button" class="${v===k?'on':''}" data-dest-covsub="${d.id}|${sb.id}|${k}" aria-pressed="${v===k}">${l}</button>`).join('')}</div>
+      </div>`; }).join('')}</div>
     <div class="field-row" style="margin-top:12px;">
       <div class="field"><label>Costo de vida est. (MXN/día)</label><input type="number" data-dest-field="${d.id}|costoVidaDia" value="${d.costoVidaDia}"></div>
       <div class="field"><label>Fuente</label>
@@ -7906,6 +7988,7 @@ function sheetHeader(title, sub){
 }
 // v19 (visual): adorna la hoja ya armada sin tocar ids ni eventos: «$» en los montos y «varios gastos» arriba.
 function decorarHoja(wrap){
+  try{ wireTips(); convertirExplicaciones(wrap); }catch(e){}
   try{ const bk = wrap.querySelector('#sheetBackBtn'); if(bk) bk.addEventListener('click', ()=>{ closeSheet(); openMenuRegistrar(); }); }catch(e){}
   try{
     wrap.querySelectorAll('input[type="number"]').forEach(inp=>{
@@ -11001,7 +11084,7 @@ function destinoParaDia(iso){
   const d = destinoEnFecha(iso); if(d) return d;
   const ds = (state.destinos||[]).filter(x=>x.fechaInicio && x.fechaFin).sort((a,b)=>a.fechaInicio.localeCompare(b.fechaInicio));
   if(!ds.length) return destinoActual() || null;
-  const antes = ds.filter(x=>x.fechaFin < iso); if(antes.length) return antes[antes.length-1];
+  const antes = ds.filter(x=>x.fechaFin < iso).sort((a,b)=>a.fechaFin.localeCompare(b.fechaFin) || a.fechaInicio.localeCompare(b.fechaInicio)); if(antes.length) return antes[antes.length-1]; // v19: el último lugar donde estuvieron (el que terminó más tarde)
   return ds[0];
 }
 // Necesidad esencial de una subcategoría para un día, en EUR.
@@ -11011,7 +11094,7 @@ function necesidadEsencialDiaEUR(clave, sub, d){
   if(clave==='super') return SUPER_PERSONA_MES_EUR*2/30 * indicePais(d,'food') * coverageMultiplierForSub(sub, d);
   if(clave==='tlocal') return ESENCIAL_MES_EUR.tlocal.eur/30 * indicePais(d,'trans') * cov('transporte');
   const b = ESENCIAL_MES_EUR[clave]; if(!b) return 0;
-  return b.eur/30 * (b.idx ? indicePais(d, b.idx) : 1);
+  return b.eur/30 * (b.idx ? indicePais(d, b.idx) : 1) * covSubDestino(sub, d);
 }
 // v18: referencia de costo de una subcategoría para un día en un destino, en MXN (null si no hay).
 // Las del destino mandan sobre las de "todos los destinos".
@@ -11030,9 +11113,10 @@ function refDiaMXN(sb, d, iso, ym){
 let _planCache = {k:null, v:null};
 function planPresupuestoMes(ym){
   ym = ym || mesActual();
-  const meta = metaTotalMXN(ym);
+  const metaReal = metaTotalMXN(ym), estimado = ingresoEsperadoPendienteMXN(ym);
+  const meta = metaReal + estimado; // v19: se reparte con lo que va a llegar este mes (lo real cuando ya llegó)
   const eur = rateSnapshotFor('EUR') || 21.5;
-  const k = ym+'|'+meta+'|'+eur+'|'+todayISO()+'|'+(state.destinoActualId||'')+'|'+JSON.stringify(state.destinos||[])+'|'+state.subcats.map(x=>x.id+':'+x.nombre+':'+x.peso+':'+(x.coberturaKey||'')+':'+JSON.stringify((x.costos||[]).map(c=>[c.monto,c.moneda,c.frecuencia,c.destinoId]))).join(',')+'|'+JSON.stringify(state.rates||{});
+  const k = ym+'|'+meta+'|'+estimado+'|'+eur+'|'+todayISO()+'|'+(state.destinoActualId||'')+'|'+JSON.stringify(state.destinos||[])+'|'+state.subcats.map(x=>x.id+':'+x.nombre+':'+x.peso+':'+(x.coberturaKey||'')+':'+JSON.stringify((x.costos||[]).map(c=>[c.monto,c.moneda,c.frecuencia,c.destinoId]))).join(',')+'|'+JSON.stringify(state.rates||{});
   if(_planCache.k===k) return _planCache.v;
   const dias = []; const fin = finDeMesISO(ym);
   for(let iso = ym+'-01'; iso <= fin; iso = sumarDiasISO(iso, 1)) dias.push(iso);
@@ -11045,7 +11129,7 @@ function planPresupuestoMes(ym){
       const d = destinoParaDia(iso);
       state.subcats.forEach(sb=>{
         const r = refDiaMXN(sb, d, iso, ym);
-        if(r!==null){ porSub[sb.id].ref += r; return; } // tu referencia manda sobre Numbeo
+        if(r!==null){ porSub[sb.id].ref += r * covSubDestino(sb, d); return; } // tu referencia manda sobre Numbeo
         const c = claveEsencial(sb);
         if(c && c!=='tentre') porSub[sb.id].necesidad += necesidadEsencialDiaEUR(c, sb, d) * eur;
         if(!c) porSub[sb.id].peso += pesoBaseDestino(sb, d) * coverageMultiplierForSub(sb, d);
@@ -11056,7 +11140,7 @@ function planPresupuestoMes(ym){
     const cambios = ordenados.filter((x,i)=>i>0 && ymDe(x.fechaInicio)===ym);
     state.subcats.filter(sb=>claveEsencial(sb)==='tentre').forEach(sb=>{
       // Si hay referencia tuya para ese viaje, ya se contó arriba: no se suma también el estimado.
-      porSub[sb.id].necesidad = cambios.filter(x=>refDiaMXN(sb, x, x.fechaInicio, ym)===null).reduce((a,x)=>a + ENTRE_CIUDADES_PERSONA_EUR*2*indicePais(x,'tot')*eur, 0);
+      porSub[sb.id].necesidad = cambios.filter(x=>refDiaMXN(sb, x, x.fechaInicio, ym)===null).reduce((a,x)=>a + ENTRE_CIUDADES_PERSONA_EUR*2*indicePais(x,'tot')*eur*covSubDestino(sb, x), 0);
     });
   } else {
     // Sin destinos: todo por peso (como antes).
@@ -11080,9 +11164,37 @@ function planPresupuestoMes(ym){
   }
   state.subcats.forEach(sb=>{ const x = porSub[sb.id]; x.presup += x.presupRef; });
   const dHoy = destinoParaDia(ym===mesActual() ? todayISO() : ym+'-15');
-  const v = {ym, meta, porSub, totalRef, necesidadEsencial: necesidadTotal, asignadoEsencial, resto: pesoTotal>0 ? resto : 0, sinRepartir: pesoTotal>0 ? 0 : resto, faltante: Math.max(0, totalRef + necesidadTotal - meta), escala, destino: dHoy, topeNoche: dHoy ? topeNocheEUR(dHoy) : null, hayDestinos};
+  const v = {ym, meta: metaReal, metaPlan: meta, estimado, porSub, totalRef, necesidadEsencial: necesidadTotal, asignadoEsencial, resto: pesoTotal>0 ? resto : 0, sinRepartir: pesoTotal>0 ? 0 : resto, faltante: Math.max(0, totalRef + necesidadTotal - meta), escala, destino: dHoy, topeNoche: dHoy ? topeNocheEUR(dHoy) : null, hayDestinos};
   _planCache = {k, v};
   return v;
+}
+// v19: «cómo se calculó» cada categoría, en palabras (para la burbuja de ayuda).
+function comoSeCalculo(sb, ym){
+  ym = ym || mesActual();
+  const plan = planPresupuestoMes(ym), x = plan.porSub[sb.id]; if(!x) return '';
+  const eur = rateSnapshotFor('EUR') || 21.5, c = claveEsencial(sb), fin = finDeMesISO(ym), grupos = new Map();
+  for(let iso = ym+'-01'; iso <= fin; iso = sumarDiasISO(iso, 1)){
+    const d = destinoParaDia(iso); const k = d ? d.id : '-';
+    if(!grupos.has(k)) grupos.set(k, {d, dias:0, iso}); grupos.get(k).dias++;
+  }
+  const nom = (d)=> d ? String(d.nombre||'').split(',')[0] : 'sin destino';
+  const partes = [];
+  [...grupos.values()].forEach(g=>{
+    const d = g.d, incl = coverageMultiplierForSub(sb, d);
+    if(d && incl===0){ partes.push(`${nom(d)}: incluido, no se aparta nada`); return; }
+    const r = refDiaMXN(sb, d, g.iso, ym);
+    if(r!==null){ partes.push(`${nom(d)}: tu referencia (${fmt(r/eur,'EUR')}/día) × ${g.dias} d`); return; }
+    if(c && c!=='tentre'){ const pd = necesidadEsencialDiaEUR(c, sb, d); const p = d ? paisDe(d.nombre) : null;
+      const fuente = c==='aloj' ? `tope ${fmt(topeNocheEUR(d),'EUR')}/noche, renta de Numbeo${p?' en '+p.n:''}` : (c==='super' ? `súper al ${p&&p.food?p.food:100}% del promedio de Europa, Eurostat` : 'costo típico del lugar');
+      partes.push(`${nom(d)}: ${fmt(pd,'EUR')}/día × ${g.dias} d (${fuente})${incl>0 && incl<1?' · parcial':''}`); }
+  });
+  let t = '';
+  if(c==='tentre') t = `Necesario: un viaje por cada llegada a un lugar nuevo este mes (unos ${fmt(ENTRE_CIUDADES_PERSONA_EUR*2,'EUR')} para las dos, según el país), salvo que tengas referencia.`;
+  else if(c) t = 'Necesario, por costo de vida de cada lugar. ' + partes.join(' · ') + '.';
+  else { const extra = partes.filter(p=>/incluido|tu referencia/.test(p)); t = `Opcional: se reparte de lo que sobra después de lo necesario, según su peso (${Number(sb.peso)||0}) y los precios del lugar.` + (extra.length ? ' ' + extra.join(' · ') + '.' : ''); }
+  if(x.esencial && plan.escala < 0.999) t += ` No alcanzó para todo lo necesario: se ajustó al ${Math.round(plan.escala*100)}%.`;
+  if(plan.estimado > 0.5) t += ` Incluye ${fmt(plan.estimado,'MXN')} esperado que aún no llega.`;
+  return t;
 }
 function presupuestoSubcatMXN(s, ym){ const x = planPresupuestoMes(ym).porSub[s.id]; return x ? x.presup : 0; }
 function subcatGastadoTotalMesMXN(s, ym){ ym = ym||mesActual(); return (s.gastos||[]).filter(cuentaEnTotal).reduce((a,g)=>a+montoEnMesMXN(g, ym),0); }
@@ -11727,7 +11839,7 @@ function barrasSubcats(ym){
     }).join('')}
   </div>
   ${rebasadas ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div><b>${rebasadas} ${rebasadas>1?'subcategorías ya se pasaron':'subcategoría ya se pasó'}</b> de lo que les toca este mes (en rojo).</div></div>` : ''}
-  ${plan.faltante>0.5 ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div>Lo esencial de este mes (${fmt(plan.necesidadEsencial,'MXN')}) no cabe en la meta: faltan ${fmt(plan.faltante,'MXN')}.</div></div>` : ''}
+  ${plan.faltante>0.5 ? `<div class="banner banner-bad" style="margin-top:10px;">${ico('alert','icon-sm')}<div><b>Lo necesario de este mes es ${fmt(plan.totalRef + plan.necesidadEsencial,'MXN')} y tienen ${fmt(plan.metaPlan,'MXN')}${plan.estimado>0.5 ? ' (con lo esperado)' : ''}.</b> Faltan ${fmt(plan.faltante,'MXN')}.</div></div>` : ''}
   <div class="small-note" style="margin-top:6px;">La rayita marca hasta cuánto es aceptable gastar: primero lo esencial con precios reales de cada lugar, y lo que queda para lo opcional.</div>`;
 }
 
@@ -13255,6 +13367,7 @@ function wireV15Events(){
   document.querySelectorAll('[data-usar-acum-p]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); openUsarAcumulado(null, {persona: b.getAttribute('data-usar-acum-p')}); }));
   document.querySelectorAll('[data-acum-visto]').forEach(el=>el.addEventListener('click', (e)=>{ e.stopPropagation(); marcarAvisoTarjeta(el.getAttribute('data-acum-visto')); render(); }));
   document.querySelectorAll('[data-tope-abuelo]').forEach(b=>b.addEventListener('click', ()=>openTopeAbuelo(b.getAttribute('data-tope-abuelo'))));
+  document.querySelectorAll('[data-esperado-editar]').forEach(b=>b.addEventListener('click', (ev)=>{ ev.stopPropagation(); openEsperadoMes(b.getAttribute('data-esperado-editar')); }));
   document.querySelectorAll('[data-esperado]').forEach(b=>b.addEventListener('click', ()=>abrirIngresoEsperado(b.getAttribute('data-esperado'))));
   // Nosotras
   on('[data-nos-ver]', 'click', (el)=>{ nosotrasVer = el.getAttribute('data-nos-ver'); nosotrasSel = {}; render(); });
@@ -13376,7 +13489,60 @@ function plegarConfig(){
     });
   });
 }
+// v19: explicaciones largas → botón «Cómo funciona» con burbuja (al pasar el mouse o al tocar). El texto sigue en la página.
+function convertirExplicaciones(raiz){
+  (raiz||document).querySelectorAll('.small-note, .note-box').forEach(el=>{
+    if(el.dataset.tipHecho || el.id || el.closest('.ec-fila, .banner, .tip-src, .sel-bar, .exp-line, .sc-row, .subrow')) return;
+    if(el.querySelector('button, a, input, select, textarea, [data-open], [data-tab], [id]')) return;
+    const txt = (el.textContent||'').replace(/\s+/g,' ').trim();
+    if(txt.length < 95) return;
+    el.dataset.tipHecho = '1';
+    const prev = el.previousElementSibling; // dos explicaciones seguidas → una sola burbuja
+    if(prev && prev.classList.contains('tip-src') && prev.previousElementSibling && prev.previousElementSibling.classList.contains('tip-chip')){
+      const chip = prev.previousElementSibling; chip.setAttribute('data-tip-html', chip.getAttribute('data-tip-html') + '<br><br>' + el.innerHTML);
+      el.classList.add('tip-src'); return;
+    }
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'tip-chip'; b.setAttribute('data-tip-html', el.innerHTML);
+    b.setAttribute('aria-label', 'Cómo funciona: '+txt.slice(0,120));
+    b.innerHTML = ico('info','icon-xs') + '<span>Cómo funciona</span>';
+    el.classList.add('tip-src'); el.parentNode.insertBefore(b, el);
+  });
+}
+let _tipEl = null, _tipDe = null, _tipT = null;
+function mostrarTip(btn){
+  clearTimeout(_tipT);
+  if(!_tipEl){ _tipEl = document.createElement('div'); _tipEl.className = 'tip-pop'; _tipEl.setAttribute('role','tooltip'); document.body.appendChild(_tipEl);
+    _tipEl.addEventListener('mouseenter', ()=>clearTimeout(_tipT)); _tipEl.addEventListener('mouseleave', ()=>ocultarTip(150)); }
+  const html = btn.getAttribute('data-tip-html'); if(html) _tipEl.innerHTML = html; else _tipEl.textContent = btn.getAttribute('data-tip')||'';
+  if(!_tipEl.textContent.trim()) return;
+  _tipDe = btn; _tipEl.classList.remove('on'); _tipEl.style.visibility = 'hidden'; _tipEl.style.display = 'block';
+  const r = btn.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight, w = Math.min(340, vw - 24);
+  _tipEl.style.width = w+'px';
+  const h = _tipEl.offsetHeight, abajo = r.bottom + 10 + h < vh - 90 || r.top < h + 20;
+  let left = Math.max(12, Math.min(vw - w - 12, r.left + r.width/2 - w/2));
+  _tipEl.style.left = left+'px'; _tipEl.style.top = (abajo ? r.bottom + 10 : r.top - 10 - h)+'px';
+  _tipEl.style.setProperty('--tip-x', Math.max(16, Math.min(w-16, r.left + r.width/2 - left))+'px');
+  _tipEl.classList.toggle('arriba', !abajo); _tipEl.style.visibility = '';
+  requestAnimationFrame(()=>_tipEl && _tipEl.classList.add('on'));
+}
+function ocultarTip(ms){ clearTimeout(_tipT); _tipT = setTimeout(()=>{ if(_tipEl){ _tipEl.classList.remove('on'); _tipDe = null; } }, ms||0); }
+function wireTips(){
+  if(wireTips._ok) return; wireTips._ok = true;
+  const sel = '.tip-chip, .tip-i';
+  document.addEventListener('mouseover', (e)=>{ const b = e.target.closest && e.target.closest(sel); if(b && window.matchMedia && window.matchMedia('(hover:hover)').matches) mostrarTip(b); }, true);
+  document.addEventListener('mouseout', (e)=>{ const b = e.target.closest && e.target.closest(sel); if(b && !(e.relatedTarget && (b.contains(e.relatedTarget) || (_tipEl && _tipEl.contains(e.relatedTarget))))) ocultarTip(180); }, true);
+  document.addEventListener('focusin', (e)=>{ const b = e.target.closest && e.target.closest(sel); if(b) mostrarTip(b); });
+  document.addEventListener('focusout', (e)=>{ if(e.target.closest && e.target.closest(sel)) ocultarTip(120); });
+  document.addEventListener('click', (e)=>{
+    const b = e.target.closest && e.target.closest(sel);
+    if(b){ e.preventDefault(); e.stopPropagation(); if(_tipDe===b && _tipEl && _tipEl.classList.contains('on')) ocultarTip(0); else mostrarTip(b); return; }
+    if(!(_tipEl && _tipEl.contains(e.target))) ocultarTip(0);
+  }, true);
+  window.addEventListener('scroll', ()=>ocultarTip(0), {passive:true, capture:true});
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') ocultarTip(0); });
+}
 function wireEvents(){
+  try{ wireTips(); convertirExplicaciones(document.getElementById('app')); }catch(e){}
   try{ plegarConfig(); }catch(e){}
   const fabSync = document.getElementById('fabSync');
   if(fabSync) fabSync.addEventListener('click', tocarBotonSync);
@@ -13552,6 +13718,18 @@ function wireEvents(){
       persist(); render();
     });
   });
+  document.querySelectorAll('[data-dest-covsub]').forEach(el=>el.addEventListener('click', ()=>{
+    const [id, subId, v] = el.getAttribute('data-dest-covsub').split('|');
+    const d = state.destinos.find(x=>x.id===id); if(!d) return;
+    const m = Object.assign({}, d.coberturaSub||{}); if(v==='no') delete m[subId]; else m[subId] = v;
+    d.coberturaSub = m; persist(); render();
+  }));
+  document.querySelectorAll('[data-ver-esperados]').forEach(b=>b.addEventListener('click', ()=>{
+    const pend = ingresosEsperadosMes(mesActual()).filter(e=>!e.llegados.length);
+    if(pend.length===1) return openEsperadoMes(pend[0].clave);
+    openSheet(`${sheetHeader('Lo esperado este mes', 'Toca uno para cambiarlo')}<div class="menu-reg">${pend.map(e=>`<button type="button" class="menu-reg-op" data-esp-op="${e.clave}">${avatarPersona(e.persona)}<span><b>${escHtml(e.nombre)}</b><small>Esperado: ${fmt(e.esperadoMes||0, e.monedaMes||'MXN')}</small></span>${ico('chevright','icon-sm')}</button>`).join('')}</div>`);
+    document.querySelectorAll('[data-esp-op]').forEach(x=>x.addEventListener('click', ()=>{ closeSheet(); openEsperadoMes(x.getAttribute('data-esp-op')); }));
+  }));
   document.querySelectorAll('[data-dest-cov]').forEach(el=>{
     el.addEventListener('change', ()=>{
       const [id,key] = el.getAttribute('data-dest-cov').split('|');
