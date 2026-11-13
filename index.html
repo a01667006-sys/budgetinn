@@ -2051,6 +2051,84 @@
   :root:not([data-theme="light"]) .type-tag.mov-tag-out{color:#ffb9c2;}
   :root[data-theme="light"] .exp-line .amt.income{color:#056b45;}
   :root[data-theme="light"] .pk-cur .pk-av{color:#0b5c4f !important;}
+
+  /* ---- v19 · etapa 3 ---- */
+  /* 1. modo oscuro más vibrante (rojo y verde sobre todo) */
+  :root:not([data-theme="light"]){
+    --teal:#22e88f; --teal-deep:#22e88f; --teal-soft:rgba(34,232,143,.2);
+    --brick:#ff4f6d; --brick-soft:rgba(255,79,109,.22);
+    --amber:#ffb224; --amber-deep:#ffb224; --amber-soft:rgba(255,178,36,.2);
+    --gold:#ffc61a; --abu:#ffc61a; --abu-ink:#ffd95a;
+    --jen:#4f8bff; --jen-ink:#9dbcff; --jen-soft:rgba(79,139,255,.24);
+    --isa:#ec5cff; --isa-ink:#f6a8ff; --isa-soft:rgba(236,92,255,.24); --plum:#ec5cff;
+  }
+  :root:not([data-theme="light"]) .stamp.hero.hero-neg .stamp-bar-fill{background:linear-gradient(90deg,#ff4f6d,#ff2e63);}
+  :root:not([data-theme="light"]) .type-tag.mov-tag-out{color:#ff98aa;}
+  :root:not([data-theme="light"]) .hero-badge{background:rgba(255,46,90,.45);}
+  /* 2. regresar */
+  .sh-btns{display:flex;gap:8px;flex-shrink:0;}
+  .sheet-back .icon{transform:none;}
+  /* 4. estado de cuenta */
+  .sheet #ecTexto{font-family:var(--f-text) !important;font-size:15px !important;line-height:1.45;border-radius:18px;min-height:150px;padding:14px 16px;}
+  .ec-sep{display:flex;align-items:center;gap:12px;margin:6px 0 14px;font-size:14px;font-weight:600;color:var(--ink-soft);}
+  .ec-sep::before,.ec-sep::after{content:"";flex:1;height:1px;background:var(--line);}
+  .ec-adjuntar{display:grid !important;grid-template-columns:auto 1fr;align-items:center;gap:12px;text-align:left;min-height:76px !important;border:1.5px dashed var(--line) !important;border-radius:22px !important;background:var(--card2) !important;padding:10px 14px !important;}
+  .ec-adjuntar .bulk-entry-icon{background:linear-gradient(135deg,#12c9e8,#2f6bff);}
+  .ec-adjuntar b{display:block;font-family:var(--f-display);font-size:16px;} .ec-adjuntar small{font-size:14px;color:var(--ink-soft);font-weight:500;}
+  .sheet .imp-line{padding:12px 0;} .sheet .imp-line .n{font-size:15px;} .sheet .imp-line .d{font-size:13.5px;}
+  .sheet .pc-sub{font-family:var(--f-display);font-size:17px;margin:20px 0 6px;}
+  .ec-head-chips{gap:8px;} .ec-chip{min-height:44px;border-radius:999px;font-size:14px;}
+  .ec-tipo-lbl{font-size:14px !important;font-weight:600;color:var(--ink);}
+  .sheet .seg{border-radius:999px;padding:4px;background:var(--card2);} .sheet .seg button{min-height:44px;border-radius:999px;font-size:15px;}
+  .sheet .seg button.on{background:var(--btn-bg);color:var(--btn-fg);}
+  .ec-leyenda{font-size:13.5px !important;}
+  .ec-fila{border-radius:20px;padding:12px;}
+  .ec-fila:not(.off){border-color:var(--teal);box-shadow:0 0 0 1px var(--teal-soft),0 12px 26px -20px var(--teal);}
+  .ec-fila input[type="checkbox"]{width:24px;height:24px;accent-color:var(--teal);}
+  .ec-fila input:not([type="checkbox"]),.ec-fila select{min-height:46px;border-radius:14px;font-size:15px;}
+  .ec-pie{position:sticky;bottom:0;padding-top:12px;background:linear-gradient(180deg,transparent,var(--card) 30%);}
+  /* 5. Así se forma la Meta */
+  details.bp-desglose > summary{list-style:none;display:flex;align-items:center;gap:8px;cursor:pointer;min-height:44px;}
+  details.bp-desglose > summary::-webkit-details-marker{display:none;}
+  details.bp-desglose > summary span{flex:1;}
+  details.bp-desglose > summary > .icon:last-child{transition:transform .15s;} details.bp-desglose[open] > summary > .icon:last-child{transform:rotate(90deg);}
+  details.bp-desglose:not([open]){padding-bottom:4px;}
+  /* 7 y 8. teléfono */
+  @media (max-width:899px){
+    .stamp.hero .stamp-head{flex-wrap:nowrap;align-items:flex-start;}
+    .stamp.hero .stamp-head .label{flex:1;min-width:0;}
+    .stamp.hero .hero-mes{flex-basis:100%;}
+    .stamp.hero .hero-badge{flex-shrink:0;margin-top:8px;}
+    .card-title-acts .hint[data-open]{flex:0 0 auto;min-height:44px;font-size:14px;padding:0 14px;}
+    .card-title:has(.card-title-acts){flex-wrap:wrap;}
+    .card-title-acts{width:100%;justify-content:flex-start;flex-wrap:wrap;gap:6px;}
+    .card-title-acts .icon-btn{width:44px;height:44px;}
+    .card-title-acts #movSelToggle{background:none !important;border:none !important;padding:0 6px !important;text-decoration:underline;text-underline-offset:3px;color:var(--ink) !important;}
+    .card-title-acts{gap:3px;} .card-title-acts .hint,.card-title-acts .hint[data-open]{min-height:44px;font-size:13px;padding:0 6px;flex:0 0 auto;letter-spacing:-.01em;}
+    .card-title-acts #movSelToggle{padding:0 2px !important;font-size:13px;}
+  }
+  /* 9. Ajustes plegables */
+  .cfg-plegable > .card-title{cursor:pointer;margin-bottom:0;align-items:center;min-height:52px;}
+  .cfg-plegable > :not(.card-title){display:none !important;}
+  .cfg-plegable.cfg-abierta > :not(.card-title){display:revert !important;}
+  .cfg-plegable.cfg-abierta > .card-title{margin-bottom:12px;}
+  .cfg-plegable > .card-title .hint{display:none;} .cfg-plegable.cfg-abierta > .card-title .hint{display:inline-flex;}
+  .cfg-toggle{margin-left:auto;width:44px;height:44px;flex-shrink:0;border-radius:50%;border:1px solid var(--line);background:var(--card2);color:var(--ink);display:grid;place-items:center;cursor:pointer;}
+  .cfg-toggle .icon{transition:transform .15s;} .cfg-abierta .cfg-toggle .icon{transform:rotate(90deg);}
+  .tab-config > .card.cfg-plegable{padding-top:14px;padding-bottom:14px;}
+  .cfg-anexo.cfg-oculto{display:none !important;}
+
+  details.bp-desglose > summary.bp-tit{font-size:15px;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:600;margin-bottom:0;}
+  details.bp-desglose[open] > summary.bp-tit{margin-bottom:6px;}
+  .tab-config details.avanzado > summary.card-title > .icon:last-child{width:44px;height:44px;padding:12px;box-sizing:border-box;border-radius:50%;border:1px solid var(--line);background:var(--card2);transform:rotate(-90deg);transition:transform .15s;}
+  .tab-config details.avanzado[open] > summary.card-title > .icon:last-child{transform:none;}
+  .tab-config details.avanzado > summary.card-title{min-height:52px;align-items:center;}
+  .tab-config .section-label.cfg-etq-dup{display:none !important;}
+  .tab-config .cfg-plegable{margin-top:22px;} .tab-config .section-label + .cfg-plegable,.tab-config .cfg-plegable + .cfg-plegable{margin-top:0;}
+
+  :root:not([data-theme="light"]) .stamp.hero.hero-neg .amount,:root:not([data-theme="light"]) .stamp.hero .sq.sq-neg b{color:#ff6a85;}
+  :root:not([data-theme="light"]) .tab-inicio .acum-card{--brick:#ff6a85;--teal:#3cf2a0;--teal-deep:#3cf2a0;}
+  :root:not([data-theme="light"]) .alert-card,:root:not([data-theme="light"]) .aviso-def{border-color:#ff4f6d;}
 </style>
 </head>
 <body>
@@ -4424,7 +4502,7 @@ function openPagoProgramado(editId){
     <div class="field" id="progPagaWrap" style="${v.quien==='ambas'?'':'display:none'}"><label>¿Quién lo va a pagar?</label>${seg('pagadoPor', [['jen','Jen'],['isa','Isa']], v.pagadoPor||perfil)}</div>
     <div class="field"><label>¿Con qué se va a pagar?</label>${seg('pagadoCon', [['bote','Budget'],['debito','Débito'],['credito','Crédito'],['efectivo','Efectivo']], v.pagadoCon)}</div>
     <div class="field"><label>Categoría</label><select id="progSub"><option value="">Sin categoría</option>${state.subcats.map(sb=>`<option value="${sb.id}" ${v.subId===sb.id?'selected':''}>${escHtml(sb.nombre)}</option>`).join('')}</select></div>
-    <label class="check-line"><input type="checkbox" id="progRepetir" ${v.repetir==='mensual'?'checked':''}> Se repite cada mes</label>
+    <label class="rec-chk check-line"><input type="checkbox" id="progRepetir" ${v.repetir==='mensual'?'checked':''}> Se repite cada mes</label>
     <button class="btn btn-primary btn-block" id="progGuardar" style="margin-top:12px;">${ico('check','icon-sm')} Guardar</button>
     ${ex ? `<button class="btn btn-ghost btn-block" id="progBorrar" style="margin-top:6px;color:var(--brick);">${ico('trash','icon-sm')} Borrar</button>` : ''}`);
   const val = {quien:v.quien, pagadoPor:v.pagadoPor||perfil, pagadoCon:v.pagadoCon};
@@ -5026,6 +5104,12 @@ function wirePerfilGate(){
 let syncInicialListo = true;   // false mientras se espera la primera descarga de la nube
 let generadosSinSubir = false;
 function render(){
+  // v19: si estabas escribiendo en un buscador, al volver a pintar (sincronización, etc.) sigues escribiendo ahí.
+  const _ae = document.activeElement, _bid = _ae && /^(movSearch|compBuscar|nosBuscar)$/.test(_ae.id||'') ? _ae.id : null, _bpos = _bid ? _ae.selectionStart : 0;
+  renderInterno();
+  if(_bid){ const n = document.getElementById(_bid); if(n && document.activeElement!==n){ n.focus({preventScroll:true}); try{ n.setSelectionRange(_bpos,_bpos); }catch(e){} } }
+}
+function renderInterno(){
   try{ document.body.classList.toggle('sel-activo', !!(movSelModo && activeTab==='movimientos')); }catch(e){}
   try{ if(!fechaVistaActiva && reconciliarProgramados()) persistSistema(); }catch(e){} // v18.14
   if(generarRecurrentes()>0){
@@ -5108,7 +5192,7 @@ function fraseEstadoBudget(){
   return 'Van bien este mes.';
 }
 function htmlPildoraDestino(){
-  const d = destinoEnFecha(todayISO()) || destinoActual(); if(!d) return ''; // v19: el lugar donde están hoy (el mismo del presupuesto por lugar)
+  const d = destinoActual() || destinoEnFecha(todayISO()); if(!d) return ''; // el mismo destino que el nombre de arriba
   let dia = '';
   if(d.fechaInicio && d.fechaFin && d.fechaFin >= d.fechaInicio && todayISO() >= d.fechaInicio && todayISO() <= d.fechaFin) dia = 'Día '+(diasEntreISO(d.fechaInicio, todayISO())+1)+' de '+(diasEntreISO(d.fechaInicio, d.fechaFin)+1);
   return `<button type="button" class="mh-destino" data-tab-to="destinos" title="Ir a Destinos"><span class="mh-flag">${banderaDestinoHtml(d)}</span><span class="mh-d"><b>${escHtml(nombreCorto(d))}</b>${dia ? `<small>${dia}</small>` : ''}</span></button>`;
@@ -7356,8 +7440,9 @@ function renderMovimientosBase(){
     .filter(m=>movMatchesChip(m,movFiltro, buscandoTodos))
     .filter(pasaFiltroCuenta)
     .filter(m=> buscandoTodos || movFiltro==='total' || ymMov(m)===movMes)
-    .filter(m=> !q || ((m.nota||'')+' '+(m.subNombre||'')).toLowerCase().includes(q)))
+    .filter(m=> !q || puntajeBusquedaMov(m, q)>0))
     .sort((a,b)=> (b.fecha||'').localeCompare(a.fecha||''));
+  if(q && movOrden!=='registro'){ const pz = new Map(); filtered.forEach(m=>pz.set(m, puntajeBusquedaMov(m, q))); filtered.sort((a,b)=> (pz.get(b)-pz.get(a)) || (b.fecha||'').localeCompare(a.fecha||'')); } // v19: primero las coincidencias exactas
   const porRegistro = movOrden==='registro';
   if(porRegistro){ const c = new Map(); filtered.forEach(m=>c.set(m, creadoDeMov(m))); filtered.sort((a,b)=>(c.get(b)-c.get(a)) || (b.fecha||'').localeCompare(a.fecha||'')); }
 
@@ -7403,15 +7488,15 @@ function renderMovimientosBase(){
     <div class="card gx gx-azul">
       <div class="card-title"><h2>${ico('wallet','icon-sm')} ${nombreBudget(perfil)}</h2></div>
       ${renderTripleStat(bp.meta, bp.gastado, bp.disp, {asignado:'Meta', gastado:'Gastado', disp:'Disponible'})}
-      <div class="bp-desglose">
-        <div class="bp-tit">Así se forma la Meta</div>
+      <details class="bp-desglose">
+        <summary class="bp-tit">${ico('layers','icon-xs')}<span>Así se forma la Meta</span>${ico('chevright','icon-xs')}</summary>
         ${lineaBp('bp-dep', 'Depósito de '+quienDeposita+' este mes', bp.deposito)}
         ${Math.abs(bp.aplicadoAcum) > 0.004 ? lineaBp('bp-apl', 'Acumulado que ya se aplicó a este mes', bp.aplicadoAcum) : ''}
         ${bp.aplicadoAhorro ? lineaBp('bp-aho', 'Del ahorro a este mes', bp.aplicadoAhorro) : ''}
         ${Math.abs(bp.pases) > 0.004 ? lineaBp('bp-apl', bp.pases > 0 ? 'Te pasó '+nombrePersona(otraPersona(perfil))+' a tu Budget' : 'Le pasaste a '+nombrePersona(otraPersona(perfil))+' de tu Budget', bp.pases) : ''}
         ${lineaBp('bp-pas', bp.pasado < -0.004 ? 'Lo que faltó en meses pasados' : 'Acumulado de meses pasados', bp.pasado)}
         <div class="bp-linea bp-tot"><span>Meta</span><b>${fmt(bp.meta,'MXN')}</b></div>
-      </div>
+      </details>
       <div class="bp-mitad">${ico('users','icon-xs')} <span>Lo que le toca a cada una de los gastos del Budget este mes (lo compartido a la mitad): <b>tú ${fmt(bp.parte,'MXN')}</b> · ${escHtml(nombrePersona(otraPersona(perfil)))} ${fmt(bp.parteOtra,'MXN')}. Lo que una pagó de más se lo debe la otra (abajo).</span></div>
       ${bp.apartado > 0.004 ? `<div class="small-note" style="margin-top:6px;">${ico('calendar','icon-xs')} Gastado incluye <b>${fmt(bp.apartado,'MXN')}</b> apartado para pagos por hacer (todavía no sale de tus cuentas). <button type="button" class="link-quiet" data-goto-mov="porHacer">Ver</button></div>` : ''}
       ${htmlPorCobrarBudget(perfil, bp.disp)}
@@ -7428,7 +7513,7 @@ function renderMovimientosBase(){
   ${fechaVistaActiva ? '' : renderCardPendientesMov()}
   ${resumenCard}
   ${movFiltro==='total' ? renderTotalAcumuladoCard('total') : ''}
-  ${renderBuscarMov(movFiltro==='personales' ? 'Buscar en mi dinero…' : 'Buscar por nota o fuente…')}
+  ${renderBuscarMov(movFiltro==='personales' ? 'Buscar en mi dinero…' : 'Buscar por nombre, categoría, monto o cuenta…')}
   <div class="card">
     <div class="card-title"><h2 class="mov-list-title"><span>Movimientos</span>${buscandoTodos?'':`<span class="mov-month-pill">${nombreMesLargo(movMes).split(' de ')[0]}</span>`}<span class="mov-count" title="${filtered.length} movimientos encontrados">${filtered.length}</span></h2><span class="card-title-acts">
       <button type="button" class="icon-btn" id="abrirImportarEstado" title="Importar estado de cuenta" aria-label="Importar estado de cuenta">${ico('file','icon-sm')}<span class="sr-only">Importar estado de cuenta</span></button>
@@ -7816,10 +7901,12 @@ function sheetHeader(title, sub){
   // v19 (visual): asa, subtítulo y botón de cerrar redondo, como en el diseño.
   const t = String(title||'');
   const s2 = sub || (/^Editar/.test(t) ? 'Cambia lo que haga falta y guarda' : t==='Registrar' ? 'Elige qué quieres anotar' : /^(Registrar|Nuev[oa]|Agregar)\b/.test(t) ? 'Nuevo registro' : '');
-  return `<div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><div class="sh-t"><h2>${title}</h2>${s2?`<p class="sh-sub">${s2}</p>`:''}</div><button class="close-x" id="closeSheetBtn" aria-label="Cerrar">${ico('x','icon-sm')}</button></div>`;
+  const deMenu = /^(Registrar gasto|Registrar ingreso|Pago entre nosotras|Pasarle dinero|Pagar tarjeta de crédito|Pago por hacer|Importar estado de cuenta)/.test(t); // v19: formularios nuevos del menú Registrar
+  return `<div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><div class="sh-t"><h2>${title}</h2>${s2?`<p class="sh-sub">${s2}</p>`:''}</div><div class="sh-btns">${deMenu?`<button type="button" class="close-x sheet-back" id="sheetBackBtn" aria-label="Regresar a las opciones de Registrar" title="Regresar a las opciones">${ico('chevleft','icon-sm')}</button>`:''}<button class="close-x" id="closeSheetBtn" aria-label="Cerrar">${ico('x','icon-sm')}</button></div></div>`;
 }
 // v19 (visual): adorna la hoja ya armada sin tocar ids ni eventos: «$» en los montos y «varios gastos» arriba.
 function decorarHoja(wrap){
+  try{ const bk = wrap.querySelector('#sheetBackBtn'); if(bk) bk.addEventListener('click', ()=>{ closeSheet(); openMenuRegistrar(); }); }catch(e){}
   try{
     wrap.querySelectorAll('input[type="number"]').forEach(inp=>{
       if(!/Monto$/i.test(inp.id||'') || inp.closest('.money-input') || inp.type==='hidden') return;
@@ -7845,6 +7932,7 @@ function openMenuRegistrar(){
       ${op('pagoEntre','swap','Pase entre nosotras','Dinero que se pasaron Isa y tú')}
       ${op('pagoTarjeta','card','Pago de tarjeta','Pagaste tu tarjeta de crédito')}
       ${op('pagoProgramado','calendar','Pago por hacer','Algo que vas a pagar más adelante')}
+      ${op('estadoCuenta','file','Importar o verificar estado de cuenta','Lee tu estado de cuenta y compáralo con la app')}
     </div>`);
   document.querySelectorAll('[data-menu-reg]').forEach(b=>b.addEventListener('click', ()=>{
     const t = b.getAttribute('data-menu-reg'); closeSheet();
@@ -7853,6 +7941,7 @@ function openMenuRegistrar(){
     if(t==='pagoEntre') return openPagoEntre(perfil);
     if(t==='pagoTarjeta') return openPagoTarjeta(perfil, null, null, null);
     if(t==='pagoProgramado') return openPagoProgramado();
+    if(t==='estadoCuenta') return openImportarEstado();
   }));
 }
 function openModalFor(type, ds){
@@ -9045,7 +9134,7 @@ function openPorCobrar(lista, persona, editId, nombrePreset){
     </div>
     <div class="field"><label>${esCobro?'¿Cuándo esperas que te pague?':'¿Cuándo lo vas a deber / pagar?'}</label><input type="date" id="pcFecha" value="${ex?ex.fecha:todayISO()}"></div>
     ${renderTipoCambioField('pc', moneda)}
-    <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;margin-bottom:12px;">
+    <label class="rec-chk">
       <input type="checkbox" id="pcHecho" style="width:auto;" ${hecho?'checked':''}> ${esCobro?'Ya me pagó':'Ya lo pagué'}
     </label>
     ${renderRecurrenciaField('pc', ex, lista)}
@@ -9634,9 +9723,9 @@ function openImportarEstado(){
     <div class="field"><label>Pega aquí el texto del estado de cuenta</label>
       <textarea id="ecTexto" rows="7" placeholder="Copia los movimientos del PDF, de la app del banco o de un archivo CSV y pégalos aquí" style="width:100%;font-family:monospace;font-size:12px;"></textarea></div>
     <button class="btn btn-primary btn-block" id="ecLeerTexto" style="margin-bottom:12px;">Leer movimientos del texto</button>
-    <div class="ec-sep">o</div>
+    <div class="ec-sep"><span>o</span></div>
     <input type="file" id="ecArchivo" accept=".txt,.csv,.tsv,.pdf,.xlsx,.xls,.ods,text/plain,text/csv,application/pdf" hidden>
-    <button class="btn btn-outline btn-block" id="ecAdjuntar">${ico('file','icon-sm')} Adjuntar archivo (PDF, Excel, CSV o texto)</button>
+    <button class="btn btn-outline btn-block ec-adjuntar" id="ecAdjuntar"><span class="bulk-entry-icon">${ico('file','icon-sm')}</span><span><b>Adjuntar archivo</b><small>PDF, Excel, CSV o texto</small></span></button>
     <div class="small-note" id="ecEstadoLectura" style="margin-top:8px;">Para PDF y Excel la app necesita internet la primera vez que abre uno.</div>
     ${(()=>{ const n = gastosQueParecenPagoTarjeta().length; return n ? `<button class="btn btn-outline btn-block" id="ecRevisarPagos" style="margin-top:12px;border-color:var(--amber);color:var(--amber);">${ico('card','icon-sm')} Revisar pagos a la tarjeta guardados como gasto (${n})</button>` : ''; })()}
     ${imps.length ? `<h3 class="pc-sub">Importaciones anteriores</h3>${imps.map(im=>htmlLineaImportacion(im)).join('')}` : ''}
@@ -11715,6 +11804,33 @@ function renderFiltrosMov(){
     <div class="filtros-actions"><button type="button" class="btn btn-outline btn-sm" id="movRevisarDup">${ico('layers','icon-sm')} Revisar duplicados</button></div>
   </div>` : ''}`;
 }
+// v19: búsqueda sin mayúsculas ni acentos, por nombre, categoría, monto y cuenta; tolera un error de letra.
+function normBusq(t){ return String(t==null?'':t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9.,$€£ ]+/g,' ').replace(/\s+/g,' ').trim(); }
+function casiIgual(a, b){ // distancia de edición ≤ 1 (incluye dos letras volteadas)
+  if(a===b) return true; const la=a.length, lb=b.length; if(Math.abs(la-lb)>1) return false;
+  let i=0; while(i<la && i<lb && a[i]===b[i]) i++;
+  if(la===lb) return a.slice(i+1)===b.slice(i+1) || (a[i]===b[i+1] && a[i+1]===b[i] && a.slice(i+2)===b.slice(i+2));
+  return la>lb ? a.slice(i+1)===b.slice(i) : a.slice(i)===b.slice(i+1);
+}
+function textoBusquedaMov(m){
+  const montos = [m.monto, m.montoMXN].filter(v=>v!=null && v!=='').map(v=>{ const n=Math.abs(+v); return isFinite(n) ? n.toFixed(2)+' '+String(Math.round(n*100)/100)+' '+n.toLocaleString('en-US',{minimumFractionDigits:2}) : ''; }).join(' ');
+  let cta = ''; try{ cta = [m.cta, m.cuenta, m.pagadoCon].filter(Boolean).map(k=>labelCuenta(k)+' '+k).join(' '); }catch(e){}
+  return normBusq([m.nota, m.subNombre, m.desc, m.nombre, m.concepto, cta, montos].filter(Boolean).join(' '));
+}
+function puntajeBusquedaMov(m, q){
+  const nq = normBusq(q); if(!nq) return 1;
+  const txt = textoBusquedaMov(m); if(txt.includes(nq)) return 3; // frase exacta
+  const palabras = txt.split(' '), toks = nq.split(' ').filter(Boolean);
+  let exactas = 0;
+  for(const t of toks){
+    if(txt.includes(t)){ exactas++; continue; }
+    if(t.length>=4 && txt.replace(/ /g,'').includes(t)) continue; // «ryanair» encuentra «Ryan air»
+    if(t.length<4 || /\d/.test(t)) return 0; // los números se buscan exactos
+    if(palabras.some(w=> w.length>t.length && [...Array(w.length-t.length+2).keys()].some(k=>casiIgual(w.slice(k,k+t.length), t) || casiIgual(w.slice(k,k+t.length-1), t) || casiIgual(w.slice(k,k+t.length+1), t)))) continue; // dentro de otra palabra
+    if(!palabras.some(w=> casiIgual(w, t) || (w.length>t.length && casiIgual(w.slice(0,t.length), t)) || (w.length>=t.length-1 && casiIgual(w, t.slice(0,w.length)) && w.length>=4))) return 0;
+  }
+  return exactas===toks.length ? 2 : 1;
+}
 // v18.4: buscador con el botón de filtros al lado.
 function renderBuscarMov(ph){
   const n = filtrosActivos();
@@ -12922,7 +13038,7 @@ function openSuscripcion(editId){
     </div>
     <div id="susMensualWrap" style="${tipo==='mensual'?'':'display:none'}">
       <div class="field"><label>Fecha del (próximo) cobro</label><input type="date" id="susPrimerCobro" value="${ex&&ex.primerCobro&&ex.tipo==='mensual'?ex.primerCobro:hoy}"></div>
-      <label class="chk-line"><input type="checkbox" id="susAvisar" ${ex&&ex.avisar?'checked':''}> Avisarme un día antes de cada cobro</label>
+      <label class="rec-chk chk-line"><input type="checkbox" id="susAvisar" ${ex&&ex.avisar?'checked':''}> Avisarme un día antes de cada cobro</label>
     </div>
     <div class="field"><label>¿Con qué se paga?</label>${pickerHtml('susPago', opcionesPagoV15(perfil, ex&&ex.pagadoCon==='abuelo'), ex?ex.pagadoCon:'', 'Elige con qué se paga')}</div>
     <div class="field" id="susOtroWrap" style="${ex&&ex.pagadoCon==='otro'?'':'display:none'}"><label>¿Quién la paga?</label><input type="text" id="susOtro" value="${ex&&ex.otroNombre?escHtml(ex.otroNombre):''}"></div>
@@ -13233,7 +13349,35 @@ window.addEventListener('resize', ()=>{ try{ actualizarFlechaTabs(); }catch(e){}
 /* ============================================================
    EVENT WIRING
    ============================================================ */
+// v19: en Ajustes cada sección se abre al tocar su título; al entrar a la pestaña todas empiezan cerradas.
+let cfgAbiertas = new Set(), cfgTabPrevia = null;
+function plegarConfig(){
+  if(activeTab!=='config'){ cfgTabPrevia = activeTab; return; }
+  if(cfgTabPrevia!=='config'){ cfgAbiertas = new Set(); cfgTabPrevia = 'config'; }
+  const cont = document.querySelector('.appcontent.tab-config'); if(!cont) return;
+  cont.querySelectorAll(':scope > .card').forEach((card, i)=>{
+    if(card.tagName==='DETAILS') return; // ya es plegable
+    let tit = card.querySelector(':scope > .card-title');
+    const etq = card.previousElementSibling;
+    if(!tit && etq && etq.classList.contains('section-label')){ // sección sin título propio (Respaldo, Zona de cuidado): toma el de su etiqueta
+      tit = document.createElement('div'); tit.className = 'card-title'; tit.innerHTML = `<h2>${etq.innerHTML.replace(/icon-xs/g,'icon-sm')}</h2>`; card.insertBefore(tit, card.firstChild); etq.classList.add('cfg-etq-dup');
+    }
+    if(!tit){ const prev = card.previousElementSibling; if(prev && prev.classList.contains('cfg-plegable')){ card.classList.add('cfg-anexo'); card.classList.toggle('cfg-oculto', !prev.classList.contains('cfg-abierta')); } return; } // tarjeta de resumen que acompaña a la sección de arriba
+    const h = tit.querySelector('h2'); const clave = (h ? h.textContent : '').trim() || ('s'+i);
+    card.classList.add('cfg-plegable'); card.classList.toggle('cfg-abierta', cfgAbiertas.has(clave));
+    const btn = document.createElement('button'); btn.type='button'; btn.className='cfg-toggle'; btn.setAttribute('aria-expanded', cfgAbiertas.has(clave)); btn.setAttribute('aria-label', (cfgAbiertas.has(clave)?'Cerrar ':'Abrir ')+clave);
+    btn.innerHTML = ico('chevright','icon-sm');
+    tit.appendChild(btn);
+    tit.addEventListener('click', (e)=>{
+      if(e.target.closest('input,select,textarea,a,[data-open],[data-tab]') ) return;
+      const ab = !card.classList.contains('cfg-abierta'); card.classList.toggle('cfg-abierta', ab); btn.setAttribute('aria-expanded', ab);
+      if(ab) cfgAbiertas.add(clave); else cfgAbiertas.delete(clave);
+      const sig = card.nextElementSibling; if(sig && sig.classList.contains('cfg-anexo')) sig.classList.toggle('cfg-oculto', !ab);
+    });
+  });
+}
 function wireEvents(){
+  try{ plegarConfig(); }catch(e){}
   const fabSync = document.getElementById('fabSync');
   if(fabSync) fabSync.addEventListener('click', tocarBotonSync);
   const perfilSwitchBtn = document.getElementById('perfilSwitchBtn');
@@ -13268,9 +13412,16 @@ function wireEvents(){
   });
   const movSearch = document.getElementById('movSearch');
   if(movSearch){
-    movSearch.addEventListener('input', ()=>{ movBusqueda = movSearch.value; });
-    movSearch.addEventListener('keyup', (e)=>{ if(e.key==='Enter'){ render(); } });
-    movSearch.addEventListener('blur', ()=>{ render(); });
+    // v19: filtra mientras escribes y conserva el cursor al volver a pintar.
+    movSearch.addEventListener('input', ()=>{
+      movBusqueda = movSearch.value; clearTimeout(window._movBusqT);
+      window._movBusqT = setTimeout(()=>{
+        const pos = movSearch.selectionStart; render();
+        const n = document.getElementById('movSearch'); if(n){ n.focus({preventScroll:true}); try{ n.setSelectionRange(pos, pos); }catch(e){} }
+      }, 220);
+    });
+    movSearch.addEventListener('keyup', (e)=>{ if(e.key==='Enter'){ clearTimeout(window._movBusqT); render(); } });
+    movSearch.addEventListener('blur', ()=>{ if(window._movBusqT){ clearTimeout(window._movBusqT); window._movBusqT=null; if(document.activeElement!==movSearch) render(); } });
   }
   document.querySelectorAll('[data-mov-edit]').forEach(el=>{
     el.addEventListener('click', ()=>{
