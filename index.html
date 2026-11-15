@@ -12,7 +12,6 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FFC93C'/%3E%3Crect x='30' y='21' width='11' height='58' rx='5.5' fill='white'/%3E%3Cpath d='M35 21 H54 A14.5 14.5 0 0 1 54 50 H35 Z' fill='white'/%3E%3Cpath d='M35 50 H58 A15 15 0 0 1 58 79 H35 Z' fill='white'/%3E%3C/svg%3E">
 <link rel="manifest" href="manifest.json">
 <title>Budgetin — Presupuesto de viaje</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Figtree:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2168,6 +2167,102 @@
 
   @media (min-width:900px){ .covsub-list{grid-template-columns:1fr 1fr;} }
   @media (max-width:899px){ .covsub-row{padding:6px 6px 6px 10px;gap:8px;} .covsub-n{min-width:0;flex-basis:calc(100% - 50px);} .covsub-seg{width:100%;} .covsub-seg button{flex:1;} }
+
+  /* ---- v19 · etapa 5 ---- */
+  /* lista de meses (y cualquier lista desplegable) por encima de las tarjetas con degradado */
+  .gx{overflow:visible !important;}
+  .gx > .card-title,.gx .bt-head{position:relative;z-index:6 !important;}
+  .gx .pk.open,.gx .pk:focus-within{z-index:60 !important;position:relative;}
+  .card:has(.pk.open){z-index:30;position:relative;}
+  /* barras de gasto por día en violeta */
+  .dbar i{background:linear-gradient(180deg,#8a4dff,#5b6cff) !important;opacity:.8;}
+  .dbar.hoy i{background:linear-gradient(180deg,#e0489a,#8a4dff) !important;opacity:1;}
+  /* Budget total */
+  .bt-card .bt-fuentes{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;}
+  .bt-card .bt-fuentes > span,.bt-card .bt-abuelo{display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 6px;border-radius:999px;background:color-mix(in srgb,var(--card) 70%,transparent);font-size:14px;font-weight:600;min-height:40px;}
+  .bt-conesp{display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px 14px;border-radius:20px;background:linear-gradient(135deg,color-mix(in srgb,var(--abu) 26%,transparent),color-mix(in srgb,var(--amber) 10%,transparent));border:1px solid color-mix(in srgb,var(--abu) 40%,transparent);}
+  .bt-conesp > .icon{flex:none;margin-top:3px;color:var(--ink);}
+  .bt-conesp > div{display:grid;grid-template-columns:1fr auto;gap:2px 12px;flex:1;min-width:0;align-items:baseline;}
+  .bt-conesp span{font-weight:700;font-size:15px;} .bt-conesp b{font-family:var(--f-display);font-size:22px;letter-spacing:-.02em;color:var(--teal-deep);} .bt-conesp b.neg{color:var(--brick);}
+  .bt-conesp small{grid-column:1 / -1;font-size:13.5px;color:var(--ink-soft);line-height:1.4;}
+  .bt-sub{display:flex;align-items:center;gap:6px;justify-content:flex-start;margin:16px 0 4px;font:700 14px var(--f-display);color:var(--ink-soft);}
+  .bt-sub .hint{margin-left:auto;} .bt-esp .esp-line{padding:10px 0;} .bt-esp-vacio{margin-top:10px;}
+  .esp-line .d{font-size:13.5px;} .esp-line.atrasado .esp-tarde{color:var(--amber);} .esp-rep{color:var(--ink-soft);vertical-align:-2px;}
+  .esp-line .btn-sm{flex-shrink:0;}
+  /* pastel */
+  .pie-wrap{display:grid;grid-template-columns:minmax(150px,210px) 1fr;gap:18px;align-items:center;margin-top:18px;padding:16px;border-radius:24px;background:color-mix(in srgb,var(--card) 72%,transparent);border:1px solid color-mix(in srgb,var(--ink) 8%,transparent);}
+  .pie-box{position:relative;aspect-ratio:1;}
+  .pie-svg{width:100%;height:100%;display:block;overflow:visible;}
+  .pie-seg{cursor:pointer;stroke:var(--card);stroke-width:1.2;transition:transform .18s ease, filter .18s;transform-origin:60px 60px;outline:none;}
+  .pie-seg:hover,.pie-seg:focus-visible{transform:scale(1.06);filter:drop-shadow(0 4px 10px rgba(0,0,0,.25)) saturate(1.2);}
+  .pie-centro{position:absolute;inset:0;display:grid;place-content:center;text-align:center;pointer-events:none;}
+  .pie-centro small{font-size:13px;color:var(--ink-soft);} .pie-centro b{font-family:var(--f-display);font-size:clamp(18px,4vw,24px);letter-spacing:-.02em;}
+  .pie-leyenda{display:grid;gap:4px;min-width:0;}
+  .pie-ley{display:grid;grid-template-columns:10px auto minmax(0,1fr) auto;align-items:center;gap:8px;min-height:40px;padding:4px 10px 4px 6px;border:none;border-radius:14px;background:none;color:var(--ink);font:600 14px var(--f-text);text-align:left;cursor:pointer;}
+  .pie-ley:hover,.pie-ley:focus-visible{background:var(--card2);outline:none;}
+  .pie-ley i{width:10px;height:10px;border-radius:50%;} .pie-ley span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .pie-ley b{font-family:var(--f-display);}
+  .pie-tip{display:flex;align-items:center;gap:10px;} .tip-pop .pie-tip .mico,.tip-pop .pie-tip [class*="mico"]{display:inline-flex !important;flex:none;}
+  .pie-vacio{margin-top:14px;}
+  details.bt-mas{margin-top:14px;border-top:1px solid color-mix(in srgb,var(--ink) 10%,transparent);padding-top:6px;}
+  details.bt-mas > summary{list-style:none;display:flex;align-items:center;gap:10px;min-height:52px;cursor:pointer;font:700 16px var(--f-display);}
+  details.bt-mas > summary::-webkit-details-marker{display:none;}
+  details.bt-mas > summary small{font:500 13.5px var(--f-text);color:var(--ink-soft);margin-left:auto;}
+  details.bt-mas > summary > .icon{width:32px;height:32px;padding:7px;box-sizing:border-box;border-radius:50%;background:var(--btn-bg);color:var(--btn-fg);transition:transform .15s;}
+  details.bt-mas[open] > summary > .icon{transform:rotate(90deg);}
+  @media (max-width:640px){ .pie-wrap{grid-template-columns:1fr;justify-items:center;} .pie-box{width:min(220px,70vw);} .pie-leyenda{width:100%;} }
+  /* Cuánto ha puesto cada una */
+  .card-puesto{background:radial-gradient(300px 170px at 0% 0%, color-mix(in srgb,var(--jen) 26%,transparent), transparent 72%), radial-gradient(300px 170px at 100% 0%, color-mix(in srgb,var(--isa) 26%,transparent), transparent 72%), var(--card) !important;}
+  .puesto-seg{margin-bottom:14px;}
+  .puesto-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .puesto-col{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:4px 10px;padding:14px;border-radius:22px;background:color-mix(in srgb,var(--card) 70%,transparent);border:1px solid color-mix(in srgb,var(--ink) 8%,transparent);min-width:0;}
+  .puesto-n{font-weight:700;font-size:15px;} .puesto-v{grid-column:1 / -1;font-family:var(--f-display);font-size:clamp(22px,5.5vw,30px);letter-spacing:-.03em;}
+  .puesto-col small{grid-column:1 / -1;font-size:13px;color:var(--ink-soft);line-height:1.4;}
+  .puesto-bar{position:relative;display:flex;height:14px;border-radius:99px;overflow:hidden;margin:14px 0 8px;background:var(--card2);}
+  .puesto-bar .jen{background:var(--jen);} .puesto-bar .isa{background:var(--isa);}
+  .puesto-mitad{position:absolute;left:50%;top:-3px;bottom:-3px;width:3px;margin-left:-1.5px;background:var(--ink);border-radius:2px;}
+  .puesto-tot{font-size:14px;color:var(--ink-soft);} .puesto-tot b{color:var(--ink);}
+  .puesto-estado{margin-top:10px;padding:10px 14px;border-radius:16px;font-size:14.5px;font-weight:600;display:flex;gap:8px;align-items:center;}
+  .puesto-estado.ok{background:var(--teal-soft);color:var(--teal-deep);} .puesto-estado.dif{background:var(--amber-soft);color:var(--ink);}
+  /* Movimientos: bandera en imagen junto al día, del mismo tamaño que el texto */
+  .dia-head .dia-lugar{display:inline-flex;align-items:center;gap:5px;font-size:inherit;}
+  .dia-head .dest-flag{display:inline-flex;width:1.35em;height:1em;border-radius:3px;overflow:hidden;flex:none;font-size:1em;line-height:1;box-shadow:0 0 0 1px color-mix(in srgb,var(--ink) 12%,transparent);}
+  .dia-head .dest-flag img{width:100%;height:100%;object-fit:cover;}
+  /* Destinos: alojamientos ligados */
+  .dest-aloj{margin:0 0 16px;padding:14px;border-radius:22px;background:var(--card2);border:1px solid var(--line);}
+  .dest-aloj-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;} .dest-aloj-head b{font:700 16px var(--f-display);flex:1;}
+  .dest-aloj .aloj-linea{background:var(--card) !important;cursor:pointer;}
+  /* Inicio · Ver más en compu: dos columnas */
+  @media (min-width:900px){ .inicio-vermas{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;margin-top:4px;} .inicio-vermas > .card{margin:0;} .inicio-vermas > .card.aloj-card{grid-column:auto;} }
+  .inicio-vermas .stat-box .val{font-family:var(--f-display);font-size:22px !important;}
+  /* Pantalla de elegir perfil */
+  .perfil-gate.gate-v19{max-width:none;min-height:100vh;margin:0;padding:48px 22px;background:radial-gradient(520px 380px at 15% 10%, rgba(255,201,60,.55), transparent 70%), radial-gradient(520px 420px at 90% 30%, rgba(224,72,154,.42), transparent 70%), radial-gradient(600px 460px at 40% 100%, rgba(91,108,255,.5), transparent 70%), var(--paper) !important;}
+  .gate-v19 .gate-logo{width:88px;height:88px;border-radius:26px;background:none !important;box-shadow:0 22px 50px -16px rgba(255,170,0,.65);margin-bottom:18px;}
+  .gate-v19 .gate-logo .logo-b{width:100%;height:100%;}
+  .gate-v19 h1{font-size:44px;margin-bottom:4px;} .gate-v19 p{font-size:18px;margin-bottom:24px;}
+  .gate-v19 .perfil-btn{max-width:340px;margin-bottom:12px;background:color-mix(in srgb,var(--card) 78%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);text-align:left;}
+  .gate-v19 .perfil-btn > span:nth-child(2){flex:1;} .gate-v19 .perfil-btn .nm{font-size:21px;}
+  .gate-v19 .gate-nota{margin-top:14px;max-width:300px;font-size:14px;color:var(--ink-soft);text-align:center;}
+
+  /* búsqueda global */
+  .mh-acts{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .busq-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 15px var(--f-text);cursor:pointer;box-shadow:var(--shadow-1);}
+  .busq-btn .icon{color:var(--ink);} .busq-btn:hover{border-color:var(--jen);}
+  @media (max-width:899px){ .busq-btn{width:44px;padding:0;justify-content:center;} .busq-btn span{display:none;} }
+  .busq-campo{display:flex;align-items:center;gap:10px;min-height:56px;padding:0 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--card2);margin-bottom:10px;}
+  .busq-campo:focus-within{border-color:var(--ink);background:var(--card);}
+  .busq-campo input{flex:1;min-width:0;border:none !important;background:transparent !important;font-size:17px;color:var(--ink);outline:none;min-height:52px;box-shadow:none !important;padding:0 !important;}
+  .busq-grupo{margin-bottom:8px;} .busq-n{margin-left:6px;padding:1px 8px;border-radius:99px;background:var(--card2);font-size:13px;}
+  .busq-item{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;min-height:58px;padding:8px 10px;border:none;border-radius:16px;background:none;color:var(--ink);text-align:left;cursor:pointer;}
+  .busq-item:hover,.busq-item:focus-visible{background:var(--card2);outline:none;}
+  .busq-item .dest-flag{width:32px;height:24px;border-radius:5px;overflow:hidden;display:inline-flex;} .busq-item .dest-flag img{width:100%;height:100%;object-fit:cover;}
+  .busq-t{display:grid;gap:2px;min-width:0;} .busq-t b{font-size:15.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;} .busq-t small{font-size:13.5px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .busq-item em{font:700 15px var(--f-display);font-style:normal;}
+  .busq-vacio{padding:10px 4px;}
+  .toast .toast-accion{margin-left:12px;min-height:36px;padding:0 14px;border-radius:999px;border:none;background:#fff;color:#111;font-weight:700;cursor:pointer;}
+
+  .bt-sub button.hint,.bt-esp-vacio button.hint{border:none;font:inherit;cursor:pointer;min-height:44px;}
+  @media (max-width:899px){ .esp-editar{min-height:44px;} .pie-ley{min-height:44px;} }
+  .puesto-cols[hidden]{display:none !important;}
 </style>
 </head>
 <body>
@@ -2187,7 +2282,7 @@ const APP_VERSION = '18.14 · 11 nov 2026 (pagos por hacer, comparar estados de 
 // Número de versión que se guarda en la nube al sincronizar: si el otro
 // teléfono ya usa uno más nuevo, este no sube ni adopta datos (evita borrar
 // campos que esta versión no conoce).
-const APP_BUILD = 25; // v18.14: pagos por hacer (deudasProyectadas tipo 'programado') apartan del Budget: la app vieja los vería como deudas a futuro.
+const APP_BUILD = 26; // v19: ingresos esperados (deudasProyectadas tipo 'esperado'): la app vieja los vería como deudas a futuro. // v18.14: pagos por hacer (deudasProyectadas tipo 'programado') apartan del Budget: la app vieja los vería como deudas a futuro.
 const APP_BUILD_V1813 = 24; // v18.13: deudas por separación (deudaTipo en gastos; salda/soloAFavor en pagos entre ustedes): la app vieja las contaría distinto y pide actualizar. Antes 23: v18.9: registros en las cuentas de la otra esperan su aprobación (colección "pendientes"; la app vieja los ignoraría). Antes 22: v18.7: el sobrante de una puede cubrir lo que debe la otra (registros ligados "cruceAcum" que la 18.6 leería como Budget del mes): la app vieja ve este número en la hoja y pide actualizar. Antes: v18.6: pagar una tarjeta ya no guarda "parte" y nunca cambia el Budget (las versiones anteriores lo contarían distinto)
 // (20 = v18.5: "no es deuda", fecha de inicio del Budget, importaciones con nombre (las versiones anteriores no lo entienden)
 // Versión mínima del código de la hoja (Apps Script) que sabe juntar las colecciones nuevas.
@@ -2252,6 +2347,7 @@ const ICONS = {
   chevdown:'<path d="M5 8.5 12 15l7-6.5"/>',
   chevright:'<path d="M8.5 5l7 7-7 7"/>',
   chevleft:'<path d="M15.5 5l-7 7 7 7"/>',
+  scale:'<path d="M12 4v16M6 20h12M5 8h14M7.5 8L4.5 14a3 3 0 0 0 6 0zM16.5 8l-3 6a3 3 0 0 0 6 0z"/>',
   info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.6v.4"/>',
   food:'<path d="M6 3v7a2 2 0 0 0 2 2v9"/><path d="M6 3v7M9 3v7"/><path d="M17 3c-1.7 0-3 2-3 5s1 5 1 5v10"/>',
   bed:'<path d="M3 18v-8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3"/><path d="M3 18v3"/><path d="M21 18v3"/><path d="M3 15h18v-2a2 2 0 0 0-2-2h-6"/>',
@@ -2711,6 +2807,8 @@ function interceptarAjenos(){
 function persistSistema(){ noInterceptar++; try{ persist(); } finally { noInterceptar--; } }
 function persist(){
   if(fechaVistaActiva) return; // v18.9: viendo una fecha pasada no se guarda nada
+  const antes = (!noInterceptar && !_deshaciendo && Date.now() - _ultimoGesto < 4000) ? new Map(registrosPrevios) : null; // v19: para «Deshacer»
+  const pendAntes = antes ? new Set((state.pendientes||[]).map(p=>p && p.id)) : null;
   try{ interceptarAjenos(); }catch(e){ try{ console.error(e); }catch(_){} }
   try{ reconciliarProgramados(); }catch(e){} // v18.14: después de interceptar (es consecuencia del gasto, que ya pasó por aprobación)
   try{ recalcularArq(); }catch(e){}
@@ -2718,6 +2816,44 @@ function persist(){
   Storage.save(state);
   guardarCopiaLocal();
   if(cambio){ marcarPendiente(true); programarSync(); }
+  if(antes && cambio){ try{ prepararDeshacer(antes, pendAntes); }catch(e){} }
+}
+// v19 etapa 5: «Deshacer» unos segundos después de guardar o borrar algo (solo acciones tuyas, no las del sistema).
+let _deshaciendo = false, _ultimoGesto = 0;
+try{ ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev, ()=>{ _ultimoGesto = Date.now(); }, true)); }catch(e){}
+const COLS_DESHACER = new Set(['ingresos','gastos','efectivo','pagosEntre','pagosTarjeta','pagosOtros','porCobrar','proyecciones','suscripciones','transferencias','finGan','finGas','ahorro','comprasArq']);
+function prepararDeshacer(antes, pendAntes){
+  const ahora = new Map(recorrerRegistros(state).map(e=>[e.k, e]));
+  const nuevos = [], editados = [], borrados = [];
+  const va = (k)=>COLS_DESHACER.has(String(k).split(':')[0]); // solo movimientos: una categoría trae todos sus gastos y regresarla completa borraría lo que llegó de la otra
+  ahora.forEach((e,k)=>{ if(!va(k)) return; const p = antes.get(k); if(!p) nuevos.push(k); else if(p.txt!==JSON.stringify(e.rec) || (p.loc||'')!==(e.loc||'')) editados.push({k, txt:p.txt, loc:p.loc||'', col:p.col}); });
+  antes.forEach((p,k)=>{ if(va(k) && !ahora.has(k)) borrados.push(k); });
+  const pend = pendAntes ? (state.pendientes||[]).map(p=>p && p.id).filter(id=>id && !pendAntes.has(id)) : []; // solicitudes de aprobación que mandó esta misma acción
+  const todos = [...nuevos, ...editados.map(x=>x.k), ...borrados];
+  if(!todos.length || todos.length > 25) return;
+  const d = {nuevos, editados, borrados, pend};
+  const msg = borrados.length && !nuevos.length ? 'Borrado.' : (nuevos.length && !editados.length && !borrados.length ? 'Guardado.' : 'Cambio guardado.');
+  setTimeout(()=>{ // después del aviso de aprobación (50 ms), para no borrarlo
+    const t = document.getElementById('toast');
+    if(t && !t.hidden && Date.now() - (window._toastTs||0) < 600 && !t.querySelector('.toast-accion')){
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'toast-accion'; b.textContent = 'Deshacer';
+      b.addEventListener('click', ()=>{ t.hidden = true; deshacerCambio(d); }); t.appendChild(b);
+      clearTimeout(toastTimer); toastTimer = setTimeout(()=>{ t.hidden = true; }, 7000);
+    } else mostrarToast(msg, 'ok', {label:'Deshacer', fn: ()=>deshacerCambio(d)});
+  }, 80);
+}
+function deshacerCambio(d){
+  _deshaciendo = true;
+  try{
+    const regs = ()=>recorrerRegistros(state);
+    d.nuevos.forEach(k=>{ const e = regs().find(x=>x.k===k); if(e && e.arr){ const i = e.arr.indexOf(e.rec); if(i>=0) e.arr.splice(i,1); } });
+    d.editados.forEach(({k, txt, loc, col})=>{ const e = regs().find(x=>x.k===k); if(!e) return; const old = JSON.parse(txt);
+      if((e.loc||'')!==(loc||'') && e.arr){ const i = e.arr.indexOf(e.rec); if(i>=0) e.arr.splice(i,1); reinsertar(col||e.col, loc, old); return; } // se había movido (p. ej. de categoría): regresa a su lugar
+      Object.keys(e.rec).forEach(x=>{ delete e.rec[x]; }); Object.assign(e.rec, old); });
+    if(d.pend && d.pend.length) state.pendientes = (state.pendientes||[]).filter(p=>!(p && d.pend.includes(p.id))); // retira lo que se mandó a aprobar
+    d.borrados.forEach(k=>{ const pe = (state._papelera||{})[k]; if(pe && !regs().some(x=>x.k===k) && reinsertar(pe.col, pe.loc, JSON.parse(JSON.stringify(pe.rec)))) delete state._papelera[k]; });
+    persist(); render(); mostrarToast('Listo, se deshizo.', 'ok');
+  } finally { _deshaciendo = false; }
 }
 snapGuardado = tomarSnapshot(state); // v18.9: lo que había al abrir la app
 
@@ -2793,10 +2929,6 @@ function toMXN(amount, cur){
 function toEUR(amountMXN){
   return amountMXN / (state.rates.EUR||21.5);
 }
-function convertToEUR(amount, cur){
-  if(cur==='EUR') return amount;
-  return toEUR(toMXN(amount, cur));
-}
 
 /* ------------------------------------------------------------
    Tipo de cambio en vivo (no fijo). Usa Frankfurter (Banco Central
@@ -2852,7 +2984,7 @@ function huella(txt){ let h = 5381; for(let i=0;i<txt.length;i++){ h = ((h<<5) +
    (Apps Script), para que el teléfono y la hoja junten exactamente igual. */
 function recorrerRegistros(st){
   const out = [];
-  const add = (col, arr, loc)=> (arr||[]).forEach(r=>{ if(r && r.id) out.push({k:col+':'+r.id, col, rec:r, loc:loc||''}); });
+  const add = (col, arr, loc)=> (arr||[]).forEach(r=>{ if(r && r.id) out.push({k:col+':'+r.id, col, rec:r, loc:loc||'', arr}); });
   add('ingresos', st.ingresos);
   (st.subcats||[]).forEach(sb=>{ add('gastos', sb.gastos, 'sub:'+sb.id); add('costos', sb.costos, sb.id); });
   add('gastos', st.gustosGastos, 'gustos');
@@ -3288,7 +3420,7 @@ function programarSync(ms){
   clearTimeout(syncTimer);
   syncTimer = setTimeout(()=>{ sincronizar(); }, ms==null ? 800 : ms);
 }
-function programarSyncPush(){ programarSync(); } // nombre anterior
+ // nombre anterior
 function urlSync(extra){ const u = state.syncUrl||''; return extra ? u + (u.includes('?')?'&':'?') + extra : u; }
 let ultimaNubeVista = null;   // updatedAt de la hoja la última vez que la leímos o escribimos
 function nombreQuien(q){ return q==='isa' ? 'Isa' : q==='jen' ? 'Jen' : 'el otro teléfono'; }
@@ -3520,7 +3652,7 @@ function mostrarToast(txt, tipo, accion){
     b.addEventListener('click', ()=>{ t.hidden = true; try{ accion.fn(); }catch(e){} });
     t.appendChild(b);
   }
-  t.hidden = false;
+  t.hidden = false; window._toastTs = Date.now();
   clearTimeout(toastTimer);
   toastTimer = setTimeout(()=>{ t.hidden = true; }, accion ? 7000 : 3600);
 }
@@ -4015,9 +4147,6 @@ function wireRecurrencia(prefix){
   const wrap = document.getElementById(prefix+'RecWrap');
   if(chk && wrap && !chk.dataset.wired){ chk.dataset.wired='1'; chk.addEventListener('change', ()=>{ if(!chk.dataset.serie) wrap.style.display = chk.checked ? '' : 'none'; }); }
 }
-function gastoTotal(subOrList){ // suma de transacciones a su valor MXN congelado (todo el tiempo)
-  return subOrList.reduce((acc,g)=> acc + mxnOf(g), 0);
-}
 
 /* ------------------------------------------------------------
    GASTOS POR MES / DÍA. Un pago de alojamiento con noches (entrada/salida)
@@ -4111,11 +4240,6 @@ function fondoGrandeMovsMXN(){
   const gastado = state.fondoGrande.movimientos.filter(m=>m.tipo==='gasto' && ymDe(m.fecha)===mesActual()).reduce((a,m)=>a+m.monto,0);
   return {gastado, prestado: prestamoFondoVivoMXN()};
 }
-function fondoGrandeDisponibleMXN(){
-  const asignado = fondoGrandeSugeridoMXN();
-  const {gastado, prestado} = fondoGrandeMovsMXN();
-  return asignado - gastado - prestado;
-}
 
 function boteMXN(ym){ return boteTotalMXN(ym); }
 // v18.6 (opción B): pagar una tarjeta de crédito es pasar dinero entre tus cuentas: NUNCA cambia el Budget
@@ -4176,18 +4300,6 @@ function efectoBudgetPagoEntre(p, persona, xbPorPago){
   if(p.de===persona){ if(p.sale==='bote') e += xp; else e -= xb; }
   if(p.a===persona){ if(p.entra==='bote') e -= xp; else e += xb; }
   return e;
-}
-function miGastoBotePorSubcat(persona, ym){
-  ym = ym||mesActual();
-  return state.subcats.map(s=>{
-    const monto = s.gastos.filter(cuentaEnBote).reduce((acc,g)=>{
-      const m = montoEnMesMXN(g, ym);
-      if(g.quien===persona) return acc + m;
-      if(g.quien==='ambas') return acc + m/2;
-      return acc;
-    },0);
-    return {subcat:s, monto};
-  }).filter(x=>x.monto>0);
 }
 function miIngresoMXN(persona, ym){
   const {jenNetoMXN, isaNetoMXN} = ingresosNetos(ym);
@@ -4477,6 +4589,7 @@ function arreglarFechasMalaga1814(){
    de lo disponible desde HOY (no se cuenta dinero que ya está comprometido).
    ============================================================ */
 function esProgramado(r){ return !!r && r.tipo==='programado'; }
+function esEsperadoRec(r){ return !!r && r.tipo==='esperado'; } // v19: ingreso esperado (no es deuda)
 function pagosProgramados(incluirHechos){ return (state.deudasProyectadas||[]).filter(r=>esProgramado(r) && (incluirHechos || r.estado!=='pagado')); }
 // El gasto "de mentiritas" que sería, para repartir el Budget igual que un gasto real.
 function gastoDeProgramado(r){ return {quien:r.quien, pagadoPor:r.quien==='ambas' ? (r.pagadoPor||r.persona||'jen') : undefined, pagadoCon:r.pagadoCon, monto:r.monto, moneda:r.moneda, montoMXN:r.montoMXN, rateMXN:r.rateMXN}; }
@@ -4518,6 +4631,23 @@ function renderPagosPorHacer(donde){
     ${donde==='inicio' && lista.length > vis.length ? `<button type="button" class="btn btn-outline btn-sm btn-block" data-goto-mov="porHacer">Ver los ${lista.length}</button>` : ''}
     ${hechos.length ? `<div class="bp-tit" style="margin-top:12px;">Ya pagados</div>${hechos.map(r=>`<div class="small-note" style="margin:4px 0;">${ico('check','icon-xs')} ${escHtml(r.nombre||'Pago')} · ${fmt(Number(r.monto)||0, r.moneda||'MXN')} · pagado ${escHtml(fmtDate(r.fechaPago||r.fecha))}</div>`).join('')}` : ''}
   </div>`;
+}
+// v19: ingresos esperados en «Por hacer» (los que aún no llegan: de meses pasados, este y los que vienen).
+function renderEsperadosPorHacer(){
+  const ym = mesActual(), meses = [...new Set(esperadosRegistros().map(r=>r.mes).filter(Boolean))].filter(m=>m >= ymMas(ym,-2)).sort();
+  const lineas = []; meses.forEach(m=>ingresosEsperadosMes(m).filter(e=>!e.llegados.length).forEach(e=>lineas.push({e, m})));
+  return `<div class="card card-esp" id="cardEsperados">
+    <div class="card-title"><h2>${ico('clock','icon-sm')} Ingresos esperados</h2><span class="hint" data-open="esperado">+ agregar</span></div>
+    ${lineas.length ? lineas.map(({e,m})=>(m!==ym?`<div class="bt-sub">${escHtml(nombreMesLargo(m))}</div>`:'')+lineaEsperado(e, m)).join('') : `<div class="small-note">No hay ingresos pendientes de llegar. Agrega lo que esperan recibir (mamá, papá, un trabajo…).</div>`}
+  </div>`;
+}
+function avisosEsperados(){
+  const ym = mesActual(); const out = [];
+  [ymMas(ym,-1), ym].forEach(m=>ingresosEsperadosMes(m).filter(e=>e.atrasado).forEach(e=>out.push(e)));
+  return out;
+}
+function htmlAvisosEsperados(){
+  return avisosEsperados().map(e=>`<div class="banner banner-warn">${ico('clock','icon-sm')}<div><b>${escHtml(e.nombre)}: esperado ${escHtml(e.cuando)}, aún no llega.</b> ${fmt(e.esperadoMes, e.monedaMes)}. <button type="button" class="link-quiet" data-esperado="${e.clave}">Ya llegó</button> · <button type="button" class="link-quiet" data-esperado-editar="${e.clave}">Cambiar fecha</button></div></div>`).join('');
 }
 function avisosProgramados(){
   return pagosProgramados().filter(r=>!r.gastoPendiente && ['hoy','manana','vencido'].includes(estadoProgramado(r).k) && (r.persona===perfil || r.quien==='ambas' || r.quien===perfil));
@@ -4875,7 +5005,6 @@ function saldoDebitoMXN(persona){
   const inicialRev = Number(((state.cuentasCfg||{})[persona]||{})['rev-deb'] && state.cuentasCfg[persona]['rev-deb'].inicial)||0; // v18: Revolut débito
   return inicialMXN + inicialRev + ganancias + ingresosFueraMXN(persona,'debito') - gastos - cats - retirosEfectivoMXN('debito', persona) + pagosEntre - pagosTarjeta - pagosOtros;
 }
-function saldoPersonalMXN(persona){ return saldoDebitoMXN(persona); }
 function creditoUtilizadoMXN(persona){
   const f = state.finanzas[persona];
   if(!f) return 0;
@@ -4910,7 +5039,6 @@ function deudasOtros(persona){
 function totalDeudasOtrosMXN(persona){ return deudasOtros(persona).reduce((a,f)=>a+Math.max(0,f.pendiente),0); }
 function nombresOtros(persona){ return deudasOtros(persona).map(f=>f.nombre); }
 function creditoLimiteMXN(persona){ const f=state.finanzas[persona]; return f && f.credito ? (Number(f.credito.limite)||0) : 0; }
-function creditoDisponibleMXN(persona){ return creditoLimiteMXN(persona) - creditoUtilizadoMXN(persona); }
 function categoriaAsignadoMXN(cat){
   const bote = boteMXN();
   if(cat==='fondoGrande') return fondoGrandeSugeridoMXN();
@@ -5114,27 +5242,28 @@ function toggleTema(){
 }
 aplicarTema();
 function nombrePerfil(p){ return p==='isa' ? 'Isa' : 'Jen'; }
-function colorPerfil(p){ return p==='isa' ? 'plum' : 'teal'; }
 function setPerfil(p){
   perfil = p;
   try{ localStorage.setItem(PERFIL_KEY, p); }catch(e){}
   render();
 }
+const LOGO_B_SVG = `<svg viewBox="0 0 100 100" class="logo-b" aria-hidden="true"><rect width="100" height="100" rx="24" fill="#FFC93C"/><rect x="30" y="21" width="11" height="58" rx="5.5" fill="#fff"/><path d="M35 21 H54 A14.5 14.5 0 0 1 54 50 H35 Z" fill="#fff"/><path d="M35 50 H58 A15 15 0 0 1 58 79 H35 Z" fill="#fff"/></svg>`;
 function renderPerfilGate(){
+  // v19 etapa 5: logo de Budgetin, fondo degradado y poco texto.
   return `
-  <div class="perfil-gate">
-    <div class="gate-mark">${ico('suitcase','icon-lg')}</div>
+  <div class="perfil-gate gate-v19">
+    <div class="gate-mark gate-logo">${LOGO_B_SVG}</div>
     <h1>Budgetin</h1>
-    <p>Antes de entrar, dinos quién eres — es solo para mostrarte tu vista. Los datos son los mismos para las dos.</p>
+    <p>¿Quién eres?</p>
     <button class="perfil-btn" data-set-perfil="jen">
-      <span class="av" style="background:var(--teal-soft);color:var(--teal-deep);">JE</span>
-      <span><span class="nm">Entrar como Jen</span><br><span class="ds">Ve también su ahorro de emergencia</span></span>
+      <span class="av">J</span>
+      <span><span class="nm">Jen</span></span>${ico('chevright','icon-sm')}
     </button>
     <button class="perfil-btn" data-set-perfil="isa">
-      <span class="av" style="background:var(--plum-soft);color:var(--plum);">IS</span>
-      <span><span class="nm">Entrar como Isa</span><br><span class="ds">Su efectivo, su tarjeta y sus gastos</span></span>
+      <span class="av">I</span>
+      <span><span class="nm">Isa</span></span>${ico('chevright','icon-sm')}
     </button>
-    <div class="small-note" style="margin-top:14px;">Puedes cambiar de perfil cuando quieras con el botón de arriba — no vuelve a preguntarte esto en este teléfono.</div>
+    <div class="gate-nota">Los datos son los mismos para las dos. Puedes cambiar de perfil cuando quieras.</div>
   </div>`;
 }
 function wirePerfilGate(){
@@ -5154,6 +5283,7 @@ function render(){
 function renderInterno(){
   try{ document.body.classList.toggle('sel-activo', !!(movSelModo && activeTab==='movimientos')); }catch(e){}
   try{ if(!fechaVistaActiva && reconciliarProgramados()) persistSistema(); }catch(e){} // v18.14
+  try{ if(!fechaVistaActiva) revisarEsperados(); }catch(e){} // v19: crea los esperados del mes (y los primeros, una vez)
   if(generarRecurrentes()>0){
     if(syncInicialListo) persist();
     else { sellarCambios(); Storage.save(state); marcarPendiente(true); generadosSinSubir = true; }
@@ -5181,7 +5311,7 @@ function renderInterno(){
     <div class="main">
       <div class="main-head ${activeTab==='inicio'?'mh-inicio':''}">
         <div class="mh-txt">${activeTab==='inicio' ? `<h2 class="main-title">Hola, ${escHtml(nombrePerfil(perfil))}. <span class="mh-estado">${escHtml(fraseEstadoBudget())}</span></h2>` : `<h2 class="main-title">${tabLabels[activeTab]||''}</h2>`}<div class="main-date">${fechaLarga.charAt(0).toUpperCase()+fechaLarga.slice(1)}</div></div>
-        ${htmlPildoraDestino()}
+        <div class="mh-acts"><button type="button" class="busq-btn" id="busqGlobalBtn" aria-label="Buscar en toda la app">${ico('search','icon-sm')}<span>Buscar</span></button>${htmlPildoraDestino()}</div>
       </div>
       <div class="app appcontent tab-${activeTab}" style="padding-top:14px">
         ${syncEstado.estado==='version' ? `<div class="banner-warn" style="margin-bottom:12px;padding:12px 14px;border-radius:14px;font-size:13px;line-height:1.4;">${ico('alert','icon-sm')} El otro teléfono ya usa una versión más nueva de Budgetin (${syncVersionNube}). Cierra esta app por completo y vuelve a abrirla para actualizarla. Mientras tanto no se sincroniza, para no borrar sus datos.</div>` : ''}
@@ -5399,15 +5529,15 @@ function renderInicio(){
       </div>
     </div>
     <button class="btn btn-outline btn-block" id="inicioVerMas" style="margin-bottom:14px;">${ico(inicioVerMas?'chevdown':'chevright','icon-sm')} ${inicioVerMas?'Ver menos':'Ver más (ingresos esperados, alojamiento, gasto diario, equidad)'}</button>
-    ${inicioVerMas ? `
+    ${inicioVerMas ? `<div class="inicio-vermas">
     ${faltaIngresoDelMes() ? '' : renderIngresosEsperados()}
     ${renderAlojamientoInicio()}
     <div class="card">
-      <div class="card-title"><h2>${ico('trend','icon-sm')} Gasto diario (últimos 14 días)</h2></div>
+      <div class="card-title"><h2>${ico('trend','icon-sm')} Gasto diario (último mes)</h2></div>
       ${(()=>{ const dias = diasHasta(todayISO(), 30); return svgBarrasDiarias(dias, dias.map(d=>gastoTotalDelDiaMXN(d, false))); })()}
       <div class="small-note">Budget total: gastos del Budget y de la tarjeta del Abuelo.</div>
     </div>
-    ${renderInicioVerMas()}` : ''}
+    ${renderInicioVerMas()}</div>` : ''}
   `;
 }
 function renderAlojamientoInicio(){
@@ -5465,12 +5595,6 @@ function desglosePeriodo(periodo){
 function renderInicioVerMas(){
   const r = desglosePeriodo(statPeriodo);
   const etiqueta = statPeriodo==='hoy' ? 'de hoy' : (statPeriodo==='semana' ? 'de la semana' : 'del mes');
-  const {jen,isa} = aportacionPct();
-  const ym = mesActual();
-  let jenPuso = 0, isaPuso = 0;
-  gastosCategoria().forEach(g=>{ if(g.quien!=='ambas' || !g.pagadoPor) return; const m = montoEnMesMXN(g, ym); jenPuso += m*partePago(g,'jen'); isaPuso += m*partePago(g,'isa'); });
-  const totAmbas = jenPuso + isaPuso;
-  const pj = totAmbas>0 ? jenPuso/totAmbas*100 : 50, pi = 100-pj;
   return `
     <div class="card">
       <div class="card-title"><h2>Gasto ${etiqueta}</h2><span class="hint">${diasRestantesMes()} días restantes del mes</span></div>
@@ -5483,16 +5607,6 @@ function renderInicioVerMas(){
         <div class="stat-box"><div class="lbl">Tarjeta del Abuelo</div><div class="val" style="font-size:15px;">${fmt(r.abuelo,'MXN')}</div></div>
         <div class="stat-box"><div class="lbl">Efectivo</div><div class="val" style="font-size:15px;">${fmt(r.efectivo,'MXN')}</div></div>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-title"><h2>Equidad</h2></div>
-      <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Aportación al Budget este mes</div>
-      <div class="equity-bar"><div class="jen" style="width:${jen}%"></div><div class="isa" style="width:${isa}%"></div></div>
-      <div class="row-between" style="margin-top:4px;font-size:11px;color:var(--ink-faint)"><span>Jen ${jen.toFixed(0)}%</span><span>Isa ${isa.toFixed(0)}%</span></div>
-      <div style="font-size:12px;font-weight:600;margin:12px 0 4px;">Gastos de ambas este mes: quién puso el dinero</div>
-      ${totAmbas>0 ? `<div class="equity-bar"><div class="jen" style="width:${pj}%"></div><div class="isa" style="width:${pi}%"></div></div>
-      <div class="row-between" style="margin-top:4px;font-size:11px;color:var(--ink-faint)"><span>Jen ${pj.toFixed(0)}% · ${fmt(jenPuso,'MXN')}</span><span>Isa ${pi.toFixed(0)}% · ${fmt(isaPuso,'MXN')}</span></div>` : `<div class="small-note">Aún no hay gastos de ambas este mes.</div>`}
-      <div class="small-note" style="margin-top:8px;">Solo cuenta los gastos marcados "Ambas". Lo que falta por saldar está en Nosotras.</div>
     </div>
     ${perfil==='jen' ? `
     <div class="card">
@@ -5507,57 +5621,139 @@ function renderInicioVerMas(){
 }
 
 // v18: lo que se espera que llegue este mes al Budget (mamá el día 1, papá de Isa) y lo que ya llegó.
+// v19 etapa 5: INGRESOS ESPERADOS como registros (deudasProyectadas con tipo 'esperado', ya sincronizados).
+// Campos: nombre, persona (lado: jen|isa), monto, moneda, fecha (cuándo llega), mes (para qué mes cuenta), repetir ('mensual'|''), serie.
+function esperadosRegistros(){ return (state.deudasProyectadas||[]).filter(esEsperadoRec); }
+function ingresoBudgetValido(i){ return !!i && esDestinoBote(i.destino) && !esTraspaso(i) && !esIngresoAbuelo(i) && !esCruceAcum(i); }
 function ingresosEsperadosMes(ym){
   ym = ym || mesActual();
-  const delMes = state.ingresos.filter(i=>esDestinoBote(i.destino) && !esTraspaso(i) && !esIngresoAbuelo(i) && ingresoAplicaEnMes(i, ym));
-  // v18.5: cada línea toma solo lo de esa fuente (Mamá / Papá); lo demás va en "Otros".
-  const deFuente = (i, e)=>i.persona===e.persona && e.re.test(sinAcentos(i.fuente||''));
-  const ultimo = (e)=>state.ingresos.filter(i=>deFuente(i, e) && esDestinoBote(i.destino) && !esTraspaso(i) && !esIngresoAbuelo(i) && mesIngreso(i) < ym).sort((a,b)=>mesIngreso(b).localeCompare(mesIngreso(a)) || (b.fecha||'').localeCompare(a.fecha||''))[0];
-  return [
-    {clave:'mama', persona:'jen', fuente:'Mamá', nombre:'Mamá', cuando:'el día 1', dia:'01', re:/\bmama\b|\bmom\b|\bmadre\b|^\s*jen\s*$/},
-    {clave:'papa', persona:'isa', fuente:'Papá', nombre:'Papá de Isa', cuando:'', dia:null, re:/\bpapa\b|\bdad\b|\bpadre\b|^\s*isa\s*$/},
-  ].map(e=>{
-    const llegados = delMes.filter(i=>deFuente(i, e));
-    const u = ultimo(e);
-    const ov = ((state.ingresoEsperado||{})[ym]||{})[e.clave]; // v19: lo que Jen anotó que se espera este mes
-    const esperado = u ? Number(u.montoBruto)||0 : 0, moneda = u ? (u.moneda||'MXN') : 'MXN';
-    return Object.assign(e, {llegados, total: llegados.reduce((a,i)=>a+netoIngresoMXN(i),0), esperado, moneda, fuenteUlt: u ? u.fuente : e.fuente,
-      esperadoMes: ov && Number(ov.monto)>=0 ? Number(ov.monto) : esperado, monedaMes: ov ? (ov.moneda||'MXN') : moneda, esperadoAnotado: !!ov});
+  const regs = esperadosRegistros().filter(r=>r.mes===ym).sort((a,b)=>(a.fecha||'9').localeCompare(b.fecha||'9') || String(a.id).localeCompare(String(b.id)));
+  const delMes = state.ingresos.filter(i=>ingresoBudgetValido(i) && ingresoAplicaEnMes(i, ym));
+  const idsEsp = new Set(esperadosRegistros().map(r=>r.id)), usados = new Set();
+  const lineas = regs.map(r=>{ const lig = delMes.filter(i=>i.esperadoId===r.id); lig.forEach(i=>usados.add(i.id)); return {r, llegados: lig}; });
+  // Sin ligar a mano: lo que llegó de ese lado (y es al menos la mitad de lo esperado) cuenta como llegado.
+  lineas.forEach(o=>{
+    if(o.llegados.length) return;
+    const min = (toMXN(Number(o.r.monto)||0, o.r.moneda||'MXN')||0) * 0.5;
+    const i = delMes.find(x=>!usados.has(x.id) && !(x.esperadoId && idsEsp.has(x.esperadoId)) && x.persona===o.r.persona && brutoIngresoMXN(x) >= min && min > 0);
+    if(i){ usados.add(i.id); o.llegados = [i]; }
   });
+  const hoy = todayISO();
+  return lineas.map(({r, llegados})=>({
+    clave: r.id, id: r.id, rec: r, persona: r.persona, nombre: r.nombre || 'Ingreso', fuente: r.nombre || 'Ingreso', fuenteUlt: r.nombre || 'Ingreso',
+    cuando: r.fecha ? 'el '+fmtDate(r.fecha) : '', fecha: r.fecha || '', llegados, total: llegados.reduce((a,i)=>a+netoIngresoMXN(i),0),
+    esperado: Number(r.monto)||0, moneda: r.moneda||'MXN', esperadoMes: Number(r.monto)||0, monedaMes: r.moneda||'MXN', esperadoAnotado: true,
+    atrasado: !llegados.length && !!r.fecha && r.fecha < hoy, repetir: r.repetir||''
+  }));
+}
+// Monto en MXN de los esperados que aún no llegan (de un mes).
+function esperadosPendientesMes(ym){ return ingresosEsperadosMes(ym).filter(e=>!e.llegados.length); }
+// Lo de la vez pasada de una fuente (solo para crear los primeros esperados a partir de lo que ya había).
+function ultimoIngresoDeFuente(persona, re, antesDe){
+  return state.ingresos.filter(i=>ingresoBudgetValido(i) && i.persona===persona && re.test(sinAcentos(i.fuente||'')) && mesIngreso(i) < antesDe)
+    .sort((a,b)=>mesIngreso(b).localeCompare(mesIngreso(a)) || (b.fecha||'').localeCompare(a.fecha||''))[0] || null;
+}
+// Crea (una vez) Mamá y Papá de Isa como esperados mensuales, con ids fijos para que los dos teléfonos no los dupliquen.
+function migrarEsperados(){
+  if(esperadosRegistros().length) return false;
+  if(Object.keys(state._borrados||{}).some(k=>/^proyecciones:esp-/.test(k))) return false;
+  const ym = mesActual(), ov = (state.ingresoEsperado||{})[ym] || {};
+  const defs = [{serie:'esp-mama', persona:'jen', nombre:'Mamá', dia:'01', clave:'mama', re:/\bmama\b|\bmom\b|\bmadre\b|^\s*jen\s*$/},
+                {serie:'esp-papa', persona:'isa', nombre:'Papá de Isa', dia:'', clave:'papa', re:/\bpapa\b|\bdad\b|\bpadre\b|^\s*isa\s*$/}];
+  let n = 0;
+  defs.forEach(d=>{
+    const u = ultimoIngresoDeFuente(d.persona, d.re, ym), o = ov[d.clave];
+    const monto = o && Number(o.monto)>=0 ? Number(o.monto) : (u ? Number(u.montoBruto)||0 : 0), moneda = o ? (o.moneda||'MXN') : (u ? (u.moneda||'MXN') : 'MXN');
+    if(!(monto>0)) return;
+    if(!Array.isArray(state.deudasProyectadas)) state.deudasProyectadas = [];
+    const rec = {id: d.serie+'-'+ym, tipo:'esperado', serie: d.serie, persona: d.persona, nombre: d.nombre, monto, moneda, fecha: d.dia ? ym+'-'+d.dia : '', mes: ym, repetir:'mensual', estado:'pendiente', _u: 1};
+    state.deudasProyectadas.push(rec); sellosFijos.set(rec, 1); // sello bajo y fijo: cualquier cambio real (del otro teléfono) le gana
+    n++;
+  });
+  return n>0;
+}
+// Los que se repiten cada mes: crea el del mes actual (id fijo serie-AAAA-MM) si no existe y no lo borraron.
+function asegurarEsperadosMes(ym){
+  ym = ym || mesActual();
+  const regs = esperadosRegistros(), porSerie = {};
+  regs.forEach(r=>{ const k = r.serie || r.id; (porSerie[k] = porSerie[k] || []).push(r); });
+  let n = 0;
+  Object.keys(porSerie).forEach(k=>{
+    const lista = porSerie[k].sort((a,b)=>(a.mes||'').localeCompare(b.mes||''));
+    if(lista.some(r=>r.mes===ym)) return;
+    const ult = lista.filter(r=>(r.mes||'') < ym).pop(); if(!ult || ult.repetir!=='mensual') return;
+    const id = k+'-'+ym; if((state._borrados||{})['proyecciones:'+id] || regs.some(r=>r.id===id)) return;
+    let fecha = '';
+    if(ult.fecha){ const dia = Number(ult.fecha.slice(8))||1; const ymF = ymMas(ym, difMesesYM(ult.mes, ymDe(ult.fecha))); fecha = ymF+'-'+String(Math.min(dia, Number(finDeMesISO(ymF).slice(8)))).padStart(2,'0'); }
+    const rec = {id, tipo:'esperado', serie:k, persona:ult.persona, nombre:ult.nombre, monto:ult.monto, moneda:ult.moneda, fecha, mes:ym, repetir:'mensual', estado:'pendiente', _u: 1};
+    state.deudasProyectadas.push(rec); sellosFijos.set(rec, 1); // sello bajo y fijo: un borrado o una edición real le gana
+    n++;
+  });
+  return n>0;
+}
+function difMesesYM(a, b){ if(!a || !b) return 0; return (Number(b.slice(0,4))-Number(a.slice(0,4)))*12 + (Number(b.slice(5,7))-Number(a.slice(5,7))); }
+let _espRevisado = '';
+function revisarEsperados(){
+  const ym = mesActual(); if(_espRevisado===ym) return; _espRevisado = ym;
+  try{ const a = migrarEsperados(), b = asegurarEsperadosMes(ym); if(a||b) persistSistema(); }catch(e){ try{ console.error(e); }catch(_){} }
+}
+let espPendienteIngreso = null; // esperado que se está registrando como ingreso («Ya llegó»)
+function openEsperadoForm(editId, preset){
+  preset = preset || {};
+  const ex = editId ? esperadosRegistros().find(r=>r.id===editId) : null;
+  const v = ex || {nombre: preset.nombre||'', persona: preset.persona||perfil, monto:'', moneda:'MXN', fecha:'', mes: preset.mes||mesActual(), repetir:''};
+  openSheet(`${sheetHeader(ex ? 'Editar ingreso esperado' : 'Ingreso esperado', ex ? '' : 'Lo que va a llegar al Budget')}
+    <div class="small-note">No suma a tu disponible hasta que llegue. Se usa para repartir el presupuesto por categoría y para ver «Disponible con lo esperado».</div>
+    <div class="field"><label>${ico('edit','icon-xs')} ¿Qué es?</label><input type="text" id="espNombre" value="${escHtml(v.nombre||'')}" placeholder="Ej. Mamá, papá, trabajo…"></div>
+    <div class="field"><label>¿De qué lado del Budget?</label><div class="seg" id="espLado"><button type="button" class="${v.persona==='jen'?'on':''}" data-v="jen">Jen</button><button type="button" class="${v.persona==='isa'?'on':''}" data-v="isa">Isa</button></div></div>
+    <div class="field-row">
+      <div class="field"><label>${ico('wallet','icon-xs')} ¿Cuánto?</label><input type="number" id="espMonto" inputmode="decimal" value="${v.monto||''}" placeholder="0"></div>
+      <div class="field"><label>Moneda</label><select id="espMoneda">${currencyOptions(v.moneda||'MXN')}</select></div>
+    </div>
+    <div class="field"><label>${ico('calendar','icon-xs')} ¿Cuándo llega?</label><input type="date" id="espFecha" value="${escHtml(v.fecha||'')}"></div>
+    <div class="field"><label>¿Para qué mes cuenta?</label><select id="espMes">${opcionesMes(v.mes||mesActual())}</select></div>
+    <label class="rec-chk"><input type="checkbox" id="espRepetir" ${v.repetir==='mensual'?'checked':''}> Se repite cada mes</label>
+    <button class="btn btn-primary btn-block" id="espGuardar">${ico('check','icon-sm')} Guardar</button>
+    ${ex ? `<button class="btn btn-ghost btn-block" id="espBorrar" style="margin-top:6px;color:var(--brick);">${ico('trash','icon-sm')} Borrar</button>` : ''}`);
+  let lado = v.persona==='isa' ? 'isa' : 'jen';
+  document.querySelectorAll('#espLado button').forEach(b=>b.addEventListener('click', ()=>{ lado = b.getAttribute('data-v'); document.querySelectorAll('#espLado button').forEach(x=>x.classList.toggle('on', x===b)); }));
+  const f = document.getElementById('espFecha'), m = document.getElementById('espMes'); let mesTocado = !!ex;
+  if(m) m.addEventListener('change', ()=>{ mesTocado = true; });
+  if(f) f.addEventListener('change', ()=>{ if(!mesTocado && /^\d{4}-\d{2}/.test(f.value)){ const y = f.value.slice(0,7); if([...m.options].some(o=>o.value===y)){ [...m.options].forEach(o=>{ o.selected = o.value===y; }); } } });
+  document.getElementById('espGuardar').addEventListener('click', ()=>{
+    const nombre = document.getElementById('espNombre').value.trim(), monto = Number(document.getElementById('espMonto').value);
+    if(!nombre){ mostrarToast('Escribe qué es.', 'error'); return; }
+    if(!(monto>0)){ mostrarToast('Escribe un monto.', 'error'); return; }
+    const campos = {tipo:'esperado', nombre, persona: lado, monto, moneda: document.getElementById('espMoneda').value||'MXN', fecha: f.value||'', mes: m.value||mesActual(), repetir: document.getElementById('espRepetir').checked ? 'mensual' : ''};
+    if(!Array.isArray(state.deudasProyectadas)) state.deudasProyectadas = [];
+    if(ex) Object.assign(ex, campos); else state.deudasProyectadas.push({id: uid(), serie: '', estado:'pendiente', creado: Date.now(), ...campos});
+    if(!ex){ const nuevo = state.deudasProyectadas[state.deudasProyectadas.length-1]; nuevo.serie = 'esp-'+nuevo.id; }
+    closeSheet(); persist(); render(); mostrarToast('Ingreso esperado guardado.', 'ok');
+  });
+  const bb = document.getElementById('espBorrar');
+  if(bb) bb.addEventListener('click', ()=>{ if(!confirm('¿Borrar este ingreso esperado?')) return; state.deudasProyectadas = state.deudasProyectadas.filter(r=>r.id!==ex.id); closeSheet(); persist(); render(); });
+}
+function openEsperadoMes(clave){ return openEsperadoForm(clave); } // (nombre anterior)
+// Línea de un esperado (Inicio, Budget total y Por hacer).
+function lineaEsperado(e, ym){
+  ym = ym || mesActual();
+  const llego = e.llegados.length > 0;
+  return `<div class="esp-line ${llego?'ok':''} ${e.atrasado?'atrasado':''}">
+      ${avatarPersona(e.persona)}
+      <div class="desc"><div class="n">${escHtml(e.nombre)}${e.repetir==='mensual'?` <span class="esp-rep" title="Se repite cada mes">${ico('repeat','icon-xs')}</span>`:''}</div>
+        <div class="d">${llego ? textoLlegadas(e.llegados, ym) : (e.atrasado ? `<b class="esp-tarde">Esperado ${escHtml(e.cuando)} · aún no llega</b>` : 'Pendiente'+(e.cuando?' · llega '+escHtml(e.cuando):''))}${e.rec && e.rec.mes && e.fecha && ymDe(e.fecha)!==e.rec.mes ? ` · cuenta para ${escHtml(nombreMesLargo(e.rec.mes).toLowerCase())}` : ''}</div>
+        ${llego ? '' : `<button type="button" class="esp-editar" data-esperado-editar="${e.clave}" aria-label="Editar ${escHtml(e.nombre)}">${ico('edit','icon-xs')} Esperado: <b>${fmt(e.esperadoMes||0, e.monedaMes||'MXN')}</b></button>`}</div>
+      ${llego ? `<div class="esp-ok">${ico('check','icon-sm')} +${fmt(e.total,'MXN')}</div>` : `<button class="btn btn-outline btn-sm" data-esperado="${e.clave}">${ico('check','icon-xs')} Ya llegó</button>`}
+    </div>`;
 }
 // v19: lo que todavía no llega este mes (solo mes actual y futuros). Sirve SOLO para repartir el presupuesto por categoría.
 function ingresoEsperadoPendienteMXN(ym){
   ym = ym || mesActual(); if(ym < mesActual()) return 0;
-  try{ return ingresosEsperadosMes(ym).filter(e=>!e.llegados.length).reduce((a,e)=>a + (toMXN(Number(e.esperadoMes)||0, e.monedaMes||'MXN')||0), 0); }catch(e){ return 0; }
-}
-function openEsperadoMes(clave){
-  const ym = mesActual(), e = ingresosEsperadosMes(ym).find(x=>x.clave===clave); if(!e) return;
-  openSheet(`${sheetHeader('Esperado de '+escHtml(e.nombre), nombreMesLargo(ym))}
-    <div class="small-note" style="margin-bottom:14px;">Con esto se reparte el presupuesto de cada categoría mientras el depósito no llega. Cuando llega, se usa lo real. No cambia tu Budget ni tu disponible.</div>
-    <div class="field-row">
-      <div class="field"><label>${ico('wallet','icon-xs')} ¿Cuánto esperas?</label><input type="number" id="espMonto" inputmode="decimal" value="${e.esperadoMes||''}" placeholder="${e.esperado||0}"></div>
-      <div class="field"><label>Moneda</label><select id="espMoneda">${currencyOptions(e.monedaMes||'MXN')}</select></div>
-    </div>
-    ${e.esperado ? `<div class="small-note" style="margin:-6px 0 14px;">La vez pasada: ${fmt(e.esperado, e.moneda)}</div>` : ''}
-    <button class="btn btn-primary btn-block" id="espGuardar">${ico('check','icon-sm')} Guardar</button>
-    ${e.esperadoAnotado ? `<button class="btn btn-ghost btn-block" id="espQuitar" style="margin-top:8px;">Usar lo de la vez pasada</button>` : ''}`);
-  const guardar = (val)=>{
-    if(!state.ingresoEsperado || typeof state.ingresoEsperado!=='object') state.ingresoEsperado = {};
-    const m = Object.assign({}, state.ingresoEsperado[ym]||{});
-    if(val===null) delete m[clave]; else m[clave] = val;
-    state.ingresoEsperado = Object.assign({}, state.ingresoEsperado, {[ym]: m});
-    persist(); closeSheet(); render(); mostrarToast('Listo: el reparto por categoría usa ese monto.', 'ok');
-  };
-  document.getElementById('espGuardar').addEventListener('click', ()=>{
-    const v = Number(document.getElementById('espMonto').value);
-    if(!(v>=0)){ mostrarToast('Escribe un monto.', 'error'); return; }
-    guardar({monto: v, moneda: document.getElementById('espMoneda').value||'MXN'});
-  });
-  const q = document.getElementById('espQuitar'); if(q) q.addEventListener('click', ()=>guardar(null));
+  try{ return esperadosPendientesMes(ym).reduce((a,e)=>a + (toMXN(Number(e.esperadoMes)||0, e.monedaMes||'MXN')||0), 0); }catch(e){ return 0; }
 }
 function otrosIngresosBudgetMes(ym){
   const usados = new Set(); ingresosEsperadosMes(ym).forEach(e=>e.llegados.forEach(i=>usados.add(i.id)));
-  return state.ingresos.filter(i=>esDestinoBote(i.destino) && !esTraspaso(i) && !esIngresoAbuelo(i) && ingresoAplicaEnMes(i, ym) && !usados.has(i.id));
+  return state.ingresos.filter(i=>ingresoBudgetValido(i) && ingresoAplicaEnMes(i, ym) && !usados.has(i.id));
 }
 // v18.14: arriba en Inicio solo si falta que llegue algún ingreso esperado del mes; si ya llegaron todos, va en "Ver más".
 function faltaIngresoDelMes(){ try{ return ingresosEsperadosMes(mesActual()).some(e=>!e.llegados.length); }catch(e){ return true; } }
@@ -5575,12 +5771,8 @@ function renderIngresosEsperados(){
   const fuentes = Object.keys(porFuente);
   const totalMes = fuentes.reduce((a,f)=>a+porFuente[f], 0);
   return `<div class="card">
-    <div class="card-title"><h2>${ico('calendar','icon-sm')} Ingresos de ${nombreMesLargo(ym).toLowerCase()}</h2><span class="hint" data-goto-mov="total">ver todos</span></div>
-    ${lista.map(e=>`<div class="esp-line ${e.llegados.length?'ok':''}">
-      ${avatarPersona(e.persona)}
-      <div class="desc"><div class="n">${escHtml(e.nombre)}</div><div class="d">${e.llegados.length ? textoLlegadas(e.llegados, ym) : ('Pendiente'+(e.cuando?' · deposita '+e.cuando:''))}${e.llegados.length ? '' : `<button type="button" class="esp-editar" data-esperado-editar="${e.clave}" aria-label="Cambiar lo esperado de ${escHtml(e.nombre)}">${ico('edit','icon-xs')} Esperado: <b>${fmt(e.esperadoMes||0, e.monedaMes||'MXN')}</b>${e.esperadoAnotado?'':' <small>(la vez pasada)</small>'}</button>`}</div></div>
-      ${e.llegados.length ? `<div class="esp-ok">${ico('check','icon-sm')} +${fmt(e.total,'MXN')}</div>` : `<button class="btn btn-outline btn-sm" data-esperado="${e.clave}">${ico('plus','icon-xs')} Registrar</button>`}
-    </div>`).join('')}
+    <div class="card-title"><h2>${ico('calendar','icon-sm')} Ingresos de ${nombreMesLargo(ym).toLowerCase()}</h2><span class="card-title-acts"><span class="hint" data-open="esperado">+ esperado</span><span class="hint" data-goto-mov="total">ver todos</span></span></div>
+    ${lista.length ? lista.map(e=>lineaEsperado(e, ym)).join('') : `<div class="small-note">No hay ingresos esperados este mes. Agrega lo que va a llegar al Budget.</div>`}
     ${otros.length ? `<div class="esp-line ok">
       <span class="pk-ic in">${ico('plus','icon-sm')}</span>
       <div class="desc"><div class="n">Otros ingresos al Budget</div><div class="d">${escHtml(otros.slice(0,3).map(i=>(i.fuente||'Ingreso')+' ('+nombrePersona(i.persona)+')').join(', '))}${otros.length>3?'…':''}</div></div>
@@ -5590,7 +5782,7 @@ function renderIngresosEsperados(){
       <div class="fuentes-tit">Por fuente · total <b class="in">+${fmt(totalMes,'MXN')}</b></div>
       <div class="fuentes-chips">${fuentes.map((f,i)=>{ const pal = paletteFor(i+6); return `<span class="fuente-chip"><span class="fuente-ico" style="background:${pal.bg};color:${pal.fg};">${ico(['banknote','wallet','trend','piggy'][i%4],'icon-xs')}</span>${escHtml(f)} <b>+${fmt(porFuente[f],'MXN')}</b></span>`; }).join('')}</div>
     </div>` : ''}
-    <div class="small-note" style="margin-top:6px;">Lo de mamá cuenta para el mes en que lo deposita (el día 1). El tope del Abuelo (${fmt(abueloMetaMXN(ym),'MXN')}) ya está incluido en el Budget del mes.</div>
+    <div class="small-note" style="margin-top:6px;">Todo ingreso que registres «para el Budget» cuenta como aportación del lado de quien lo recibe, diga lo que diga la fuente. Lo esperado no suma a tu disponible hasta que llega. El tope del Abuelo (${fmt(abueloMetaMXN(ym),'MXN')}) ya está incluido en el Budget del mes.</div>
   </div>`;
 }
 function textoLlegadas(lista, ym){
@@ -5604,9 +5796,9 @@ function textoLlegadas(lista, ym){
   return u.charAt(0).toUpperCase()+u.slice(1);
 }
 function abrirIngresoEsperado(clave){
-  const e = ingresosEsperadosMes(mesActual()).find(x=>x.clave===clave); if(!e) return;
-  const hoy = todayISO();
-  openIngreso(null, {persona:e.persona, destino:'bote', fuente:e.fuenteUlt||e.fuente, monto:e.esperado||'', moneda:e.moneda, fecha: e.dia ? (mesActual()+'-'+e.dia > hoy ? hoy : mesActual()+'-'+e.dia) : hoy});
+  const r = esperadosRegistros().find(x=>x.id===clave); if(!r) return;
+  closeSheet();
+  openIngreso(null, {persona:r.persona, destino:'bote', fuente:r.nombre, monto:r.monto||'', moneda:r.moneda||'MXN', fecha: todayISO(), mes: r.mes, espId: r.id});
 }
 // v18: aviso mensual para bajar una copia de respaldo (se recuerda en este teléfono).
 const RESP_KEY = 'budgetin_respaldo_mes';
@@ -5638,32 +5830,6 @@ function migracionV18(){
   ids.forEach(id=>{ if(state.ingresos.some(i=>i.id===id)) quitarMovimiento('ingreso', id, '', 'toda'); });
   if(ids.length){ persist(); ultimaCopiaTs = 0; }
   try{ localStorage.setItem('budgetin_mig_v18','1'); }catch(e){}
-}
-function renderIngresosPorFuente(){
-  const ym = mesActual();
-  const porFuente = {};
-  state.ingresos.forEach(i=>{
-    if(!esDestinoBote(i.destino) || !ingresoAplicaEnMes(i, ym) || esTraspaso(i) || esIngresoAbuelo(i)) return;
-    const key = i.fuente || 'Ingreso';
-    porFuente[key] = (porFuente[key]||0) + brutoIngresoMXN(i);
-  });
-  const fuentes = Object.keys(porFuente);
-  if(!fuentes.length) return '';
-  const iconosFuente = ['banknote','wallet','trend','piggy'];
-  return `
-  <div class="card">
-    <div class="card-title"><h2>Ingresos por fuente (este mes)</h2><span class="hint" data-tab="movimientos">ver todos</span></div>
-    <div class="grid3">
-      ${fuentes.map((f,i)=>{
-        const pal = paletteFor(i+6);
-        return `<div class="mini-tile">
-          <div class="mini-ico" style="background:${pal.bg};color:${pal.fg};">${ico(iconosFuente[i%iconosFuente.length],'icon-lg')}</div>
-          <div class="mini-name">${f}</div>
-          <div class="mini-amt">${fmt(porFuente[f],'MXN')}</div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
 }
 
 // Tarjeta "quién le debe a quién" — el saldo neto de gastos compartidos que
@@ -5719,119 +5885,6 @@ function renderDeudasCard(){
   </div>`;
 }
 
-let chartDiario = null;
-// Presupuesto en MXN que le toca a una subcategoría (su % de Generales) y lo
-// que de verdad lleva gastado, para poder marcar cuáles ya se pasaron.
-function renderCharts(){
-  const subGastados = state.subcats.map(s=>subcatGastadoMesMXN(s));
-  const hayGastoSub = subGastados.some(v=>v>0);
-  const rebasadas = state.subcats.filter(subcatRebasada).length;
-  return `
-  <div class="card">
-    <div class="card-title">
-      <h2>${ico('layers','icon-sm')} Presupuesto por subcategoría</h2>
-      <span class="hint">${hayGastoSub ? 'lo gastado vs. su %' : '% asignado'}</span>
-    </div>
-    <div style="position:relative;height:190px;">
-      <canvas id="chartSubcats"></canvas>
-    </div>
-    <div id="subcatsLegend" style="margin-top:12px;"></div>
-    ${rebasadas>0 ? `<div class="banner banner-warn" style="margin-top:10px;">${ico('alert','icon-sm')}<div><b>${rebasadas} subcategoría${rebasadas>1?'s':''} ya se pasó de su presupuesto.</b> Están marcadas en rojo en la lista de arriba.</div></div>` : ''}
-
-    <div class="card-title" style="margin-top:20px;"><h2>${ico('trend','icon-sm')} Gasto diario (últimos 14 días)</h2></div>
-    <div style="position:relative;height:180px;">
-      <canvas id="chartDiario"></canvas>
-    </div>
-  </div>`;
-}
-// Dibuja una dona con estilo consistente (relleno pastel + borde saturado a
-// juego, sin leyenda nativa de Chart.js) y su propia leyenda de texto debajo
-// con punto de color + nombre + %, para que el desglose sea siempre legible
-// sin depender de tocar la gráfica.
-function drawDonutConLeyenda({canvas, legendEl, labels, data, coloresBg, coloresFg, alertas}){
-  const total = data.reduce((a,b)=>a+b,0) || 1;
-  alertas = alertas || [];
-  // Una subcategoría rebasada se pinta en rojo (--brick) en vez de su color.
-  const bgFinal = coloresBg.map((c,i)=> alertas[i] ? '#FFE5E5' : c);
-  const fgFinal = coloresFg.map((c,i)=> alertas[i] ? '#FF5A5F' : c);
-  const chart = new Chart(canvas.getContext('2d'), {
-    type:'doughnut',
-    data:{ labels, datasets:[{ data, backgroundColor:bgFinal, borderColor:fgFinal, borderWidth:1.5 }] },
-    options:{
-      animation:false, responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ display:false },
-        tooltip:{ callbacks:{ label:(ctx)=> `${ctx.label}: ${(ctx.parsed/total*100).toFixed(0)}%${alertas[ctx.dataIndex]?' · ya se pasó':''}` } } },
-      cutout:'58%'
-    }
-  });
-  if(legendEl){
-    legendEl.innerHTML = labels.map((label,i)=>{
-      const pct = data[i]/total*100;
-      const alerta = alertas[i];
-      return `<div class="row-between" style="padding:4px 0;font-size:12px;">
-        <span style="display:flex;align-items:center;gap:7px;"><span style="width:9px;height:9px;border-radius:50%;background:${bgFinal[i]};border:1.5px solid ${fgFinal[i]};display:inline-block;"></span>${label}${alerta?` <span style="color:var(--brick);font-weight:700;">⚠ ya se pasó</span>`:''}</span>
-        <b style="${alerta?'color:var(--brick);':''}">${pct.toFixed(0)}%</b>
-      </div>`;
-    }).join('');
-  }
-  return chart;
-}
-let chartSubcats = null;
-function drawCharts(){
-  if(typeof Chart === 'undefined') return; // sin internet / CDN bloqueado — la app sigue funcionando sin gráficas
-  const canvasDia = document.getElementById('chartDiario');
-  const canvasSub = document.getElementById('chartSubcats');
-  if(!canvasDia && !canvasSub) return;
-  try{
-
-  // Cómo se reparte Generales entre sus subcategorías (alojamiento, comida,
-  // transporte...). Si ya hay gasto real registrado, muestra lo gastado;
-  // si todavía está todo en $0 (viaje recién arrancando), muestra el %
-  // asignado por el motor de costo de vida — así la gráfica nunca sale
-  // vacía ni engañosamente pareja. Las subcategorías que ya rebasaron su
-  // presupuesto se pintan en rojo.
-  if(canvasSub && state.subcats.length){
-    const subGastados = state.subcats.map(s=>subcatGastadoMesMXN(s));
-    const hayGastoSub = subGastados.some(v=>v>0);
-    const subData = hayGastoSub ? subGastados : state.subcats.map(s=>pctSubcatDeGenerales(s));
-    const alertas = state.subcats.map(s=>subcatRebasada(s));
-    if(chartSubcats) chartSubcats.destroy();
-    chartSubcats = drawDonutConLeyenda({
-      canvas: canvasSub, legendEl: document.getElementById('subcatsLegend'),
-      labels: state.subcats.map(s=>s.nombre), data: subData,
-      coloresBg: state.subcats.map((s,i)=>colorFor(i)), coloresFg: state.subcats.map((s,i)=>colorFor(i)),
-      alertas
-    });
-  }
-
-  // últimos 14 días
-  if(!canvasDia){ return; }
-  const days = [];
-  for(let i=13;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); days.push(isoLocal(d)); }
-  const allG = [...state.subcats.flatMap(s=>s.gastos), ...state.gustosGastos].filter(cuentaEnBote);
-  const porDia = days.map(day => allG.reduce((a,g)=>a+montoEnDiaMXN(g, day),0));
-  const ejeColor = tema==='light' ? '#8a97b0' : '#6b7fa8';
-  const gridColor = tema==='light' ? 'rgba(20,40,80,0.06)' : 'rgba(255,255,255,0.06)';
-  const barColors = ['#00e5a0','#f5a623','#a78bfa','#ff5c6e','#4db8ff'];
-  if(chartDiario) chartDiario.destroy();
-  chartDiario = new Chart(canvasDia.getContext('2d'), {
-    type:'bar',
-    data:{
-      labels: days.map(d=> d.slice(8,10)+'/'+d.slice(5,7)),
-      datasets:[{ data: porDia, backgroundColor: porDia.map((_,i)=>barColors[i%barColors.length]), borderRadius:6, maxBarThickness:18 }]
-    },
-    options:{
-      animation:false, responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false} },
-      scales:{
-        x:{ grid:{display:false}, ticks:{font:{family:'Outfit, -apple-system, sans-serif', size:10}, color:ejeColor} },
-        y:{ grid:{color:gridColor}, ticks:{font:{family:'Outfit, -apple-system, sans-serif', size:10}, color:ejeColor} }
-      }
-    }
-  });
-  }catch(e){ /* si el navegador no puede dibujar el canvas, seguimos sin romper la app */ }
-}
-
 // Lunes de la semana actual, en ISO — para el corte "esta semana".
 function inicioDeSemanaISO(){
   const d = new Date();
@@ -5840,31 +5893,8 @@ function inicioDeSemanaISO(){
   return isoLocal(d);
 }
 // Cuánto de un gasto del bote cae en el periodo (el alojamiento, por noche).
-function gastoEnPeriodoMXN(g, periodo){
-  const today = todayISO();
-  if(!cuentaEnBote(g)) return 0;
-  if(periodo==='hoy') return montoEnDiaMXN(g, today);
-  if(periodo==='semana') return montoEnRangoMXN(g, inicioDeSemanaISO(), today);
-  if(periodo==='mes') return montoEnMesMXN(g, mesActual());
-  return 0;
-}
-function gastoEnPeriodo(g, periodo){ return gastoEnPeriodoMXN(g, periodo) > 0; }
-function statBoxToday(){
-  const cats = ['generales','gustos'];
-  const etiqueta = statPeriodo==='hoy' ? 'hoy' : (statPeriodo==='semana' ? 'esta semana' : 'este mes');
-  return cats.map(c=>{
-    const allG = c==='generales' ? state.subcats.flatMap(s=>s.gastos) : state.gustosGastos;
-    const total = allG.reduce((a,g)=>a+gastoEnPeriodoMXN(g, statPeriodo),0);
-    const prom = promedioDiario(c);
-    return `<div class="stat-box">
-      <div class="lbl">${c==='generales'?'Generales':'Gustos'} — ${etiqueta}</div>
-      <div class="val" style="color:${total>0?'var(--brick)':'var(--ink)'}">${total>0?'−':''}${fmt(total,'MXN')}</div>
-      <div class="small-note" style="margin-top:6px;">Promedio diario del mes: ${fmt(prom,'MXN')}</div>
-    </div>`;
-  }).join('');
-}
 
-function buildAlerts(){ return htmlAvisosProgramados() + htmlAvisoDestinosFechas() + buildAlertsBudget(); } // v18.14: + avisos de pagos por hacer
+function buildAlerts(){ return htmlAvisosProgramados() + htmlAvisosEsperados() + htmlAvisoDestinosFechas() + buildAlertsBudget(); } // v18.14: + avisos de pagos por hacer
 function buildAlertsBudget(){
   const meta = metaTotalMXN(), gastado = gastadoTotalMXN();
   if(meta<=0) return '';
@@ -5874,29 +5904,6 @@ function buildAlertsBudget(){
   return '';
 }
 
-function renderCatSummaryRow(c){
-  const asignado = categoriaAsignadoMXN(c.key);
-  const gastado = categoriaGastadoMXN(c.key);
-  const disp = categoriaDisponibleMXN(c.key);
-  const pct = asignado>0 ? Math.min((gastado/asignado)*100,100) : 0;
-  let barColor = 'var(--teal)';
-  if(pct>=90) barColor='var(--brick)'; else if(pct>=75) barColor='var(--amber)';
-  return `
-  <div class="cat-card" data-tab-to="categorias" data-focus="${c.key}">
-    <div class="cat-head">
-      <div class="cat-ico" style="background:var(--${c.color}-soft);color:var(--${c.color==='teal'?'teal-deep':(c.color==='gold'?'gold':'plum')});">${ico(c.icono)}</div>
-      <div class="cat-info">
-        <div class="name">${escHtml(c.nombre)}</div>
-        <div class="meta">${state.pct[c.key]}% del Budget · asignado ${fmt(asignado,'MXN')}</div>
-      </div>
-      <div class="cat-amt">
-        <div class="left" style="color:${disp<0?'var(--brick)':'var(--ink)'}">${fmt(disp,'MXN')}</div>
-        <div class="of">disponible</div>
-      </div>
-    </div>
-    <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
-  </div>`;
-}
 
 /* ---------------- CATEGORIAS ---------------- */
 // v18.10: Categorías suma solo el mes que se ve (por defecto el actual) y deja viajar a meses pasados.
@@ -5981,46 +5988,8 @@ function renderTripleStat(asignado, gastado, disp, labels){
       </div>
     </div>`;
 }
-function renderCatBarBig(cat){
-  const asignado = categoriaAsignadoMXN(cat);
-  const gastado = categoriaGastadoMXN(cat);
-  const disp = categoriaDisponibleMXN(cat);
-  const pct = asignado>0 ? Math.min((gastado/asignado)*100,100) : 0;
-  let barColor = 'var(--teal)';
-  if(pct>=90) barColor='var(--brick)'; else if(pct>=75) barColor='var(--amber)';
-  const proy = proyeccionDias(cat);
-  return `
-    ${renderTripleStat(asignado, gastado, disp)}
-    <div class="bar-track" style="margin-top:10px;"><div class="bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
-    ${proy!==null ? `<div class="small-note">Al ritmo actual, el fondo alcanza para ~${proy} día(s) más.</div>` : ''}
-  `;
-}
 function emptyMini(txt, icon){
   return `<div class="empty" style="padding:18px 6px;"><div class="icon-halo">${ico(icon||'wallet','icon-lg')}</div><p>${txt}</p></div>`;
-}
-function renderSugerenciaDestino(){
-  const destino = destinoActual();
-  const sug = sugerenciaPctGenerales();
-  if(!destino){
-    return `<div class="small-note" style="margin-top:10px;">Sin destino activo — ve a la pestaña Destinos para que el % se calcule según el costo de vida del lugar.</div>`;
-  }
-  if(sug===null || !destino.costoVidaDia){
-    return `<div class="small-note" style="margin-top:10px;">Ponle un costo de vida diario a <b>${escHtml(destino.nombre)}</b> en la pestaña Destinos para que Generales se calcule solo.</div>`;
-  }
-  const diff = Math.abs(sug - state.pct.generales) > 1;
-  return `
-  <div class="note-box" style="margin-top:12px;align-items:center;">
-    ${ico('trend','icon-sm')}
-    <div style="flex:1;">
-      Costo de vida de <b>${escHtml(destino.nombre)}</b> sugiere <b>${sug.toFixed(0)}%</b> del Budget para Generales
-      (~${fmt(sugerenciaGeneralesMensualMXN(),'MXN')}/mes, ya descontando lo que el destino cubre).
-      <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-weight:600;">
-        <input type="checkbox" id="pctAutoChk" ${state.pctAuto?'checked':''} style="width:auto;"> Mantener % automático según destino
-      </label>
-    </div>
-  </div>
-  ${(!state.pctAuto && diff) ? `<button class="btn btn-outline btn-sm" id="aplicarSugerenciaBtn" style="margin-top:2px;">Aplicar ${sug.toFixed(0)}% ahora</button>` : ''}
-  `;
 }
 
 function pctSubcatDeGenerales(sub, ym){
@@ -6048,20 +6017,6 @@ function renderSubcatRow(s,i,ym){
     </div>
     ${isOpen ? renderSubcatDetail(s, ym) : ''}
   </div>`;
-}
-function estimadoMensualSubcat(s){
-  const d = destinoActual();
-  const relevantes = s.costos.filter(c=> !c.destinoId || c.destinoId===(d?d.id:null));
-  if(relevantes.length){
-    const monto = relevantes.reduce((acc,c)=>{
-      const freqDias = {noche:1, diaria:1, semanal:7, quincenal:14, mensual:30, unica:9999}[c.frecuencia]||30;
-      const vecesEnMes = 30/freqDias;
-      return acc + toMXN(c.monto, c.moneda||'EUR')*vecesEnMes;
-    },0);
-    return {monto, fuente:'referencia'}; // tu propio dato — máxima prioridad
-  }
-  const auto = estimadoAutoSubcat(s, d);
-  return {monto: auto, fuente: auto>0 ? 'costoVida' : 'ninguna'};
 }
 function renderSubcatDetail(s, ym){
   ym = ym || mesActual();
@@ -6265,6 +6220,29 @@ function estadoDestinoV19(d){
   const estado = !tot ? '' : (enCurso ? `día ${x} de ${tot}` : (x<1 ? `en ${1-x} ${1-x===1?'día':'días'}` : `${tot} ${tot===1?'día':'días'} · terminado`));
   return {tot, x, enCurso, k, estado, pct: enCurso ? Math.round(x/tot*100) : 0};
 }
+// v19 etapa 5: alojamientos ligados a un destino (los que cubren noches dentro de sus fechas, o registrados en esas fechas sin noches).
+function alojamientosDeDestino(d){
+  if(!d || !d.fechaInicio || !d.fechaFin) return [];
+  const fin = d.fechaFin, out = []; // fechaFin = día de salida: esa noche ya no es de este lugar
+  state.subcats.filter(esSubAlojamiento).forEach(sb=>(sb.gastos||[]).forEach(g=>{
+    const conNoches = g.cubreDesde && g.cubreHasta && g.cubreHasta > g.cubreDesde;
+    if(conNoches ? (g.cubreDesde < fin && g.cubreHasta > d.fechaInicio) : (g.fecha >= d.fechaInicio && g.fecha <= d.fechaFin)) out.push({g, sb, conNoches});
+  }));
+  return out.sort((a,b)=>((a.g.cubreDesde||a.g.fecha)||'').localeCompare((b.g.cubreDesde||b.g.fecha)||''));
+}
+function renderAlojamientosDestino(d){
+  const lista = alojamientosDeDestino(d);
+  const noches = d.fechaInicio && d.fechaFin ? Math.max(0, diasEntreISO(d.fechaInicio, d.fechaFin)) : 0;
+  let pagadas = 0; for(let i=0;i<noches;i++){ if(nocheCubierta(sumarDiasISO(d.fechaInicio, i))) pagadas++; }
+  return `<div class="dest-aloj">
+    <div class="dest-aloj-head">${micoHtml({glyph:'cama'},'sm')}<b>Alojamientos aquí</b>${noches ? `<span class="badge ${pagadas>=noches?'badge-ok':'badge-warn'}">${pagadas} de ${noches} noches pagadas</span>` : ''}</div>
+    ${lista.length ? lista.map(({g, sb, conNoches})=>`<div class="exp-line aloj-linea" data-mov-open="gasto-generales|${g.id}|${sb.id}" role="button" tabindex="0">
+      ${micoHtml({glyph:'cama'},'sm')}
+      <div class="desc"><div class="n">${escHtml(g.nota||'Alojamiento')}</div><div class="d">${conNoches ? `${fmtDate(g.cubreDesde)} → ${fmtDate(g.cubreHasta)} · ${nochesEntre(g.cubreDesde, g.cubreHasta)} noches` : `${fmtDate(g.fecha)} · sin noches anotadas`} · ${escHtml(g.quien==='ambas'?'de ambas':nombrePersona(g.quien==='abuelo'?'jen':g.quien))}</div></div>
+      <div class="amt gasto">${fmt(mxnOf(g),'MXN')}</div>
+    </div>`).join('') : `<div class="small-note">Todavía no hay alojamiento registrado para estas fechas.</div>`}
+  </div>`;
+}
 function renderDestinos(){
   const dVer = (destinoVerId && state.destinos.find(x=>x.id===destinoVerId)) || destinoActual();
   const orden = state.destinos.slice().sort((a,b)=>(a.fechaInicio||'').localeCompare(b.fechaInicio||''));
@@ -6286,9 +6264,6 @@ function renderDestinos(){
     </div>
     ${dVer ? renderDestinoDetalle(dVer) : ''}
   `;
-}
-function coverageLabel(v){
-  return {total:'Cubierto', parcial:'Parcial', no:'No cubierto'}[v]||v;
 }
 function fuenteLabel(v){
   return {historico:'Histórico propio', externo:'Expatistan / Numbeo', comunidad:'Blogs / comunidad'}[v]||(v?String(v):'Histórico propio');
@@ -6313,6 +6288,7 @@ function renderDestinoDetalle(d){
       <div class="field"><label>Desde</label><input type="date" data-dest-field="${d.id}|fechaInicio" value="${d.fechaInicio}"></div>
       <div class="field"><label>Hasta</label><input type="date" data-dest-field="${d.id}|fechaFin" value="${d.fechaFin}"></div>
     </div>
+    ${renderAlojamientosDestino(d)}
     <details class="dest-sec" data-dest-sec="cfg" ${destSecAbierta.cfg?'open':''}>
       <summary>${ico('gear','icon-sm')}<span><b>Configuración del destino</b><small>Qué está cubierto, costo de vida, temporada, nivel y tope de alojamiento</small></span>${ico('chevright','icon-sm')}</summary>
     <div class="section-label" style="margin:6px 4px 6px;">Cobertura por tipo de gasto</div>
@@ -6666,11 +6642,6 @@ function lineaFicha(m, signo){
       <div class="amt ${signo>0?'income':(signo<0?'gasto':'')}">${signo>0?'+':(signo<0?'−':'↔ ')}${fmt(m.monto,m.moneda||'MXN')}${m.moneda && m.moneda!=='MXN' ? `<span class="est">≈ ${fmt(m.montoMXN,'MXN')}</span>`:''}</div>
       <span class="chev-mov">${ico('chevright','icon-sm')}</span>
     </div>`;
-}
-function listaFicha(persona, cuenta){
-  const movs = collectMovimientos().map(m=>({m, c:cuentasDeMov(m, persona).find(x=>x.cuenta===cuenta)})).filter(x=>x.c)
-    .sort((a,b)=>(b.m.fecha||'').localeCompare(a.m.fecha||''));
-  return movs.length ? listaPorDia(movs.map(x=>Object.assign({}, x.m, {_signo:x.c.signo})), m=>lineaFicha(m, m._signo)) : `<div class="small-note">Sin movimientos todavía.</div>`;
 }
 /* ============================================================
    v18 — CUENTAS Y BOLSAS. Cada una tiene Nu (débito y crédito) y Revolut
@@ -7141,20 +7112,6 @@ function irAFechasTarjeta(k){
 }
 // Sección plegada dentro de la ficha de crédito (Mi dinero).
 let fechasTarjetaAbierta = null;
-function htmlFechasTarjeta(p, k){
-  const cfg = cfgTarjeta(p, k), e = estadoTarjetaCredito(p, k), abierta = fechasTarjetaAbierta===p+'|'+k;
-  const resumen = e.configurada ? `Corte el día ${cfg.corte} · pagar antes del día ${cfg.pago}` : 'Sin fechas: agrégalas para que te avise';
-  return `<div class="fechas-tarj">
-    <button type="button" class="fechas-tarj-btn" data-fechas-tarj="${p}|${k}" aria-expanded="${abierta?'true':'false'}">${ico('calendar','icon-sm')}<span><b>Fecha de corte y de pago</b><small>${escHtml(resumen)}</small></span>${ico(abierta?'chevdown':'chevright','icon-sm')}</button>
-    ${abierta ? `<div class="fechas-tarj-cuerpo">
-      <div class="field-row">
-        <div class="field"><label>${ico('calendar','icon-xs')} Día de corte</label><input type="number" min="1" max="31" inputmode="numeric" data-cuenta-cfg="${p}|${k}|corte" value="${cfg.corte||''}" placeholder="Ej. 5"></div>
-        <div class="field"><label>${ico('bell','icon-xs')} Día límite de pago</label><input type="number" min="1" max="31" inputmode="numeric" data-cuenta-cfg="${p}|${k}|pago" value="${cfg.pago||''}" placeholder="Ej. 25"></div>
-      </div>
-      <div class="small-note">Son los mismos días cada mes. Te avisa un día antes y el mismo día de la fecha límite (cuando abres la app).${e.configurada ? ` Último corte: ${escHtml(fmtDate(e.corte))} · fecha límite: ${escHtml(fmtDate(e.limite))}.` : ''}</div>
-    </div>` : ''}
-  </div>`;
-}
 // v18.6: en cada cuenta, cuánto es del Budget y cuánto es tuyo (en palabras, con su color).
 function lineaSplit(c, credito){
   const fmtS = (v)=>fmt(Math.round(Math.abs(v)*100)/100,'MXN');
@@ -7329,7 +7286,7 @@ function resumenPC(persona){
   const finMes = finDeMesISO(mesActual());
   const ymHoy = mesActual();
   const cobros = (state.porCobrar||[]).filter(r=>r.persona===persona);
-  const proys = (state.deudasProyectadas||[]).filter(r=>r.persona===persona && !esProgramado(r));
+  const proys = (state.deudasProyectadas||[]).filter(r=>r.persona===persona && !esProgramado(r) && !esEsperadoRec(r));
   const futC = (state.series||[]).filter(se=>se.tipo==='cobro' && se.persona===persona).flatMap(se=>proximasOcurrencias(se,12));
   const futP = (state.series||[]).filter(se=>se.tipo==='proyeccion' && se.persona===persona).flatMap(se=>proximasOcurrencias(se,12));
   const pend = r=>r.estado!=='cobrado' && r.estado!=='pagado';
@@ -7512,6 +7469,7 @@ function renderMovimientosBase(){
     ${chips.map(([id,label])=>`<button class="chip chip-ico ${movFiltro===id?'on':''}" data-mov-chip="${id}">${ico(ICONO_CHIP[id]||'layers','icon-xs')}${label}</button>`).join('')}
   </div>
   ${renderPagosPorHacer('movimientos')}
+  ${renderEsperadosPorHacer()}
   ${renderDebosYMeDeben()}`;
   const q = movBusqueda.trim().toLowerCase();
   if(!movMes) movMes = mesActual();
@@ -7921,44 +7879,6 @@ function estadoGastoTardio(g){
   const quien = g.quien==='ambas' ? 'mitad de cada una' : nombreBudget(g.quien);
   return {cuenta:true, texto:'Ya cuenta en '+mes+' · '+quien};
 }
-function renderResumenMensual(){
-  const meses = resumenPorMes();
-  const keys = Object.keys(meses).sort().reverse();
-  const carry = carryoverAcumuladoMXN();
-  const carryColor = carry < 0 ? 'var(--brick)' : 'var(--teal-deep)';
-  const carryTxt = carry < 0
-    ? `Faltante acumulado de meses anteriores: falta reponer ${fmt(-carry,'MXN')}.`
-    : (carry > 0 ? `Sobrante acumulado de meses anteriores: ${fmt(carry,'MXN')} disponibles para el futuro.` : 'Sin sobrante ni faltante de meses anteriores.');
-  return `
-    <div class="card" style="margin-bottom:12px;">
-      <div class="card-title" style="cursor:pointer;" data-toggle-resumen-mensual>
-        <h2>${ico('clock','icon-sm')} Resumen por mes</h2>
-        <button class="subrow-btn">${ico(mostrarResumenMensual?'chevdown':'chevright','icon-sm')}</button>
-      </div>
-      <div class="carry-line">
-        <div class="carry-lbl">${carry<0?'Faltante':'Sobrante'} acumulado</div>
-        <div class="carry-val" style="color:${carryColor};">${carry<0?'−':(carry>0?'+':'')}${fmt(Math.abs(carry),'MXN')}</div>
-      </div>
-      <div class="small-note" style="margin:-2px 0 6px;">${carryTxt} Aparte del saldo de arriba, que es solo de este mes. No incluye lo del ahorro.</div>
-      <div class="carry-line" style="margin-top:4px;">
-        <div class="carry-lbl">Total de toda la vida</div>
-        <div class="carry-val" style="color:${acumuladoTotalMXN()<0?'var(--brick)':'var(--teal-deep)'};">${acumuladoTotalMXN()<0?'−':(acumuladoTotalMXN()>0?'+':'')}${fmt(Math.abs(acumuladoTotalMXN()),'MXN')}</div>
-      </div>
-      <div class="small-note" style="margin:-2px 0 6px;">Lo acumulado de meses anteriores más lo que va de ${nombreMesLargo(mesActual()).toLowerCase()}.</div>
-      ${mostrarResumenMensual ? (keys.length? keys.map(k=>{
-        const m = meses[k];
-        const netoColor = m.neto<0 ? 'var(--brick)' : 'var(--teal-deep)';
-        return `
-        <div class="row-between" style="padding:10px 0;border-bottom:1px solid var(--line);">
-          <div>
-            <div style="font-weight:700;font-size:13.5px;">${nombreMesLargo(k)}${k===mesActual()?' <span class="muted" style="font-weight:600;font-size:11px;">· en curso</span>':(k>mesActual()?' <span class="muted" style="font-weight:600;font-size:11px;">· próximo, proyectado</span>':'')}</div>
-            <div class="muted" style="font-size:11.5px;margin-top:2px;">Ingreso ${fmt(m.ingreso,'MXN')} · Gasto ${fmt(m.gasto,'MXN')}</div>
-          </div>
-          <div style="text-align:right;font-size:14px;font-weight:800;color:${netoColor};">${m.neto<0?'−':'+'}${fmt(Math.abs(m.neto),'MXN')}</div>
-        </div>`;
-      }).join('') : emptyMini('Aún no hay suficiente historial. Se va llenando solo cada mes.')) : ''}
-    </div>`;
-}
 
 /* ============================================================
    MODALS / SHEETS
@@ -7983,7 +7903,7 @@ function sheetHeader(title, sub){
   // v19 (visual): asa, subtítulo y botón de cerrar redondo, como en el diseño.
   const t = String(title||'');
   const s2 = sub || (/^Editar/.test(t) ? 'Cambia lo que haga falta y guarda' : t==='Registrar' ? 'Elige qué quieres anotar' : /^(Registrar|Nuev[oa]|Agregar)\b/.test(t) ? 'Nuevo registro' : '');
-  const deMenu = /^(Registrar gasto|Registrar ingreso|Pago entre nosotras|Pasarle dinero|Pagar tarjeta de crédito|Pago por hacer|Importar estado de cuenta)/.test(t); // v19: formularios nuevos del menú Registrar
+  const deMenu = /^(Registrar gasto|Registrar ingreso|Pago entre nosotras|Pasarle dinero|Pagar tarjeta de crédito|Pago por hacer|Importar estado de cuenta|Ingreso esperado)/.test(t); // v19: formularios nuevos del menú Registrar
   return `<div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><div class="sh-t"><h2>${title}</h2>${s2?`<p class="sh-sub">${s2}</p>`:''}</div><div class="sh-btns">${deMenu?`<button type="button" class="close-x sheet-back" id="sheetBackBtn" aria-label="Regresar a las opciones de Registrar" title="Regresar a las opciones">${ico('chevleft','icon-sm')}</button>`:''}<button class="close-x" id="closeSheetBtn" aria-label="Cerrar">${ico('x','icon-sm')}</button></div></div>`;
 }
 // v19 (visual): adorna la hoja ya armada sin tocar ids ni eventos: «$» en los montos y «varios gastos» arriba.
@@ -8015,6 +7935,7 @@ function openMenuRegistrar(){
       ${op('pagoEntre','swap','Pase entre nosotras','Dinero que se pasaron Isa y tú')}
       ${op('pagoTarjeta','card','Pago de tarjeta','Pagaste tu tarjeta de crédito')}
       ${op('pagoProgramado','calendar','Pago por hacer','Algo que vas a pagar más adelante')}
+      ${op('esperado','clock','Ingreso esperado','Lo que va a llegar al Budget (mamá, papá, otro)')}
       ${op('estadoCuenta','file','Importar o verificar estado de cuenta','Lee tu estado de cuenta y compáralo con la app')}
     </div>`);
   document.querySelectorAll('[data-menu-reg]').forEach(b=>b.addEventListener('click', ()=>{
@@ -8025,6 +7946,7 @@ function openMenuRegistrar(){
     if(t==='pagoTarjeta') return openPagoTarjeta(perfil, null, null, null);
     if(t==='pagoProgramado') return openPagoProgramado();
     if(t==='estadoCuenta') return openImportarEstado();
+    if(t==='esperado') return openEsperadoForm();
   }));
 }
 function openModalFor(type, ds){
@@ -8032,6 +7954,7 @@ function openModalFor(type, ds){
   if(type==='ahorro') return openAhorro();
   if(type==='masMenu') return openMenuRegistrar();
   if(type==='pagoProgramado') return openPagoProgramado();
+  if(type==='esperado') return openEsperadoForm(null, {persona: ds.persona});
   if(type==='gasto') return openGasto(ds.cat, ds.sub, null, el_pago(ds), ds.cta);
   if(type==='nuevaSubcat') return openNuevaSubcat();
   if(type==='costoRef') return openCostoRef(ds.sub);
@@ -8160,16 +8083,8 @@ function detalleExport(m){
 function nombrePersonaExport(v){
   return {jen:'Jen', isa:'Isa', abuelo:'Abuelo', ambas:'Jen e Isa'}[v] || (v||'');
 }
-function csvCell(v){
-  const s = (v===null||v===undefined) ? '' : String(v);
-  return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
-}
 // Arma el CSV en texto plano (sin tocar el DOM) para poder probarlo aparte
 // de la descarga. Ordenado cronológicamente para que se lea como bitácora.
-function buildMovimientosCSV(){
-  const {headers, filas} = datosMovimientosExport();
-  return [headers, ...filas].map(fila=>fila.map(csvCell).join(',')).join('\r\n');
-}
 /* ============================================================
    v18.2 — REINICIAR DESDE CERO: borra todo en los dos teléfonos y en la hoja.
    Antes baja una copia de respaldo. El reinicio viaja a la hoja y al otro
@@ -8280,7 +8195,7 @@ function datosMovimientosExport(){
   ahorroDepositosDerivados().forEach(d=>movs.push({tipo:'ahorro-deposito', quien:'jen', fecha:d.fecha, nota:d.nota, monto:d.monto, moneda:'MXN', montoMXN:d.monto}));
   ['jen','isa'].forEach(p=>{ const ini = Number(state.finanzas[p].inicial)||0; if(ini) movs.push({tipo:'saldo-inicial-debito', quien:p, fecha:'', nota:'Saldo inicial', monto:ini, moneda:'MXN', montoMXN:ini}); });
   (state.porCobrar||[]).forEach(r=>movs.push({tipo:'por-cobrar', quien:r.persona, fecha:r.fecha, nota:r.nombre+(r.concepto?' · '+r.concepto:''), monto:r.monto, moneda:r.moneda, montoMXN:mxnOf(r), estadoPC:r.estado, serieId:r.serieId}));
-  (state.deudasProyectadas||[]).filter(r=>!esProgramado(r)).forEach(r=>movs.push({tipo:'deuda-proyectada', quien:r.persona, fecha:r.fecha, nota:r.nombre+(r.concepto?' · '+r.concepto:''), monto:r.monto, moneda:r.moneda, montoMXN:mxnOf(r), estadoPC:r.estado, serieId:r.serieId}));
+  (state.deudasProyectadas||[]).filter(r=>!esProgramado(r) && !esEsperadoRec(r)).forEach(r=>movs.push({tipo:'deuda-proyectada', quien:r.persona, fecha:r.fecha, nota:r.nombre+(r.concepto?' · '+r.concepto:''), monto:r.monto, moneda:r.moneda, montoMXN:mxnOf(r), estadoPC:r.estado, serieId:r.serieId}));
   movs.sort((a,b)=> (a.fecha||'').localeCompare(b.fecha||''));
   const headers = ['Fecha','Tipo','Quién','Nota','Monto','Moneda','Monto (MXN)','Pagado con','Cuenta / destino','Mes que aplica','Detalle'];
   const filas = movs.map(m=>[
@@ -8412,12 +8327,6 @@ function labelMotivo(v){
 function el_pago(ds){ return ds && ds.pago ? ds.pago : null; }
 // Formas de pago que ofrece el formulario según el perfil. La Tarjeta del
 // Abuelo solo aparece en el perfil de Jen (o si el gasto ya era del Abuelo).
-function opcionesPago(persona, incluirAbuelo){
-  const out = [['bote', nombreBudget(persona)]];
-  if(persona==='jen' || incluirAbuelo) out.push(['abuelo','Tarjeta del Abuelo']);
-  out.push(['debito','Tarjeta de débito'], ['credito','Tarjeta de crédito'], ['efectivo','Efectivo'], ['otro','Otra persona (alguien más lo pagó)']);
-  return out;
-}
 function notaPago(pago, cta){
   if(pago==='bote' && esCredito(cta)) return 'Se resta del Budget al comprar. En tu '+labelCuenta(cta)+' queda marcado como deuda del Budget; cuando pagues la tarjeta, el Budget no vuelve a bajar.';
   if(pago==='bote' && cta && cta!=='nu-deb') return 'Se resta del Budget; sale de tu '+labelCuenta(cta)+'.';
@@ -9209,7 +9118,7 @@ function openPorCobrar(lista, persona, editId, nombrePreset){
     <input type="hidden" id="pcEditRef" value="${ex?ex.id:''}">
     <div class="field"><label>${esCobro?'¿Quién te debe? (cliente o persona)':'¿A quién le vas a deber?'}</label>
       <input type="text" id="pcNombre" list="pcNombreLista" value="${escHtml(ex?ex.nombre:(nombrePreset||''))}" placeholder="${esCobro?'Ej. Cliente logo, Ana...':'Ej. Worldpackers, Ana...'}">
-      <datalist id="pcNombreLista">${[...new Set(listaPC(lista).filter(r=>r.persona===persona && !esProgramado(r)).map(r=>String(r.nombre||'').trim()).filter(Boolean))].map(n=>`<option value="${escHtml(n)}"></option>`).join('')}</datalist></div>
+      <datalist id="pcNombreLista">${[...new Set(listaPC(lista).filter(r=>r.persona===persona && !esProgramado(r) && !esEsperadoRec(r)).map(r=>String(r.nombre||'').trim()).filter(Boolean))].map(n=>`<option value="${escHtml(n)}"></option>`).join('')}</datalist></div>
     <div class="field"><label>Concepto</label><input type="text" id="pcConcepto" value="${escHtml(ex?ex.concepto||'':'')}" placeholder="${esCobro?'Ej. diseño de post, factura 12...':'Ej. membresía, préstamo...'}"></div>
     <div class="field-row">
       <div class="field"><label>Monto</label><input type="number" id="pcMonto" placeholder="0" value="${ex?ex.monto:''}"></div>
@@ -9562,7 +9471,6 @@ function ecSugerirCategoria(desc){
   for(const [nombre, re] of EC_CATEGORIAS){ if(re.test(d)){ const sb = state.subcats.find(x=>sinAcentos(x.nombre)===sinAcentos(nombre)); if(sb) return sb.id; } }
   return '';
 }
-function ecEsDuplicado(fila){ return !!ecDuplicadoDe(fila); }
 // v18.5: dirección de un movimiento ya guardado: 'out' gasto · 'in' entra · 'pago' pago de tarjeta · 'retiro' · 'otro'.
 function dirMov(m, p){
   const t = m.tipo;
@@ -10816,9 +10724,10 @@ function openIngreso(editRef, preset){
   const monedaInicial = existing ? existing.moneda : (preset.moneda || 'MXN');
   const destinoSel = existing ? (existing.destino||'bote') : (preset.destino||'bote');
   const fechaIni = existing ? existing.fecha : (preset.fecha || todayISO());
-  const mesSel = existing ? mesIngreso(existing) : ymDe(fechaIni);
+  const mesSel = existing ? mesIngreso(existing) : (preset.mes || ymDe(fechaIni));
   const ctaIngSel = ctaDebito(existing ? existing.cta : preset.cta);
   if(!preset.pcId) pcPendienteIngreso = null;
+  espPendienteIngreso = preset.espId || null; // v19: «Ya llegó» de un ingreso esperado
   openSheet(`
     ${sheetHeader(existing ? 'Editar ingreso' : 'Registrar ingreso')}
     <input type="hidden" id="ingEditRef" value="${existing?existing.id:''}">
@@ -10828,7 +10737,7 @@ function openIngreso(editRef, preset){
     </div>
     <div class="field"><label>¿Para el Budget o tuyo?</label>
       <select id="ingDestino">
-        <option value="bote" ${destinoSel==='bote'?'selected':''}>${nombreBudget(persona)}</option>
+        <option value="bote" ${destinoSel==='bote'?'selected':''}>Budget · lado de ${nombrePersona(persona)}</option>
         ${hayArq() || destinoSel==='arq' ? `<option value="arq" ${destinoSel==='arq'?'selected':''}>Pesos para euros (Revolut) · ${nombreBudget(persona)}</option>` : ''}
         <option value="debito" ${destinoSel==='debito'?'selected':''}>Mío (Mi dinero)</option>
         <option value="efectivo" ${destinoSel==='efectivo'?'selected':''}>Efectivo</option>
@@ -10847,7 +10756,7 @@ function openIngreso(editRef, preset){
       <div class="field"><label>Fecha de recepción</label><input type="date" id="ingFecha" value="${fechaIni}"></div>
       <div class="field" id="ingMesWrap" style="${esDestinoBote(destinoSel)?'':'display:none'}"><label>¿Para qué mes aplica?</label><select id="ingMes">${opcionesMes(mesSel)}</select></div>
     </div>
-    <input type="hidden" id="ingMesTocado" value="${existing?'1':''}">
+    <input type="hidden" id="ingMesTocado" value="${existing||preset.mes?'1':''}">
     ${renderTipoCambioField('ing',monedaInicial,existing)}
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;margin-bottom:8px;">
       <input type="checkbox" id="ingAhorroAuto" style="width:auto;" ${existing&&existing.ahorroAuto?'checked':''}> Este ingreso genera ahorro automático
@@ -11287,6 +11196,30 @@ function deudaItems(){
   return {items, aFavor:libres, aFavorPor, aFavorExacto};
 }
 // v18.13: neto por separación (>0 → Isa le debe a Jen).
+// v19 etapa 5: cuánto ha puesto cada una para los gastos COMPARTIDOS del Budget (sin Abuelo, sin efectivo, sin gastos personales),
+// más o menos los pagos entre ustedes que saldan deudas del Budget. Cuando no hay deuda, queda 50/50.
+function puestoBudget(ym){
+  const enRango = (f)=> !ym || ymDe(f||'')===ym;
+  const puso = {jen:0, isa:0}, pago = {jen:0, isa:0}, pases = {jen:0, isa:0}; let total = 0, n = 0;
+  [...state.subcats, {gastos: state.gustosGastos||[]}].forEach(sb=>(sb.gastos||[]).forEach(g=>{
+    if(!deudaDeGastoAmbas(g) && !(g.quien==='ambas' && g.pagadoPor==='ambas')) return;
+    if(g.quien!=='ambas' || g.pagadoCon==='efectivo' || g.deudaTipo==='ninguna' || tipoDeudaGasto(g)!=='budget' || !enRango(g.fecha)) return;
+    const m = mxnOf(g); if(!m) return;
+    total += m; n++;
+    ['jen','isa'].forEach(p=>{ const x = m*partePago(g, p); puso[p] += x; pago[p] += x; });
+  }));
+  (state.pagosEntre||[]).forEach(p=>{
+    if(p.noDeuda || saldaPago(p)!=='budget' || !(p.de==='jen'||p.de==='isa') || !enRango(p.fecha)) return;
+    const m = mxnOf(p); if(!m) return; const otra = otraPersona(p.de);
+    puso[p.de] += m; puso[otra] -= m; pases[p.de] += m;
+  });
+  const mitad = total/2;
+  if(!ym && n){ // todo el viaje: la diferencia es exactamente la deuda del Budget (aunque un pago se haya aplicado a un gasto que luego cambió de lado)
+    const deu = netoDeudaPorSeparacion().budget;
+    if(Math.abs((puso.jen - mitad) - deu) > 0.01){ puso.jen = mitad + deu; puso.isa = total - puso.jen; ['jen','isa'].forEach(p=>{ pases[p] = Math.max(0, puso[p] - pago[p]); }); }
+  }
+  return {total, mitad, n, puso, pago, pases, dif: Math.round((puso.jen - mitad)*100)/100}; // dif>0: Isa le debe a Jen
+}
 function netoDeudaPorSeparacion(di){
   di = di || deudaItems();
   const out = {};
@@ -11784,10 +11717,6 @@ function opcionesQuienV15(pago){
 function opcionesSubcatV15(){
   return state.subcats.map(s=>({v:s.id, label:s.nombre, glyph:iconoSubcat(s).glyph}));
 }
-function glyphPago(m){
-  if(m.quien==='abuelo') return 'abuelo';
-  return {bote:'bote', arq:'arq', efectivo:'billete', debito:'tarjeta', personal:'tarjeta', credito:'credito', otro:'persona'}[m.pagadoCon||'bote'] || 'tarjeta';
-}
 function labelPago(m){
   if(m.quien==='abuelo') return 'Tarjeta del Abuelo';
   if(m.pagadoCon==='otro') return 'Pagó '+nombreOtroDe(m);
@@ -11860,8 +11789,8 @@ function listaPorDia(movs, pintar){
     const f = m.fecha || '';
     if(f!==ultima){
       ultima = f;
-      const lugar = lugarEnFecha(f);
-      html += `<div class="dia-head"><span>${etiquetaDia(f)}</span>${lugar?`<small>${escHtml(lugar)}</small>`:''}</div>`;
+      const dLug = destinoEnFecha(f);
+      html += `<div class="dia-head"><span>${etiquetaDia(f)}</span>${dLug?`<small class="dia-lugar">${banderaDestinoHtml(dLug)}${escHtml(nombreCorto(dLug))}</small>`:''}</div>`; // v19: bandera en imagen (en Windows el emoji no se ve)
     }
     html += pintar(m);
   });
@@ -12034,28 +11963,67 @@ function renderBudgetTotalCard(ym){
   const fin = esActual ? todayISO() : finDeMesISO(ym);
   const dias = diasHasta(fin, esActual ? 30 : Number(finDeMesISO(ym).slice(8)));
   const valores = dias.map(d=>gastoTotalDelDiaMXN(d, false));
+  const pend = ym >= mesActual() ? esperadosPendientesMes(ym) : [];
+  const espMXN = pend.reduce((a,e)=>a + (toMXN(e.esperadoMes, e.monedaMes)||0), 0);
+  const espLista = ym >= mesActual() ? ingresosEsperadosMes(ym) : [];
+  const suma = `Budget del mes = ${fmt(jenNetoMXN,'MXN')} (aportó Jen) + ${fmt(isaNetoMXN,'MXN')} (aportó Isa) + ${fmt(abueloMetaMXN(ym),'MXN')} (Abuelo)${trMas>0.004?' + '+fmt(trMas,'MXN')+' (del ahorro/sobrante)':''}${trMenos>0.004?' − '+fmt(trMenos,'MXN')+' (reponer lo que se debía)':''} = <b>${fmt(meta,'MXN')}</b>`;
   return `
-  <div class="card gx gx-violeta">
-    <div class="card-title"><h2>${ico('layers','icon-sm')} Budget total</h2>
+  <div class="card gx gx-violeta bt-card">
+    <div class="card-title bt-head"><h2>${ico('layers','icon-sm')} Budget total</h2>
       <select id="movMesTotal" class="mes-select" aria-label="Mes">${meses.map(k=>`<option value="${k}" ${k===ym?'selected':''}>${nombreMesLargo(k)}</option>`).join('')}</select>
     </div>
     ${renderTripleStat(meta, gastado, disp, {asignado:'Meta', gastado:'Gastado', disp:'Disponible'})}
+    ${espMXN > 0.5 ? `<div class="bt-conesp">${ico('clock','icon-sm')}<div><span>Disponible con lo esperado</span><b class="${disp+espMXN<0?'neg':''}">${fmt(disp+espMXN,'MXN')}</b><small>${fmt(disp,'MXN')} de hoy + ${fmt(espMXN,'MXN')} que falta que llegue (${pend.map(e=>escHtml(e.nombre)+' '+fmt(e.esperadoMes, e.monedaMes)).join(' · ')}). No se suma al Disponible hasta que llegue.</small></div></div>` : ''}
     <div class="bt-fuentes">
-      <span>${avatarPersona('jen')} Mamá ${fmt(jenNetoMXN,'MXN')}</span>
-      <span>${avatarPersona('isa')} Papá de Isa ${fmt(isaNetoMXN,'MXN')}</span>
+      <span>${avatarPersona('jen')} Aportó Jen ${fmt(jenNetoMXN,'MXN')}</span>
+      <span>${avatarPersona('isa')} Aportó Isa ${fmt(isaNetoMXN,'MXN')}</span>
       <button type="button" class="bt-abuelo" data-tope-abuelo="${ym}" title="Cambiar el tope del Abuelo de este mes"><span class="pk-ilu sm"><svg viewBox="0 0 64 64">${ILU.abuelo}</svg></span> Abuelo ${fmt(abueloMetaMXN(ym),'MXN')} ${ico('edit','icon-xs')}</button>
       ${trMas>0.004 ? `<span><span class="pk-ilu sm"><svg viewBox="0 0 64 64">${ILU.alcancia||ILU.bote}</svg></span> Del ahorro/sobrante ${fmt(trMas,'MXN')}</span>` : ''}
       ${trMenos>0.004 ? `<span><span class="pk-ilu sm"><svg viewBox="0 0 64 64">${ILU.alcancia||ILU.bote}</svg></span> Reponer lo que se debía −${fmt(trMenos,'MXN')}</span>` : ''}
+      <button type="button" class="tip-i" data-tip-html="${escHtml(suma + '<br><br>Cuenta todo ingreso registrado para el Budget (del lado de quien lo recibe, sin lo que va al ahorro) y el tope del Abuelo. No incluye efectivo ni dinero personal. Los pagos entre ustedes de un Budget al otro se ven en la lista pero no cambian el total.')}" aria-label="Cómo se forma el Budget del mes">${ico('info','icon-xs')}</button>
     </div>
-    <div class="small-note bt-suma">Budget del mes = ${fmt(jenNetoMXN,'MXN')} + ${fmt(isaNetoMXN,'MXN')} + ${fmt(abueloMetaMXN(ym),'MXN')}${trMas>0.004?' + '+fmt(trMas,'MXN'):''}${trMenos>0.004?' − '+fmt(trMenos,'MXN'):''} = <b>${fmt(meta,'MXN')}</b></div>
+    <div class="small-note bt-suma tip-src">${suma}</div>
     ${abueloIngresos>0.5 ? `<div class="note-box" style="margin-top:6px;">${ico('alert','icon-sm')}<div>Hay un ingreso llamado "Abuelo" (${fmt(abueloIngresos,'MXN')}) registrado al Budget. No se suma: lo del Abuelo ya cuenta por su meta de la tarjeta.</div></div>` : ''}
-    <div class="small-note">Solo cuenta lo de mamá (sin lo que va al ahorro), lo del papá de Isa y el tope del Abuelo (de las dos). No incluye efectivo ni dinero personal. Los pagos entre ustedes de un Budget al otro se ven en la lista pero no cambian el total.</div>
-    <div class="card-title" style="margin:16px 0 6px;"><h2 style="font-size:14px;">${ico('trend','icon-sm')} Gasto diario (${esActual?'último mes':'todo el mes'})</h2></div>
-    ${svgBarrasDiarias(dias, valores)}
-    <div class="card-title" style="margin:16px 0 6px;"><h2 style="font-size:14px;">${ico('layers','icon-sm')} Presupuesto por subcategoría</h2></div>
-    ${barrasSubcats(ym)}
+    ${espLista.length ? `<div class="bt-esp"><div class="bt-sub">${ico('clock','icon-xs')} Ingresos esperados <button type="button" class="hint" data-open="esperado">+ agregar</button></div>${espLista.map(e=>lineaEsperado(e, ym)).join('')}</div>` : (ym >= mesActual() ? `<div class="bt-esp-vacio"><button type="button" class="hint" data-open="esperado">${ico('plus','icon-xs')} Agregar ingreso esperado</button></div>` : '')}
+    ${pieGastoCategorias(ym)}
+    <details class="bt-mas" ${btMasAbierto?'open':''}>
+      <summary>${ico('chevright','icon-sm')}<span>Ver más</span><small>Categorías y gasto por día</small></summary>
+      <div class="card-title" style="margin:12px 0 6px;"><h2 style="font-size:15px;">${ico('layers','icon-sm')} Presupuesto por subcategoría</h2></div>
+      ${barrasSubcats(ym)}
+      <div class="card-title" style="margin:18px 0 6px;"><h2 style="font-size:15px;">${ico('trend','icon-sm')} Gasto diario (${esActual?'último mes':'todo el mes'})</h2></div>
+      ${svgBarrasDiarias(dias, valores)}
+    </details>
   </div>`;
 }
+let btMasAbierto = false;
+// v19 etapa 5: pastel interactivo del gasto por categoría del mes (Budget total). Al pasar el mouse o tocar: icono, nombre, monto y %.
+const PIE_COLORES = ['#5b6cff','#e0489a','#ffb020','#12c9b5','#8a4dff','#ff6a3d','#2fa8ff','#2fd66b','#c13bff','#ff4d6a','#ffd23f','#5ad1e6','#a3e635','#f472b6'];
+function pieGastoCategorias(ym){
+  const filas = state.subcats.map(sb=>({sb, v: subcatGastadoTotalMesMXN(sb, ym)})).filter(f=>f.v>0.004).sort((a,b)=>b.v-a.v);
+  const otros = (state.gustosGastos||[]).filter(cuentaEnTotal).reduce((a,g)=>a+montoEnMesMXN(g, ym),0);
+  if(otros>0.004) filas.push({sb:{id:'gustos', nombre:'Otros (sin categoría)', icono:'otros'}, v: otros});
+  const tot = filas.reduce((a,f)=>a+f.v,0);
+  if(!(tot>0.004)) return `<div class="pie-vacio small-note">${ico('layers','icon-sm')} Aún no hay gastos este mes para la gráfica.</div>`;
+  const R = 46, r0 = 29, cx = 60, cy = 60; let ang = -Math.PI/2;
+  const pt = (a, rad)=>[(cx + rad*Math.cos(a)).toFixed(2), (cy + rad*Math.sin(a)).toFixed(2)];
+  const segs = filas.map((f,i)=>{
+    const frac = f.v/tot, a1 = ang, a2 = ang + frac*Math.PI*2; ang = a2;
+    const col = PIE_COLORES[i % PIE_COLORES.length], pct = frac*100;
+    const tip = `<span class="pie-tip">${micoHtml(iconoSubcat(f.sb),'sm')}<span><b>${escHtml(f.sb.nombre)}</b><br>${fmt(f.v,'MXN')} · ${pct<1?pct.toFixed(1):pct.toFixed(0)}% del gasto del mes</span></span>`;
+    let d;
+    if(frac > 0.9999){ d = `M ${cx} ${cy-R} A ${R} ${R} 0 1 1 ${cx-0.01} ${cy-R} L ${cx-0.01} ${cy-r0} A ${r0} ${r0} 0 1 0 ${cx} ${cy-r0} Z`; }
+    else { const g = a2-a1 > Math.PI ? 1 : 0, [x1,y1] = pt(a1,R), [x2,y2] = pt(a2,R), [x3,y3] = pt(a2,r0), [x4,y4] = pt(a1,r0);
+      d = `M ${x1} ${y1} A ${R} ${R} 0 ${g} 1 ${x2} ${y2} L ${x3} ${y3} A ${r0} ${r0} 0 ${g} 0 ${x4} ${y4} Z`; }
+    return {f, col, pct, tip, d};
+  });
+  return `<div class="pie-wrap">
+    <div class="pie-box"><svg viewBox="0 0 120 120" class="pie-svg" role="img" aria-label="Gasto por categoría">
+      ${segs.map(x=>`<path class="pie-seg" d="${x.d}" fill="${x.col}" data-pie-tip="1" data-tip-html="${escHtml(x.tip)}" tabindex="0" aria-label="${escHtml(x.f.sb.nombre)}: ${fmt(x.f.v,'MXN')} (${x.pct.toFixed(0)}%)"></path>`).join('')}
+    </svg><div class="pie-centro"><small>En categorías</small><b>${fmtCorto(tot)}</b></div></div>
+    <div class="pie-leyenda">${segs.slice(0,6).map(x=>`<button type="button" class="pie-ley" data-pie-tip="1" data-tip-html="${escHtml(x.tip)}"><i style="background:${x.col}"></i>${micoHtml(iconoSubcat(x.f.sb),'sm')}<span>${escHtml(x.f.sb.nombre)}</span><b>${x.pct<1?x.pct.toFixed(1):x.pct.toFixed(0)}%</b></button>`).join('')}${segs.length>6?`<div class="pie-mas small-note">+${segs.length-6} más en «Ver más»</div>`:''}${Math.abs(gastadoTotalMXN(ym)-tot)>0.5 ? `<div class="pie-mas small-note">El pastel es el gasto por categoría (${fmt(tot,'MXN')}). «Gastado» (${fmt(gastadoTotalMXN(ym),'MXN')}) también cuenta retiros, pagos de tarjeta y entre ustedes, y devoluciones.</div>` : ''}</div>
+  </div>`;
+}
+function fmtCorto(v){ const n = Math.abs(v); const t = n>=1e6 ? (n/1e6).toFixed(1)+'M' : (n>=1e4 ? Math.round(n/1e3)+'k' : (n>=1e3 ? (n/1e3).toFixed(1)+'k' : n.toFixed(0))); return (v<0?'−':'')+'$'+t; }
 // v18: Total acumulado (reemplaza "Resumen por mes" y "Acumulable").
 let acumAbierto = null;
 function desgloseAcumulado(){
@@ -12262,23 +12230,6 @@ function openCruceAcum(cid){
     state.ingresos = state.ingresos.filter(i=>i.cruceAcum!==cid); persist(); closeSheet(); render();
     mostrarToast('Se quitó.', 'ok');
   });
-}
-function renderAcumulableCard(ym){
-  const antes = acumuladoAntesDe(ym);
-  const b = balanceMes(ym);
-  const pasado = state.ingresos.filter(i=>i.traspaso==='sobrante' && ymDe(i.fecha||'')===ym).reduce((a,i)=>a+brutoIngresoMXN(i),0);
-  const despues = antes + b.disp - pasado;
-  const col = v => v<0 ? 'var(--brick)' : 'var(--teal-deep)';
-  const txt = v => (v<0?'−':(v>0?'+':''))+fmt(Math.abs(v),'MXN');
-  return `<div class="card">
-    <div class="card-title"><h2>${ico('piggy','icon-sm')} Acumulable</h2><span class="hint">solo mamá y papá</span></div>
-    <div class="carry-line"><div class="carry-lbl">Al empezar ${nombreMesLargo(ym).toLowerCase()}</div><div class="carry-val" style="color:${col(antes)};">${txt(antes)}</div></div>
-    <div class="carry-line"><div class="carry-lbl">Lo que ${ym===mesActual()?'va dejando':'dejó'} este mes</div><div class="carry-val" style="color:${col(b.disp)};">${txt(b.disp)}</div></div>
-    ${pasado ? `<div class="carry-line"><div class="carry-lbl">Pasado a otras cuentas este mes</div><div class="carry-val" style="color:var(--brick);">−${fmt(pasado,'MXN')}</div></div>` : ''}
-    <div class="carry-line"><div class="carry-lbl">${ym===mesActual()?'Si el mes cerrara hoy':'Al cerrar el mes'}</div><div class="carry-val" style="color:${col(despues)};">${txt(despues)}</div></div>
-    <div class="small-note">Es un apartado que se va juntando mes a mes: no cuenta para el Budget hasta que lo pasas a una cuenta. Lo que no se gasta del Abuelo no se acumula.</div>
-    ${ym===mesActual() ? `<button class="btn btn-outline btn-block btn-sm" data-traspaso="sobrante" style="margin-top:10px;">${ico('swap','icon-sm')} Pasar a otra cuenta</button>` : ''}
-  </div>`;
 }
 
 /* ---------- Traspasos: ahorro / sobrante → otra cuenta ---------- */
@@ -13089,6 +13040,24 @@ function renderNosotras(){
         <div class="amt ${x.p.sale==='compensacion'?'neutro':'income'}">${x.p.sale==='compensacion'?'↔ '+fmt(resumenComp(x.p).m,'MXN') : fmt(x.p.monto, x.p.moneda||'MXN')}</div>
       </div>`) : emptyMini(q ? 'Nada coincide con esa búsqueda.' : 'Todavía no hay gastos compartidos ni pagos.', 'wallet')}
     ${historial.length > nosHistLimite ? `<button class="btn btn-outline btn-block" id="nosVerMas" style="margin-top:10px;">${ico('chevdown','icon-sm')} Ver más (${historial.length - nosHistLimite} más)</button>` : ''}
+  </div>
+  ${renderPuestoCadaUna()}`;
+}
+// v19 etapa 5: «Cuánto ha puesto cada una» (antes «Equidad» en Ver más de Inicio).
+let nosPuestoVista = 'viaje';
+function renderPuestoCadaUna(){
+  const ym = mesActual(), a = puestoBudget(nosPuestoVista==='mes' ? ym : null);
+  const tot = a.puso.jen + a.puso.isa, pj = tot>0.005 ? Math.max(0, Math.min(100, a.puso.jen/tot*100)) : 50, pi = 100-pj;
+  const d = a.dif, sald = Math.abs(d) < 0.5;
+  const estado = !a.n ? 'Aún no hay gastos compartidos del Budget ' + (nosPuestoVista==='mes' ? 'este mes.' : 'en el viaje.')
+    : (sald ? `${ico('check','icon-sm')} Están 50/50: cada una puso ${fmt(a.mitad,'MXN')}.` : `${d>0 ? 'Isa' : 'Jen'} puso ${fmt(Math.abs(d),'MXN')} menos que su mitad${nosPuestoVista==='mes' ? ' este mes' : ''}. ${nosPuestoVista==='mes' ? 'La deuda que cuenta es la de todo el viaje.' : 'Es lo que '+(d>0?'Isa le debe a Jen':'Jen le debe a Isa')+' del Budget; al saldarlo quedan 50/50.'}`);
+  return `<div class="card card-puesto" id="cardPuesto">
+    <div class="card-title"><h2>${ico('scale','icon-sm')} Cuánto ha puesto cada una</h2><button type="button" class="tip-i" data-tip="Solo gastos compartidos del Budget (de ambas). No cuenta la tarjeta del Abuelo, el efectivo ni los gastos personales. Es lo que cada una pagó de esos gastos, más los pagos que le hizo a la otra para saldar deudas del Budget (y menos los que recibió). Lo que cada una recibió de mamá o de papá no importa aquí." aria-label="Cómo se calcula">${ico('info','icon-xs')}</button></div>
+    <div class="seg puesto-seg">${[['viaje','Todo el viaje'],['mes','Este mes']].map(([k,l])=>`<button type="button" class="${nosPuestoVista===k?'on':''}" data-puesto-vista="${k}">${l}</button>`).join('')}</div>
+    ${a.n ? '' : '<!--sin gastos-->'}<div class="puesto-cols" ${a.n?'':'hidden'}>${['jen','isa'].map(p=>`<div class="puesto-col puesto-${p}">${avatarPersona(p)}<span class="puesto-n">${nombrePersona(p)}</span><b class="puesto-v">${fmt(a.puso[p],'MXN')}</b><small>${tot>0.005 ? (p==='jen'?pj:pi).toFixed(0)+'%' : '—'} · pagó ${fmt(a.pago[p],'MXN')}${a.pases[p]>0.004 ? ' + le pasó a '+nombrePersona(otraPersona(p))+' '+fmt(a.pases[p],'MXN') : ''}</small></div>`).join('')}</div>
+    <div class="puesto-bar" aria-hidden="true"><div class="jen" style="width:${pj}%"></div><div class="isa" style="width:${pi}%"></div><i class="puesto-mitad"></i></div>
+    <div class="puesto-tot">Gastos compartidos del Budget: <b>${fmt(a.total,'MXN')}</b> · a cada una le toca <b>${fmt(a.mitad,'MXN')}</b></div>
+    <div class="puesto-estado ${sald||!a.n?'ok':'dif'}">${estado}</div>
   </div>`;
 }
 
@@ -13345,6 +13314,8 @@ function wireV15Events(){
   on('[data-mov-ftipo]', 'click', (el)=>{ movFTipo = el.getAttribute('data-mov-ftipo'); render(); });
   const fp = document.getElementById('movFPago'); if(fp) fp.addEventListener('change', ()=>{ movFPago = fp.value; render(); });
   const mt = document.getElementById('movMesTotal'); if(mt) mt.addEventListener('change', ()=>{ movMesTotal = mt.value; movMes = mt.value; render(); });
+  document.querySelectorAll('[data-puesto-vista]').forEach(b=>b.addEventListener('click', ()=>{ nosPuestoVista = b.getAttribute('data-puesto-vista'); render(); }));
+  document.querySelectorAll('details.bt-mas').forEach(el=>el.addEventListener('toggle', ()=>{ btMasAbierto = el.open; })); // v19: recuerda «Ver más» de Budget total
   document.querySelectorAll('[data-cat-mes]').forEach(b=>b.addEventListener('click', ()=>{
     const n = ymMas(mesCategorias(), Number(b.getAttribute('data-cat-mes')));
     if(n > mesActual() || n < mesMinCategorias()) return;
@@ -13528,7 +13499,7 @@ function mostrarTip(btn){
 function ocultarTip(ms){ clearTimeout(_tipT); _tipT = setTimeout(()=>{ if(_tipEl){ _tipEl.classList.remove('on'); _tipDe = null; } }, ms||0); }
 function wireTips(){
   if(wireTips._ok) return; wireTips._ok = true;
-  const sel = '.tip-chip, .tip-i';
+  const sel = '.tip-chip, .tip-i, [data-pie-tip]';
   document.addEventListener('mouseover', (e)=>{ const b = e.target.closest && e.target.closest(sel); if(b && window.matchMedia && window.matchMedia('(hover:hover)').matches) mostrarTip(b); }, true);
   document.addEventListener('mouseout', (e)=>{ const b = e.target.closest && e.target.closest(sel); if(b && !(e.relatedTarget && (b.contains(e.relatedTarget) || (_tipEl && _tipEl.contains(e.relatedTarget))))) ocultarTip(180); }, true);
   document.addEventListener('focusin', (e)=>{ const b = e.target.closest && e.target.closest(sel); if(b) mostrarTip(b); });
@@ -13541,7 +13512,49 @@ function wireTips(){
   window.addEventListener('scroll', ()=>ocultarTip(0), {passive:true, capture:true});
   document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') ocultarTip(0); });
 }
+// v19 etapa 5: BÚSQUEDA GLOBAL (movimientos de todos los meses, destinos, categorías, suscripciones, pagos por hacer, esperados).
+let busqGlobalQ = '';
+function resultadosBusqueda(q){
+  const nq = normBusq(q); if(!nq) return [];
+  const pz = (t)=>puntajeBusquedaMov({nota:t}, nq), grupos = [];
+  const movs = collectMovimientos().map(m=>({m, p:puntajeBusquedaMov(m, nq)})).filter(x=>x.p>0).sort((a,b)=>(b.p-a.p) || (b.m.fecha||'').localeCompare(a.m.fecha||''));
+  if(movs.length) grupos.push({t:'Movimientos', n:movs.length, items: movs.slice(0,8).map(({m})=>({ico: micoHtml(iconoMov(m),'sm'), n: m.nota || m.subNombre || 'Movimiento', d: fmtDate(m.fecha)+(m.subNombre?' · '+m.subNombre:''), v: fmt(Math.abs(Number(m.montoMXN!=null?m.montoMXN:m.monto)||0), m.montoMXN!=null?'MXN':(m.moneda||'MXN')), ir:`mov|${ymMov(m)}`}))});
+  const dest = (state.destinos||[]).filter(d=>pz(d.nombre)>0);
+  if(dest.length) grupos.push({t:'Destinos', n:dest.length, items: dest.slice(0,6).map(d=>({ico: banderaDestinoHtml(d), n:d.nombre, d: fmtDate(d.fechaInicio)+' → '+fmtDate(d.fechaFin), ir:`dest|${d.id}`}))});
+  const cats = state.subcats.filter(sb=>pz(sb.nombre)>0);
+  if(cats.length) grupos.push({t:'Categorías', n:cats.length, items: cats.slice(0,6).map(sb=>({ico: micoHtml(iconoSubcat(sb),'sm'), n:sb.nombre, d:'Gastado este mes '+fmt(subcatGastadoTotalMesMXN(sb, mesActual()),'MXN'), ir:'tab|categorias'}))});
+  const sus = (state.suscripciones||[]).filter(x=>pz(x.nombre||'')>0);
+  if(sus.length) grupos.push({t:'Suscripciones', n:sus.length, items: sus.slice(0,6).map(x=>({ico: ico('repeat','icon-sm'), n:x.nombre, d: fmt(Number(x.monto)||0, x.moneda||'MXN'), ir:'tab|suscripciones'}))});
+  const prog = pagosProgramados(true).filter(r=>pz(r.nombre||'')>0), esp = esperadosRegistros().filter(r=>pz(r.nombre||'')>0);
+  if(prog.length || esp.length) grupos.push({t:'Por hacer', n:prog.length+esp.length, items: [...prog.map(r=>({ico: ico('calendar','icon-sm'), n:r.nombre, d:'Pago por hacer · '+fmtDate(r.fecha)+(r.estado==='pagado'?' · pagado':''), v: fmt(Number(r.monto)||0, r.moneda||'MXN'), ir:'por|'})), ...esp.map(r=>({ico: ico('clock','icon-sm'), n:r.nombre, d:'Ingreso esperado · '+nombreMesLargo(r.mes||mesActual()), v: fmt(Number(r.monto)||0, r.moneda||'MXN'), ir:'por|'}))].slice(0,8)});
+  return grupos;
+}
+function pintarBusqueda(){
+  const cont = document.getElementById('busqRes'); if(!cont) return;
+  const q = busqGlobalQ, g = resultadosBusqueda(q);
+  cont.innerHTML = !normBusq(q) ? `<div class="small-note busq-vacio">Escribe un nombre, una categoría, un lugar o un monto. No importan mayúsculas ni acentos, y aguanta un error de letra.</div>`
+    : (g.length ? g.map(x=>`<div class="busq-grupo"><div class="bt-sub">${escHtml(x.t)} <span class="busq-n">${x.n}</span></div>${x.items.map(it=>`<button type="button" class="busq-item" data-busq-ir="${escHtml(it.ir)}" data-busq-q="${escHtml(q)}">${it.ico}<span class="busq-t"><b>${escHtml(it.n)}</b><small>${escHtml(it.d||'')}</small></span>${it.v?`<em>${escHtml(it.v)}</em>`:''}</button>`).join('')}${x.t==='Movimientos' && x.n>8 ? `<button type="button" class="link-quiet" data-busq-ir="movtodos|" data-busq-q="${escHtml(q)}">Ver los ${x.n} en Movimientos</button>` : ''}</div>`).join('')
+    : `<div class="small-note busq-vacio">No encontré nada con «${escHtml(q)}».</div>`);
+  cont.querySelectorAll('[data-busq-ir]').forEach(b=>b.addEventListener('click', ()=>{
+    const [tipo, val] = b.getAttribute('data-busq-ir').split('|'), qq = b.getAttribute('data-busq-q')||'';
+    closeSheet();
+    if(tipo==='mov' || tipo==='movtodos'){ activeTab='movimientos'; movFiltro='todos'; movBusqueda=qq; if(tipo==='mov' && val){ movMes = val; } render(); }
+    else if(tipo==='dest'){ activeTab='destinos'; destinoVerId = val; render(); }
+    else if(tipo==='tab'){ activeTab = val; render(); }
+    else if(tipo==='por'){ activeTab='movimientos'; movFiltro='porHacer'; render(); }
+    try{ window.scrollTo(0,0); }catch(e){}
+  }));
+}
+function openBusquedaGlobal(){
+  openSheet(`${sheetHeader('Buscar', 'En toda la app')}
+    <div class="busq-campo">${ico('search','icon-sm')}<input type="search" id="busqGlobal" placeholder="Glovo, súper, Málaga, 208.42…" value="${escHtml(busqGlobalQ)}" autocomplete="off"></div>
+    <div id="busqRes"></div>`);
+  const inp = document.getElementById('busqGlobal'); let t = null;
+  inp.addEventListener('input', ()=>{ busqGlobalQ = inp.value; clearTimeout(t); t = setTimeout(pintarBusqueda, 160); });
+  pintarBusqueda(); setTimeout(()=>{ try{ inp.focus(); }catch(e){} }, 60);
+}
 function wireEvents(){
+  { const bg = document.getElementById('busqGlobalBtn'); if(bg) bg.addEventListener('click', openBusquedaGlobal); }
   try{ wireTips(); convertirExplicaciones(document.getElementById('app')); }catch(e){}
   try{ plegarConfig(); }catch(e){}
   const fabSync = document.getElementById('fabSync');
@@ -14603,6 +14616,7 @@ function wireSheetEvents(){
       document.querySelectorAll('[data-ing-persona]').forEach(b=>b.classList.remove('on'));
       el.classList.add('on');
       document.getElementById('ingPersona').value = el.getAttribute('data-ing-persona');
+      { const op = document.querySelector('#ingDestino option[value="bote"]'); if(op){ op.textContent = 'Budget · lado de '+nombrePersona(el.getAttribute('data-ing-persona')); const pk = document.querySelector('#ingDestino')?.closest('.field')?.querySelector('.pk-btn .pk-txt b, .pk-btn .pk-txt'); if(pk && document.getElementById('ingDestino').value==='bote') pk.textContent = op.textContent; } } // v19: el Budget es del lado de quien lo recibe
       const fuenteInput = document.getElementById('ingFuente');
       if(el.getAttribute('data-ing-persona')==='isa' && fuenteInput.value==='Mamá') fuenteInput.value='Isa';
       if(el.getAttribute('data-ing-persona')==='jen' && fuenteInput.value==='Isa') fuenteInput.value='Mamá';
@@ -14829,6 +14843,7 @@ function wireSheetEvents(){
     if(ctaIng) ing.cta = ctaIng;
     state.ingresos.push(ing);
     if(pcPendienteIngreso){ const c = (state.porCobrar||[]).find(r=>r.id===pcPendienteIngreso); if(c) c.ingresoId = ing.id; pcPendienteIngreso = null; }
+    if(espPendienteIngreso){ if(esDestinoBote(ing.destino)) ing.esperadoId = espPendienteIngreso; espPendienteIngreso = null; } // v19: queda ligado al esperado
     guardarRecurrencia('ing', ing, 'ingreso', null);
     persist(); closeSheet(); render();
   });
