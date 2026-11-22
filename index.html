@@ -296,6 +296,52 @@
   .prog-vencido .d b{color:var(--brick);} .prog-hoy .d b,.prog-manana .d b{color:var(--amber);}
   .check-line{display:flex;gap:8px;align-items:center;font-size:14px;margin:6px 0;min-height:44px;}
   .prog-acc .btn-sm,.conc-acc .btn-sm,#concAgregar{min-height:44px;}
+  /* v19 etapa 7: Comparar con mi estado de cuenta (3 pasos) */
+  .conc-pasos{display:flex;align-items:center;gap:6px;margin:2px 0 14px;font-size:12.5px;font-weight:700;color:var(--ink-soft);}
+  .conc-pasos span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .conc-pasos span b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--paper-soft);color:var(--ink-soft);font-size:12px;border:1.5px solid var(--line);}
+  .conc-pasos span.on{color:var(--ink);} .conc-pasos span.on b{background:linear-gradient(135deg,var(--plum),var(--teal));color:#fff;border-color:transparent;box-shadow:0 4px 12px -4px var(--plum);}
+  .conc-pasos span.hecho b{background:var(--teal-deep);color:#fff;border-color:transparent;} .conc-pasos span.hecho b .icon{width:13px;height:13px;}
+  .conc-pasos i{flex:1;height:2px;border-radius:2px;background:var(--line);min-width:10px;}
+  .conc-periodo{margin:6px 0 4px;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;} .conc-ya{display:inline-flex;align-items:center;gap:3px;color:var(--teal-deep);font-weight:700;}
+  .conc-aviso{margin:8px 0;} 
+  .conc-resumen{position:sticky;top:-1px;z-index:4;background:var(--card);padding:8px 0;}
+  .conc-chip{font:inherit;font-size:12.5px;font-weight:800;padding:0 12px;min-height:40px;border-radius:99px;border:1.5px solid var(--line);background:var(--paper-soft);color:var(--ink);cursor:pointer;}
+  .conc-chip.ok{color:var(--teal-deep);border-color:color-mix(in srgb,var(--teal-deep) 35%,transparent);} .conc-chip.warn{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,transparent);} .conc-chip.bad{color:var(--brick);border-color:color-mix(in srgb,var(--brick) 40%,transparent);}
+  .conc-sec{scroll-margin-top:120px;transition:box-shadow .3s;} .conc-sec.conc-brillo{box-shadow:0 0 0 3px color-mix(in srgb,var(--plum) 45%,transparent);}
+  .conc-faltan{border-color:color-mix(in srgb,var(--amber) 45%,var(--line));} .conc-monto,.conc-nombre{border-color:color-mix(in srgb,var(--amber) 30%,var(--line));} .conc-sobran{border-color:color-mix(in srgb,var(--brick) 35%,var(--line));} .conc-sumados,.conc-ok{border-color:color-mix(in srgb,var(--teal-deep) 30%,var(--line));}
+  .conc-ayuda{margin:-2px 0 6px;}
+  .conc-item{border-top:1px solid var(--line);padding:10px 0;display:flex;flex-direction:column;gap:8px;} .conc-item.off .conc-fila1{opacity:.55;} .conc-item.borrar .conc-col.conc-app{text-decoration:line-through;opacity:.7;}
+  .conc-fila1{display:flex;align-items:center;gap:10px;} .conc-fila-t{flex:1;min-width:0;display:flex;flex-direction:column;} .conc-fila-t b{font-size:13.5px;overflow-wrap:anywhere;} .conc-fila-t span{font-size:12px;color:var(--ink-soft);} .conc-fila-m{font-weight:800;white-space:nowrap;font-size:14px;}
+  .conc-item .out,.conc-line .out{color:var(--brick);} .conc-item .in,.conc-line .in{color:var(--teal-deep);}
+  .conc-tags{display:flex;flex-wrap:wrap;gap:6px;} .conc-tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--paper-soft);color:var(--ink-soft);} .conc-tag.warn{background:var(--amber-soft,rgba(245,166,35,.15));color:var(--amber);} .conc-tag.bad{background:var(--brick-soft,rgba(229,72,77,.12));color:var(--brick);}
+  .conc-seg{display:flex;flex-wrap:wrap;gap:6px;} .conc-seg button{font:inherit;font-size:13px;font-weight:700;min-height:40px;padding:0 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+  .conc-seg button.on{background:var(--btn-bg,var(--ink));color:var(--btn-fg,var(--card));border-color:transparent;} .conc-seg button.peligro.on{background:var(--brick);color:#fff;} .conc-seg button[disabled]{opacity:.4;cursor:not-allowed;}
+  .conc-campos{border:1.5px dashed var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px;} .conc-campos .ec-grid{margin:0;}
+  .conc-bya{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .conc-col{border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0;font-size:13px;} .conc-col small{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
+  .conc-col.conc-banco{background:linear-gradient(135deg,color-mix(in srgb,var(--plum) 14%,transparent),color-mix(in srgb,var(--plum) 4%,transparent));} .conc-col.conc-app{background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 14%,transparent),color-mix(in srgb,var(--teal) 4%,transparent));}
+  .conc-col b{overflow-wrap:anywhere;} .conc-col .conc-fe{font-size:12px;color:var(--ink-soft);} .conc-col em{font-style:normal;font-weight:800;font-size:14px;} .conc-nada{color:var(--ink-faint,var(--ink-soft));font-weight:700;}
+  .conc-sub{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;padding:2px 0;} .conc-sub span:first-child{min-width:0;overflow-wrap:anywhere;}
+  .conc-dif{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:6px 10px;border-radius:10px;background:var(--amber-soft,rgba(245,166,35,.15));color:var(--amber);}
+  .conc-suma{font-weight:800;font-size:13px;color:var(--teal-deep);display:flex;align-items:center;gap:6px;}
+  .conc-nota{color:var(--plum);} .conc-av{color:var(--amber);}
+  .conc-masivo{display:flex;gap:10px;justify-content:flex-end;}
+  .conc-todo-ok{display:flex;align-items:center;gap:8px;padding:14px;border-radius:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 18%,transparent),transparent);color:var(--teal-deep);font-weight:800;margin:10px 0;}
+  .conc-barra{display:flex;flex-direction:column;gap:6px;} .ec-pie.conc-barra{background:var(--card);box-shadow:0 -12px 24px -16px rgba(8,10,18,.45);border-top:1px solid var(--line);border-radius:16px 16px 0 0;padding:10px 4px calc(8px + env(safe-area-inset-bottom, 0px));} .conc-barra-t{font-size:13px;text-align:center;} .conc-barra-t .ok{color:var(--teal-deep);font-weight:800;} .conc-barra-t .warn{color:var(--amber);font-weight:800;} .conc-barra-t .bad{color:var(--brick);font-weight:800;}
+  .conc-res-pie{margin-top:12px;} .conc-res-cab{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;font-size:13px;margin-bottom:4px;} .conc-res-cab span{color:var(--ink-soft);}
+  .conc-res-saldo{display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:14px;margin:10px 0;background:var(--paper-soft);} .conc-res-saldo div{display:flex;flex-direction:column;} .conc-res-saldo small{color:var(--ink-soft);font-size:12px;}
+  .conc-res-saldo.ok{background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 22%,transparent),color-mix(in srgb,var(--teal) 6%,transparent));color:var(--teal-deep);} .conc-res-saldo.bad{background:var(--brick-soft,rgba(229,72,77,.12));color:var(--brick);}
+  .conc-exito{text-align:center;padding:18px 10px 8px;} .conc-exito h3{margin:10px 0 4px;font-size:22px;} .conc-exito p{margin:2px 0;color:var(--ink-soft);font-size:13px;} .conc-exito .conc-exito-saldo{color:var(--teal-deep);font-weight:700;margin-top:6px;} .conc-exito.dif .conc-exito-saldo{color:var(--amber);} .conc-exito .conc-exito-pend{color:var(--amber);font-weight:700;}
+  .conc-exito-ico{width:76px;height:76px;margin:0 auto;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--teal),var(--plum));box-shadow:0 12px 30px -10px var(--plum);animation:concPop .5s cubic-bezier(.2,1.4,.4,1);} .conc-exito-ico .icon{width:38px;height:38px;}
+  .conc-exito.dif .conc-exito-ico{background:linear-gradient(135deg,var(--amber),var(--plum));}
+  @keyframes concPop{0%{transform:scale(.4);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  .conc-preg,.conc-borrador,.conc-conciliada{display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:16px;border:1.5px solid var(--line);margin:12px 0;} .conc-preg small,.conc-borrador small,.conc-conciliada small{color:var(--ink-soft);font-size:12.5px;}
+  .conc-borrador{flex-direction:row;align-items:flex-start;gap:10px;background:linear-gradient(135deg,color-mix(in srgb,var(--plum) 12%,transparent),transparent);} .conc-borrador>div{display:flex;flex-direction:column;gap:4px;flex:1;}
+  .conc-preg-acc{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;} .conc-preg-acc .btn-sm{min-height:44px;}
+  .conc-conciliada{flex-direction:row;align-items:center;gap:12px;border-color:transparent;background:linear-gradient(135deg,var(--teal-deep),var(--teal));color:#fff;} .conc-conciliada small{color:rgba(255,255,255,.88);} .conc-conciliada>div{display:flex;flex-direction:column;} .conc-conciliada b{font-size:16px;}
+  @media (max-width:340px){ .conc-bya{grid-template-columns:1fr;} } @media (max-width:420px){ .conc-pasos{font-size:11.5px;} .conc-col{padding:8px;} }
+
   .prog-acc .link-quiet,.conc-acc .link-quiet,.link-quiet[data-editar-cuenta],.link-quiet[data-prog-pagar]{min-height:44px;display:inline-flex;align-items:center;gap:4px;padding:0 6px;}
   .prog-espera{font-size:12px;color:var(--amber);display:inline-flex;gap:4px;align-items:center;max-width:180px;text-align:right;}
   .menu-reg-op{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;min-height:56px;}
@@ -1860,6 +1906,9 @@
   .menu-reg-op[data-menu-reg="pagoEntre"] > .icon:first-child{background:linear-gradient(135deg,#2f6bff,#e0489a);}
   .menu-reg-op[data-menu-reg="pagoTarjeta"] > .icon:first-child{background:linear-gradient(135deg,#8a4dff,#e060f5);}
   .menu-reg-op[data-menu-reg="pagoProgramado"] > .icon:first-child{background:linear-gradient(135deg,#ffc20a,#ff8a2e);}
+  .menu-reg-op[data-menu-reg="esperado"] > .icon:first-child{background:linear-gradient(135deg,#22c1ee,#2f6bff);}
+  .menu-reg-op[data-menu-reg="importarEstado"] > .icon:first-child{background:linear-gradient(135deg,#5b6b8c,#2f3a52);}
+  .menu-reg-op[data-menu-reg="compararEstado"] > .icon:first-child{background:linear-gradient(135deg,#12c9b5,#8a4dff);}
   .menu-reg-op b{font-size:17px;font-family:var(--f-display);} .menu-reg-op small{font-size:14px;color:var(--ink-soft);}
   @media (min-width:900px){ .overlay{align-items:flex-end;justify-content:flex-end;padding:24px;} .sheet{border-radius:32px;margin:0;padding:22px 26px 26px;max-height:calc(100vh - 48px);} .sheet-handle{display:none;} }
 
@@ -2819,7 +2868,7 @@ function interceptarAjenos(){
 function persistSistema(){ noInterceptar++; try{ persist(); } finally { noInterceptar--; } }
 function persist(){
   if(fechaVistaActiva) return; // v18.9: viendo una fecha pasada no se guarda nada
-  const antes = (!noInterceptar && !_deshaciendo && Date.now() - _ultimoGesto < 4000) ? new Map(registrosPrevios) : null; // v19: para «Deshacer»
+  const antes = (!noInterceptar && !_deshaciendo && !_loteDeshacer && Date.now() - _ultimoGesto < 4000) ? new Map(registrosPrevios) : null; // v19: para «Deshacer»
   const pendAntes = antes ? new Set((state.pendientes||[]).map(p=>p && p.id)) : null;
   try{ interceptarAjenos(); }catch(e){ try{ console.error(e); }catch(_){} }
   try{ reconciliarProgramados(); }catch(e){} // v18.14: después de interceptar (es consecuencia del gasto, que ya pasó por aprobación)
@@ -2831,10 +2880,11 @@ function persist(){
   if(antes && cambio){ try{ prepararDeshacer(antes, pendAntes); }catch(e){} }
 }
 // v19 etapa 5: «Deshacer» unos segundos después de guardar o borrar algo (solo acciones tuyas, no las del sistema).
-let _deshaciendo = false, _ultimoGesto = 0;
+let _deshaciendo = false, _ultimoGesto = 0, _loteDeshacer = false; // _loteDeshacer: «Comparar» guarda todo junto y arma un solo Deshacer
 try{ ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev, ()=>{ _ultimoGesto = Date.now(); }, true)); }catch(e){}
 const COLS_DESHACER = new Set(['ingresos','gastos','efectivo','pagosEntre','pagosTarjeta','pagosOtros','porCobrar','proyecciones','suscripciones','transferencias','finGan','finGas','ahorro','comprasArq']);
-function prepararDeshacer(antes, pendAntes){
+function prepararDeshacer(antes, pendAntes, opts){
+  opts = opts || {};
   const ahora = new Map(recorrerRegistros(state).map(e=>[e.k, e]));
   const nuevos = [], editados = [], borrados = [];
   const va = (k)=>COLS_DESHACER.has(String(k).split(':')[0]); // solo movimientos: una categoría trae todos sus gastos y regresarla completa borraría lo que llegó de la otra
@@ -2842,8 +2892,10 @@ function prepararDeshacer(antes, pendAntes){
   antes.forEach((p,k)=>{ if(va(k) && !ahora.has(k)) borrados.push(k); });
   const pend = pendAntes ? (state.pendientes||[]).map(p=>p && p.id).filter(id=>id && !pendAntes.has(id)) : []; // solicitudes de aprobación que mandó esta misma acción
   const todos = [...nuevos, ...editados.map(x=>x.k), ...borrados];
-  if(!todos.length || todos.length > 25) return;
+  if(!todos.length && !pend.length) return null;
+  if(!todos.length || (todos.length > 25 && !opts.sinLimite)) return opts.sinToast && pend.length ? {nuevos, editados, borrados, pend} : null;
   const d = {nuevos, editados, borrados, pend};
+  if(opts.sinToast) return d;
   const msg = borrados.length && !nuevos.length ? 'Borrado.' : (nuevos.length && !editados.length && !borrados.length ? 'Guardado.' : 'Cambio guardado.');
   setTimeout(()=>{ // después del aviso de aprobación (50 ms), para no borrarlo
     const t = document.getElementById('toast');
@@ -2853,6 +2905,7 @@ function prepararDeshacer(antes, pendAntes){
       clearTimeout(toastTimer); toastTimer = setTimeout(()=>{ t.hidden = true; }, 7000);
     } else mostrarToast(msg, 'ok', {label:'Deshacer', fn: ()=>deshacerCambio(d)});
   }, 80);
+  return d;
 }
 function deshacerCambio(d){
   _deshaciendo = true;
@@ -4370,30 +4423,77 @@ function concMovsApp(p, cta, desde, hasta){
   const porId = {};
   flujosCuentas().forEach(x=>{ if(x.p===p && x.cta===cta){ porId[x.id] = porId[x.id] || {id:x.id, mxn:0, fecha:x.fecha}; porId[x.id].mxn += x.mxn; if(x.fecha) porId[x.id].fecha = x.fecha; } });
   const movs = new Map(); collectMovimientos().forEach(m=>{ if(m.id && !movs.has(m.id)) movs.set(m.id, m); });
-  return Object.values(porId).map(r=>{ const m = movs.get(r.id); return Object.assign(r, {mov:m, fecha: r.fecha || (m && m.fecha) || '', nota: m ? (m.nota || m.subNombre || m.fuente || labelTipoMov(m) || '') : ''}); })
+  return Object.values(porId).map(r=>{ const m = movs.get(r.id);
+      // v19 etapa 7: compras a meses: qué mensualidad es (para emparejarla con el cargo del mes aunque la fecha no sea la misma)
+      const se = m && m.serieId ? (state.series||[]).find(s=>s.id===m.serieId) : null;
+      const meses = se && se.aMeses ? {k: numeroMensualidad(se, ymDe(r.fecha || m.fecha)), n: Number(se.aMeses.meses)||0} : null;
+      return Object.assign(r, {mov:m, meses, fecha: r.fecha || (m && m.fecha) || '', nota: m ? (m.nota || m.subNombre || m.fuente || labelTipoMov(m) || '') : ''}); })
     .filter(r=>Math.abs(r.mxn) >= 0.005 && r.fecha && r.fecha>=desde && r.fecha<=hasta);
+}
+// v19 etapa 7: comisiones e intereses del banco (se proponen como gasto aparte).
+const CONC_RE_COMISION = /\b(comision|comisiones|iva comision|iva de comision|cuota anual|anualidad|intereses|interes|interes ordinario|interes moratorio|cargo por servicio|cargo por manejo|bank fee|atm fee|monthly fee|account fee|foreign transaction fee|exchange fee)\b/;
+function concEsComision(desc){ return CONC_RE_COMISION.test(concNorm(desc)); }
+function concSubcatComision(){ const sb = state.subcats.find(x=>/comisi/.test(sinAcentos(x.nombre))) || state.subcats.find(x=>/\bbanc/.test(sinAcentos(x.nombre))); return sb ? sb.id : ((subcatV15(state, 'Otros')||{}).id || ''); }
+// Un pase entre ustedes se reconoce por el nombre de la otra en el banco (sus nombres de banco y los que se aprendieron).
+function concMismaPersona(b, a, p){
+  const m = a && a.mov; if(!m || m.tipo!=='pago-entre') return false;
+  const de = m.de || m.persona || m.quien, otra = de===p ? m.a : de; if(!otra || otra===p) return false;
+  return (b.f && b.f.tipo==='pase' && Math.sign(b.mxn)===Math.sign(a.mxn)) || ecPasesCon(b.desc).includes(otra);
+}
+function concMesesDelBanco(desc){ const t = sinAcentos(String(desc||'')); // «3 de 6», o «03/06» solo junto a mensualidad / msi / meses (así una fecha «05/11» no cuenta)
+  const m = t.match(/\b(\d{1,2})\s+de\s+(\d{1,2})\b/) || t.match(/(?:mensualidad|parcialidad|msi|meses|cuota)\D{0,12}\b(\d{1,2})\s*\/\s*(\d{1,2})\b/) || t.match(/\b(\d{1,2})\s*\/\s*(\d{1,2})\s*(?:msi|meses|mensualidad)/); if(!m) return null; const k = +m[1], n = +m[2]; return n>1 && k>=1 && k<=n ? {k, n} : null; }
+function concMesesParecido(b, a){ return !!(a && a.meses && (/(mensualidad|parcialidad|msi|meses)/.test(sinAcentos(b.desc)) || concMesesDelBanco(b.desc))); }
+function concAvisoMeses(b, a){
+  if(!a || !a.meses) return ''; const mb = concMesesDelBanco(b.desc); if(!mb) return '';
+  return (mb.k!==a.meses.k || mb.n!==a.meses.n) ? 'En el banco es la mensualidad '+mb.k+'/'+mb.n+' y en la app la '+a.meses.k+'/'+a.meses.n+'.' : '';
+}
+// Busca 2 o 3 elementos (de una lista corta) que sumen el total.
+function concBuscarSuma(cands, total, extr){
+  const v = (x)=>Math.abs(x.mxn), ok = (s, n)=> extr ? Math.abs(s-total) <= Math.max(1, total*0.04) : Math.abs(s-total) < 0.006*n + 0.005;
+  for(let i=0;i<cands.length;i++) for(let j=i+1;j<cands.length;j++){ if(ok(v(cands[i])+v(cands[j]), 2)) return [cands[i], cands[j]]; }
+  for(let i=0;i<cands.length;i++) for(let j=i+1;j<cands.length;j++) for(let k=j+1;k<cands.length;k++){ if(ok(v(cands[i])+v(cands[j])+v(cands[k]), 3)) return [cands[i], cands[j], cands[k]]; }
+  return null;
 }
 function concCalcular(e){
   const p = e.persona, cta = ecCtaEstado(e), per = concPeriodo(e.texto, e.filas);
   if(!per) return null;
-  const banco = e.filas.map(f=>{ const rate = f.moneda==='MXN' ? 1 : (Number(f.rate) || rateSnapshotFor(f.moneda) || 0);
+  const banco = e.filas.filter(f=>!f.quitada && !f.extraConc).map(f=>{ const rate = f.moneda==='MXN' ? 1 : (Number(f.rate) || rateSnapshotFor(f.moneda) || 0);
     const signo = f.signo!=null ? f.signo : (f.tipo==='gasto' || f.tipo==='retiro' || (f.tipo==='pagoTarjeta' && !ecEsCreditoEstado(e)) ? -1 : +1);
-    return {f, fecha:f.fecha, desc:f.desc, monto:f.monto, moneda:f.moneda, mxn: signo * f.monto * rate}; }).filter(b=>b.fecha>=per.desde && b.fecha<=per.hasta);
+    return {f, fecha:f.fecha, desc:f.desc, monto:f.monto, moneda:f.moneda, mxn: signo * f.monto * rate, comision: signo<0 && concEsComision(f.desc)}; }).filter(b=>b.fecha>=per.desde && b.fecha<=per.hasta);
   const app = concMovsApp(p, cta, sumarDiasISO(per.desde, -3), sumarDiasISO(per.hasta, 3));
-  const usadosA = new Set(), r = {per, cta, p, coinciden:[], faltan:[], sobran:[], monto:[], nombre:[]};
-  const mismoMonto = (b, a)=>{ if(Math.sign(b.mxn)!==Math.sign(a.mxn)) return false; const ma = a.mov && a.mov.moneda && a.mov.moneda!=='MXN';
-    return ma || b.moneda!=='MXN' ? Math.abs(Math.abs(a.mxn)-Math.abs(b.mxn)) <= Math.max(1, Math.abs(b.mxn)*0.04) : Math.abs(Math.abs(a.mxn)-Math.abs(b.mxn)) < 0.011; };
-  const cerca = (b, a, dias)=>Math.abs(diasEntreISO(b.fecha, a.fecha)) <= dias;
-  const buscar = (b, fn)=>app.filter(a=>!usadosA.has(a.id) && fn(a)).sort((x,y)=>Math.abs(diasEntreISO(b.fecha,x.fecha))-Math.abs(diasEntreISO(b.fecha,y.fecha)))[0];
+  const usadosA = new Set(), r = {per, cta, p, coinciden:[], faltan:[], sobran:[], monto:[], nombre:[], sumados:[]};
+  const ext = (b, a)=>!!((a && a.mov && a.mov.moneda && a.mov.moneda!=='MXN') || (b && b.moneda!=='MXN'));
+  const mismoMonto = (b, a)=>{ if(Math.sign(b.mxn)!==Math.sign(a.mxn)) return false;
+    return ext(b, a) ? Math.abs(Math.abs(a.mxn)-Math.abs(b.mxn)) <= Math.max(1, Math.abs(b.mxn)*0.04) : Math.abs(Math.abs(a.mxn)-Math.abs(b.mxn)) < 0.011; };
+  const dias = (b, a)=>Math.abs(diasEntreISO(b.fecha, a.fecha));
+  const cerca = (b, a, n)=>dias(b, a) <= n;
+  const parecido = (b, a)=>concNombreParecido(b.desc, a.nota) || concMismaPersona(b, a, p) || concMesesParecido(b, a);
+  const buscar = (b, fn)=>app.filter(a=>!usadosA.has(a.id) && fn(a)).sort((x,y)=>dias(b,x)-dias(b,y))[0];
   const pendientesB = [];
-  banco.forEach(b=>{ const a = buscar(b, a=>mismoMonto(b,a) && cerca(b,a,3) && concNombreParecido(b.desc, a.nota)); if(a){ usadosA.add(a.id); r.coinciden.push({b, a}); } else pendientesB.push(b); });
-  const resto1 = [];
-  pendientesB.forEach(b=>{ const a = buscar(b, a=>mismoMonto(b,a) && cerca(b,a,3)); if(a){ usadosA.add(a.id); r.nombre.push({b, a}); } else resto1.push(b); });
-  resto1.forEach(b=>{ const a = buscar(b, a=>Math.sign(a.mxn)===Math.sign(b.mxn) && cerca(b,a,2) && concNombreParecido(b.desc, a.nota)); if(a){ usadosA.add(a.id); r.monto.push({b, a}); } else r.faltan.push({b}); });
+  // 1) mismo monto, ±3 días (una mensualidad: todo el mes) y nombre parecido
+  banco.forEach(b=>{ const a = buscar(b, a=>mismoMonto(b,a) && (cerca(b,a,3) || (a.meses && cerca(b,a,31))) && parecido(b,a)); if(a){ usadosA.add(a.id); r.coinciden.push({b, a, aviso: concAvisoMeses(b, a)}); } else pendientesB.push(b); });
+  // 2) sumados: 2–3 del banco = 1 de la app, o 1 del banco = 2–3 de la app (mismo signo, nombre parecido o misma persona, ±3 días)
+  const resto1 = pendientesB, usB = new Set();
+  app.filter(a=>!usadosA.has(a.id)).forEach(a=>{
+    const cands = resto1.filter(b=>!usB.has(b) && Math.sign(b.mxn)===Math.sign(a.mxn) && Math.abs(b.mxn) < Math.abs(a.mxn) && cerca(b,a,3) && parecido(b,a)).slice(0, 12);
+    const combo = cands.length>=2 ? concBuscarSuma(cands, Math.abs(a.mxn), cands.some(b=>ext(b,a))) : null;
+    if(combo){ combo.forEach(b=>usB.add(b)); usadosA.add(a.id); r.sumados.push({bs:combo.sort((x,y)=>x.fecha<y.fecha?-1:1), as:[a]}); }
+  });
+  resto1.filter(b=>!usB.has(b)).forEach(b=>{
+    const cands = app.filter(a=>!usadosA.has(a.id) && Math.sign(a.mxn)===Math.sign(b.mxn) && Math.abs(a.mxn) < Math.abs(b.mxn) && cerca(b,a,3) && parecido(b,a)).slice(0, 12);
+    const combo = cands.length>=2 ? concBuscarSuma(cands, Math.abs(b.mxn), cands.some(a=>ext(b,a))) : null;
+    if(combo){ combo.forEach(a=>usadosA.add(a.id)); usB.add(b); r.sumados.push({bs:[b], as:combo.sort((x,y)=>x.fecha<y.fecha?-1:1)}); }
+  });
+  // 3) mismo signo, ±2 días y nombre parecido, pero otro monto (antes que el de «otro nombre», para no emparejar por puro monto)
+  const resto2 = [];
+  resto1.filter(b=>!usB.has(b)).forEach(b=>{ const a = buscar(b, a=>Math.sign(a.mxn)===Math.sign(b.mxn) && cerca(b,a,2) && parecido(b,a)); if(a){ usadosA.add(a.id); r.monto.push({b, a, aviso: concAvisoMeses(b, a)}); } else resto2.push(b); });
+  // 4) mismo monto y ±3 días, con otro nombre: se pregunta (sin respuesta por omisión)
+  resto2.forEach(b=>{ const a = buscar(b, a=>mismoMonto(b,a) && cerca(b,a,3)); if(a){ usadosA.add(a.id); r.nombre.push({b, a}); } else r.faltan.push({b}); });
   r.sobran = app.filter(a=>!usadosA.has(a.id) && a.fecha>=per.desde && a.fecha<=per.hasta).map(a=>({a}));
   // Saldo al corte: el del estado (si viene en el texto) contra el de la app a esa fecha.
   const despues = flujosCuentas().filter(x=>x.p===p && x.cta===cta && x.fecha && x.fecha>per.hasta).reduce((a,x)=>a+x.mxn, 0);
   const alCorte = ((saldosCuentas(p)[cta]||{}).total||0) - despues; // saldo de hoy menos lo que pasó después del corte
+  r.alCorte = alCorte;
   r.saldoApp = Math.round((esCredito(cta) ? Math.max(0, -alCorte) : alCorte)*100)/100;
   r.saldoBanco = concSaldoDelTexto(e.texto);
   const monedas = {}; e.filas.forEach(f=>{ monedas[f.moneda||'MXN'] = (monedas[f.moneda||'MXN']||0) + 1; });
@@ -4403,66 +4503,409 @@ function concCalcular(e){
 }
 function concLinea(txt, monto, extra){ return `<div class="conc-line"><div class="desc">${txt}</div><div class="conc-amt">${monto}</div>${extra||''}</div>`; }
 function concFmt(v){ return (v<0?'−':'+')+fmt(Math.abs(v),'MXN'); }
-function openConciliacion(){
-  const e = ecEstado; if(!e) return;
-  const r = concCalcular(e); concEstado = r;
-  if(!r){ mostrarToast('No encontré fechas en el estado de cuenta.', 'error'); return; }
-  const cuantos = (k)=>r[k].length, cuenta = labelCuenta(r.cta) + ' · ' + nombrePersona(r.p);
-  const sec = (k, titulo, cls, cuerpo)=>`<div class="conc-sec ${cls}"><div class="conc-tit">${titulo} <span>${cuantos(k)}</span></div>${cuerpo}</div>`;
-  const conc = ((state.conciliacion||{})[r.p]||{})[r.cta];
-  openSheet(`${sheetHeader('Comparar con la app')}
-    <div class="small-note" style="margin-top:-4px;"><b>${escHtml(cuenta)}</b> · periodo ${escHtml(fmtDate(r.per.desde))} → ${escHtml(fmtDate(r.per.hasta))}${r.per.delTexto ? ' (leído del estado)' : ' (primera y última fecha del estado)'}.${conc ? ' Última vez conciliada hasta '+escHtml(fmtDate(conc.hasta))+'.' : ''}</div>
-    <div class="conc-resumen">
-      <span class="ok">✓ ${cuantos('coinciden')} coinciden</span><span class="warn">+ ${cuantos('faltan')} faltan</span><span class="bad">− ${cuantos('sobran')} sobran</span><span class="warn">≠ ${cuantos('monto')} monto</span><span class="warn">? ${cuantos('nombre')} nombre</span>
-    </div>
-    ${r.nombre.length ? sec('nombre', '? Con otro nombre: ¿es lo mismo?', 'conc-nombre', r.nombre.map((x,i)=>concLinea(`<b>Banco:</b> ${escHtml(x.b.desc)} · ${escHtml(fmtDate(x.b.fecha))}<br><b>App:</b> ${escHtml(x.a.nota)} · ${escHtml(fmtDate(x.a.fecha))}`, concFmt(x.b.mxn), `<div class="conc-acc"><button type="button" class="btn btn-primary btn-sm" data-conc-mismo="${i}">Sí, es lo mismo</button><button type="button" class="link-quiet" data-conc-nomismo="${i}">No</button></div>`)).join('')) : ''}
-    ${r.faltan.length ? sec('faltan', '+ Faltan en la app', 'conc-faltan', r.faltan.map(x=>concLinea(`${escHtml(x.b.desc)} · ${escHtml(fmtDate(x.b.fecha))}`, concFmt(x.b.mxn))).join('') + `<button type="button" class="btn btn-primary btn-sm btn-block" id="concAgregar" style="margin-top:8px;">${ico('plus','icon-sm')} Marcar los que faltan para agregarlos</button>`) : ''}
-    ${r.monto.length ? sec('monto', '≠ Monto distinto', 'conc-monto', r.monto.map((x,i)=>concLinea(`${escHtml(x.b.desc)} · ${escHtml(fmtDate(x.b.fecha))}<br><small>En la app: ${escHtml(x.a.nota)} · ${concFmt(x.a.mxn)}</small>`, concFmt(x.b.mxn), `<div class="conc-acc"><button type="button" class="btn btn-outline btn-sm" data-conc-corregir="${i}">${ico('edit','icon-xs')} Corregir</button></div>`)).join('')) : ''}
-    ${r.sobran.length ? sec('sobran', '− Están en la app pero no en el estado', 'conc-sobran', `<div class="small-note">Puede ser de otro periodo, de otra cuenta o estar repetido. Tú decides: borrarlo es opcional.</div>` + r.sobran.map((x,i)=>concLinea(`${escHtml(x.a.nota||'Movimiento')} · ${escHtml(fmtDate(x.a.fecha))}`, concFmt(x.a.mxn), `<div class="conc-acc"><button type="button" class="link-quiet" data-conc-abrir="${i}">${ico('edit','icon-xs')} Abrir</button>${x.a.mov ? `<button type="button" class="link-quiet" style="color:var(--brick);" data-conc-borrar="${i}">${ico('trash','icon-xs')} Borrar</button>` : ''}</div>`)).join('')) : ''}
-    ${r.coinciden.length ? `<details class="conc-sec conc-ok"><summary class="conc-tit">✓ Coinciden <span>${cuantos('coinciden')}</span></summary>${r.coinciden.map(x=>concLinea(`${escHtml(x.b.desc)} · ${escHtml(fmtDate(x.b.fecha))}`, concFmt(x.b.mxn))).join('')}</details>` : ''}
-    <div class="conc-sec"><div class="conc-tit">Saldo al ${escHtml(fmtDate(r.per.hasta))}</div>
-      <div class="field-row"><div class="field"><label>${esCredito(r.cta)?'Lo que debías según el banco':'Saldo según el banco'} (${escHtml(r.monedaEstado||'MXN')})</label><input type="number" inputmode="decimal" id="concSaldoBanco" value="${r.saldoBanco!=null ? r.saldoBanco : ''}" placeholder="Escríbelo si no lo leí"></div>
-      <div class="field"><label>${esCredito(r.cta)?'Lo que debías según la app':'Saldo según la app'}</label><input type="text" value="${fmt(r.saldoApp,'MXN')}" disabled></div></div>
-      <div class="small-note" id="concDifSaldo"></div>
-    </div>
-    <button type="button" class="btn btn-outline btn-block" id="concMarcar">${ico('check','icon-sm')} Marcar ${escHtml(labelCuenta(r.cta))} como conciliada hasta ${escHtml(fmtDate(r.per.hasta))}</button>
-    <button type="button" class="btn btn-ghost btn-block" id="concVolver" style="margin-top:6px;">${ico('chevleft','icon-sm')} Volver a la revisión</button>`);
-  const $ = (id)=>document.getElementById(id);
-  const difSaldo = ()=>{ const v = Number($('concSaldoBanco').value); const el = $('concDifSaldo'); if(!el) return; if(!$('concSaldoBanco').value){ el.textContent = ''; return; }
-    const conv = r.monedaEstado!=='MXN', vMXN = v * (r.rateEstado||1), tol = conv ? Math.max(1, Math.abs(vMXN)*0.02) : 0.5;
-    const d = Math.round((vMXN - r.saldoApp)*100)/100; el.innerHTML = (conv ? `${fmt(v, r.monedaEstado)} ≈ ${fmt(vMXN,'MXN')} con el tipo de cambio de hoy. ` : '') + (Math.abs(d) < tol ? `${ico('check','icon-xs')} El saldo cuadra.` : `Diferencia de <b>${fmt(Math.abs(d),'MXN')}</b> (${d>0?'el banco tiene más':'la app tiene más'}).`); };
-  $('concSaldoBanco').addEventListener('input', difSaldo); difSaldo();
-  $('concVolver').addEventListener('click', ()=>openRevisionEstado());
-  if($('concAgregar')) $('concAgregar').addEventListener('click', ()=>{ r.faltan.forEach(x=>{ x.b.f.incluir = true; }); mostrarToast(r.faltan.length+' marcado'+(r.faltan.length===1?'':'s')+' para agregar: revísalos y guarda.', 'ok'); openRevisionEstado(); });
-  $('concMarcar').addEventListener('click', ()=>{
-    if(!state.conciliacion || typeof state.conciliacion!=='object') state.conciliacion = {};
-    state.conciliacion = JSON.parse(JSON.stringify(state.conciliacion)); if(!state.conciliacion[r.p]) state.conciliacion[r.p] = {};
-    state.conciliacion[r.p][r.cta] = {hasta: r.per.hasta, fecha: todayISO(), saldoBanco: $('concSaldoBanco').value ? Number($('concSaldoBanco').value) : null};
-    persist(); mostrarToast(labelCuenta(r.cta)+': conciliada hasta '+fmtDate(r.per.hasta)+'.', 'ok'); openConciliacion();
-  });
-  document.querySelectorAll('[data-conc-mismo]').forEach(b=>b.addEventListener('click', ()=>{
-    const x = r.nombre[Number(b.getAttribute('data-conc-mismo'))]; if(!x) return;
-    const al = JSON.parse(JSON.stringify(concAliases())), k = concClaveBanco(x.b.desc); al[k] = [...new Set([...(al[k]||[]), concNorm(x.a.nota)])].slice(-8);
-    state.aliasesConciliacion = al; persist(); openConciliacion();
-  }));
-  document.querySelectorAll('[data-conc-nomismo]').forEach(b=>b.addEventListener('click', ()=>{ const i = Number(b.getAttribute('data-conc-nomismo')); const x = r.nombre[i]; if(!x) return;
-    b.closest('.conc-line').innerHTML = `<div class="desc small-note">Entonces el del banco falta en la app y el de la app sobra. ${x.b.f ? '<button type="button" class="link-quiet" data-conc-marcar1>Marcar el del banco para agregarlo</button>' : ''}</div>`;
-    const m1 = document.querySelector('[data-conc-marcar1]'); if(m1) m1.addEventListener('click', ()=>{ x.b.f.incluir = true; mostrarToast('Marcado para agregar.', 'ok'); }); }));
-  document.querySelectorAll('[data-conc-corregir]').forEach(b=>b.addEventListener('click', ()=>{
-    const x = r.monto[Number(b.getAttribute('data-conc-corregir'))]; if(!x || !x.a.mov) return;
-    const g = (x.a.mov.tipo==='gasto-generales' || x.a.mov.tipo==='gasto-gustos') ? gastosCategoria().find(y=>y.id===x.a.id) : null;
-    if(g && (g.moneda||'MXN')===(x.b.moneda||'MXN') && confirm('¿Cambiar "'+(g.nota||'gasto')+'" de '+fmt(Number(g.monto)||0, g.moneda||'MXN')+' a '+fmt(x.b.monto, x.b.moneda||'MXN')+' como dice el banco?')){
-      g.monto = x.b.monto; Object.assign(g, stampRates(g.monto, g.moneda||'MXN', g.moneda==='MXN' ? 1 : g.rateMXN)); persist(); openConciliacion(); return; }
-    editMovimiento(x.a.mov.tipo, x.a.mov.id, x.a.mov.subId || x.a.mov.persona);
-  }));
-  document.querySelectorAll('[data-conc-abrir]').forEach(b=>b.addEventListener('click', ()=>{ const x = r.sobran[Number(b.getAttribute('data-conc-abrir'))]; if(x && x.a.mov) editMovimiento(x.a.mov.tipo, x.a.mov.id, x.a.mov.subId || x.a.mov.persona); }));
-  document.querySelectorAll('[data-conc-borrar]').forEach(b=>b.addEventListener('click', ()=>{
-    const x = r.sobran[Number(b.getAttribute('data-conc-borrar'))]; if(!x || !x.a.mov) return;
-    if(!confirm('¿Borrar "'+(x.a.nota||'movimiento')+'"? Se va a la papelera por si lo necesitas.')) return;
-    const [tipo, id, extra] = claveLineaMov(x.a.mov).split('|'); quitarMovimiento(tipo, id, extra, 'solo'); persist(); openConciliacion();
-  }));
+
+/* ============================================================
+   v19 etapa 7 — COMPARAR CON MI ESTADO DE CUENTA en 3 pasos (1 Subir · 2 Revisar · 3 Guardar).
+   Cada renglón trae una acción propuesta; NADA se guarda hasta «Guardar», que aplica todo junto con un solo
+   «Deshacer». Si se cierra a medias, el borrador se queda en este teléfono.
+   ============================================================ */
+let concDec = {}, concDecDe = null, concExito = null;
+const CONC_BORRADOR_KEY = 'budgetin_conc_borrador_v1';
+function concD(k){ if(concDec[k]) return concDec[k]; return concDefecto(k); }
+function concFaltaPorClave(k){ const i = Number(String(k).slice(2)); return ecEstado ? ecEstado.filas.find(f=>f.i===i) : null; }
+function concPuedeAgregarFila(f, deNombre){ return !!f && f.monto>0 && (f.moneda in (state.rates||{})) && (deNombre || !(f.dup && !f.dupResuelto && !f.dup.conc)); }
+function concDefecto(k){
+  const t = String(k).charAt(0);
+  if(t==='f'){ const r = concEstado, f = concFaltaPorClave(k); const deNombre = r && r.nombre.some(x=>x.b.f===f && concDec['n:'+x.a.id]==='nomismo'); return concPuedeAgregarFila(f, deNombre) ? 'agregar' : 'omitir'; }
+  if(t==='n') return 'pendiente'; // «¿es lo mismo?» no se contesta solo: sin respuesta no se aprende nada
+  return 'dejar';
 }
-function textoConciliada(p, k){ const c = ((state.conciliacion||{})[p]||{})[k]; return c && c.hasta ? 'Conciliada hasta '+fmtDate(c.hasta) : ''; }
+function concClaveSuma(x){ return 'u:'+x.bs.map(b=>b.f.i).join('.')+'|'+x.as.map(a=>a.id).join('.'); }
+// «No es lo mismo»: el del banco pasa a Faltan y el de la app a Sobran.
+function concVista(r){
+  const faltan = r.faltan.slice(), sobran = r.sobran.slice(), nombre = [];
+  r.nombre.forEach(x=>{ if(concD('n:'+x.a.id)==='nomismo'){ faltan.push({b:x.b, deNombre:true}); sobran.push({a:x.a, deNombre:true}); } else nombre.push(x); });
+  faltan.sort((x,y)=>x.b.fecha<y.b.fecha?-1:x.b.fecha>y.b.fecha?1:0); sobran.sort((x,y)=>x.a.fecha<y.a.fecha?-1:x.a.fecha>y.a.fecha?1:0);
+  return {faltan, sobran, nombre};
+}
+// El registro de la app detrás de un renglón (solo movimientos que se pueden corregir aquí sin romper nada).
+function concRegistro(id){
+  const e = recorrerRegistros(state).find(x=>x.rec.id===id && ['gastos','ingresos','pagosEntre','pagosTarjeta','efectivo'].includes(x.col));
+  if(!e || e.rec.serieId || e.rec.estanciaParte || e.rec.compensacion || e.rec.cruceAcum) return null;
+  return e;
+}
+function concSePuedeSeparar(x){
+  const ents = x.as.map(a=>concRegistro(a.id));
+  if(ents.some(en=>!en || !['gastos','pagosEntre'].includes(en.col))) return false;
+  if(ents.some((en, j)=>Math.abs(concFactorCuenta(en, x.as[j]) - 1) > 0.01)) return false; // a medias: mejor desde Movimientos
+  return ents.every(en=>en.col===ents[0].col && (en.rec.moneda||'MXN')===(ents[0].rec.moneda||'MXN'));
+}
+function concCambios(r){
+  const v = concVista(r), out = [];
+  v.faltan.forEach(x=>{ if(concD('f:'+x.b.f.i)==='agregar') out.push({t:'agregar', x, delta:x.b.mxn}); });
+  r.monto.forEach(x=>{ const d = concD('m:'+x.a.id); if(d==='corregir' || (d==='comision' && concComisionPosible(x))) out.push({t:d, x, delta:x.b.mxn - x.a.mxn}); });
+  v.nombre.forEach(x=>{ if(concD('n:'+x.a.id)==='mismo') out.push({t:'alias', x, delta:0}); });
+  r.sumados.forEach(x=>{ if(concD(concClaveSuma(x))==='separar') out.push({t:'separar', x, delta:0}); });
+  v.sobran.forEach(x=>{ if(concD('s:'+x.a.id)==='borrar' && x.a.mov && concRegistro(x.a.id)) out.push({t:'borrar', x, delta:-x.a.mxn}); });
+  return out;
+}
+function concComisionPosible(x){ return x.b.mxn < 0 && x.a.mxn < 0 && Math.abs(x.b.mxn) - Math.abs(x.a.mxn) > 0.005; } // solo un cargo mayor que lo anotado
+function concPorDecidir(r){ return concVista(r).nombre.filter(x=>concD('n:'+x.a.id)==='pendiente').length; }
+function concSaldoTras(r, cambios){ const x = r.alCorte + cambios.reduce((t,c)=>t+c.delta, 0); return Math.round((esCredito(r.cta) ? Math.max(0, -x) : x)*100)/100; }
+// ¿Cuadra el saldo? null si no se sabe el del banco.
+function concCuadre(r, saldoApp){
+  const txt = r.saldoTxt; if(txt==null || String(txt).trim()==='') return null;
+  const v = Number(txt); if(!isFinite(v)) return null;
+  const conv = r.monedaEstado!=='MXN', vMXN = v * (r.rateEstado||1), tol = conv ? Math.max(1, Math.abs(vMXN)*0.02) : 0.5;
+  const d = Math.round((vMXN - saldoApp)*100)/100;
+  return {v, vMXN, d, conv, cuadra: Math.abs(d) < tol};
+}
+function concGuardarBorrador(){
+  try{
+    const e = ecEstado; if(!e || e.modo!=='comparar') return;
+    const filas = e.filas.filter(f=>!f.extraConc);
+    localStorage.setItem(CONC_BORRADOR_KEY, JSON.stringify({v:1, ts:Date.now(), e:{texto:e.texto, banco:e.banco, persona:e.persona, cuenta:e.cuenta, cta:e.cta, archivo:e.archivo||'', invertido:!!e.invertido, tipoDetectado:e.tipoDetectado||'', otroNombre:e.otroNombre||'', filas, omitidos:e.omitidos||[]}, dec:concDec, saldo: concEstado ? concEstado.saldoTxt : null}));
+  }catch(err){}
+}
+function concLeerBorrador(){ try{ const b = JSON.parse(localStorage.getItem(CONC_BORRADOR_KEY)||'null'); if(!b || b.v!==1 || !b.e || !Array.isArray(b.e.filas) || !b.e.filas.length) return null; if(Date.now() - (Number(b.ts)||0) > 45*864e5) return null; return b; }catch(err){ return null; } }
+function concBorrarBorrador(){ try{ localStorage.removeItem(CONC_BORRADOR_KEY); }catch(err){} }
+function concSeguirBorrador(b){
+  ecEstado = Object.assign({}, b.e, {modo:'comparar'}); concDec = Object.assign({}, b.dec||{}); concDecDe = ecEstado; concEstado = null;
+  openComparacion(true); if(!concEstado){ concBorrarBorrador(); ecEstado.modo = 'importar'; openRevisionEstado(); return; } // borrador que ya no se puede comparar: se descarta
+  if(b.saldo!=null){ concEstado.saldoTxt = b.saldo; openComparacion(false); }
+  ecCargarTasas();
+}
+function concPasosHtml(n){
+  return `<div class="conc-pasos">${['Subir','Revisar','Guardar'].map((t,i)=>`<span class="${i+1<n?'hecho':''}${i+1===n?' on':''}"><b>${i+1<n ? ico('check','icon-xs') : (i+1)}</b>${t}</span>`).join('<i aria-hidden="true"></i>')}</div>`;
+}
+function concSeg(k, ops){
+  const v = concD(k);
+  return `<div class="conc-seg" role="group">${ops.map(([val, label, attr, cls])=>`<button type="button" class="${v===val?'on':''} ${cls||''}" data-conc-dec="${escHtml(k)}" data-v="${val}" aria-pressed="${v===val?'true':'false'}" ${attr||''}>${label}</button>`).join('')}</div>`;
+}
+function concMonto(mxn, b){ // en la moneda del estado si es otra, con su equivalente
+  return `<span class="${mxn<0?'out':'in'}">${mxn<0?'−':'+'}${b && b.moneda && b.moneda!=='MXN' ? fmt(Math.abs(b.monto), b.moneda) : fmt(Math.abs(mxn),'MXN')}</span>`;
+}
+function concMontoApp(a){ const m = a.mov; const otra = m && m.moneda && m.moneda!=='MXN' && Math.abs(Number(m.monto)||0)>0;
+  return `<span class="${a.mxn<0?'out':'in'}">${a.mxn<0?'−':'+'}${otra ? fmt(Math.abs(Number(m.monto)), m.moneda) : fmt(Math.abs(a.mxn),'MXN')}</span>`; }
+function concCol(lado, txt, fecha, montoHtml, extra){
+  return `<div class="conc-col conc-${lado}"><small>${ico(lado==='banco'?'file':'wallet','icon-xs')} ${lado==='banco'?'Banco':'App'}</small>${txt!=null ? `<b>${escHtml(txt)}</b><span class="conc-fe">${escHtml(fecha ? fmtDate(fecha) : '')}</span><em>${montoHtml}</em>` : `<b class="conc-nada">No está</b>`}${extra||''}</div>`;
+}
+function concCuentaTxt(e){ return labelCuenta(ecCtaEstado(e)) + (e.cuenta==='bote' ? ' · Budget' : '') + ' · ' + nombrePersona(e.persona); }
+function openConciliacion(){ if(ecEstado) ecEstado.modo = 'comparar'; openComparacion(true); }
+function openComparacion(recalcular){
+  const e = ecEstado; if(!e) return;
+  if(!['bote','debito','credito'].includes(e.cuenta)){ e.cuenta = (e.tipoDetectado==='cred' || e.invertido) ? 'credito' : 'debito'; e.cta = ecCtaDef(e.banco, e.cuenta, e.invertido); } // comparar es con tus cuentas
+  if(concDecDe!==e){ concDec = {}; concDecDe = e; }
+  let r = concEstado;
+  if(recalcular || !r || r._para!==e){ const saldoTxt = r && r._para===e ? r.saldoTxt : undefined; r = concCalcular(e); if(r){ r._para = e; r.saldoTxt = saldoTxt!==undefined ? saldoTxt : (r.saldoBanco!=null ? String(r.saldoBanco) : ''); } concEstado = r; }
+  if(!r){ mostrarToast('No encontré fechas en el estado de cuenta.', 'error'); return; }
+  const v = concVista(r), cambios = concCambios(r);
+  const conc = ((state.conciliacion||{})[r.p]||{})[r.cta];
+  const scrollAntes = (()=>{ const sh = document.querySelector('#overlay .sheet'), ov = document.getElementById('overlay'); return {sh: sh ? sh.scrollTop : 0, ov: ov ? ov.scrollTop : 0}; })();
+  setTimeout(()=>{ const sh = document.querySelector('#overlay .sheet'), ov = document.getElementById('overlay'); if(sh && scrollAntes.sh) sh.scrollTop = scrollAntes.sh; if(ov && scrollAntes.ov) ov.scrollTop = scrollAntes.ov; }, 0);
+  const credTipo = ecEsCreditoEstado(e) ? 'cred' : 'deb', din = e.cuenta==='bote' ? 'budget' : 'mio';
+  const chip = (k, n, cls, txt)=> n ? `<button type="button" class="conc-chip ${cls}" data-conc-ir="${k}">${txt}</button>` : '';
+  const sec = (k, titulo, cls, n, ayuda, cuerpo)=> n ? `<section class="conc-sec ${cls}" id="concSec-${k}"><div class="conc-tit">${titulo} <span>${n}</span></div>${ayuda ? `<div class="small-note conc-ayuda">${ayuda}</div>` : ''}${cuerpo}</section>` : '';
+  const catOpts = (sel)=>state.subcats.map(sb=>ecOpt(sb.id, sb.nombre, sel, {glyph: iconoSubcat(sb).glyph})).join('');
+  const htmlFalta = (x)=>{
+    const f = x.b.f, k = 'f:'+f.i, d = concD(k), puede = concPuedeAgregarFila(f, x.deNombre);
+    if(f.tipo==='gasto' && !f.cat) f.cat = x.b.comision ? concSubcatComision() : (ecSugerirCategoria(f.desc) || (subcatV15(state, 'Otros')||{}).id);
+    const sb = state.subcats.find(s=>s.id===f.cat);
+    const tags = [x.b.comision ? `<span class="conc-tag warn">${ico('alert','icon-xs')} Comisión del banco: va como gasto aparte</span>` : '', x.deNombre ? `<span class="conc-tag">Dijiste que no es lo mismo</span>` : '', f.dup && !f.dupResuelto && !x.deNombre ? `<span class="conc-tag warn">${ico('alert','icon-xs')} Puede que ya esté: ${escHtml(f.dup.desc)} · ${escHtml(fmtDate(f.dup.fecha))}</span>` : '', !(f.moneda in (state.rates||{})) ? `<span class="conc-tag bad">No conozco la moneda ${escHtml(f.moneda)}</span>` : ''].join('');
+    return `<div class="conc-item ${d==='agregar'?'':'off'}" data-conc-item="${k}">
+      <div class="conc-fila1">${micoHtml(f.tipo==='gasto' && sb ? iconoSubcat(sb) : ecIconoFila(e, f), 'sm')}<div class="conc-fila-t"><b>${escHtml(f.desc)}</b><span>${escHtml(fmtDate(f.fecha))}</span></div><div class="conc-fila-m">${concMonto(x.b.mxn, x.b)}</div></div>
+      ${tags ? `<div class="conc-tags">${tags}</div>` : ''}
+      ${concSeg(k, [['agregar', ico('plus','icon-xs')+' Agregar', puede || (f.moneda in (state.rates||{})) ? '' : 'disabled'], ['omitir', 'No agregar']])}
+      ${d==='agregar' ? `<div class="conc-campos">
+        <label class="ec-campo"><span>${ico('layers','icon-xs')} ¿Qué es?</span><select data-conc-tipo="${f.i}">${ecOpcionesTipo(e, f)}</select></label>
+        ${f.tipo==='gasto' ? `<div class="ec-grid"><label class="ec-campo"><span>${ico('layers','icon-xs')} Categoría</span><select data-conc-cat="${f.i}">${catOpts(f.cat)}</select></label>
+        <label class="ec-campo"><span>${ico('users','icon-xs')} ¿De quién es?</span><select data-conc-quien="${f.i}">${ecOpt('yo', 'Solo '+nombrePersona(e.persona), f.quien==='ambas'?'ambas':'yo', {av:e.persona})}${ecOpt('ambas', 'Ambas (a medias)', f.quien==='ambas'?'ambas':'yo', {av:'ambas'})}</select></label></div>` : ''}
+      </div>` : ''}
+    </div>`;
+  };
+  const htmlMonto = (x, i)=>{
+    const k = 'm:'+x.a.id, d = concD(k), dif = Math.abs(x.b.mxn) - Math.abs(x.a.mxn), editable = !!concRegistro(x.a.id);
+    const ops = [['dejar', 'Dejar']];
+    if(editable) ops.push(['corregir', ico('edit','icon-xs')+' Corregir al del banco', `data-conc-corregir="${i}"`]);
+    if(concComisionPosible(x)) ops.push(['comision', ico('plus','icon-xs')+' Diferencia como comisión']);
+    return `<div class="conc-item" data-conc-item="${escHtml(k)}">
+      <div class="conc-bya">${concCol('banco', x.b.desc, x.b.fecha, concMonto(x.b.mxn, x.b))}${concCol('app', x.a.nota||'Movimiento', x.a.fecha, concMontoApp(x.a))}</div>
+      <div class="conc-dif ${dif>0?'out':'in'}">${ico('alert','icon-xs')} El banco tiene <b>${fmt(Math.abs(dif),'MXN')}</b> ${dif>0?'más':'menos'}${x.aviso ? ' · '+escHtml(x.aviso) : ''}</div>
+      ${concSeg(k, ops)}
+      ${!editable ? `<div class="small-note">Este no se puede corregir aquí (es de una serie o de un pase doble). <button type="button" class="link-quiet" data-conc-abrir-m="${i}">${ico('edit','icon-xs')} Abrirlo</button></div>` : ''}
+      ${d==='comision' ? `<div class="small-note conc-nota">Se agrega «Comisión · ${escHtml(x.b.desc)}» por ${fmt(Math.abs(dif),'MXN')} y el de la app se queda igual.</div>` : ''}
+    </div>`;
+  };
+  const htmlNombre = (x, i)=>{ const k = 'n:'+x.a.id;
+    return `<div class="conc-item" data-conc-item="${escHtml(k)}">
+      <div class="conc-bya">${concCol('banco', x.b.desc, x.b.fecha, concMonto(x.b.mxn, x.b))}${concCol('app', x.a.nota||'Movimiento', x.a.fecha, concMontoApp(x.a))}</div>
+      <div class="small-note">Mismo monto y fecha cercana, con otro nombre.</div>
+      ${concSeg(k, [['mismo', ico('check','icon-xs')+' Es lo mismo', `data-conc-mismo="${i}"`], ['nomismo', 'No es lo mismo', `data-conc-nomismo="${i}"`]])}
+      ${concD(k)==='pendiente' ? `<div class="small-note conc-nota">Elige una: si no contestas, se queda como está y no aprendo nada.</div>` : ''}
+      ${concD(k)==='mismo' ? `<div class="small-note conc-nota">Aprendo que «${escHtml(concClaveBanco(x.b.desc))}» es «${escHtml(x.a.nota)}»: la próxima vez coincide solo.</div>` : ''}
+    </div>`; };
+  const htmlSuma = (x)=>{ const k = concClaveSuma(x), varios = x.bs.length>1, puede = concSePuedeSeparar(x);
+    const lista = (arr, lado)=>arr.map(y=>`<div class="conc-sub"><span>${escHtml(lado==='banco' ? y.desc : (y.nota||'Movimiento'))} · ${escHtml(fmtDate(y.fecha))}</span>${lado==='banco' ? concMonto(y.mxn, y) : concMontoApp(y)}</div>`).join('');
+    const suma = (varios ? x.bs : x.as).map(y=>fmt(Math.abs(y.mxn),'MXN').replace('$','')).join(' + ') + ' = ' + fmt(Math.abs((varios ? x.as[0] : x.bs[0]).mxn),'MXN').replace('$','');
+    return `<div class="conc-item" data-conc-item="${escHtml(k)}">
+      <div class="conc-suma">${ico('layers','icon-xs')} ${escHtml(suma)}</div>
+      <div class="conc-bya"><div class="conc-col conc-banco"><small>${ico('file','icon-xs')} Banco · ${x.bs.length}</small>${lista(x.bs,'banco')}</div><div class="conc-col conc-app"><small>${ico('wallet','icon-xs')} App · ${x.as.length}</small>${lista(x.as,'app')}</div></div>
+      ${concSeg(k, [['dejar', 'Dejar así'], ...(puede ? [['separar', varios ? 'Separar como el banco' : 'Juntar como el banco']] : [])])}
+      ${!puede ? `<div class="small-note">Ya cuadra sumado. Para separarlo, ábrelo desde Movimientos.</div>` : (concD(k)==='separar' ? `<div class="small-note conc-nota">${varios ? 'El de la app se divide en '+x.bs.length+' con las fechas y montos del banco.' : 'Los '+x.as.length+' de la app se juntan en uno como dice el banco (los otros van a la papelera).'}</div>` : '')}
+    </div>`; };
+  const htmlSobra = (x, i)=>{ const k = 's:'+x.a.id, puede = !!x.a.mov && !!concRegistro(x.a.id);
+    return `<div class="conc-item ${concD(k)==='borrar'?'borrar':''}" data-conc-item="${escHtml(k)}">
+      <div class="conc-bya">${concCol('banco', null)}${concCol('app', x.a.nota||'Movimiento', x.a.fecha, concMontoApp(x.a))}</div>
+      ${x.deNombre ? `<div class="small-note">Dijiste que no es lo mismo que «${escHtml((r.nombre.find(y=>y.a.id===x.a.id)||{b:{}}).b.desc||'')}». <button type="button" class="link-quiet" data-conc-dec="n:${escHtml(x.a.id)}" data-v="mismo">${ico('repeat','icon-xs')} Sí era lo mismo</button></div>` : ''}
+      ${concSeg(k, [['dejar', 'Dejar'], ...(puede ? [['borrar', ico('trash','icon-xs')+' Borrar', `data-conc-borrar="${i}"`, 'peligro']] : [])])}
+      ${!puede && x.a.mov ? `<div class="small-note">Es parte de una serie o de un pase doble: si sobra, ábrelo desde Movimientos.</div>` : ''}
+    </div>`; };
+  const nCoin = r.coinciden.length;
+  openSheet(`${sheetHeader('Comparar estado de cuenta', 'Paso 2 de 3 · Revisa lo que te propongo')}
+    ${concPasosHtml(2)}
+    <div class="ec-head">
+      <button type="button" class="ec-head-chips" id="concCfgToggle" aria-expanded="${e.cfgConcAbierta?'true':'false'}">
+        <span class="ec-chip">${iconoLetra(EC_NOMBRE_BANCO[e.banco]||'Estado')} ${escHtml(EC_NOMBRE_BANCO[e.banco]||'Estado de cuenta')}</span>
+        <span class="ec-chip"><span class="pk-ilu sm"><svg viewBox="0 0 64 64" aria-hidden="true">${ILU[esCredito(r.cta)?'credito':(e.cuenta==='bote'?'bote':'tarjeta')]}</svg></span> ${escHtml(labelCuenta(r.cta))}${e.cuenta==='bote' ? ' · Budget' : ''}</span>
+        <span class="ec-chip">${avatarPersona(e.persona)} ${escHtml(nombrePersona(e.persona))}</span>
+        <span class="ec-chip ec-chip-cambiar">${ico(e.cfgConcAbierta?'chevdown':'edit','icon-xs')} ${e.cfgConcAbierta?'Listo':'Cambiar'}</span>
+      </button>
+      <div class="ec-cfg" ${e.cfgConcAbierta?'':'hidden'}>
+        <div class="ec-tipos">
+          <div class="ec-tipo-fila"><span class="ec-tipo-lbl">${ico('users','icon-xs')} ¿De quién es la cuenta?</span><div class="seg seg-sm"><button type="button" class="${e.persona==='jen'?'on':''}" data-conc-persona="jen">Jen</button><button type="button" class="${e.persona==='isa'?'on':''}" data-conc-persona="isa">Isa</button></div></div>
+          <div class="ec-tipo-fila"><span class="ec-tipo-lbl">${ico('card','icon-xs')} Tipo de estado</span><div class="seg seg-sm"><button type="button" class="${credTipo==='deb'?'on':''}" data-conc-tipoest="deb">Débito</button><button type="button" class="${credTipo==='cred'?'on':''}" data-conc-tipoest="cred">Crédito</button></div></div>
+          <div class="ec-tipo-fila"><span class="ec-tipo-lbl">${ico('wallet','icon-xs')} ¿De quién es el dinero?</span><div class="seg seg-sm"><button type="button" class="${din==='budget'?'on':''}" data-conc-dinero="budget">Budget</button><button type="button" class="${din==='mio'?'on':''}" data-conc-dinero="mio">Mi dinero</button></div></div>
+        </div>
+        <div class="field"><label>${ico('card','icon-xs')} ¿Qué tarjeta es?</label><select id="concCta">${opcionesCta(ecListaCtas(e.cuenta), r.cta)}</select></div>
+      </div>
+    </div>
+    <div class="small-note conc-periodo">${ico('calendar','icon-xs')} Periodo <b>${escHtml(fmtDate(r.per.desde))} → ${escHtml(fmtDate(r.per.hasta))}</b>${r.per.delTexto ? ' (leído del estado)' : ' (primera y última fecha del estado)'}.${conc && conc.hasta ? ` <span class="conc-ya">${ico('check','icon-xs')} Conciliada hasta ${escHtml(fmtDate(conc.hasta))}</span>` : ''}</div>
+    ${perfil && e.persona!==perfil ? `<div class="note-box conc-aviso">${ico('users','icon-sm')}<div>Esta cuenta es de ${escHtml(nombrePersona(e.persona))}: lo que cambies de sus movimientos se le manda para que lo apruebe.</div></div>` : ''}
+    ${conc && conc.hasta && r.per.desde <= conc.hasta ? `<div class="note-box conc-aviso">${ico('alert','icon-sm')}<div>Parte de este periodo ya lo conciliaste (hasta ${escHtml(fmtDate(conc.hasta))}). Lo que salga como faltante de esas fechas revísalo con calma.</div></div>` : ''}
+    <div class="conc-resumen">
+      ${chip('faltan', v.faltan.length, 'warn', '+ '+v.faltan.length+' faltan')}${chip('monto', r.monto.length, 'warn', '≠ '+r.monto.length+' monto')}${chip('nombre', v.nombre.length, 'warn', '? '+v.nombre.length+' nombre')}${chip('sumados', r.sumados.length, 'ok', 'Σ '+r.sumados.length+' sumados')}${chip('sobran', v.sobran.length, 'bad', '− '+v.sobran.length+' sobran')}${chip('coinciden', nCoin, 'ok', '✓ '+nCoin+' coinciden')}
+    </div>
+    ${!v.faltan.length && !r.monto.length && !v.nombre.length && !r.sumados.length && !v.sobran.length ? `<div class="conc-todo-ok">${ico('check','icon-sm')} Todo lo del estado ya está en la app.</div>` : ''}
+    ${sec('faltan', '+ Faltan en la app', 'conc-faltan', v.faltan.length, 'Vienen marcados para agregarse. Cambia la categoría o de quién es aquí mismo.', `<div class="conc-masivo"><button type="button" class="link-quiet" id="concTodosFaltan">${ico('check','icon-xs')} Agregar todos</button><button type="button" class="link-quiet" id="concNingunoFaltan">${ico('x','icon-xs')} Ninguno</button></div>` + v.faltan.map(htmlFalta).join(''))}
+    ${sec('monto', '≠ Monto distinto', 'conc-monto', r.monto.length, 'Se quedan como están, a menos que elijas otra cosa.', r.monto.map(htmlMonto).join(''))}
+    ${sec('nombre', '? Con otro nombre: ¿es lo mismo?', 'conc-nombre', v.nombre.length, '', v.nombre.map(x=>htmlNombre(x, r.nombre.indexOf(x))).join(''))}
+    ${sec('sumados', 'Σ Coinciden sumados', 'conc-sumados', r.sumados.length, 'Lo registraste junto o separado distinto que el banco, pero suma igual.', r.sumados.map(htmlSuma).join(''))}
+    ${sec('sobran', '− Están en la app pero no en el estado', 'conc-sobran', v.sobran.length, 'Puede ser de otro periodo, de otra cuenta o estar repetido. Se quedan, a menos que elijas borrar.', v.sobran.map(x=>htmlSobra(x, r.sobran.indexOf(x))).join(''))}
+    ${nCoin ? `<details class="conc-sec conc-ok" id="concSec-coinciden"><summary class="conc-tit">✓ Coinciden <span>${nCoin}</span></summary>${r.coinciden.map(x=>concLinea(`${escHtml(x.b.desc)} · ${escHtml(fmtDate(x.b.fecha))}${x.a.nota && concNorm(x.a.nota)!==concNorm(x.b.desc) ? `<br><small>En la app: ${escHtml(x.a.nota)}</small>` : ''}${x.aviso ? `<br><small class="conc-av">${ico('alert','icon-xs')} ${escHtml(x.aviso)}</small>` : ''}`, concMonto(x.b.mxn, x.b))).join('')}</details>` : ''}
+    <section class="conc-sec conc-saldo" id="concSec-saldo"><div class="conc-tit">Saldo al ${escHtml(fmtDate(r.per.hasta))}</div>
+      <div class="field-row"><div class="field"><label>${esCredito(r.cta)?'Lo que debías según el banco':'Saldo según el banco'} (${escHtml(r.monedaEstado||'MXN')})</label><input type="number" inputmode="decimal" id="concSaldoBanco" value="${escHtml(r.saldoTxt||'')}" placeholder="Escríbelo si no lo leí"></div>
+      <div class="field"><label>${esCredito(r.cta)?'Según la app, con tus cambios':'Según la app, con tus cambios'}</label><input type="text" id="concSaldoApp" value="${fmt(concSaldoTras(r, cambios),'MXN')}" disabled></div></div>
+      <div class="small-note" id="concDifSaldo"></div>
+    </section>
+    <button type="button" class="btn btn-ghost btn-block" id="concVolver">${ico('chevleft','icon-sm')} Ver como importación (todos los renglones)</button>
+    <div class="ec-pie conc-barra"><div class="conc-barra-t" id="concBarraT"></div><button class="btn btn-primary btn-block" id="concSiguiente">${ico('chevright','icon-sm')} <span>Revisar y guardar</span></button></div>
+  `);
+  const $ = (id)=>document.getElementById(id);
+  concActualizarBarra();
+  concGuardarBorrador();
+  const recalc = ()=>{ const nr = concCalcular(e); if(!nr){ mostrarToast('No encontré fechas en el estado de cuenta.', 'error'); return; } nr._para = e; nr.saldoTxt = r.saldoTxt; concEstado = nr; openComparacion(false); };
+  $('concCfgToggle').addEventListener('click', ()=>{ e.cfgConcAbierta = !e.cfgConcAbierta; openComparacion(false); });
+  document.querySelectorAll('[data-conc-persona]').forEach(b=>b.addEventListener('click', ()=>{ e.persona = b.getAttribute('data-conc-persona'); try{ ecRecalcularDups(e); e._dupPara = e.persona; }catch(err){} recalc(); }));
+  document.querySelectorAll('[data-conc-tipoest]').forEach(b=>b.addEventListener('click', ()=>{ const t = b.getAttribute('data-conc-tipoest'), bk = ecBancoDe(e);
+    if(e.cuenta!=='bote') e.cuenta = t==='cred' ? 'credito' : 'debito'; e.cta = bk+(t==='cred'?'-cred':'-deb'); recalc(); }));
+  document.querySelectorAll('[data-conc-dinero]').forEach(b=>b.addEventListener('click', ()=>{ const d = b.getAttribute('data-conc-dinero'), bk = ecBancoDe(e), cred = ecEsCreditoEstado(e);
+    e.cuenta = d==='budget' ? 'bote' : (cred ? 'credito' : 'debito'); e.cta = bk+(cred?'-cred':'-deb'); if(!ecListaCtas(e.cuenta).includes(e.cta)) e.cta = ecCtaDef(e.banco, e.cuenta, e.invertido); recalc(); }));
+  $('concCta').addEventListener('change', ()=>{ e.cta = $('concCta').value; recalc(); });
+  document.querySelectorAll('[data-conc-ir]').forEach(b=>b.addEventListener('click', ()=>{ const s = $('concSec-'+b.getAttribute('data-conc-ir')); if(!s) return; if(s.tagName==='DETAILS') s.open = true; s.scrollIntoView && s.scrollIntoView({behavior:'smooth', block:'start'}); s.classList.add('conc-brillo'); setTimeout(()=>s.classList.remove('conc-brillo'), 1200); }));
+  document.querySelectorAll('[data-conc-dec]').forEach(b=>b.addEventListener('click', ()=>{ if(b.disabled) return; const k = b.getAttribute('data-conc-dec'), val = b.getAttribute('data-v');
+    if(val===concDefecto(k)) delete concDec[k]; else concDec[k] = val;
+    if(k.charAt(0)==='f'){ const f = concFaltaPorClave(k); if(f && val==='agregar' && f.dup) f.dupResuelto = true; }
+    openComparacion(false); }));
+  const setFila = (attr, campo)=>document.querySelectorAll('['+attr+']').forEach(s=>s.addEventListener('change', ()=>{ const f = e.filas.find(x=>x.i===Number(s.getAttribute(attr))); if(!f) return; f[campo] = s.value;
+    if(campo==='tipo'){ f.paseManual = true; if(f.tipo==='gasto' && !f.cat) f.cat = ecSugerirCategoria(f.desc) || (subcatV15(state, 'Otros')||{}).id; openComparacion(false); return; }
+    concGuardarBorrador(); const it = s.closest('[data-conc-item]'); if(campo==='cat' && it){ const sb = state.subcats.find(x=>x.id===f.cat), m = it.querySelector('.conc-fila1 .mico'); if(sb && m) m.outerHTML = micoHtml(iconoSubcat(sb), 'sm'); } }));
+  setFila('data-conc-cat', 'cat'); setFila('data-conc-quien', 'quien'); setFila('data-conc-tipo', 'tipo');
+  if($('concTodosFaltan')) $('concTodosFaltan').addEventListener('click', ()=>{ v.faltan.forEach(x=>{ const k = 'f:'+x.b.f.i; if(x.b.f.moneda in (state.rates||{})){ if(concDefecto(k)==='agregar') delete concDec[k]; else concDec[k] = 'agregar'; if(x.b.f.dup) x.b.f.dupResuelto = true; } }); openComparacion(false); });
+  if($('concNingunoFaltan')) $('concNingunoFaltan').addEventListener('click', ()=>{ v.faltan.forEach(x=>{ const k = 'f:'+x.b.f.i; if(concDefecto(k)==='omitir') delete concDec[k]; else concDec[k] = 'omitir'; }); openComparacion(false); });
+  document.querySelectorAll('[data-conc-abrir-m]').forEach(b=>b.addEventListener('click', ()=>{ const x = r.monto[Number(b.getAttribute('data-conc-abrir-m'))]; if(x && x.a.mov){ concGuardarBorrador(); editMovimiento(x.a.mov.tipo, x.a.mov.id, x.a.mov.subId || x.a.mov.persona); } }));
+  $('concSaldoBanco').addEventListener('input', ()=>{ r.saldoTxt = $('concSaldoBanco').value; concActualizarBarra(); concGuardarBorrador(); });
+  $('concVolver').addEventListener('click', ()=>{ e.modo = 'importar'; openRevisionEstado(); });
+  $('concSiguiente').addEventListener('click', ()=>openResumenComparacion());
+}
+function concTextoSaldo(r, cambios){
+  const s = concSaldoTras(r, cambios), cu = concCuadre(r, s);
+  if(!cu) return {html: `<span class="muted">escribe el saldo del banco para comprobar</span>`, cu, s};
+  return {html: cu.cuadra ? `<span class="ok">${ico('check','icon-xs')} el saldo cuadra</span>` : `<span class="bad">diferencia ${fmt(Math.abs(cu.d),'MXN')}</span>`, cu, s};
+}
+function concActualizarBarra(){
+  const r = concEstado; if(!r) return;
+  const cambios = concCambios(r), t = concTextoSaldo(r, cambios), n = cambios.length;
+  const pd = concPorDecidir(r);
+  const el = document.getElementById('concBarraT'); if(el) el.innerHTML = `<b>${n} cambio${n===1?'':'s'} listo${n===1?'':'s'}</b>${pd ? ` · <span class="warn">${pd} por decidir</span>` : ''} · ${t.html}`;
+  const sa = document.getElementById('concSaldoApp'); if(sa) sa.value = fmt(t.s, 'MXN');
+  const d = document.getElementById('concDifSaldo');
+  if(d){ const cu = t.cu; d.innerHTML = !cu ? '' : (cu.conv ? `${fmt(cu.v, r.monedaEstado)} ≈ ${fmt(cu.vMXN,'MXN')} con el tipo de cambio de hoy. ` : '') + (cu.cuadra ? `${ico('check','icon-xs')} El saldo cuadra.` : `Diferencia de <b>${fmt(Math.abs(cu.d),'MXN')}</b> (${cu.d>0?'el banco tiene más':'la app tiene más'}).`); }
+}
+function concEtiqueta(c){
+  const x = c.x;
+  if(c.t==='agregar') return [x.b.desc+' · '+fmtDate(x.b.fecha), concMonto(x.b.mxn, x.b)];
+  if(c.t==='corregir') return [(x.a.nota||'Movimiento')+': '+fmt(Math.abs(x.a.mxn),'MXN')+' → '+fmt(Math.abs(x.b.mxn),'MXN'), ''];
+  if(c.t==='comision') return ['Comisión · '+x.b.desc, `<span class="out">−${fmt(Math.abs(Math.abs(x.b.mxn)-Math.abs(x.a.mxn)),'MXN')}</span>`];
+  if(c.t==='alias') return ['«'+concClaveBanco(x.b.desc)+'» = «'+(x.a.nota||'')+'»', ''];
+  if(c.t==='separar') return [x.bs.length>1 ? (x.as[0].nota||'Movimiento')+' en '+x.bs.length+' movimientos' : x.as.length+' movimientos en uno: '+x.bs[0].desc, ''];
+  if(c.t==='borrar') return [(x.a.nota||'Movimiento')+' · '+fmtDate(x.a.fecha), concMontoApp(x.a)];
+  return ['', ''];
+}
+function openResumenComparacion(){
+  const e = ecEstado, r = concEstado; if(!e || !r) return;
+  const cambios = concCambios(r), t = concTextoSaldo(r, cambios), n = cambios.length;
+  const grupos = [['agregar','plus','Se agregan a la app'], ['corregir','edit','Se corrige el monto'], ['comision','alert','Comisión como gasto aparte'], ['separar','layers','Se separan o juntan como el banco'], ['borrar','trash','Se borran (van a la papelera)'], ['alias','check','Aprendo estos nombres']];
+  openSheet(`${sheetHeader('Comparar estado de cuenta', 'Paso 3 de 3 · Revisa y guarda')}
+    ${concPasosHtml(3)}
+    <div class="conc-res-cab"><b>${escHtml(concCuentaTxt(e))}</b><span>${escHtml(fmtDate(r.per.desde))} → ${escHtml(fmtDate(r.per.hasta))}</span></div>
+    ${n ? grupos.map(([k, ic, tit])=>{ const cs = cambios.filter(c=>c.t===k); return cs.length ? `<section class="conc-sec conc-res-${k}"><div class="conc-tit">${ico(ic,'icon-xs')} ${tit} <span>${cs.length}</span></div>${cs.map(c=>{ const [txt, m] = concEtiqueta(c); return concLinea(escHtml(txt), m); }).join('')}</section>` : ''; }).join('')
+      : `<div class="conc-todo-ok">${ico('check','icon-sm')} No hay nada que cambiar en la app.</div>`}
+    <div class="conc-res-saldo ${t.cu ? (t.cu.cuadra ? 'ok' : 'bad') : ''}">${ico(t.cu && t.cu.cuadra ? 'check' : 'wallet','icon-sm')}<div><b>${t.cu ? (t.cu.cuadra ? 'Con estos cambios el saldo cuadra' : 'Con estos cambios queda una diferencia de '+fmt(Math.abs(t.cu.d),'MXN')) : 'Sin saldo del banco para comprobar'}</b><small>App: ${fmt(t.s,'MXN')}${t.cu ? ' · Banco: '+fmt(t.cu.vMXN,'MXN') : ''}</small></div></div>
+    <div class="small-note">Nada se ha guardado todavía. Al guardar, todo se aplica junto y lo puedes deshacer de un jalón.</div>
+    <div class="conc-res-pie"><button class="btn btn-primary btn-block" id="concGuardar">${ico('check','icon-sm')} <span>${n ? 'Guardar '+n+' cambio'+(n===1?'':'s') : 'Terminar'}</span></button>
+    <button type="button" class="btn btn-ghost btn-block" id="concAtras" style="margin-top:6px;">${ico('chevleft','icon-sm')} Volver a revisar</button></div>`);
+  document.getElementById('concAtras').addEventListener('click', ()=>openComparacion(false));
+  document.getElementById('concGuardar').addEventListener('click', ()=>concGuardarLote());
+}
+// Ajusta el monto de un registro de la app al del banco (en su moneda; si es otra moneda, ajusta el tipo de cambio).
+function concFactorCuenta(ent, a){ const tot = Math.abs(Number(ent.rec.montoMXN)||0), en = Math.abs(Number(a && a.mxn)||0); return tot>0 && en>0 ? tot/en : 1; } // gasto a medias: en esta cuenta solo se ve una parte
+function concFijarMonto(ent, mxnAbs, bRow, factor){
+  factor = factor || 1; mxnAbs = mxnAbs*factor;
+  const rec = ent.rec, campo = ent.col==='ingresos' ? 'montoBruto' : 'monto', mon = rec.moneda||'MXN', sg = (Number(rec[campo])||0) < 0 ? -1 : 1;
+  if(bRow && (bRow.moneda||'MXN')===mon){ rec[campo] = sg*Math.round(Math.abs(Number(bRow.monto)||0)*factor*100)/100; Object.assign(rec, stampRates(rec[campo], mon, mon==='MXN' ? 1 : ((bRow.f && Number(bRow.f.rate)) || rec.rateMXN || null))); return true; } // otra moneda: el tipo de cambio del banco (así cuadra con lo que se ve)
+  if(mon==='MXN'){ rec[campo] = sg*Math.round(mxnAbs*100)/100; Object.assign(rec, stampRates(rec[campo], 'MXN', 1)); return true; }
+  const m = Math.abs(Number(rec[campo])||0); if(!(m>0) || !(mxnAbs>0)) return false;
+  Object.assign(rec, stampRates(rec[campo], mon, mxnAbs/m)); return true;
+}
+function concCopia(rec){ const c = JSON.parse(JSON.stringify(rec)); c.id = uid(); ['_u','importId','firmaEc','serieId','serieYM'].forEach(k=>delete c[k]); return c; }
+function concGuardarHistorial(p, cta, datos){
+  if(!state.conciliacion || typeof state.conciliacion!=='object') state.conciliacion = {};
+  state.conciliacion = JSON.parse(JSON.stringify(state.conciliacion)); if(!state.conciliacion[p]) state.conciliacion[p] = {};
+  state.conciliacion[p][cta] = Object.assign({}, state.conciliacion[p][cta]||{}, datos);
+}
+function concGuardarLote(){
+  const e = ecEstado, r = concEstado; if(!e || !r) return;
+  const cambios = concCambios(r), t = concTextoSaldo(r, cambios);
+  const antes = new Map(registrosPrevios), pendAntes = new Set((state.pendientes||[]).map(p=>p && p.id));
+  const impAntes = new Set((state.importaciones||[]).map(x=>x && x.id));
+  const aliasAntes = JSON.stringify(state.aliasesConciliacion===undefined ? null : state.aliasesConciliacion), concAntes = JSON.stringify(state.conciliacion===undefined ? null : state.conciliacion);
+  let n = 0;
+  _loteDeshacer = true;
+  try{
+    // 1) nombres aprendidos
+    const al = JSON.parse(JSON.stringify(concAliases())); let hayAlias = false;
+    cambios.filter(c=>c.t==='alias').forEach(c=>{ const k = concClaveBanco(c.x.b.desc); al[k] = [...new Set([...(al[k]||[]), concNorm(c.x.a.nota)])].slice(-8); hayAlias = true; n++; });
+    if(hayAlias) state.aliasesConciliacion = al;
+    // 2) montos corregidos
+    cambios.filter(c=>c.t==='corregir').forEach(c=>{ const ent = concRegistro(c.x.a.id); if(ent && concFijarMonto(ent, Math.abs(c.x.b.mxn), c.x.b, concFactorCuenta(ent, c.x.a))) n++; });
+    // 3) separar o juntar como el banco
+    cambios.filter(c=>c.t==='separar').forEach(c=>{ const x = c.x; if(!concSePuedeSeparar(x)) return;
+      if(x.bs.length>1){ const ent = concRegistro(x.as[0].id), tot = Math.abs(x.as[0].mxn) || 1, mAbs = Math.abs(Number(ent.rec.monto)||0);
+        x.bs.forEach((b, j)=>{ const rec = j===0 ? ent.rec : concCopia(ent.rec);
+          const mon = rec.moneda||'MXN', monto = (b.moneda||'MXN')===mon ? Math.abs(b.monto) : Math.round(mAbs*Math.abs(b.mxn)/tot*100)/100;
+          rec.monto = (Number(ent.rec.monto)<0 ? -1 : 1)*monto; rec.fecha = b.fecha; Object.assign(rec, stampRates(rec.monto, mon, mon==='MXN' ? 1 : (rec.rateMXN||null)));
+          if(j>0) ent.arr.push(rec); });
+      } else { const ents = x.as.map(a=>concRegistro(a.id)), b = x.bs[0], rec = ents[0].rec, mon = rec.moneda||'MXN';
+        const monto = (b.moneda||'MXN')===mon ? Math.abs(b.monto) : ents.reduce((s,en)=>s+Math.abs(Number(en.rec.monto)||0), 0);
+        rec.monto = (Number(rec.monto)<0 ? -1 : 1)*Math.round(monto*100)/100; rec.fecha = b.fecha; Object.assign(rec, stampRates(rec.monto, mon, mon==='MXN' ? 1 : (rec.rateMXN||null)));
+        x.as.slice(1).forEach(a=>{ if(a.mov){ const [tipo, id, extra] = claveLineaMov(a.mov).split('|'); quitarMovimiento(tipo, id, extra, 'solo'); } });
+      }
+      n++; });
+    // 4) borrar lo que sobra (a la papelera)
+    cambios.filter(c=>c.t==='borrar').forEach(c=>{ const a = c.x.a; if(!a.mov || !concRegistro(a.id)) return; const [tipo, id, extra] = claveLineaMov(a.mov).split('|'); quitarMovimiento(tipo, id, extra, 'solo'); n++; });
+    // 5) agregar lo que falta (y las comisiones) con la misma lógica de «Importar»
+    e.filas = e.filas.filter(f=>!f.extraConc);
+    e.filas.forEach(f=>{ f.incluir = false; });
+    cambios.filter(c=>c.t==='agregar').forEach(c=>{ c.x.b.f.incluir = true; if(c.x.b.f.tipo==='gasto' && !c.x.b.f.cat) c.x.b.f.cat = c.x.b.comision ? concSubcatComision() : (ecSugerirCategoria(c.x.b.f.desc) || (subcatV15(state,'Otros')||{}).id); });
+    cambios.filter(c=>c.t==='comision').forEach(c=>{ const b = c.x.b, difMXN = Math.abs(b.mxn) - Math.abs(c.x.a.mxn); if(!(difMXN>0.005)) return;
+      const rate = b.moneda==='MXN' ? 1 : (Number(b.f.rate) || rateSnapshotFor(b.moneda) || 1);
+      e.filas.push({i: Math.max(-1, ...e.filas.map(f=>f.i)) + 1, fecha:b.fecha, desc:'Comisión · '+b.desc, monto: Math.round(difMXN/rate*100)/100, moneda:b.moneda, rate: b.moneda==='MXN' ? 1 : rate, rateEditado:true, tipo:'gasto', signo:-1, cat: concSubcatComision(), quien:'yo', incluir:true, avisos:[], extraConc:true}); });
+    const nAgregar = e.filas.filter(f=>f.incluir).length;
+    if(nAgregar){ const k = guardarImportacionEstado(); if(k===null){ ecEstado = e; e.filas = e.filas.filter(f=>!f.extraConc); persist(); } else n += k; }
+    // 6) historial de la cuenta
+    concGuardarHistorial(r.p, r.cta, {comparado:{fecha: todayISO(), hasta: r.per.hasta, cuadro: t.cu ? t.cu.cuadra : null, dif: t.cu ? t.cu.d : null, cambios: n}});
+    persist();
+  } finally { _loteDeshacer = false; }
+  let d = null; try{ d = prepararDeshacer(antes, pendAntes, {sinLimite:true, sinToast:true}); }catch(err){}
+  concBorrarBorrador();
+  // Lo que de verdad quedó (lo de la cuenta de la otra espera su aprobación y todavía no cuenta)
+  const nPend = (state.pendientes||[]).filter(x=>x && !pendAntes.has(x.id)).length;
+  const despues = flujosCuentas().filter(x=>x.p===r.p && x.cta===r.cta && x.fecha && x.fecha>r.per.hasta).reduce((a,x)=>a+x.mxn, 0);
+  const crudo = ((saldosCuentas(r.p)[r.cta]||{}).total||0) - despues, saldoReal = Math.round((esCredito(r.cta) ? Math.max(0, -crudo) : crudo)*100)/100;
+  const cuR = concCuadre(r, saldoReal);
+  if(cuR && t.cu && cuR.cuadra!==t.cu.cuadra){ const c0 = ((state.conciliacion||{})[r.p]||{})[r.cta]; if(c0 && c0.comparado){ concGuardarHistorial(r.p, r.cta, {comparado: Object.assign({}, c0.comparado, {cuadro: cuR.cuadra, dif: cuR.d})}); _loteDeshacer = true; try{ persist(); } finally { _loteDeshacer = false; } } }
+  concExito = {n, nPend, d, impAntes, aliasAntes, concAntes, p:r.p, cta:r.cta, hasta:r.per.hasta, desde:r.per.desde, cuadra: cuR ? cuR.cuadra : null, dif: cuR ? cuR.d : null, saldoBanco: cuR ? cuR.v : null, marcada:false, pregunta:true, cuentaTxt: concCuentaTxt(e)};
+  ecEstado = null; concEstado = null; concDec = {}; concDecDe = null;
+  try{ render(); }catch(err){}
+  openExitoComparacion();
+}
+function concDeshacerLote(x){
+  if(!x) return;
+  state.aliasesConciliacion = JSON.parse(x.aliasAntes); if(state.aliasesConciliacion===null) delete state.aliasesConciliacion;
+  state.conciliacion = JSON.parse(x.concAntes); if(state.conciliacion===null) delete state.conciliacion;
+  closeSheet(); concExito = null;
+  if(x.d) deshacerCambio(x.d);
+  // lo que se agregó y se quitó al deshacer no va a la papelera, y la importación vacía se va
+  try{ if(x.d && state._papelera){ x.d.nuevos.forEach(k=>{ delete state._papelera[k]; }); (x.d.pend||[]).forEach(id=>{ delete state._papelera['pendientes:'+id]; }); } }catch(err){}
+  const quitadas = x.impAntes && Array.isArray(state.importaciones) ? state.importaciones.filter(im=>im && !x.impAntes.has(im.id) && !registrosDeImportacion(im.id).length).map(im=>im.id) : [];
+  if(quitadas.length) state.importaciones = state.importaciones.filter(im=>!im || !quitadas.includes(im.id));
+  _loteDeshacer = true; try{ persist(); if(quitadas.length && state._papelera){ quitadas.forEach(id=>{ delete state._papelera['importaciones:'+id]; }); persist(); } } finally { _loteDeshacer = false; }
+  render(); if(!x.d) mostrarToast('Listo, se deshizo.', 'ok');
+}
+function openExitoComparacion(){
+  const x = concExito; if(!x) return;
+  const cuadraTxt = x.cuadra===null ? 'No se comprobó el saldo (no había saldo del banco).' : (x.cuadra ? 'El saldo cuadra con el banco.' : 'Queda una diferencia de '+fmt(Math.abs(x.dif),'MXN')+' con el banco.');
+  openSheet(`${sheetHeader('Comparar estado de cuenta', 'Listo')}
+    ${concPasosHtml(4)}
+    <div class="conc-exito ${x.cuadra===false ? 'dif' : ''}">
+      <div class="conc-exito-ico">${ico(x.cuadra===false ? 'alert' : 'check')}</div>
+      <h3>${x.n ? 'Se guardaron '+x.n+' cambio'+(x.n===1?'':'s') : 'Todo revisado'}</h3>
+      ${x.nPend ? `<p class="conc-exito-pend">${x.nPend} ${x.nPend===1?'cambio espera':'cambios esperan'} que ${escHtml(nombrePersona(otraPersona(perfil)))} ${x.nPend===1?'lo':'los'} apruebe: son de sus cuentas y todavía no cuentan en el saldo.</p>` : ''}
+      <p>${escHtml(x.cuentaTxt)} · ${escHtml(fmtDate(x.desde))} → ${escHtml(fmtDate(x.hasta))}</p>
+      <p class="conc-exito-saldo">${escHtml(cuadraTxt)}</p>
+    </div>
+    ${x.marcada ? `<div class="conc-conciliada">${ico('check','icon-sm')}<div><b>Conciliada hasta ${escHtml(fmtDate(x.hasta))}</b><small>${escHtml(labelCuenta(x.cta))} de ${escHtml(nombrePersona(x.p))} está al día hasta esa fecha.</small></div></div>`
+      : (x.pregunta ? `<div class="conc-preg"><b>¿Marcar ${escHtml(labelCuenta(x.cta))} como conciliada hasta el ${escHtml(fmtDate(x.hasta))}?</b><small>${x.cuadra===false ? 'El saldo no cuadra, pero puedes marcarla de todos modos si ya revisaste todo.' : 'Así sabrás que hasta esa fecha todo está revisado.'}</small>
+        <div class="conc-preg-acc"><button type="button" class="btn btn-primary btn-sm" id="concMarcar">${ico('check','icon-xs')} Sí, marcar</button><button type="button" class="btn btn-outline btn-sm" id="concNoMarcar">Ahora no</button></div></div>`
+      : `<div class="small-note" style="text-align:center;">Quedó anotado que la comparaste hoy.</div>`)}
+    ${x.n ? `<button type="button" class="btn btn-outline btn-block" id="concDeshacer" style="margin-top:10px;">${ico('repeat','icon-sm')} Deshacer todo lo guardado</button>` : ''}
+    <button type="button" class="btn btn-primary btn-block" id="concListo" style="margin-top:8px;">Listo</button>`);
+  const $ = (id)=>document.getElementById(id);
+  if($('concMarcar')) $('concMarcar').addEventListener('click', ()=>{
+    concGuardarHistorial(x.p, x.cta, {hasta: x.hasta, fecha: todayISO(), saldoBanco: x.saldoBanco, cuadro: x.cuadra});
+    _loteDeshacer = true; try{ persist(); } finally { _loteDeshacer = false; }
+    x.marcada = true; mostrarToast(labelCuenta(x.cta)+': conciliada hasta '+fmtDate(x.hasta)+'.', 'ok'); try{ render(); }catch(err){} openExitoComparacion();
+  });
+  if($('concNoMarcar')) $('concNoMarcar').addEventListener('click', ()=>{ x.pregunta = false; openExitoComparacion(); });
+  if($('concDeshacer')) $('concDeshacer').addEventListener('click', ()=>concDeshacerLote(x));
+  $('concListo').addEventListener('click', ()=>{ concExito = null; closeSheet(); render(); });
+}
+// En «Importar»: con el mismo detector, lo que ya está en la app sale como «Ya está en la app», sin marcar.
+function concMarcarYaEsta(e){
+  const clave = e.persona+'|'+ecCtaEstado(e)+'|'+e.filas.length;
+  if(e._yaEstaKey===clave) return; e._yaEstaKey = clave;
+  // lo que marcó este detector para otra cuenta o persona ya no vale
+  e.filas.forEach(f=>{ if(f.dup && f.dup.conc && !f.dupResuelto){ delete f.dup; f.avisos = (f.avisos||[]).filter(a=>!/^Posible duplicado: ya está en la app/.test(a)); } });
+  const r = concCalcular(e); if(!r) return;
+  const marcar = (b, desc, fecha, monto, moneda, tipo)=>{ const f = b.f; if(!f || f.quitada) return;
+    if(f.dup || f.dupResuelto){ if(f.dup){ const k0 = f.dup.fecha+'|'+(Number(f.dup.monto)||0).toFixed(2); if((ya.get(k0)||0) > 0) ya.set(k0, ya.get(k0)-1); } return; } // ese ya estaba contado
+    const kk = fecha+'|'+(Number(monto)||0).toFixed(2); if(!tipo && (ya.get(kk)||0) > 0){ ya.set(kk, ya.get(kk)-1); return; }
+    f.dup = {desc: desc || 'Movimiento', fecha, monto, moneda: moneda||'MXN', tipo: tipo||'', conc:true}; f.incluir = false; f.avisos = f.avisos || []; f.avisos.unshift('Posible duplicado: ya está en la app'); };
+  const m = (a)=>a.mov ? [Math.abs(Number(a.mov.monto)||0) || Math.abs(a.mxn), a.mov.moneda||'MXN'] : [Math.abs(a.mxn), 'MXN'];
+  // lo que ya marcó la búsqueda de duplicados de siempre no se vuelve a usar (así un cargo repetido no sale dos veces)
+  const ya = new Map(); e.filas.forEach(f=>{ if(f.dup){ const k = f.dup.fecha+'|'+(Number(f.dup.monto)||0).toFixed(2); ya.set(k, (ya.get(k)||0)+1); } }); // cuántos ya marcó la búsqueda de siempre
+  r.coinciden.forEach(x=>marcar(x.b, x.a.nota, x.a.fecha, ...m(x.a)));
+  r.sumados.forEach(x=>{ if(x.bs.length>1) x.bs.forEach(b=>marcar(b, x.as[0].nota, x.as[0].fecha, ...m(x.as[0]), 'sumado con otros del estado'));
+    else marcar(x.bs[0], x.as.map(a=>a.nota||'Movimiento').join(' + '), x.as[0].fecha, Math.abs(x.bs[0].mxn), 'MXN', 'en '+x.as.length+' movimientos'); });
+}
+function textoConciliada(p, k){
+  const c = ((state.conciliacion||{})[p]||{})[k]; if(!c) return '';
+  const partes = [];
+  if(c.hasta) partes.push('Conciliada hasta '+fmtDate(c.hasta)+' ✓'+(c.cuadro===false ? ' (el saldo no cuadraba)' : ''));
+  if(c.comparado && c.comparado.fecha && (!c.hasta || !c.fecha || c.comparado.fecha > c.fecha)) partes.push('comparada el '+fmtDate(c.comparado.fecha)+(c.comparado.cuadro===true ? ', el saldo cuadró ✓' : c.comparado.cuadro===false ? ', diferencia de '+fmt(Math.abs(Number(c.comparado.dif)||0),'MXN') : ''));
+  const t = partes.join(' · ');
+  return t ? t.charAt(0).toUpperCase()+t.slice(1) : '';
+}
 /* ============================================================
    v18.14 — PRESUPUESTO POR LUGAR Y POR SEMANA
    El plan del mes (planPresupuestoMes) ya decide cuánto le toca a cada categoría según el lugar de cada día.
@@ -7965,7 +8408,7 @@ function sheetHeader(title, sub){
   // v19 (visual): asa, subtítulo y botón de cerrar redondo, como en el diseño.
   const t = String(title||'');
   const s2 = sub || (/^Editar/.test(t) ? 'Cambia lo que haga falta y guarda' : t==='Registrar' ? 'Elige qué quieres anotar' : /^(Registrar|Nuev[oa]|Agregar)\b/.test(t) ? 'Nuevo registro' : '');
-  const deMenu = /^(Registrar gasto|Registrar ingreso|Pago entre nosotras|Pasarle dinero|Pagar tarjeta de crédito|Pago por hacer|Importar estado de cuenta|Ingreso esperado)/.test(t); // v19: formularios nuevos del menú Registrar
+  const deMenu = /^(Registrar gasto|Registrar ingreso|Pago entre nosotras|Pasarle dinero|Pagar tarjeta de crédito|Pago por hacer|Importar estado de cuenta|Comparar estado de cuenta|Ingreso esperado)/.test(t); // v19: formularios nuevos del menú Registrar
   return `<div class="sheet-handle" aria-hidden="true"></div><div class="sheet-head"><div class="sh-t"><h2>${title}</h2>${s2?`<p class="sh-sub">${s2}</p>`:''}</div><div class="sh-btns">${deMenu?`<button type="button" class="close-x sheet-back" id="sheetBackBtn" aria-label="Regresar a las opciones de Registrar" title="Regresar a las opciones">${ico('chevleft','icon-sm')}</button>`:''}<button class="close-x" id="closeSheetBtn" aria-label="Cerrar">${ico('x','icon-sm')}</button></div></div>`;
 }
 // v19 (visual): adorna la hoja ya armada sin tocar ids ni eventos: «$» en los montos y «varios gastos» arriba.
@@ -7998,7 +8441,8 @@ function openMenuRegistrar(){
       ${op('pagoTarjeta','card','Pago de tarjeta','Pagaste tu tarjeta de crédito')}
       ${op('pagoProgramado','calendar','Pago por hacer','Algo que vas a pagar más adelante')}
       ${op('esperado','clock','Ingreso esperado','Lo que va a llegar al Budget (mamá, papá, otro)')}
-      ${op('estadoCuenta','file','Importar o verificar estado de cuenta','Lee tu estado de cuenta y compáralo con la app')}
+      ${op('importarEstado','file','Importar movimientos','Pasa a la app los movimientos de tu estado de cuenta')}
+      ${op('compararEstado','scale','Comparar con mi estado de cuenta','Qué falta, qué sobra y si el saldo cuadra')}
     </div>`);
   document.querySelectorAll('[data-menu-reg]').forEach(b=>b.addEventListener('click', ()=>{
     const t = b.getAttribute('data-menu-reg'); closeSheet();
@@ -8007,7 +8451,8 @@ function openMenuRegistrar(){
     if(t==='pagoEntre') return openPagoEntre(perfil);
     if(t==='pagoTarjeta') return openPagoTarjeta(perfil, null, null, null);
     if(t==='pagoProgramado') return openPagoProgramado();
-    if(t==='estadoCuenta') return openImportarEstado();
+    if(t==='estadoCuenta' || t==='importarEstado') return openImportarEstado();
+    if(t==='compararEstado') return openImportarEstado('comparar');
     if(t==='esperado') return openEsperadoForm();
   }));
 }
@@ -9764,11 +10209,15 @@ async function ecLeerArchivo(file, bancoElegido){
   return await file.text();
 }
 // ---------- Pantallas ----------
-function openImportarEstado(){
-  const imps = (state.importaciones||[]).filter(im=>registrosDeImportacion(im.id).length).sort((a,b)=>(b.creado||0)-(a.creado||0)).slice(0,12);
+function openImportarEstado(modo){
+  const comparar = modo==='comparar';
+  const imps = comparar ? [] : (state.importaciones||[]).filter(im=>registrosDeImportacion(im.id).length).sort((a,b)=>(b.creado||0)-(a.creado||0)).slice(0,12);
+  const borrador = comparar ? concLeerBorrador() : null;
   openSheet(`
-    ${sheetHeader('Importar estado de cuenta')}
-    <div class="small-note" style="margin-bottom:12px;">Se lee dentro de tu teléfono, no se manda a ningún lado. Antes de guardar vas a poder revisar cada movimiento.</div>
+    ${comparar ? sheetHeader('Comparar estado de cuenta', 'Paso 1 de 3 · Sube tu estado de cuenta') + concPasosHtml(1) : sheetHeader('Importar estado de cuenta')}
+    ${borrador ? `<div class="conc-borrador">${ico('clock','icon-sm')}<div><b>Tienes una comparación sin terminar</b><small>${escHtml(labelCuenta(borrador.e.cta||'') || 'Estado de cuenta')} · ${escHtml(nombrePersona(borrador.e.persona))} · guardada el ${escHtml(fmtDate(isoLocal(new Date(borrador.ts))))}</small>
+      <div class="conc-preg-acc"><button type="button" class="btn btn-primary btn-sm" id="concBorradorSeguir">${ico('chevright','icon-xs')} Seguir donde me quedé</button><button type="button" class="btn btn-outline btn-sm" id="concBorradorDescartar">Descartar</button></div></div></div>` : ''}
+    <div class="small-note" style="margin-bottom:12px;">${comparar ? 'Te digo qué falta en la app, qué sobra, qué tiene otro monto y si el saldo cuadra. <b>No se guarda nada hasta el final.</b> Se lee dentro de tu teléfono.' : 'Se lee dentro de tu teléfono, no se manda a ningún lado. Antes de guardar vas a poder revisar cada movimiento.'}</div>
     <div class="field-row">
       <div class="field"><label>Banco</label><select id="ecBanco">${EC_BANCOS.map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select></div>
       <div class="field"><label>Moneda si no se indica</label><select id="ecMoneda">${currencyOptions('MXN')}</select></div>
@@ -9780,7 +10229,7 @@ function openImportarEstado(){
     <input type="file" id="ecArchivo" accept=".txt,.csv,.tsv,.pdf,.xlsx,.xls,.ods,text/plain,text/csv,application/pdf" hidden>
     <button class="btn btn-outline btn-block ec-adjuntar" id="ecAdjuntar"><span class="bulk-entry-icon">${ico('file','icon-sm')}</span><span><b>Adjuntar archivo</b><small>PDF, Excel, CSV o texto</small></span></button>
     <div class="small-note" id="ecEstadoLectura" style="margin-top:8px;">Para PDF y Excel la app necesita internet la primera vez que abre uno.</div>
-    ${(()=>{ const n = gastosQueParecenPagoTarjeta().length; return n ? `<button class="btn btn-outline btn-block" id="ecRevisarPagos" style="margin-top:12px;border-color:var(--amber);color:var(--amber);">${ico('card','icon-sm')} Revisar pagos a la tarjeta guardados como gasto (${n})</button>` : ''; })()}
+    ${comparar ? '' : (()=>{ const n = gastosQueParecenPagoTarjeta().length; return n ? `<button class="btn btn-outline btn-block" id="ecRevisarPagos" style="margin-top:12px;border-color:var(--amber);color:var(--amber);">${ico('card','icon-sm')} Revisar pagos a la tarjeta guardados como gasto (${n})</button>` : ''; })()}
     ${imps.length ? `<h3 class="pc-sub">Importaciones anteriores</h3>${imps.map(im=>htmlLineaImportacion(im)).join('')}` : ''}
   `);
   const $ = (id)=>document.getElementById(id);
@@ -9790,8 +10239,8 @@ function openImportarEstado(){
     // v18: solo se lee; todo empieza sin marcar y se guarda únicamente lo que elijas.
     r.filas.forEach(f=>{ f.sugerido = !!f.incluir; f.incluir = false; });
     const cuentaIni = r.invertido ? 'credito' : (r.cuentaSugerida || EC_CUENTA_DEF[r.banco]||'debito');
-    ecEstado = {texto: String(texto||''), banco:r.banco, persona:perfil, cuenta: cuentaIni, cta: ecCtaDef(r.banco, cuentaIni, r.invertido), otroNombre:'', filas:r.filas, omitidos:r.omitidos, archivo:nombreArchivo||'', invertido: !!r.invertido, tipoDetectado: cuentaIni==='credito' ? 'cred' : 'deb'};
-    openRevisionEstado();
+    ecEstado = {texto: String(texto||''), banco:r.banco, persona:perfil, cuenta: cuentaIni, cta: ecCtaDef(r.banco, cuentaIni, r.invertido), otroNombre:'', filas:r.filas, omitidos:r.omitidos, archivo:nombreArchivo||'', invertido: !!r.invertido, tipoDetectado: cuentaIni==='credito' ? 'cred' : 'deb', modo: comparar ? 'comparar' : 'importar'};
+    if(comparar){ concEstado = null; openComparacion(true); if(!concEstado){ ecEstado.modo = 'importar'; openRevisionEstado(); } } else openRevisionEstado();
     ecCargarTasas();
   };
   $('ecLeerTexto').addEventListener('click', ()=>{ const t = $('ecTexto').value; if(!t.trim()){ mostrarToast('Primero pega el texto del estado de cuenta.', 'error'); return; } leer(t); });
@@ -9804,6 +10253,8 @@ function openImportarEstado(){
   });
   wireLineasImportacion(document.getElementById('overlay'));
   if($('ecRevisarPagos')) $('ecRevisarPagos').addEventListener('click', ()=>openRevisarPagosTarjeta());
+  if($('concBorradorSeguir')) $('concBorradorSeguir').addEventListener('click', ()=>concSeguirBorrador(borrador));
+  if($('concBorradorDescartar')) $('concBorradorDescartar').addEventListener('click', ()=>{ concBorrarBorrador(); openImportarEstado('comparar'); });
 }
 // v18.5: nombre de cada importación. Por omisión sale del nombre del archivo; se cambia DESPUÉS de guardar.
 function nombreDeArchivo(nombre){
@@ -10205,7 +10656,7 @@ function ecHtmlFila(e, f){
   const ctaAbierta = !!f.cuenta || !!f.ctaAbierta || cuenta==='otro';
   return `
       <div class="ec-fila ${f.incluir?'':'off'} ${abierta?'abierta':''}" data-ec-fila="${f.i}">
-        ${f.dup && !f.dupResuelto ? `<div class="ec-dup" data-ec-dupbox="${f.i}"><div class="ec-dup-t">${ico('alert','icon-xs')} Posible duplicado</div>Es igual a: <b>${escHtml(f.dup.desc)}</b> · ${escHtml(fmtDate(f.dup.fecha))} · ${fmt(f.dup.monto, f.dup.moneda)}${f.dup.tipo && f.dup.tipo!==f.dup.desc ? ' <span class="muted">('+escHtml(f.dup.tipo)+')</span>' : ''}
+        ${f.dup && !f.dupResuelto ? `<div class="ec-dup" data-ec-dupbox="${f.i}"><div class="ec-dup-t">${ico('alert','icon-xs')} Ya está en la app</div>Es igual a: <b>${escHtml(f.dup.desc)}</b> · ${escHtml(fmtDate(f.dup.fecha))} · ${fmt(f.dup.monto, f.dup.moneda)}${f.dup.tipo && f.dup.tipo!==f.dup.desc ? ' <span class="muted">('+escHtml(f.dup.tipo)+')</span>' : ''}
           <div class="ec-dup-acc"><button type="button" class="btn btn-outline btn-sm" data-ec-dup="borrar">${ico('trash','icon-xs')} Borrar</button><button type="button" class="btn btn-outline btn-sm" data-ec-dup="cambiar">${ico('edit','icon-xs')} Cambiar</button><button type="button" class="btn btn-outline btn-sm" data-ec-dup="no">${ico('check','icon-xs')} No es duplicado</button></div></div>` : ''}
         <div class="ec-linea">
           <label class="ec-chk" aria-label="Guardar este movimiento"><input type="checkbox" data-ec="incluir" ${f.incluir?'checked':''}></label>
@@ -10249,6 +10700,8 @@ function openRevisionEstado(){
   const e = ecEstado;
   try{ ecAjustarPases(e); }catch(err){}
   try{ if(e && !e.editImportId && e._dupPara !== e.persona){ if(e._dupPara!==undefined || e.persona!==perfil) ecRecalcularDups(e); e._dupPara = e.persona; } }catch(err){}
+  try{ if(e && !e.editImportId) concMarcarYaEsta(e); }catch(err){} // v19 etapa 7: el mismo detector que «Comparar»
+  if(e) e.modo = 'importar';
   const scrollAntes = (()=>{ const sh = document.querySelector('#overlay .sheet'), ov = document.getElementById('overlay'); return {sh: sh ? sh.scrollTop : 0, ov: ov ? ov.scrollTop : 0}; })();
   setTimeout(()=>{ const sh = document.querySelector('#overlay .sheet'), ov = document.getElementById('overlay'); if(sh && scrollAntes.sh) sh.scrollTop = scrollAntes.sh; if(ov && scrollAntes.ov) ov.scrollTop = scrollAntes.ov; }, 0);
   const cuentas = ecCuentasPara(e.persona);
@@ -10293,12 +10746,14 @@ function openRevisionEstado(){
       <button class="btn btn-outline btn-sm" id="ecNinguno">${ico('x','icon-xs')} Ninguno</button>
       <button class="btn btn-outline btn-sm" id="ecInvertir">${ico('swap','icon-xs')} Invertir gastos/ingresos</button>
     </div>
+    ${(()=>{ if(e.editImportId) return ''; const c = ((state.conciliacion||{})[e.persona]||{})[ecCtaEstado(e)]; if(!c || !c.hasta) return ''; const n = vis.filter(f=>f.fecha && f.fecha<=c.hasta).length;
+      return n ? `<div class="note-box conc-aviso" id="ecAvisoConciliada">${ico('alert','icon-sm')}<div><b>${n} movimiento${n===1?' es':'s son'} de fechas que ya conciliaste</b> (${escHtml(labelCuenta(ecCtaEstado(e)))} hasta ${escHtml(fmtDate(c.hasta))}). Seguramente ya ${n===1?'está':'están'} en la app: revisa antes de guardar${n===1?'lo':'los'}.</div></div>` : ''; })()}
     <div class="small-note" id="ecResumen" style="margin-bottom:10px;">${ecResumen()}</div>
     <div class="ec-leyenda"><span class="out">− sale</span><span class="in">+ entra</span><span class="neutro">↔ entre tus cuentas</span><span>Toca un renglón para ver o cambiar los detalles</span></div>
     <div class="ec-lista">
     ${vis.map(f=>ecHtmlFila(e, f)).join('')}
     </div>
-    ${e.editImportId ? '' : `<button type="button" class="btn btn-outline btn-block" id="ecComparar" style="margin:10px 0 0;">${ico('swap','icon-sm')} Comparar con la app (qué falta, qué sobra, montos y saldo)</button>`}
+    ${e.editImportId ? '' : `<button type="button" class="btn btn-outline btn-block" id="ecComparar" style="margin:10px 0 0;">${ico('scale','icon-sm')} Comparar con la app (qué falta, qué sobra, montos y saldo)</button>`}
     <div class="ec-pie"><button class="btn btn-primary btn-block" id="ecGuardar">${ico('check','icon-sm')} <span>${e.editImportId ? 'Guardar cambios' : 'Guardar los elegidos'} (<span id="ecGuardarN">${ecContarElegidos()}</span>)</span></button></div>
   `);
   const $ = (id)=>document.getElementById(id);
