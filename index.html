@@ -329,6 +329,9 @@
   .conc-masivo{display:flex;gap:10px;justify-content:flex-end;}
   .conc-todo-ok{display:flex;align-items:center;gap:8px;padding:14px;border-radius:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 18%,transparent),transparent);color:var(--teal-deep);font-weight:800;margin:10px 0;}
   .conc-barra{display:flex;flex-direction:column;gap:6px;} .ec-pie.conc-barra{background:var(--card);box-shadow:0 -12px 24px -16px rgba(8,10,18,.45);border-top:1px solid var(--line);border-radius:16px 16px 0 0;padding:10px 4px calc(8px + env(safe-area-inset-bottom, 0px));} .conc-barra-t{font-size:13px;text-align:center;} .conc-barra-t .ok{color:var(--teal-deep);font-weight:800;} .conc-barra-t .warn{color:var(--amber);font-weight:800;} .conc-barra-t .bad{color:var(--brick);font-weight:800;}
+  .ec-cajitas{border:1.5px dashed var(--line);border-radius:14px;padding:10px 12px;margin:10px 0;} .ec-cajitas summary{cursor:pointer;font-weight:700;font-size:13.5px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;min-height:36px;}
+  .ec-cajita-l{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);} .ec-cajita-t{flex:1;min-width:0;display:flex;flex-direction:column;} .ec-cajita-t b{font-size:13px;font-weight:600;overflow-wrap:anywhere;} .ec-cajita-t small{font-size:12px;color:var(--ink-soft);} .ec-cajita-m{font-weight:700;font-size:13px;color:var(--ink-soft);white-space:nowrap;}
+  .conc-cajitas-w{border:none;padding:0;background:none;box-shadow:none;}
   .conc-res-pie{margin-top:12px;} .conc-res-cab{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;font-size:13px;margin-bottom:4px;} .conc-res-cab span{color:var(--ink-soft);}
   .conc-res-saldo{display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:14px;margin:10px 0;background:var(--paper-soft);} .conc-res-saldo div{display:flex;flex-direction:column;} .conc-res-saldo small{color:var(--ink-soft);font-size:12px;}
   .conc-res-saldo.ok{background:linear-gradient(135deg,color-mix(in srgb,var(--teal) 22%,transparent),color-mix(in srgb,var(--teal) 6%,transparent));color:var(--teal-deep);} .conc-res-saldo.bad{background:var(--brick-soft,rgba(229,72,77,.12));color:var(--brick);}
@@ -385,7 +388,7 @@
   .toast.bajo-barra{top:calc(74px + env(safe-area-inset-top, 0px));}
   .barra-pendiente .bp-porque{order:1;background:transparent !important;color:#2a1c00 !important;border:1.5px solid #2a1c00 !important;}
   .barra-pendiente .bp-sync{order:2;}
-  .barra-pendiente [hidden]{display:none;}
+  .barra-pendiente [hidden]{display:none;} .barra-pendiente[hidden]{display:none;}
   .pasos-sync{margin:0 0 14px;padding-left:20px;font-size:13.5px;line-height:1.5;color:var(--ink);}
   .pasos-sync li{margin-bottom:6px;}
   .toast.error{background:var(--brick);color:#fff;}
@@ -810,6 +813,7 @@
   .sheet{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;max-height:88dvh;}
   @supports not (height:1dvh){ .sheet{max-height:88vh;} }
   .overlay.reemplazo .sheet{animation:none;}
+  .sheet{scroll-padding-top:70px;scroll-padding-bottom:150px;}
   html.hoja-abierta, html.hoja-abierta body{overflow:hidden;}
   .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
   .sheet-head h2{font-size:17px;}
@@ -2201,6 +2205,7 @@
     opacity:0;transform:translateY(-6px) scale(.97);transform-origin:var(--tip-x,50%) top;transition:opacity .18s ease, transform .22s cubic-bezier(.2,.9,.3,1.2);}
   .tip-pop.arriba{transform-origin:var(--tip-x,50%) bottom;transform:translateY(6px) scale(.97);}
   .tip-pop.on{opacity:1;transform:none;}
+  .tip-pop:not(.on){pointer-events:none;} /* v19 etapa 10: una burbuja cerrada (invisible) ya no se traga los toques */
   .tip-pop::before{content:"";position:absolute;top:-6px;left:calc(var(--tip-x,50%) - 6px);width:12px;height:12px;transform:rotate(45deg);background:inherit;border-left:1px solid color-mix(in srgb,var(--ink) 12%,transparent);border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);border-radius:3px 0 0 0;}
   .tip-pop.arriba::before{top:auto;bottom:-6px;transform:rotate(225deg);}
   .tip-pop b{color:var(--ink);font-weight:700;} .tip-pop .icon{display:none;}
@@ -4415,7 +4420,7 @@ function concNombreParecido(descBanco, notaApp){
 function concPeriodo(texto, filas){
   // v19 etapa 8: se buscan TODAS las frases tipo «periodo del … al …», en día/mes y en mes/día, y se queda la que
   // cubre más movimientos del estado (antes ganaba la primera, aunque fuera una descripción o la fecha de pago).
-  const fechas = (filas||[]).filter(f=>!f.quitada && !f.extraConc).map(f=>f.fecha).filter(Boolean).sort();
+  const fechas = (filas||[]).filter(f=>!f.quitada && !f.extraConc && !ecEsCajita(f)).map(f=>f.fecha).filter(Boolean).sort();
   const t = sinAcentos(String(texto||'')).replace(/\s+/g,' ');
   const tieneAnio = (x)=>/\b\d{4}\b/.test(x) || /\d{1,2}[-/.]\d{1,2}[-/.]\d{2}(?!\d)/.test(x);
   const re = /(periodo|period|statement period|del|from|desde|between)\b[^0-9a-z]{0,12}(.{4,40}?)\s+(?:al|a|to|hasta|and|y|-|–|—)\s+(.{4,40})/ig;
@@ -4484,13 +4489,13 @@ function concBuscarSuma(cands, total, extr){
 function concCalcular(e){
   const p = e.persona, cta = ecCtaEstado(e), per = concPeriodoDe(e);
   if(!per) return null;
-  let banco = e.filas.filter(f=>!f.quitada && !f.extraConc).map(f=>{ const rate = f.moneda==='MXN' ? 1 : (Number(f.rate) || rateSnapshotFor(f.moneda) || 0);
+  let banco = e.filas.filter(f=>!f.quitada && !f.extraConc && !ecEsCajita(f)).map(f=>{ const rate = f.moneda==='MXN' ? 1 : (Number(f.rate) || rateSnapshotFor(f.moneda) || 0);
     const signo = f.signo!=null ? f.signo : (f.tipo==='gasto' || f.tipo==='retiro' || (f.tipo==='pagoTarjeta' && !ecEsCreditoEstado(e)) ? -1 : +1);
     return {f, fecha:f.fecha, desc:f.desc, monto:f.monto, moneda:f.moneda, mxn: signo * f.monto * rate, comision: signo<0 && concEsComision(f.desc)}; });
   const fuera = banco.filter(b=>!(b.fecha>=per.desde && b.fecha<=per.hasta)); // del estado, pero fuera de las fechas: no se comparan (se avisa)
   banco = banco.filter(b=>b.fecha>=per.desde && b.fecha<=per.hasta);
   const app = concMovsApp(p, cta, sumarDiasISO(per.desde, -3), sumarDiasISO(per.hasta, 3));
-  const usadosA = new Set(), r = {per, cta, p, coinciden:[], faltan:[], sobran:[], monto:[], nombre:[], sumados:[], fuera};
+  const usadosA = new Set(), r = {per, cta, p, coinciden:[], faltan:[], sobran:[], monto:[], nombre:[], sumados:[], fuera, cajitas: e.filas.filter(f=>!f.quitada && ecEsCajita(f))};
   const ext = (b, a)=>!!((a && a.mov && a.mov.moneda && a.mov.moneda!=='MXN') || (b && b.moneda!=='MXN'));
   const mismoMonto = (b, a)=>{ if(Math.sign(b.mxn)!==Math.sign(a.mxn)) return false;
     return ext(b, a) ? Math.abs(Math.abs(a.mxn)-Math.abs(b.mxn)) <= Math.max(1, Math.abs(b.mxn)*0.04) : Math.abs(Math.abs(a.mxn)-Math.abs(b.mxn)) < 0.011; };
@@ -4717,7 +4722,7 @@ function openComparacion(recalcular){
     ${perfil && e.persona!==perfil ? `<div class="note-box conc-aviso">${ico('users','icon-sm')}<div>Esta cuenta es de ${escHtml(nombrePersona(e.persona))}: lo que cambies de sus movimientos se le manda para que lo apruebe.</div></div>` : ''}
     ${conc && conc.hasta && r.per.desde <= conc.hasta ? `<div class="note-box conc-aviso">${ico('alert','icon-sm')}<div>Parte de este periodo ya lo conciliaste (hasta ${escHtml(fmtDate(conc.hasta))}). Lo que salga como faltante de esas fechas revísalo con calma.</div></div>` : ''}
     <div class="conc-resumen">
-      ${chip('faltan', v.faltan.length, 'warn', '+ '+v.faltan.length+' faltan')}${chip('monto', r.monto.length, 'warn', '≠ '+r.monto.length+' monto')}${chip('nombre', v.nombre.length, 'warn', '? '+v.nombre.length+' nombre')}${chip('sumados', r.sumados.length, 'ok', 'Σ '+r.sumados.length+' sumados')}${chip('sobran', v.sobran.length, 'bad', '− '+v.sobran.length+' sobran')}${chip('coinciden', nCoin, 'ok', '✓ '+nCoin+' coinciden')}
+      ${chip('faltan', v.faltan.length, 'warn', '+ '+v.faltan.length+' faltan')}${chip('monto', r.monto.length, 'warn', '≠ '+r.monto.length+' monto')}${chip('nombre', v.nombre.length, 'warn', '? '+v.nombre.length+' nombre')}${chip('sumados', r.sumados.length, 'ok', 'Σ '+r.sumados.length+' sumados')}${chip('sobran', v.sobran.length, 'bad', '− '+v.sobran.length+' sobran')}${chip('coinciden', nCoin, 'ok', '✓ '+nCoin+' coinciden')}${chip('cajitas', (r.cajitas||[]).length, '', (r.cajitas||[]).length+' de Cajita, no cuentan')}
     </div>
     ${!v.faltan.length && !r.monto.length && !v.nombre.length && !r.sumados.length && !v.sobran.length ? `<div class="conc-todo-ok">${ico('check','icon-sm')} Todo lo del estado ya está en la app.</div>` : ''}
     ${sec('faltan', '+ Faltan en la app', 'conc-faltan', v.faltan.length, 'Vienen marcados para agregarse. Cambia la categoría o de quién es aquí mismo.', `<div class="conc-masivo"><button type="button" class="link-quiet" id="concTodosFaltan">${ico('check','icon-xs')} Agregar todos</button><button type="button" class="link-quiet" id="concNingunoFaltan">${ico('x','icon-xs')} Ninguno</button></div>` + v.faltan.map(htmlFalta).join(''))}
@@ -4726,6 +4731,7 @@ function openComparacion(recalcular){
     ${sec('sumados', 'Σ Coinciden sumados', 'conc-sumados', r.sumados.length, 'Lo registraste junto o separado distinto que el banco, pero suma igual.', r.sumados.map(htmlSuma).join(''))}
     ${sec('sobran', '− Están en la app pero no en el estado', 'conc-sobran', v.sobran.length, 'Puede ser de otro periodo, de otra cuenta o estar repetido. Se quedan, a menos que elijas borrar.', v.sobran.map(x=>htmlSobra(x, r.sobran.indexOf(x))).join(''))}
     ${nCoin ? `<details class="conc-sec conc-ok" id="concSec-coinciden"><summary class="conc-tit">✓ Coinciden <span>${nCoin}</span></summary>${r.coinciden.map(x=>concLinea(`${escHtml(x.b.desc)} · ${escHtml(fmtDate(x.b.fecha))}${x.a.nota && concNorm(x.a.nota)!==concNorm(x.b.desc) ? `<br><small>En la app: ${escHtml(x.a.nota)}</small>` : ''}${x.aviso ? `<br><small class="conc-av">${ico('alert','icon-xs')} ${escHtml(x.aviso)}</small>` : ''}`, concMonto(x.b.mxn, x.b))).join('')}</details>` : ''}
+    ${(r.cajitas||[]).length ? `<div class="conc-sec conc-cajitas-w" id="concSec-cajitas">${ecHtmlCajitas(r.cajitas, 'conc')}</div>` : ''}
     <section class="conc-sec conc-saldo" id="concSec-saldo"><div class="conc-tit">Saldo al ${escHtml(fmtDate(r.per.hasta))}</div>
       <div class="field-row"><div class="field"><label>${esCredito(r.cta)?'Lo que debías según el banco':'Saldo según el banco'} (${escHtml(r.monedaEstado||'MXN')})</label><input type="number" inputmode="decimal" id="concSaldoBanco" value="${escHtml(r.saldoTxt||'')}" placeholder="Escríbelo si no lo leí"></div>
       <div class="field"><label>${esCredito(r.cta)?'Según la app, con tus cambios':'Según la app, con tus cambios'}</label><input type="text" id="concSaldoApp" value="${fmt(concSaldoTras(r, cambios),'MXN')}" disabled></div></div>
@@ -4754,7 +4760,8 @@ function openComparacion(recalcular){
   document.querySelectorAll('[data-conc-dinero]').forEach(b=>b.addEventListener('click', ()=>{ const d = b.getAttribute('data-conc-dinero'), bk = ecBancoDe(e), cred = ecEsCreditoEstado(e);
     e.cuenta = d==='budget' ? 'bote' : (cred ? 'credito' : 'debito'); e.cta = bk+(cred?'-cred':'-deb'); if(!ecListaCtas(e.cuenta).includes(e.cta)) e.cta = ecCtaDef(e.banco, e.cuenta, e.invertido); recalc(); }));
   $('concCta').addEventListener('change', ()=>{ e.cta = $('concCta').value; recalc(); });
-  document.querySelectorAll('[data-conc-ir]').forEach(b=>b.addEventListener('click', ()=>{ const s = $('concSec-'+b.getAttribute('data-conc-ir')); if(!s) return; if(s.tagName==='DETAILS') s.open = true; s.scrollIntoView && s.scrollIntoView({behavior:'smooth', block:'start'}); s.classList.add('conc-brillo'); setTimeout(()=>s.classList.remove('conc-brillo'), 1200); }));
+  document.querySelectorAll('[data-conc-cajita-cuenta]').forEach(b=>b.addEventListener('click', ()=>{ ecCajitaSiCuenta(e.filas.find(x=>x.i===Number(b.getAttribute('data-conc-cajita-cuenta')))); concGuardarBorrador(); recalc(); }));
+  document.querySelectorAll('[data-conc-ir]').forEach(b=>b.addEventListener('click', ()=>{ const s = $('concSec-'+b.getAttribute('data-conc-ir')); if(!s) return; const dd = s.tagName==='DETAILS' ? s : s.querySelector('details'); if(dd) dd.open = true; s.scrollIntoView && s.scrollIntoView({behavior:'smooth', block:'start'}); s.classList.add('conc-brillo'); setTimeout(()=>s.classList.remove('conc-brillo'), 1200); }));
   document.querySelectorAll('[data-conc-dec]').forEach(b=>b.addEventListener('click', ()=>{ if(b.disabled) return; const k = b.getAttribute('data-conc-dec'), val = b.getAttribute('data-v');
     if(val===concDefecto(k)) delete concDec[k]; else concDec[k] = val;
     if(k.charAt(0)==='f'){ const f = concFaltaPorClave(k); if(f && val==='agregar' && f.dup) f.dupResuelto = true; }
@@ -8472,6 +8479,10 @@ function reacomodarToques(){
 }
 (function(){
   let tm = null; const luego = (ms)=>{ clearTimeout(tm); tm = setTimeout(reacomodarToques, ms); };
+  // v19 etapa 10: al enfocar un campo de una hoja, que quede a la vista (no debajo de la barra fija de abajo ni del teclado)
+  document.addEventListener('focusin', (ev)=>{ const el = ev.target; if(!el || !/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || !el.closest || !el.closest('#overlay .sheet')) return;
+    setTimeout(()=>{ try{ const r = el.getBoundingClientRect(), vv = window.visualViewport, alto = vv ? vv.height : window.innerHeight, pie = el.closest('.sheet').querySelector('.ec-pie'), tapa = pie ? pie.getBoundingClientRect().height : 0;
+      if(r.bottom > alto - tapa - 8 || r.top < 60) el.scrollIntoView({block:'center', behavior:'smooth'}); }catch(e){} }, 320); });
   document.addEventListener('focusout', ()=>setTimeout(()=>{ const a = document.activeElement; if(!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) reacomodarToques(); }, 120));
   try{ if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>luego(150)); } }catch(e){}
   window.addEventListener('orientationchange', ()=>luego(300));
@@ -10056,6 +10067,11 @@ const EC_CATEGORIAS = [
   ['Compras / souvenirs', /zara|h&m|souvenir|amazon|\bshop\b|store|tienda|primark|\bdm\b|decathlon|mango|liverpool|palacio de hierro|mercado libre|shein/],
 ];
 const EC_GUSTOS = /netflix|spotify|cine|cinema|concert|concierto|disney|hbo|max\b|prime video|apple\.com\/bill|youtube/;
+// v19 etapa 10: en Nu débito, meter o sacar dinero de una Cajita es un movimiento dentro de Nu: no entra ni sale dinero.
+// (Los rendimientos que da la Cajita sí son dinero nuevo: esos se quedan como ingreso.)
+const EC_CAJITA = /\bcajitas?\b/, EC_CAJITA_MOV = /deposito|retiro|guardad|guardaste|movid|moviste|envio|enviaste|transferencia|traspaso|apartad|\ba tu\b|\bde tu\b|\ben tu\b|desde|hacia/, EC_CAJITA_GANA = /rendimiento|interes|ganancia|ganaste|generad|\bisr\b|retencion/;
+function ecEsMovCajita(desc){ const d = sinAcentos(desc); return EC_CAJITA.test(d) && EC_CAJITA_MOV.test(d) && !EC_CAJITA_GANA.test(d); }
+function ecEsCajita(f){ return !!(f && f.cajita && !f.cajitaCuenta); }
 const EC_ATM = /\batm\b|cajero|cash withdrawal|retiro en cajero|retiro de efectivo|disposicion de efectivo|bankomat/;
 const EC_ENTRE = /top.?up|recarga|transfer to|transferencia a (mi|tu|cuenta propia)|entre cuentas|to eur\b|to mxn\b|exchanged|conversion|converted|cambio de divisa|\bwise\b|(transferencia|envio|a|hacia|to|desde|from) (mi |tu )?revolut\b|pago a (tu|la) tarjeta|pago tarjeta|pago tdc/;
 // v18.9: pago a tu propia tarjeta de crédito (en un estado de débito). Ej. "Pago a tu tarjeta de crédito Nu".
@@ -10106,7 +10122,7 @@ function ecRecalcularDups(e){
   try{
     ecDupPersona = e.persona;
     e.filas.forEach(f=>{
-      if(f.dupResuelto || f.quitada) return;
+      if(f.dupResuelto || f.quitada || ecEsCajita(f)) return;
       const tenia = !!f.dup, fx = f.tipo==='pase' ? Object.assign({}, f, {tipo: f.signo<0 ? 'gasto' : 'ingreso'}) : f; // un pase se compara como lo que dice el banco (salida o entrada)
       const dm = ecDuplicadoDe(fx, usados, ecEsCreditoEstado(e));
       if(dm){ if(!tenia){ f.incluir = false; f.avisos = f.avisos || []; f.avisos.unshift('Posible duplicado: ya tienes uno igual'); }
@@ -10177,6 +10193,11 @@ function ecPrepararFilas(leidas, banco, cuentaForzada){
   return leidas.map((r, i)=>{
     const d = sinAcentos(r.desc + ' ' + (r.tipoBanco||''));
     const fila = {i, signo: r.montoSigno<0 ? -1 : 1, fecha:r.fecha, desc:r.desc, monto: Math.round(Math.abs(r.montoSigno)*100)/100, moneda: r.moneda||'MXN', tipo: r.montoSigno<0 ? 'gasto' : 'ingreso', incluir:true, avisos:[], cat:'', quien:'yo', cuenta:'', rate:null, rateEditado:false, signo: r.montoSigno<0 ? -1 : 1, paseCon: ecPaseCon(r.desc), paseCons: ecPasesCon(r.desc)};
+    if(banco==='nu' && cuentaDef!=='credito' && ecEsMovCajita(r.desc + ' ' + (r.tipoBanco||''))){
+      fila.cajita = true; fila.incluir = false; fila.avisos = ['Movimiento de Cajita: es dentro de Nu, no entra ni sale dinero (no cuenta)'];
+      if(fila.moneda==='MXN') fila.rate = 1;
+      return fila;
+    }
     if(EC_ATM.test(d)){ fila.tipo='retiro'; fila.incluir=false; fila.avisos.push('Retiro de cajero: se guarda como retiro a efectivo (el gasto cuenta cuando uses ese efectivo)'); }
     else if(r.montoSigno<0 && cuentaDef!=='credito' && EC_PAGO_TDC.test(d)){
       // v18.9: en un estado de débito, el pago a tu tarjeta de crédito no es gasto: sale de aquí y baja lo que debes.
@@ -10589,7 +10610,7 @@ function ecCtaDef(banco, cuenta, invertido){
 }
 function ecListaCtas(cuenta){ return cuenta==='credito' ? CUENTAS_CREDITO : (cuenta==='debito' ? CUENTAS_DEBITO : CUENTAS_BUDGET); }
 function ctaMismoBanco(cta, tipo){ return (String(cta||'').startsWith('rev') ? 'rev' : 'nu') + '-' + tipo; }
-function ecFilasVisibles(){ return ecEstado.filas.filter(f=>!f.quitada); }
+function ecFilasVisibles(){ return ecEstado.filas.filter(f=>!f.quitada && !ecEsCajita(f)); } // v19 etapa 10: lo de Cajita no cuenta
 // v18.3: ¿el renglón es un pago (o devolución) a una tarjeta de crédito? (estado de crédito con ingreso / pago)
 function ecCtaEstado(e){ return (e.cta && ecListaCtas(e.cuenta).includes(e.cta)) ? e.cta : ecCtaDef(e.banco, e.cuenta, e.invertido); }
 function ecEsCreditoFila(e, f){ const c = f.cuenta || e.cuenta; return c==='credito' || (c==='bote' && esCredito(ecCtaEstado(e))); }
@@ -10732,7 +10753,7 @@ function ecResumen(){
   const pg = sel.filter(f=>ecEsPagoRealFila(ecEstado, f)).length, dv = sel.filter(f=>ecEsDevolucionFila(ecEstado, f)).length, ps = sel.filter(f=>f.tipo==='pase').length, o = sel.length-g-i-pg-dv-ps;
   const dups = vis.filter(f=>f.dup && !f.dupResuelto).length;
   const partes = [g ? g+' gasto'+(g===1?'':'s') : '', i ? i+' ingreso'+(i===1?'':'s') : '', pg ? pg+' pago'+(pg===1?'':'s')+' de tarjeta' : '', dv ? dv+(dv===1?' devolución':' devoluciones') : '', ps ? ps+(ps===1?' pase':' pases')+' entre ustedes' : '', o ? o+' retiro'+(o===1?'':'s') : ''].filter(Boolean);
-  return `${ecEstado.invertido ? 'Parece un estado de tarjeta de crédito: los cargos se tomaron como gastos (si no, usa "Invertir"). ' : ''}${vis.length} leídos · <b>${sel.length} elegidos para guardar</b>${partes.length?` (${partes.join(', ')})`:''}${dups?` · <b style="color:var(--amber);">${dups} posible${dups===1?'':'s'} duplicado${dups===1?'':'s'} por revisar</b>`:''}${ecEstado.omitidos?' · '+ecEstado.omitidos+' líneas sin movimiento ignoradas':''}. Nada se guarda hasta que lo elijas.`;
+  return `${ecEstado.invertido ? 'Parece un estado de tarjeta de crédito: los cargos se tomaron como gastos (si no, usa "Invertir"). ' : ''}${vis.length} leídos · <b>${sel.length} elegidos para guardar</b>${partes.length?` (${partes.join(', ')})`:''}${dups?` · <b style="color:var(--amber);">${dups} posible${dups===1?'':'s'} duplicado${dups===1?'':'s'} por revisar</b>`:''}${ecEstado.omitidos?' · '+ecEstado.omitidos+' líneas sin movimiento ignoradas':''}. Nada se guarda hasta que lo elijas.${(()=>{ const nc = ecEstado.filas.filter(f=>!f.quitada && ecEsCajita(f)).length; return nc ? ` · ${nc} de Cajita (no cuentan)` : ''; })()}`;
 }
 function ecFechaCorta(iso){ try{ return new Date(iso+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric', month:'short'}).replace('.',''); }catch(e){ return iso; } }
 function ecAvisosFila(f){ return (f.avisos||[]).filter(a=>!/^Posible duplicado/.test(a)); }
@@ -10784,8 +10805,22 @@ function ecHtmlFila(e, f){
           <div class="ec-cta-sel" ${ctaAbierta?'':'hidden'}><label class="ec-campo"><span>${ico('card','icon-xs')} Solo en este renglón</span><select data-ec="cuenta">${ecOpcionesCuentaFila(e, f)}</select></label></div>
           ${cuenta==='otro' ? `<label class="ec-campo ec-otro-fila"><span>${ico('users','icon-xs')} ¿Quién lo pagó?</span><input type="text" data-ec="otroNombre" list="ecOtrosLista" value="${escHtml(f.otroNombre||'')}" placeholder="${escHtml(e.otroNombre ? 'Igual que arriba: '+e.otroNombre : 'Ej. Ana, mamá de Isa…')}"></label>` : ''}
           ${avisos.length ? `<div class="ec-avisos">${avisos.map(a=>`<div>${ico('alert','icon-xs')} ${escHtml(a)}</div>`).join('')}</div>` : ''}
+          ${f.cajita ? `<button type="button" class="link-quiet" data-ec-cajita-no="${f.i}">${ico('wallet','icon-xs')} Es de Cajita: no cuenta</button>` : ''}
         </div>
       </div>`;
+}
+// v19 etapa 10: grupo plegado con lo de Cajita (no cuenta). «Sí cuenta» lo regresa a la lista normal.
+function ecHtmlCajitas(lista, pref){
+  if(!lista.length) return '';
+  return `<details class="ec-cajitas" id="${pref}Cajitas"><summary>${ico('wallet','icon-xs')} ${lista.length} movimiento${lista.length===1?'':'s'} de Cajita · no cuenta${lista.length===1?'':'n'}</summary>
+    <div class="small-note">Meter o sacar dinero de una Cajita pasa dentro de Nu: no entra ni sale dinero, así que no se guarda ni se compara. Los rendimientos que te da la Cajita sí cuentan (no salen aquí).</div>
+    ${lista.map(f=>`<div class="ec-cajita-l"><span class="ec-cajita-t"><b>${escHtml(f.desc)}</b><small>${escHtml(fmtDate(f.fecha))}</small></span><span class="ec-cajita-m">${f.signo<0?'−':'+'}${fmt(f.monto, f.moneda)}</span><button type="button" class="link-quiet" data-${pref}-cajita-cuenta="${f.i}">Sí cuenta</button></div>`).join('')}
+  </details>`;
+}
+function ecCajitaSiCuenta(f){
+  if(!f) return; f.cajitaCuenta = true; f.avisos = ['Dijiste que este movimiento de Cajita sí cuenta: revisa qué es'];
+  if(!f.tipo) f.tipo = f.signo<0 ? 'gasto' : 'ingreso';
+  if(f.tipo==='gasto' && !f.cat) f.cat = ecSugerirCategoria(f.desc) || (subcatV15(state, 'Otros')||{}).id;
 }
 function ecContarElegidos(){ return ecFilasVisibles().filter(f=>f.incluir).length; }
 function ecPuedeMarcar(f){ return !(f.dup && !f.dupResuelto) && (f.moneda in (state.rates||{})); }
@@ -10846,6 +10881,7 @@ function openRevisionEstado(){
     <div class="ec-lista">
     ${vis.map(f=>ecHtmlFila(e, f)).join('')}
     </div>
+    ${ecHtmlCajitas(e.filas.filter(f=>!f.quitada && ecEsCajita(f)), 'ec')}
     ${e.editImportId ? '' : `<button type="button" class="btn btn-outline btn-block" id="ecComparar" style="margin:10px 0 0;">${ico('scale','icon-sm')} Comparar con la app (qué falta, qué sobra, montos y saldo)</button>`}
     <div class="ec-pie"><button class="btn btn-primary btn-block" id="ecGuardar">${ico('check','icon-sm')} <span>${e.editImportId ? 'Guardar cambios' : 'Guardar los elegidos'} (<span id="ecGuardarN">${ecContarElegidos()}</span>)</span></button></div>
   `);
@@ -10877,6 +10913,8 @@ function openRevisionEstado(){
   $('ecCta').addEventListener('change', ()=>{ ecEstado.cta = $('ecCta').value; openRevisionEstado(); });
   $('ecOtro').addEventListener('input', ()=>{ ecEstado.otroNombre = $('ecOtro').value; });
   $('ecOtro').addEventListener('change', ()=>{ ecEstado.otroNombre = $('ecOtro').value; ecRefrescarResumenes(); });
+  document.querySelectorAll('[data-ec-cajita-cuenta]').forEach(b=>b.addEventListener('click', ()=>{ ecCajitaSiCuenta(e.filas.find(x=>x.i===Number(b.getAttribute('data-ec-cajita-cuenta')))); e._yaEstaKey = null; openRevisionEstado(); }));
+  document.querySelectorAll('[data-ec-cajita-no]').forEach(b=>b.addEventListener('click', (ev)=>{ ev.stopPropagation(); const f = e.filas.find(x=>x.i===Number(b.getAttribute('data-ec-cajita-no'))); if(f){ f.cajitaCuenta = false; f.incluir = false; f.avisos = ['Movimiento de Cajita: es dentro de Nu, no entra ni sale dinero (no cuenta)']; } e._yaEstaKey = null; openRevisionEstado(); }));
   $('ecTodos').addEventListener('click', ()=>{ ecFilasVisibles().forEach(f=>{ if(ecPuedeMarcar(f)) f.incluir=true; }); openRevisionEstado(); });
   if($('ecTodosGastos')) $('ecTodosGastos').addEventListener('click', ()=>{ ecFilasVisibles().forEach(f=>{ if(f.tipo==='gasto' && ecPuedeMarcar(f)) f.incluir=true; }); openRevisionEstado(); });
   if($('ecTodosPagos')) $('ecTodosPagos').addEventListener('click', ()=>{ ecFilasVisibles().forEach(f=>{ if(ecEsPagoRealFila(ecEstado, f) && ecPuedeMarcar(f)) f.incluir=true; }); openRevisionEstado(); });
@@ -14039,6 +14077,9 @@ function wireV15Events(){
   wirePickers(document.getElementById('app'));
 }
 document.addEventListener('click', (e)=>{ if(!e.target.closest('.pk')) document.querySelectorAll('.pk-list').forEach(l=>{ l.hidden = true; }); });
+// v19 etapa 10: en iPhone tocar un espacio vacío no dispara «click», y una lista abierta se quedaba encima de los campos de abajo.
+document.addEventListener('pointerdown', (e)=>{ const t = e.target; if(!t || !t.closest) return;
+  document.querySelectorAll('.pk-list:not([hidden])').forEach(l=>{ const raiz = l.closest('.pk, .pkx') || l.parentNode; if(raiz && !raiz.contains(t)) l.hidden = true; }); }, true);
 window.addEventListener('resize', ()=>{ try{ actualizarFlechaTabs(); }catch(e){} });
 
 /* ============================================================
@@ -14107,7 +14148,7 @@ function mostrarTip(btn){
   _tipEl.classList.toggle('arriba', !abajo); _tipEl.style.visibility = '';
   requestAnimationFrame(()=>_tipEl && _tipEl.classList.add('on'));
 }
-function ocultarTip(ms){ clearTimeout(_tipT); _tipT = setTimeout(()=>{ if(_tipEl){ _tipEl.classList.remove('on'); _tipDe = null; } }, ms||0); }
+function ocultarTip(ms){ clearTimeout(_tipT); _tipT = setTimeout(()=>{ if(_tipEl){ _tipEl.classList.remove('on'); _tipDe = null; const el = _tipEl; _tipT = setTimeout(()=>{ if(!el.classList.contains('on')) el.style.display = 'none'; }, 260); } }, ms||0); } // v19 etapa 10: al terminar de desvanecerse se quita de verdad
 function wireTips(){
   if(wireTips._ok) return; wireTips._ok = true;
   const sel = '.tip-chip, .tip-i, [data-pie-tip]';
