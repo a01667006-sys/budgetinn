@@ -304,7 +304,7 @@
   .conc-pasos span.hecho b{background:var(--teal-deep);color:#fff;border-color:transparent;} .conc-pasos span.hecho b .icon{width:13px;height:13px;}
   .conc-pasos i{flex:1;height:2px;border-radius:2px;background:var(--line);min-width:10px;}
   .conc-periodo{margin:6px 0 4px;display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;} .conc-ya{display:inline-flex;align-items:center;gap:3px;color:var(--teal-deep);font-weight:700;}
-  .conc-aviso{margin:8px 0;} 
+  .conc-aviso{margin:8px 0;} .conc-per-btn{min-height:32px;} .conc-per-edit{border:1.5px dashed var(--line);border-radius:14px;padding:12px;margin:6px 0 10px;} .conc-per-edit .field{margin-bottom:8px;} 
   .conc-resumen{position:sticky;top:-1px;z-index:4;background:var(--card);padding:8px 0;}
   .conc-chip{font:inherit;font-size:12.5px;font-weight:800;padding:0 12px;min-height:40px;border-radius:99px;border:1.5px solid var(--line);background:var(--paper-soft);color:var(--ink);cursor:pointer;}
   .conc-chip.ok{color:var(--teal-deep);border-color:color-mix(in srgb,var(--teal-deep) 35%,transparent);} .conc-chip.warn{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,transparent);} .conc-chip.bad{color:var(--brick);border-color:color-mix(in srgb,var(--brick) 40%,transparent);}
@@ -805,6 +805,12 @@
     animation:slideup .22s ease;
   }
   @keyframes slideup{from{transform:translateY(24px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  /* v19 etapa 8 (toques que no llegaban): la hoja es la que se desplaza, la página de atrás no se mueve, y al redibujar la misma hoja no se vuelve a animar */
+  .overlay{overscroll-behavior:contain;}
+  .sheet{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;max-height:88dvh;}
+  @supports not (height:1dvh){ .sheet{max-height:88vh;} }
+  .overlay.reemplazo .sheet{animation:none;}
+  html.hoja-abierta, html.hoja-abierta body{overflow:hidden;}
   .sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
   .sheet-head h2{font-size:17px;}
   .close-x{background:var(--paper-soft);border:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);cursor:pointer;}
@@ -1625,7 +1631,7 @@
     .appcontent{padding-bottom:190px !important;}
     .fab{right:16px;bottom:86px;height:54px;}
     .fab-sync{right:16px;bottom:150px;}
-    .bnav{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:60;align-items:center;justify-content:space-between;gap:4px;padding:6px;border-radius:999px;background:color-mix(in srgb,var(--card) 97%,transparent);border:1px solid var(--line);box-shadow:0 18px 44px -12px rgba(10,14,28,.45);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);}
+    .bnav{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:60;align-items:center;justify-content:space-between;gap:4px;padding:6px;border-radius:999px;background:color-mix(in srgb,var(--card) 97%,transparent);border:1px solid var(--line);box-shadow:0 18px 44px -12px rgba(10,14,28,.45);}
     .bnav-b{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;padding:4px 6px;border:none;border-radius:999px;background:transparent;color:var(--ink-soft);font-size:12.5px;font-weight:600;cursor:pointer;}
     .bnav-b span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
     .bnav-b.on{background:var(--btn-bg);color:var(--btn-fg);} .bnav-b.on svg{color:var(--btn-fg);}
@@ -1855,7 +1861,7 @@
   :root:not([data-theme="light"]) .gx-rosa{background:radial-gradient(360px 200px at 100% 0%, rgba(255,92,140,.5), transparent 70%), #2b0f1f !important;}
 
   /* ---- v19 · etapa 2: formularios como en el diseño ---- */
-  .overlay{background:rgba(8,10,18,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+  .overlay{background:rgba(8,10,18,.62);} /* v19 etapa 8: sin desenfoque detrás de la hoja: en iPhone el blur fijo hacía que los toques cayeran en el lugar equivocado hasta hacer scroll o zoom */
   .sheet{background:var(--card);border-radius:32px 32px 0 0;padding:10px 20px calc(26px + env(safe-area-inset-bottom));max-width:560px;box-shadow:0 30px 80px -20px rgba(8,10,18,.6);}
   .sheet-handle{width:44px;height:5px;border-radius:99px;background:var(--line);margin:4px auto 12px;}
   .sheet-head{align-items:flex-start;gap:12px;margin-bottom:16px;}
@@ -4407,11 +4413,32 @@ function concNombreParecido(descBanco, notaApp){
 }
 // Periodo que cubre el estado: lo que diga el texto ("del … al …", "periodo …"); si no, la primera y la última fecha.
 function concPeriodo(texto, filas){
-  const fechas = (filas||[]).map(f=>f.fecha).filter(Boolean).sort();
+  // v19 etapa 8: se buscan TODAS las frases tipo «periodo del … al …», en día/mes y en mes/día, y se queda la que
+  // cubre más movimientos del estado (antes ganaba la primera, aunque fuera una descripción o la fecha de pago).
+  const fechas = (filas||[]).filter(f=>!f.quitada && !f.extraConc).map(f=>f.fecha).filter(Boolean).sort();
   const t = sinAcentos(String(texto||'')).replace(/\s+/g,' ');
-  const re = /(?:periodo|period|del|from|desde)\b[^0-9a-z]{0,8}(.{4,40}?)\s+(?:al|a|to|hasta|-|–)\s+(.{4,40})/ig; let m;
-  while((m = re.exec(t))){ const a = ecParseFecha(m[1], 'dmy'), b = ecParseFecha(m[2], 'dmy'); if(a && b && a<=b && diasEntreISO(a, b) <= 62) return {desde:a, hasta:b, delTexto:true}; }
+  const tieneAnio = (x)=>/\b\d{4}\b/.test(x) || /\d{1,2}[-/.]\d{1,2}[-/.]\d{2}(?!\d)/.test(x);
+  const re = /(periodo|period|statement period|del|from|desde|between)\b[^0-9a-z]{0,12}(.{4,40}?)\s+(?:al|a|to|hasta|and|y|-|–|—)\s+(.{4,40})/ig;
+  const cands = []; let m;
+  while((m = re.exec(t))){
+    ['dmy','mdy'].forEach(o=>{
+      let a = ecParseFecha(m[2], o), b = ecParseFecha(m[3], o); if(!a || !b) return;
+      if(!tieneAnio(m[2]) && tieneAnio(m[3])){ a = b.slice(0,4) + a.slice(4); if(a > b) a = (Number(b.slice(0,4))-1) + a.slice(4); } // «12 de octubre al 11 de noviembre de 2026»
+      if(a<=b && diasEntreISO(a, b) <= 62) cands.push({desde:a, hasta:b, kw: /^(periodo|period|statement)/.test(m[1]) ? 1 : 0, idx:m.index});
+    });
+    re.lastIndex = m.index + 1;
+  }
+  const cubre = (c)=>fechas.length ? fechas.filter(f=>f>=c.desde && f<=c.hasta).length / fechas.length : 1;
+  const buenos = cands.map(c=>Object.assign(c, {cob: cubre(c)})).filter(c=>c.cob >= 0.6);
+  buenos.sort((x,y)=>(y.cob - x.cob) || (y.kw - x.kw) || (x.idx - y.idx));
+  if(buenos.length) return {desde:buenos[0].desde, hasta:buenos[0].hasta, delTexto:true};
   return fechas.length ? {desde:fechas[0], hasta:fechas[fechas.length-1], delTexto:false} : null;
+}
+// Periodo que se usa al comparar: el que escribiste a mano (si lo cambiaste) o el que se leyó.
+function concPeriodoDe(e){
+  const pm = e && e.periodoManual;
+  if(pm && /^\d{4}-\d{2}-\d{2}$/.test(pm.desde||'') && /^\d{4}-\d{2}-\d{2}$/.test(pm.hasta||'') && pm.desde<=pm.hasta) return {desde:pm.desde, hasta:pm.hasta, delTexto:false, manual:true};
+  return concPeriodo(e.texto, e.filas);
 }
 function concSaldoDelTexto(texto){
   const t = sinAcentos(String(texto||'')).replace(/\s+/g,' ');
@@ -4455,13 +4482,15 @@ function concBuscarSuma(cands, total, extr){
   return null;
 }
 function concCalcular(e){
-  const p = e.persona, cta = ecCtaEstado(e), per = concPeriodo(e.texto, e.filas);
+  const p = e.persona, cta = ecCtaEstado(e), per = concPeriodoDe(e);
   if(!per) return null;
-  const banco = e.filas.filter(f=>!f.quitada && !f.extraConc).map(f=>{ const rate = f.moneda==='MXN' ? 1 : (Number(f.rate) || rateSnapshotFor(f.moneda) || 0);
+  let banco = e.filas.filter(f=>!f.quitada && !f.extraConc).map(f=>{ const rate = f.moneda==='MXN' ? 1 : (Number(f.rate) || rateSnapshotFor(f.moneda) || 0);
     const signo = f.signo!=null ? f.signo : (f.tipo==='gasto' || f.tipo==='retiro' || (f.tipo==='pagoTarjeta' && !ecEsCreditoEstado(e)) ? -1 : +1);
-    return {f, fecha:f.fecha, desc:f.desc, monto:f.monto, moneda:f.moneda, mxn: signo * f.monto * rate, comision: signo<0 && concEsComision(f.desc)}; }).filter(b=>b.fecha>=per.desde && b.fecha<=per.hasta);
+    return {f, fecha:f.fecha, desc:f.desc, monto:f.monto, moneda:f.moneda, mxn: signo * f.monto * rate, comision: signo<0 && concEsComision(f.desc)}; });
+  const fuera = banco.filter(b=>!(b.fecha>=per.desde && b.fecha<=per.hasta)); // del estado, pero fuera de las fechas: no se comparan (se avisa)
+  banco = banco.filter(b=>b.fecha>=per.desde && b.fecha<=per.hasta);
   const app = concMovsApp(p, cta, sumarDiasISO(per.desde, -3), sumarDiasISO(per.hasta, 3));
-  const usadosA = new Set(), r = {per, cta, p, coinciden:[], faltan:[], sobran:[], monto:[], nombre:[], sumados:[]};
+  const usadosA = new Set(), r = {per, cta, p, coinciden:[], faltan:[], sobran:[], monto:[], nombre:[], sumados:[], fuera};
   const ext = (b, a)=>!!((a && a.mov && a.mov.moneda && a.mov.moneda!=='MXN') || (b && b.moneda!=='MXN'));
   const mismoMonto = (b, a)=>{ if(Math.sign(b.mxn)!==Math.sign(a.mxn)) return false;
     return ext(b, a) ? Math.abs(Math.abs(a.mxn)-Math.abs(b.mxn)) <= Math.max(1, Math.abs(b.mxn)*0.04) : Math.abs(Math.abs(a.mxn)-Math.abs(b.mxn)) < 0.011; };
@@ -4564,7 +4593,7 @@ function concGuardarBorrador(){
   try{
     const e = ecEstado; if(!e || e.modo!=='comparar') return;
     const filas = e.filas.filter(f=>!f.extraConc);
-    localStorage.setItem(CONC_BORRADOR_KEY, JSON.stringify({v:1, ts:Date.now(), e:{texto:e.texto, banco:e.banco, persona:e.persona, cuenta:e.cuenta, cta:e.cta, archivo:e.archivo||'', invertido:!!e.invertido, tipoDetectado:e.tipoDetectado||'', otroNombre:e.otroNombre||'', filas, omitidos:e.omitidos||[]}, dec:concDec, saldo: concEstado ? concEstado.saldoTxt : null}));
+    localStorage.setItem(CONC_BORRADOR_KEY, JSON.stringify({v:1, ts:Date.now(), e:{texto:e.texto, banco:e.banco, persona:e.persona, cuenta:e.cuenta, cta:e.cta, archivo:e.archivo||'', invertido:!!e.invertido, tipoDetectado:e.tipoDetectado||'', otroNombre:e.otroNombre||'', filas, omitidos:e.omitidos||[], periodoManual:e.periodoManual||null}, dec:concDec, saldo: concEstado ? concEstado.saldoTxt : null}));
   }catch(err){}
 }
 function concLeerBorrador(){ try{ const b = JSON.parse(localStorage.getItem(CONC_BORRADOR_KEY)||'null'); if(!b || b.v!==1 || !b.e || !Array.isArray(b.e.filas) || !b.e.filas.length) return null; if(Date.now() - (Number(b.ts)||0) > 45*864e5) return null; return b; }catch(err){ return null; } }
@@ -4617,7 +4646,8 @@ function openComparacion(recalcular){
       ${tags ? `<div class="conc-tags">${tags}</div>` : ''}
       ${concSeg(k, [['agregar', ico('plus','icon-xs')+' Agregar', puede || (f.moneda in (state.rates||{})) ? '' : 'disabled'], ['omitir', 'No agregar']])}
       ${d==='agregar' ? `<div class="conc-campos">
-        <label class="ec-campo"><span>${ico('layers','icon-xs')} ¿Qué es?</span><select data-conc-tipo="${f.i}">${ecOpcionesTipo(e, f)}</select></label>
+        <div class="ec-grid"><label class="ec-campo"><span>${ico('layers','icon-xs')} ¿Qué es?</span><select data-conc-tipo="${f.i}">${ecOpcionesTipo(e, f)}</select></label>
+        <label class="ec-campo"><span>${ico('calendar','icon-xs')} Fecha</span><input type="date" data-conc-fecha="${f.i}" value="${escHtml(f.fecha)}"></label></div>
         ${f.tipo==='gasto' ? `<div class="ec-grid"><label class="ec-campo"><span>${ico('layers','icon-xs')} Categoría</span><select data-conc-cat="${f.i}">${catOpts(f.cat)}</select></label>
         <label class="ec-campo"><span>${ico('users','icon-xs')} ¿De quién es?</span><select data-conc-quien="${f.i}">${ecOpt('yo', 'Solo '+nombrePersona(e.persona), f.quien==='ambas'?'ambas':'yo', {av:e.persona})}${ecOpt('ambas', 'Ambas (a medias)', f.quien==='ambas'?'ambas':'yo', {av:'ambas'})}</select></label></div>` : ''}
       </div>` : ''}
@@ -4679,7 +4709,11 @@ function openComparacion(recalcular){
         <div class="field"><label>${ico('card','icon-xs')} ¿Qué tarjeta es?</label><select id="concCta">${opcionesCta(ecListaCtas(e.cuenta), r.cta)}</select></div>
       </div>
     </div>
-    <div class="small-note conc-periodo">${ico('calendar','icon-xs')} Periodo <b>${escHtml(fmtDate(r.per.desde))} → ${escHtml(fmtDate(r.per.hasta))}</b>${r.per.delTexto ? ' (leído del estado)' : ' (primera y última fecha del estado)'}.${conc && conc.hasta ? ` <span class="conc-ya">${ico('check','icon-xs')} Conciliada hasta ${escHtml(fmtDate(conc.hasta))}</span>` : ''}</div>
+    <div class="small-note conc-periodo">${ico('calendar','icon-xs')} Periodo <b>${escHtml(fmtDate(r.per.desde))} → ${escHtml(fmtDate(r.per.hasta))}</b>${r.per.manual ? ' (lo pusiste tú)' : r.per.delTexto ? ' (leído del estado)' : ' (primera y última fecha del estado)'}. <button type="button" class="link-quiet conc-per-btn" id="concPerEditar">${ico('edit','icon-xs')} ${e.perEditando ? 'Cerrar' : 'Cambiar fechas'}</button>${conc && conc.hasta ? ` <span class="conc-ya">${ico('check','icon-xs')} Conciliada hasta ${escHtml(fmtDate(conc.hasta))}</span>` : ''}</div>
+    ${e.perEditando ? `<div class="conc-per-edit"><div class="field-row"><div class="field"><label>${ico('calendar','icon-xs')} Desde</label><input type="date" id="concPerDesde" value="${escHtml(r.per.desde)}"></div><div class="field"><label>${ico('calendar','icon-xs')} Hasta</label><input type="date" id="concPerHasta" value="${escHtml(r.per.hasta)}"></div></div>
+      <div class="small-note" id="concPerError" hidden></div>
+      <div class="conc-preg-acc"><button type="button" class="btn btn-primary btn-sm" id="concPerAplicar">${ico('check','icon-xs')} Usar estas fechas</button>${e.periodoManual ? `<button type="button" class="btn btn-outline btn-sm" id="concPerAuto">Volver a las del estado</button>` : ''}</div></div>` : ''}
+    ${r.fuera && r.fuera.length ? (()=>{ const fs = r.fuera.map(b=>b.fecha).sort(); return `<div class="note-box conc-aviso" id="concAvisoFuera">${ico('alert','icon-sm')}<div><b>${r.fuera.length} movimiento${r.fuera.length===1?'':'s'} del estado ${r.fuera.length===1?'queda':'quedan'} fuera de estas fechas</b> (${escHtml(fmtDate(fs[0]))}${fs.length>1 ? ' a '+escHtml(fmtDate(fs[fs.length-1])) : ''}) y no se ${r.fuera.length===1?'compara':'comparan'}. Si las fechas del periodo están mal, cámbialas. <button type="button" class="link-quiet" id="concPerIncluir">${ico('plus','icon-xs')} Incluir${r.fuera.length===1?'lo':'los'}</button></div></div>`; })() : ''}
     ${perfil && e.persona!==perfil ? `<div class="note-box conc-aviso">${ico('users','icon-sm')}<div>Esta cuenta es de ${escHtml(nombrePersona(e.persona))}: lo que cambies de sus movimientos se le manda para que lo apruebe.</div></div>` : ''}
     ${conc && conc.hasta && r.per.desde <= conc.hasta ? `<div class="note-box conc-aviso">${ico('alert','icon-sm')}<div>Parte de este periodo ya lo conciliaste (hasta ${escHtml(fmtDate(conc.hasta))}). Lo que salga como faltante de esas fechas revísalo con calma.</div></div>` : ''}
     <div class="conc-resumen">
@@ -4705,6 +4739,15 @@ function openComparacion(recalcular){
   concGuardarBorrador();
   const recalc = ()=>{ const nr = concCalcular(e); if(!nr){ mostrarToast('No encontré fechas en el estado de cuenta.', 'error'); return; } nr._para = e; nr.saldoTxt = r.saldoTxt; concEstado = nr; openComparacion(false); };
   $('concCfgToggle').addEventListener('click', ()=>{ e.cfgConcAbierta = !e.cfgConcAbierta; openComparacion(false); });
+  // v19 etapa 8: fechas del periodo a mano
+  $('concPerEditar').addEventListener('click', ()=>{ e.perEditando = !e.perEditando; openComparacion(false); });
+  const usarPeriodo = (pm)=>{ e.periodoManual = pm; e.perEditando = false; e._yaEstaKey = null; concGuardarBorrador(); recalc(); };
+  if($('concPerAplicar')) $('concPerAplicar').addEventListener('click', ()=>{ const de = $('concPerDesde').value, ha = $('concPerHasta').value, er = $('concPerError');
+    const msg = !de || !ha ? 'Escribe las dos fechas.' : de > ha ? '«Desde» tiene que ser antes de «Hasta».' : diasEntreISO(de, ha) > 400 ? 'El periodo es muy largo (más de un año).' : '';
+    if(msg){ er.hidden = false; er.textContent = msg; return; } usarPeriodo({desde:de, hasta:ha}); });
+  if($('concPerAuto')) $('concPerAuto').addEventListener('click', ()=>usarPeriodo(null));
+  if($('concPerIncluir')) $('concPerIncluir').addEventListener('click', ()=>{ const fs = [r.per.desde, r.per.hasta, ...r.fuera.map(b=>b.fecha)].sort(); usarPeriodo({desde:fs[0], hasta:fs[fs.length-1]}); });
+  document.querySelectorAll('[data-conc-fecha]').forEach(inp=>inp.addEventListener('change', ()=>{ const f = e.filas.find(x=>x.i===Number(inp.getAttribute('data-conc-fecha'))); if(!f || !/^\d{4}-\d{2}-\d{2}$/.test(inp.value)) return; f.fecha = inp.value; f.fechaEditada = true; concGuardarBorrador(); recalc(); }));
   document.querySelectorAll('[data-conc-persona]').forEach(b=>b.addEventListener('click', ()=>{ e.persona = b.getAttribute('data-conc-persona'); try{ ecRecalcularDups(e); e._dupPara = e.persona; }catch(err){} recalc(); }));
   document.querySelectorAll('[data-conc-tipoest]').forEach(b=>b.addEventListener('click', ()=>{ const t = b.getAttribute('data-conc-tipoest'), bk = ecBancoDe(e);
     if(e.cuenta!=='bote') e.cuenta = t==='cred' ? 'credito' : 'debito'; e.cta = bk+(t==='cred'?'-cred':'-deb'); recalc(); }));
@@ -4882,7 +4925,7 @@ function openExitoComparacion(){
 }
 // En «Importar»: con el mismo detector, lo que ya está en la app sale como «Ya está en la app», sin marcar.
 function concMarcarYaEsta(e){
-  const clave = e.persona+'|'+ecCtaEstado(e)+'|'+e.filas.length;
+  const clave = e.persona+'|'+ecCtaEstado(e)+'|'+e.filas.length+'|'+JSON.stringify(e.periodoManual||null)+'|'+e.filas.map(f=>f.fecha).join(',');
   if(e._yaEstaKey===clave) return; e._yaEstaKey = clave;
   // lo que marcó este detector para otra cuenta o persona ya no vale
   e.filas.forEach(f=>{ if(f.dup && f.dup.conc && !f.dupResuelto){ delete f.dup; f.avisos = (f.avisos||[]).filter(a=>!/^Posible duplicado: ya está en la app/.test(a)); } });
@@ -8389,9 +8432,10 @@ function estadoGastoTardio(g){
    MODALS / SHEETS
    ============================================================ */
 function openSheet(html){
+  const habia = !!document.querySelector('.overlay');
   document.querySelectorAll('.overlay').forEach(o=>o.remove()); // nunca dos formularios encimados
   const wrap = document.createElement('div');
-  wrap.className='overlay';
+  wrap.className = habia ? 'overlay reemplazo' : 'overlay'; // v19 etapa 8: al redibujar la misma hoja no se anima (los toques caían a destiempo)
   wrap.id='overlay';
   wrap.innerHTML = `<div class="sheet">${html}</div>`;
   wrap.addEventListener('click', (e)=>{ if(e.target.id==='overlay') closeSheet(); });
@@ -8399,10 +8443,41 @@ function openSheet(html){
   wireSheetEvents();
   mejorarSelects(wrap);
   decorarHoja(wrap);
+  hojaAbierta(true);
+  if(habia) setTimeout(reacomodarToques, 40);
 }
 function closeSheet(){
   document.querySelectorAll('.overlay').forEach(o=>o.remove());
+  hojaAbierta(false);
 }
+/* v19 etapa 8 — «no me deja escribir o tocar hasta que hago scroll o zoom».
+   En iPhone/Safari, después de abrir o cerrar el teclado, de redibujar una hoja o de que la página de atrás se mueva,
+   el navegador se queda con el mapa de toques viejo: tocas un campo y el toque cae en lo que estaba abajo o arriba.
+   1) Mientras hay una hoja abierta, la página de atrás no se desplaza (solo la hoja).
+   2) Al cerrar el teclado, al cambiar el zoom o el tamaño, y al redibujar, se «reacomoda» la página (lo mismo que hacía el scroll). */
+let _yHoja = 0;
+function hojaAbierta(si){
+  const h = document.documentElement; if(!h) return;
+  if(si){ if(!h.classList.contains('hoja-abierta')){ _yHoja = window.scrollY || 0; h.classList.add('hoja-abierta'); } }
+  else if(h.classList.contains('hoja-abierta')){ h.classList.remove('hoja-abierta'); try{ if(Math.abs((window.scrollY||0) - _yHoja) > 1) window.scrollTo(window.scrollX||0, _yHoja); }catch(e){} }
+}
+function reacomodarToques(){
+  try{
+    const abierta = !!document.getElementById('overlay');
+    if(abierta && Math.abs((window.scrollY||0) - _yHoja) > 1) window.scrollTo(window.scrollX||0, _yHoja); // el teclado movió la página de atrás
+    else window.scrollTo(window.scrollX||0, window.scrollY||0);
+    const sh = document.querySelector('#overlay .sheet');
+    if(sh && sh.scrollHeight > sh.clientHeight){ const t = sh.scrollTop; sh.scrollTop = t + 1; sh.scrollTop = t; }
+  }catch(e){}
+}
+(function(){
+  let tm = null; const luego = (ms)=>{ clearTimeout(tm); tm = setTimeout(reacomodarToques, ms); };
+  document.addEventListener('focusout', ()=>setTimeout(()=>{ const a = document.activeElement; if(!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) reacomodarToques(); }, 120));
+  try{ if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>luego(150)); } }catch(e){}
+  window.addEventListener('orientationchange', ()=>luego(300));
+  // Si algo quita la hoja sin pasar por closeSheet, la página de atrás vuelve a desplazarse.
+  try{ new MutationObserver(()=>{ if(!document.querySelector('.overlay')) hojaAbierta(false); }).observe(document.body, {childList:true}); }catch(e){}
+})();
 
 function sheetHeader(title, sub){
   // v19 (visual): asa, subtítulo y botón de cerrar redondo, como en el diseño.
