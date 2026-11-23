@@ -8951,14 +8951,32 @@ function pendienteAMesesMXN(persona, soloCuenta){
 // v18.14: lo que falta por pagar de compras a meses en una tarjeta de crédito (completo, aunque sea de las dos:
 // el banco aparta toda la compra del límite aunque este mes solo se pague una mensualidad).
 function aMesesPendienteTarjetaMXN(p, k){
+  // v19 etapa 9: lo que falta de cada compra a meses ya no está disponible en la tarjeta (el banco aparta la compra completa).
+  // Cuenta también las compras a meses del Budget hechas con tarjeta de crédito («Budget · Nu crédito»), y la parte de
+  // cada una si las dos pagaron con su tarjeta. La última mensualidad cuenta con su monto exacto (cierra el total).
+  const series = (state.series||[]).filter(se=>se.aMeses && se.tipo==='gasto');
+  if(!series.length || !esCredito(k)) return {mxn:0, n:0};
+  let flujos = null; const porId = ()=>{ if(!flujos){ flujos = {}; flujosCuentas().forEach(x=>{ (flujos[x.id] = flujos[x.id] || []).push(x); }); } return flujos; };
   let t = 0, n = 0;
-  (state.series||[]).filter(se=>se.aMeses && se.tipo==='gasto').forEach(se=>{
-    const pl = se.plantilla||{}; if(pl.pagadoCon!=='credito' || ctaDeGasto(pl)!==k || pagadorFisico(pl)!==p) return;
-    const hechos = new Set(registrosDeSerie(se).map(r=>r.serieYM)), omit = new Set(se.omitidos||[]);
-    let faltan = 0; for(let ym = se.desde; ym <= (se.hasta||se.desde); ym = ymMas(ym,1)){ if(!hechos.has(ym) && !omit.has(ym)) faltan++; }
-    if(!faltan) return;
+  series.forEach(se=>{
+    const pl = se.plantilla||{};
+    const regs = registrosDeSerie(se), hechos = new Set(regs.map(r=>r.serieYM)), omit = new Set(se.omitidos||[]);
+    const faltanYM = []; for(let ym = se.desde; ym <= (se.hasta||se.desde); ym = ymMas(ym,1)){ if(!hechos.has(ym) && !omit.has(ym)) faltanYM.push(ym); }
+    if(!faltanYM.length) return;
+    // ¿Qué parte de cada mensualidad cae en esta tarjeta? Se ve en una mensualidad ya registrada (igual que el saldo).
+    let frac = null;
+    const ref = regs.find(r=>Math.abs(Number(r.montoMXN)||0) > 0.005);
+    if(ref){ const fl = (porId()[ref.id]||[]).filter(x=>x.p===p && x.cta===k).reduce((a,x)=>a+x.mxn, 0); frac = Math.max(0, Math.min(1, -fl / Math.abs(Number(ref.montoMXN)))); }
+    else {
+      if(!(pl.pagadoCon==='credito' || pl.pagadoCon==='bote') || ctaDeGasto(pl)!==k) return;
+      const pf = pagadorFisico(pl); frac = pf===p ? 1 : (pf==='ambas' ? partePago(pl, p) : 0);
+    }
+    if(!(frac > 0.0001)) return;
     const rate = (pl.moneda||'MXN')==='MXN' ? 1 : (Number(se.rateMXN) || rateSnapshotFor(pl.moneda||'MXN'));
-    t += faltan * (Number(se.aMeses.cuota)||0) * rate; n++;
+    const nMeses = Number(se.aMeses.meses)||0, cuota = Number(se.aMeses.cuota)||0;
+    const ultima = Math.round((Number(se.aMeses.total) - (nMeses-1)*cuota)*100)/100;
+    const monto = faltanYM.reduce((a, ym)=>a + (nMeses && numeroMensualidad(se, ym)===nMeses && isFinite(ultima) && ultima>0 ? ultima : cuota), 0);
+    t += monto * rate * frac; n++;
   });
   return {mxn: Math.round(t*100)/100, n};
 }
