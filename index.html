@@ -4654,6 +4654,7 @@ function openComparacion(recalcular){
       ${d==='agregar' ? `<div class="conc-campos">
         <div class="ec-grid"><label class="ec-campo"><span>${ico('layers','icon-xs')} ¿Qué es?</span><select data-conc-tipo="${f.i}">${ecOpcionesTipo(e, f)}</select></label>
         <label class="ec-campo"><span>${ico('calendar','icon-xs')} Fecha</span><input type="date" data-conc-fecha="${f.i}" value="${escHtml(f.fecha)}"></label></div>
+        ${f.tipo==='traspaso' ? `<label class="ec-campo"><span>${ico('swap','icon-xs')} ${f.signo<0 ? '¿A qué cuenta tuya fue?' : '¿De qué cuenta tuya vino?'}</span><select data-conc-ctaotra="${f.i}">${CUENTAS_DEBITO.filter(k=>k!==ecCtaPropiaFila(e, f)).map(k=>ecOpt(k, labelCuenta(k), ecCtaOtraFila(e, f), {glyph:'tarjeta'})).join('')}</select></label>` : ''}
         ${f.tipo==='gasto' ? `<div class="ec-grid"><label class="ec-campo"><span>${ico('layers','icon-xs')} Categoría</span><select data-conc-cat="${f.i}">${catOpts(f.cat)}</select></label>
         <label class="ec-campo"><span>${ico('users','icon-xs')} ¿De quién es?</span><select data-conc-quien="${f.i}">${ecOpt('yo', 'Solo '+nombrePersona(e.persona), f.quien==='ambas'?'ambas':'yo', {av:e.persona})}${ecOpt('ambas', 'Ambas (a medias)', f.quien==='ambas'?'ambas':'yo', {av:'ambas'})}</select></label></div>` : ''}
       </div>` : ''}
@@ -4770,7 +4771,7 @@ function openComparacion(recalcular){
   const setFila = (attr, campo)=>document.querySelectorAll('['+attr+']').forEach(s=>s.addEventListener('change', ()=>{ const f = e.filas.find(x=>x.i===Number(s.getAttribute(attr))); if(!f) return; f[campo] = s.value;
     if(campo==='tipo'){ f.paseManual = true; if(f.tipo==='gasto' && !f.cat) f.cat = ecSugerirCategoria(f.desc) || (subcatV15(state, 'Otros')||{}).id; openComparacion(false); return; }
     concGuardarBorrador(); const it = s.closest('[data-conc-item]'); if(campo==='cat' && it){ const sb = state.subcats.find(x=>x.id===f.cat), m = it.querySelector('.conc-fila1 .mico'); if(sb && m) m.outerHTML = micoHtml(iconoSubcat(sb), 'sm'); } }));
-  setFila('data-conc-cat', 'cat'); setFila('data-conc-quien', 'quien'); setFila('data-conc-tipo', 'tipo');
+  setFila('data-conc-cat', 'cat'); setFila('data-conc-quien', 'quien'); setFila('data-conc-tipo', 'tipo'); setFila('data-conc-ctaotra', 'ctaOtra');
   if($('concTodosFaltan')) $('concTodosFaltan').addEventListener('click', ()=>{ v.faltan.forEach(x=>{ const k = 'f:'+x.b.f.i; if(x.b.f.moneda in (state.rates||{})){ if(concDefecto(k)==='agregar') delete concDec[k]; else concDec[k] = 'agregar'; if(x.b.f.dup) x.b.f.dupResuelto = true; } }); openComparacion(false); });
   if($('concNingunoFaltan')) $('concNingunoFaltan').addEventListener('click', ()=>{ v.faltan.forEach(x=>{ const k = 'f:'+x.b.f.i; if(concDefecto(k)==='omitir') delete concDec[k]; else concDec[k] = 'omitir'; }); openComparacion(false); });
   document.querySelectorAll('[data-conc-abrir-m]').forEach(b=>b.addEventListener('click', ()=>{ const x = r.monto[Number(b.getAttribute('data-conc-abrir-m'))]; if(x && x.a.mov){ concGuardarBorrador(); editMovimiento(x.a.mov.tipo, x.a.mov.id, x.a.mov.subId || x.a.mov.persona); } }));
@@ -10005,7 +10006,7 @@ function ecParseCSV(texto, banco, monedaDef){
   return {filas: out, omitidos};
 }
 const EC_SALTAR = /saldo anterior|saldo inicial|saldo final|saldo al corte|saldo actual|saldo promedio|total de|totales|pago minimo|pago para no generar|fecha limite|fecha de corte|limite de credito|credito disponible|subtotal|resumen|periodo del|previous balance|new balance|minimum payment|closing date|payment due|opening balance|closing balance/;
-const EC_ABONO = /\babono\b|interes neto pagado|intereses? pagados?|interest paid|interest earned|rendimientos? (generados?|pagados?|diarios? del)|deposito|pago recibido|su pago|gracias por su pago|payment received|reembolso|devolucion|bonificacion|cashback|refund|transferencia recibida|spei recibido|received|recibido de|\bcr\b|money in|nomina|salario|transfer from|payment from|money added|transferencia de\b|deposito de|interes(es)? ganado|interest earned/;
+const EC_ABONO = /\babono\b|recarga desde|top.?up by|recibid[oa] de|interes neto pagado|intereses? pagados?|interest paid|interest earned|rendimientos? (generados?|pagados?|diarios? del)|deposito|pago recibido|su pago|gracias por su pago|payment received|reembolso|devolucion|bonificacion|cashback|refund|transferencia recibida|spei recibido|received|recibido de|\bcr\b|money in|nomina|salario|transfer from|payment from|money added|transferencia de\b|deposito de|interes(es)? ganado|interest earned/;
 function ecParseTexto(texto, banco, monedaDef){
   const lineas = String(texto||'').replace(/\r\n?/g,'\n').split('\n').map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean);
   const orden = ecOrdenFechas(lineas);
@@ -10095,7 +10096,8 @@ function ecSignoPorSaldo(filas){
   conSaldo.forEach((f, i)=>{
     if(f.signoSeguro) return;
     const ant = ascendente ? conSaldo[i-1] : conSaldo[i+1]; // el renglón de antes en el tiempo
-    const sg = ant ? cuadra(ant.saldoLinea, f.saldoLinea, f) : 0;
+    let sg = ant ? cuadra(ant.saldoLinea, f.saldoLinea, f) : 0;
+    if(!ant && Math.abs(Math.abs(f.saldoLinea) - Math.abs(f.montoSigno)) < 0.015) sg = 1; // el primero deja el saldo igual a su monto: la cuenta estaba en cero y entró
     if(sg){ f.montoSigno = sg*Math.abs(f.montoSigno); f.porSaldo = true; }
   });
 }
@@ -10153,6 +10155,8 @@ function dirFila(fila, credito){
   const pareceTraspaso = (fila.avisos||[]).some(a=>/entre tus cuentas|Pago a la tarjeta/.test(a)) || /\bpago\b|tarjeta|\bcard\b|spei|transfer|abono/.test(sinAcentos(fila.desc||''));
   if(fila.tipo==='gasto') return pareceTraspaso ? ['out','pago'] : ['out'];
   if(fila.tipo==='retiro') return ['retiro'];
+  if(fila.tipo==='pase') return fila.signo<0 ? ['out'] : ['in']; // v19 etapa 12: antes un pase nunca se marcaba como repetido
+  if(fila.tipo==='traspaso') return fila.signo<0 ? ['out','pago'] : ['in'];
   if(fila.tipo==='pagoTarjeta') return ['pago'];
   if(fila.tipo==='ingreso') return credito ? ['pago','in'] : ['in'];
   return ['otro'];
@@ -10223,7 +10227,13 @@ const NOMBRES_BANCO_DEF = {jen:['JENNY JARAMILLO ROMERO','JENNY JARAMILLO','Jen'
 function nombresBancoDe(p){ const v = state.nombresBanco && Array.isArray(state.nombresBanco[p]) ? state.nombresBanco[p] : NOMBRES_BANCO_DEF[p]; return (v||[]).map(x=>String(x||'').trim()).filter(x=>x.length>=3); }
 // Palabra completa (así "Jen" no coincide con "Jenny" ni "Isa" con "Visa").
 function contieneNombre(d, n){ const t = sinAcentos(n).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s+'); return new RegExp('(^|[^a-z0-9])'+t+'($|[^a-z0-9])').test(d); }
-function ecPasesCon(desc){ const d = sinAcentos(String(desc||'')).toLowerCase(); return ['jen','isa'].filter(p=>nombresBancoDe(p).some(n=>contieneNombre(d, n))); }
+function ecPasesCon(desc){
+  const d = sinAcentos(String(desc||'')).toLowerCase();
+  // v19 etapa 12: en Revolut a veces solo sale el nombre de pila («Transferencia a Isabel», «From Jenny»): cuenta si hay palabra de transferencia.
+  const ctx = /\b(a|de|to|from|para|transferencia|transfer|envio|enviado|recibido|recibida|pago|payment|spei)\b/.test(d);
+  const pila = (p)=>ctx && nombresBancoDe(p).map(n=>sinAcentos(n).toLowerCase().split(/\s+/)[0]).filter(w=>w.length>=4).some(w=>contieneNombre(d, w));
+  return ['jen','isa'].filter(p=>nombresBancoDe(p).some(n=>contieneNombre(d, n)) || pila(p));
+}
 function ecPaseCon(desc){ return ecPasesCon(desc)[0] || null; }
 // En la revisión: un renglón con el nombre de la otra se propone como pase (no es gasto ni ingreso). Si cambias quién es la
 // dueña del estado, se vuelve a decidir (salvo que lo hayas cambiado a mano).
@@ -10233,6 +10243,10 @@ function ecAjustarPases(e){
   e.filas.forEach(f=>{
     if(!f.paseCon || f.paseManual) return;
     const conOtra = (f.paseCons||[f.paseCon]).includes(otra); // un renglón puede traer los dos nombres (ordenante y beneficiario)
+    // v19 etapa 12: solo su propio nombre (ej. «A Jenny Jaramillo» en su Revolut) = pasó dinero a otra cuenta suya.
+    const soloPropio = !conOtra && (f.paseCons||[f.paseCon]).includes(e.persona) && ecPuedeTraspaso(e, f);
+    if(soloPropio && f.tipo!=='traspaso'){ f.tipoAntesPase = f.tipo; f.tipo = 'traspaso'; f.porNombrePropio = true; if(!(f.dup && !f.dupResuelto)) f.incluir = true; f.avisos = (f.avisos||[]).filter(a=>!/entre tus cuentas|Es una transferencia/.test(a)); f.avisos.unshift('Lleva tu nombre: se propone como pase entre tus cuentas'); return; }
+    if(!soloPropio && f.tipo==='traspaso' && f.porNombrePropio){ f.tipo = f.tipoAntesPase || (f.signo<0 ? 'gasto' : 'ingreso'); f.porNombrePropio = false; f.avisos = (f.avisos||[]).filter(a=>!/Lleva tu nombre/.test(a)); }
     if(conOtra && f.tipo!=='pase'){ f.tipoAntesPase = f.tipo; f.tipo = 'pase'; if(!(f.dup && !f.dupResuelto)) f.incluir = true; f.avisos = (f.avisos||[]).filter(a=>!/entre tus cuentas/.test(a)); f.avisos.unshift('Lleva el nombre de '+nombrePersona(otra)+': se propone como pase entre ustedes (no es gasto ni ingreso)'); }
     else if(!conOtra && f.tipo==='pase'){ f.tipo = f.tipoAntesPase || (f.signo<0 ? 'gasto' : 'ingreso'); f.avisos = (f.avisos||[]).filter(a=>!/se propone como pase/.test(a)); }
   });
@@ -10258,10 +10272,15 @@ function ecPrepararFilas(leidas, banco, cuentaForzada){
       if(EC_PAGO_PROPIO.test(d) && !EC_PAGO_AJENO.test(d)) fila.avisos.push('Pago a tu '+labelCuenta(ecTarjetaDelTexto(d, banco))+': no es gasto, baja lo que debes de la tarjeta');
       else { fila.incluir = false; fila.avisos.push('Parece un pago a una tarjeta: si es tuya, elige cuál; si es de alguien más o de una tienda, cámbialo a "Gasto"'); }
     }
-    else if(r.neutral || EC_ENTRE.test(d) || /topup|exchange|transfer/.test(sinAcentos(r.tipoBanco||''))){
-      if(fila.tipo==='ingreso' && cuentaDef==='credito'){ fila.tipo='pagoTarjeta'; fila.avisos.push('Pago a la tarjeta: no es un ingreso, baja lo que debes de la tarjeta'); }
-      else fila.avisos.push('Parece dinero que pasaste entre tus cuentas: no es gasto ni ingreso, por eso no está marcado');
-      fila.incluir=false;
+    else if(r.neutral || EC_ENTRE.test(d) || EC_TRASPASO.test(d) || EC_CAMBIO_DIVISA.test(d) || /topup|exchange|transfer/.test(sinAcentos(r.tipoBanco||''))){
+      const tb = sinAcentos(r.tipoBanco||'');
+      if(fila.tipo==='ingreso' && cuentaDef==='credito'){ fila.tipo='pagoTarjeta'; fila.avisos.push('Pago a la tarjeta: no es un ingreso, baja lo que debes de la tarjeta'); fila.incluir=false; }
+      else if(cuentaDef!=='credito' && (EC_CAMBIO_DIVISA.test(d) || /exchange/.test(tb))){ fila.incluir=false; fila.cambioDivisa = true; fila.avisos.push('Cambio de moneda (pasa entre tus cuentas o monedas): no es gasto ni ingreso, por eso no está marcado'); }
+      else if(cuentaDef!=='credito' && (EC_TRASPASO.test(d) || /topup/.test(tb) || (EC_ENTRE.test(d) && !/pago a (tu|la) tarjeta|pago tarjeta|pago tdc/.test(d)))){
+        // v19 etapa 12: dinero que pasaste entre tus cuentas → «Pase entre mis cuentas», marcado (si no está ya en la app).
+        fila.tipo = 'traspaso'; fila.porTraspaso = true; fila.avisos.push('Pase entre tus cuentas: no es gasto ni ingreso (revisa de qué cuenta a qué cuenta)');
+      }
+      else { fila.incluir=false; fila.avisos.push('Es una transferencia: si fue a otra cuenta tuya elige «Pase entre mis cuentas»; si le pagaste a alguien, déjala como gasto'); }
     } else if(fila.tipo==='ingreso' && cuentaDef==='credito' && (/reembolso|devolucion|refund|bonificacion|cashback/.test(d) || (r.porColor==='v' && !/\bpago\b|\babono\b|spei|transfer|deposito|gracias|payment/.test(d)))){
       // v18.4: en Nu crédito lo verde que no dice "pago" es un reembolso de una compra (ej. Mercado Pago).
       fila.incluir=false; fila.avisos.push('Devolución de una compra: baja lo que gastaste y lo que debes de la tarjeta');
@@ -10579,6 +10598,13 @@ function ecFilaDeRegistro(e, col, r, i){
     cuentaFila(own==='bote' ? 'bote' : 'debito');
     return f;
   }
+  if(col==='transferencias'){
+    const propia = ecCtaPara(e, e.cuenta==='bote' ? 'bote' : 'debito'), sale = r.desde===propia || (r.hacia!==propia && f.signo<0);
+    f.tipo = 'traspaso'; f.signo = sale ? -1 : 1; f.ctaOtra = sale ? r.hacia : r.desde; f.paseManual = true;
+    f.desc = r.notaLibre || String(r.nota||'').replace(/^De [^·]*· /,'');
+    cuentaFila(r.bolsa==='budget' ? 'bote' : 'debito');
+    return f;
+  }
   if(col==='pagosTarjeta'){
     f.tipo = 'pagoTarjeta'; f.desc = r.notaLibre || String(r.nota||'').replace(/^Pago [^·]*· [^·]*· /,'');
     const credEst = ecEsCreditoEstado(e);
@@ -10755,14 +10781,14 @@ function ecEsPagoRealFila(e, f){ return ecEsPagoFila(e, f) && !ecEsDevolucionFil
 function ecEsDevolucionFila(e, f){ return (f.tipo==='ingreso' || f.tipo==='pagoTarjeta') && ecEsCreditoFila(e,f) && String(f.origen||ecOrigenPorDefecto(e,f)).startsWith('devolucion'); }
 // Rojo − sale · verde + entra · gris ↔ entre tus cuentas
 function ecClaseFila(e, f){
-  if(f.tipo==='pase') return 'neutro';
+  if(f.tipo==='pase' || f.tipo==='traspaso') return 'neutro';
   if(f.tipo==='gasto') return 'out';
   if(ecEsDevolucionFila(e,f)) return 'in';
   if(f.tipo==='ingreso' && !ecEsCreditoFila(e,f)) return 'in';
   return 'neutro';
 }
 function ecIconoFila(e, f){
-  if(f.tipo==='pase') return {glyph:'flechas'};
+  if(f.tipo==='pase' || f.tipo==='traspaso') return {glyph:'flechas'};
   if(f.tipo==='gasto'){ const sb = state.subcats.find(x=>x.id===f.cat); return sb ? iconoSubcat(sb) : {glyph:'maleta'}; }
   if(ecEsDevolucionFila(e,f)) return {glyph:'alcancia'};
   if(ecEsPagoFila(e,f)) return {glyph:'credito'};
@@ -10776,6 +10802,7 @@ function ecPaseLados(e, f){
 }
 function ecResumenFila(e, f){
   const cuenta = f.cuenta || e.cuenta, nombre = nombrePersona(e.persona);
+  if(f.tipo==='traspaso'){ const L = ecTraspasoLados(e, f); return 'Pase entre tus cuentas · '+labelCuenta(L.desde)+' → '+labelCuenta(L.hacia)+' · '+(cuenta==='bote' ? 'dinero del Budget' : 'tu dinero'); }
   if(f.tipo==='pase'){ const L = ecPaseLados(e, f), txt = (k)=>k==='bote' ? 'Budget' : (k==='debito' ? 'su dinero' : 'otra cuenta');
     return 'Pase · '+nombrePersona(L.de)+' ('+txt(L.sale)+') → '+nombrePersona(L.a)+' ('+txt(L.entra)+') · paga deudas '+(saldaPago({sale:L.sale, entra:L.entra})==='budget' ? 'del Budget' : 'personales'); }
   const pagoOtro = 'lo pagó '+(ecNombreOtroFila(e,f) || 'otra persona (falta el nombre)');
@@ -10812,6 +10839,20 @@ function ecOpt(v, label, sel, extra){
   extra = extra || {};
   return `<option value="${escHtml(v)}" ${v===sel?'selected':''} ${extra.glyph?`data-glyph="${extra.glyph}"`:''} ${extra.av?`data-av="${extra.av}"`:''} ${extra.ico?`data-ico="${extra.ico}"`:''} ${extra.icoCls?`data-ico-cls="${extra.icoCls}"`:''} ${extra.mas?'data-mas="1"':''}>${escHtml(label)}</option>`;
 }
+// v19 etapa 12: «Pase entre mis cuentas» (de Nu a Revolut, etc.): no es gasto ni ingreso; se guarda como pase entre cuentas.
+function ecCtaPropiaFila(e, f){ const cuenta = f.cuenta || e.cuenta; return ecCtaPara(e, cuenta==='bote' ? 'bote' : 'debito'); }
+function ecPuedeTraspaso(e, f){ const cuenta = f.cuenta || e.cuenta; return (cuenta==='bote' || cuenta==='debito') && !ecEsCreditoFila(e, f); }
+function ecCtaOtraDefecto(e, f){
+  const propia = ecCtaPropiaFila(e, f), d = sinAcentos(f.desc||'');
+  const pista = /revolut/.test(d) ? 'rev-deb' : (/\bnu\b|nubank|nu mexico|cuenta nu/.test(d) ? 'nu-deb' : null);
+  if(pista && pista!==propia) return pista;
+  return CUENTAS_DEBITO.find(k=>k!==propia) || 'nu-deb';
+}
+function ecCtaOtraFila(e, f){ const propia = ecCtaPropiaFila(e, f); return f.ctaOtra && f.ctaOtra!==propia && CUENTAS_DEBITO.includes(f.ctaOtra) ? f.ctaOtra : ecCtaOtraDefecto(e, f); }
+function ecTraspasoLados(e, f){ const propia = ecCtaPropiaFila(e, f), otra = ecCtaOtraFila(e, f); return f.signo<0 ? {desde:propia, hacia:otra} : {desde:otra, hacia:propia}; }
+// Palabras que dicen que el dinero fue a / vino de OTRA cuenta tuya (no a alguien más).
+const EC_TRASPASO = /top.?up|recarga|recargado|transfer to|transferencia a (mi|tu|cuenta propia)|entre (mis |tus )?cuentas|cuenta propia|mismo titular|(transferencia|envio|enviado|spei|a|hacia|to|desde|from|de|recibido de) (mi |tu )?(revolut|nu|nubank|nu mexico)\b|(revolut|nu mexico|nubank)\b.*\b(spei|transfer|transferencia)/;
+const EC_CAMBIO_DIVISA = /to eur\b|to mxn\b|to usd\b|exchanged|conversion|converted|cambio de divisa|cambiado a|cambio a (eur|mxn|usd)/;
 function ecOpcionesTipo(e, f){
   const cred = ecEsCreditoFila(e, f);
   const ops = [
@@ -10821,6 +10862,7 @@ function ecOpcionesTipo(e, f){
     ['retiro', 'Retiro a efectivo', {glyph:'billete', mas: cred}],
   ];
   if(!cred) ops.push(['pase', 'Pase entre nosotras (con '+nombrePersona(otraPersona(e.persona))+')', {glyph:'flechas', mas: !f.paseCon && f.tipo!=='pase'}]);
+  if(!cred && ecPuedeTraspaso(e, f)) ops.push(['traspaso', 'Pase entre mis cuentas (de '+nombrePersona(e.persona)+')', {glyph:'flechas'}]); // v19 etapa 12
   return ops.map(([v,l,x])=>ecOpt(v, l, f.tipo, x)).join('');
 }
 function ecOpcionesCuentaFila(e, f){
@@ -10831,9 +10873,9 @@ function ecOpcionesCuentaFila(e, f){
 function ecResumen(){
   const vis = ecFilasVisibles(), sel = vis.filter(f=>f.incluir);
   const g = sel.filter(f=>f.tipo==='gasto').length, i = sel.filter(f=>f.tipo==='ingreso' && !ecEsCreditoFila(ecEstado, f)).length;
-  const pg = sel.filter(f=>ecEsPagoRealFila(ecEstado, f)).length, dv = sel.filter(f=>ecEsDevolucionFila(ecEstado, f)).length, ps = sel.filter(f=>f.tipo==='pase').length, o = sel.length-g-i-pg-dv-ps;
+  const pg = sel.filter(f=>ecEsPagoRealFila(ecEstado, f)).length, dv = sel.filter(f=>ecEsDevolucionFila(ecEstado, f)).length, ps = sel.filter(f=>f.tipo==='pase').length, tr = sel.filter(f=>f.tipo==='traspaso').length, o = sel.length-g-i-pg-dv-ps-tr;
   const dups = vis.filter(f=>f.dup && !f.dupResuelto).length;
-  const partes = [g ? g+' gasto'+(g===1?'':'s') : '', i ? i+' ingreso'+(i===1?'':'s') : '', pg ? pg+' pago'+(pg===1?'':'s')+' de tarjeta' : '', dv ? dv+(dv===1?' devolución':' devoluciones') : '', ps ? ps+(ps===1?' pase':' pases')+' entre ustedes' : '', o ? o+' retiro'+(o===1?'':'s') : ''].filter(Boolean);
+  const partes = [g ? g+' gasto'+(g===1?'':'s') : '', i ? i+' ingreso'+(i===1?'':'s') : '', pg ? pg+' pago'+(pg===1?'':'s')+' de tarjeta' : '', dv ? dv+(dv===1?' devolución':' devoluciones') : '', ps ? ps+(ps===1?' pase':' pases')+' entre ustedes' : '', tr ? tr+(tr===1?' pase':' pases')+' entre tus cuentas' : '', o ? o+' retiro'+(o===1?'':'s') : ''].filter(Boolean);
   return `${ecEstado.invertido ? 'Parece un estado de tarjeta de crédito: los cargos se tomaron como gastos (si no, usa "Invertir"). ' : ''}${vis.length} leídos · <b>${sel.length} elegidos para guardar</b>${partes.length?` (${partes.join(', ')})`:''}${dups?` · <b style="color:var(--amber);">${dups} posible${dups===1?'':'s'} duplicado${dups===1?'':'s'} por revisar</b>`:''}${ecEstado.omitidos?' · '+ecEstado.omitidos+' líneas sin movimiento ignoradas':''}. Nada se guarda hasta que lo elijas.${(()=>{ const lc = ecEstado.filas.filter(f=>!f.quitada && ecEsCajita(f)), nc = lc.length; return nc ? ` · ${nc} de ${(lc[0].internoDe||'Cajita')} (no cuentan)` : ''; })()}`;
 }
 function ecFechaCorta(iso){ try{ return new Date(iso+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric', month:'short'}).replace('.',''); }catch(e){ return iso; } }
@@ -10877,6 +10919,7 @@ function ecHtmlFila(e, f){
           ${(f.tipo==='ingreso' || f.tipo==='pagoTarjeta') && cred ? `<label class="ec-campo ec-origen"><span>${ico('swap','icon-xs')} ¿Con qué pagaste la tarjeta?</span><select data-ec="origen">${ecOpcionesOrigenPago().map(([k,l,g])=>ecOpt(k, l, origenSel, {glyph: g || undefined, ico: g ? undefined : (k.startsWith('devolucion') ? 'handcoin' : 'swap'), icoCls: k.startsWith('devolucion') ? 'in' : '', mas: !origPrincipales.includes(k)})).join('')}</select></label>` : ''}
           ${f.tipo==='pagoTarjeta' && !cred && !['abuelo','otro','arq'].includes(cuenta) ? `<label class="ec-campo ec-origen"><span>${ico('card','icon-xs')} Pagaste</span><select data-ec="tarjetaPagada">${ecOpcionesTarjetaPagada().map(([k,l,g])=>ecOpt(k, l, tarjSel, {glyph:g, mas: !k.endsWith(b+'-cred')})).join('')}</select></label>` : ''}
           ${f.tipo==='pase' ? (()=>{ const L = ecPaseLados(e, f), otraN = nombrePersona(otraPersona(e.persona)); return `<label class="ec-campo"><span>${ico('swap','icon-xs')} ${f.signo<0 ? '¿A qué dinero de '+escHtml(otraN)+' llegó?' : '¿De qué dinero de '+escHtml(otraN)+' salió?'}</span><select data-ec="paseOtro">${ecOpt('bote', 'Su Budget', L.otro, {glyph:'bote'})}${ecOpt('debito', 'Su dinero (personal)', L.otro, {glyph:'tarjeta'})}</select></label>`; })() : ''}
+          ${f.tipo==='traspaso' ? `<label class="ec-campo"><span>${ico('swap','icon-xs')} ${f.signo<0 ? '¿A qué cuenta tuya fue?' : '¿De qué cuenta tuya vino?'}</span><select data-ec="ctaOtra">${CUENTAS_DEBITO.filter(k=>k!==ecCtaPropiaFila(e, f)).map(k=>ecOpt(k, labelCuenta(k), ecCtaOtraFila(e, f), {glyph:'tarjeta'})).join('')}</select></label>` : ''}
           ${f.moneda!=='MXN' ? `<label class="ec-campo ec-rate"><span>${ico('swap','icon-xs')} Tipo de cambio (pesos por 1 ${escHtml(f.moneda)})</span><input type="number" step="0.0001" data-ec="rate" value="${f.rate==null?'':f.rate}" placeholder="buscando…"></label>` : ''}
           <div class="ec-cta-linea">
             <span class="pk-ilu sm"><svg viewBox="0 0 64 64" aria-hidden="true">${ILU[EC_GLYPH_CUENTA[cuenta]]||ILU.tarjeta}</svg></span>
@@ -11034,7 +11077,7 @@ function openRevisionEstado(){
         if(campo==='tipo') f.paseManual = true; // v18.13: lo elegiste tú: ya no se cambia solo
         if(campo==='tipo' && f.tipo==='gasto' && !f.cat) f.cat = ecSugerirCategoria(f.desc) || subcatV15(state, 'Otros').id;
         if(campo==='tipo' || campo==='moneda' || campo==='cuenta'){ if(campo==='moneda'){ f.rate = f.moneda==='MXN' ? 1 : null; f.rateEditado=false; ecCargarTasas(); } f.abierta = true; openRevisionEstado(); if(campo==='cuenta' && f.cuenta==='otro'){ const n = document.querySelector(`[data-ec-fila="${f.i}"] [data-ec="otroNombre"]`); if(n && n.focus) n.focus(); } return; }
-        if(campo==='otroNombre' || campo==='desc' || campo==='cat' || campo==='quien' || campo==='origen' || campo==='tarjetaPagada' || campo==='monto' || campo==='paseOtro') ecRefrescarFila(f);
+        if(campo==='otroNombre' || campo==='desc' || campo==='cat' || campo==='quien' || campo==='origen' || campo==='tarjetaPagada' || campo==='monto' || campo==='paseOtro' || campo==='ctaOtra') ecRefrescarFila(f);
         const r = document.getElementById('ecResumen'); if(r) r.innerHTML = ecResumen();
         const gn = document.getElementById('ecGuardarN'); if(gn) gn.textContent = ecContarElegidos();
       });
@@ -11103,7 +11146,7 @@ function guardarImportacionEstado(){
     const intoc = new Set(e.intocables||[]);
     registrosDeImportacion(importId).forEach(([c, r])=>{ if(!intoc.has(r.id)) viejos[r.id] = {c, r}; });
     const quitar = (arr)=>{ for(let k=arr.length-1;k>=0;k--){ if(arr[k] && viejos[arr[k].id] && arr[k].importId===importId) arr.splice(k,1); } };
-    quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta); quitar(state.pagosEntre||[]); state.subcats.forEach(sb=>quitar(sb.gastos));
+    quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta); quitar(state.pagosEntre||[]); quitar(state.transferencias||[]); state.subcats.forEach(sb=>quitar(sb.gastos));
   }
   sel.forEach(f=>{
     const cuenta = f.cuenta || e.cuenta;
@@ -11121,6 +11164,13 @@ function guardarImportacionEstado(){
       else { if(ctaOwn) r.ctaEntra = ctaOwn; if(L.sale==='bote'||L.sale==='debito') r.ctaSale = 'nu-deb'; }
       if(!Array.isArray(state.pagosEntre)) state.pagosEntre = [];
       state.pagosEntre.push(r); n++; return;
+    }
+    if(f.tipo==='traspaso'){
+      // v19 etapa 12: pase entre tus cuentas (igual que «Pasar entre cuentas»): no cambia el Budget ni lo que tienes en total.
+      const L = ecTraspasoLados(e, f), bolsa = cuenta==='bote' ? 'budget' : 'mio';
+      if(!Array.isArray(state.transferencias)) state.transferencias = [];
+      state.transferencias.push({id:base.id, persona, desde:L.desde, hacia:L.hacia, bolsa, monto:f.monto, moneda:f.moneda, fecha:f.fecha, notaLibre:nota, nota:'De '+labelCuenta(L.desde)+' a '+labelCuenta(L.hacia)+' · '+nota, importId, ...stamp});
+      n++; return;
     }
     if(f.tipo==='gasto'){
       const g = {...base};
@@ -11175,7 +11225,7 @@ function guardarImportacionEstado(){
     // Cada movimiento que sigue siendo del mismo tipo recupera lo que tenía y la revisión no maneja (cuándo se registró,
     // noches de alojamiento, "cada mes", % personalizado…). Si cambió de tipo, va con id nuevo (el viejo se borra).
     registrosDeImportacion(importId).forEach(([,r])=>{ if(firmas[r.id]) r.firmaEc = firmas[r.id]; }); // antes de ordenar los campos
-    const CONTROLA = new Set(['de','a','sale','entra','ctaSale','ctaEntra','id','monto','montoBruto','moneda','montoMXN','montoEUR','rateMXN','rateEURMXN','fecha','nota','notaLibre','fuente','quien','pagadoPor','pagadoCon','cta','ctaDesde','otroNombre','repartoAbuelo','tarjeta','desde','destino','mes','cuenta','tipo','persona','firmaEc','importId','origen','ahorroAuto','ahorroAutoMonto','recurrente']);
+    const CONTROLA = new Set(['de','a','sale','entra','ctaSale','ctaEntra','id','monto','montoBruto','moneda','montoMXN','montoEUR','rateMXN','rateEURMXN','fecha','nota','notaLibre','fuente','quien','pagadoPor','pagadoCon','cta','ctaDesde','otroNombre','repartoAbuelo','tarjeta','desde','destino','mes','cuenta','tipo','persona','firmaEc','importId','origen','ahorroAuto','ahorroAutoMonto','recurrente','hacia','bolsa']);
     registrosDeImportacion(importId).forEach(([c, r])=>{
       const v = viejos[r.id]; if(!v) return;
       if(v.c!==c){ r.id = uid(); return; }
@@ -11221,6 +11271,7 @@ function registrosDeImportacion(importId){
   (state.efectivoMovimientos||[]).forEach(r=>{ if(r.importId===importId) out.push(['efectivo', r]); });
   (state.pagosTarjeta||[]).forEach(r=>{ if(r.importId===importId) out.push(['pagosTarjeta', r]); });
   (state.pagosEntre||[]).forEach(r=>{ if(r.importId===importId) out.push(['pagosEntre', r]); });
+  (state.transferencias||[]).forEach(r=>{ if(r.importId===importId) out.push(['transferencias', r]); });
   return out;
 }
 function ultimaImportacion(){
@@ -11277,7 +11328,7 @@ function deshacerImportacion(importId){
     // Si ese movimiento ya era el primer mes de algo "cada mes", ese mes no se vuelve a crear solo.
     if(r.serieId && r.serieYM){ const se = (state.series||[]).find(x=>x.id===r.serieId); if(se){ if(!Array.isArray(se.omitidos)) se.omitidos = []; if(!se.omitidos.includes(r.serieYM)) se.omitidos.push(r.serieYM); } }
     arr.splice(i,1); n++; } } };
-  quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta); quitar(state.pagosEntre||[]);
+  quitar(state.ingresos); quitar(state.gustosGastos); quitar(state.efectivoMovimientos); quitar(state.pagosTarjeta); quitar(state.pagosEntre||[]); quitar(state.transferencias||[]);
   state.subcats.forEach(sb=>quitar(sb.gastos));
   // v18.13: lo de esta importación que esperaba la aprobación de la otra también se quita (si no, al aprobarlo quedaría suelto)
   state.pendientes = (state.pendientes||[]).filter(y=>!(y.accion==='crear' && (y.rec||{}).importId===importId && y.estado!=='rechazado'));
