@@ -577,6 +577,7 @@
   .exp-line.sel-on .sel-chk{background:var(--teal);border-color:var(--teal);}
   .sel-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;background:var(--card);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.18);border-radius:18px;padding:10px 12px;width:min(560px, calc(100% - 24px));box-sizing:border-box;}
   .sel-bar #selCuenta{margin-right:auto;font-size:13px;color:var(--ink-soft);}
+  .sel-bar .sel-suma{flex-basis:100%;order:-1;text-align:center;font-size:13.5px;font-weight:700;display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;} .sel-bar .sel-suma:empty{display:none;} .sel-suma .gasto{color:var(--brick);} .sel-suma .income{color:var(--teal-deep);} .sel-suma .neutro{color:var(--ink-soft);}
   .sel-borrar{background:var(--brick);color:#fff;border:0;}
   .sel-bar button[disabled]{opacity:.45;}
   .lote-campos{display:flex;flex-wrap:wrap;gap:6px;}
@@ -4722,7 +4723,7 @@ function openComparacion(recalcular){
     ${perfil && e.persona!==perfil ? `<div class="note-box conc-aviso">${ico('users','icon-sm')}<div>Esta cuenta es de ${escHtml(nombrePersona(e.persona))}: lo que cambies de sus movimientos se le manda para que lo apruebe.</div></div>` : ''}
     ${conc && conc.hasta && r.per.desde <= conc.hasta ? `<div class="note-box conc-aviso">${ico('alert','icon-sm')}<div>Parte de este periodo ya lo conciliaste (hasta ${escHtml(fmtDate(conc.hasta))}). Lo que salga como faltante de esas fechas revísalo con calma.</div></div>` : ''}
     <div class="conc-resumen">
-      ${chip('faltan', v.faltan.length, 'warn', '+ '+v.faltan.length+' faltan')}${chip('monto', r.monto.length, 'warn', '≠ '+r.monto.length+' monto')}${chip('nombre', v.nombre.length, 'warn', '? '+v.nombre.length+' nombre')}${chip('sumados', r.sumados.length, 'ok', 'Σ '+r.sumados.length+' sumados')}${chip('sobran', v.sobran.length, 'bad', '− '+v.sobran.length+' sobran')}${chip('coinciden', nCoin, 'ok', '✓ '+nCoin+' coinciden')}${chip('cajitas', (r.cajitas||[]).length, '', (r.cajitas||[]).length+' de Cajita, no cuentan')}
+      ${chip('faltan', v.faltan.length, 'warn', '+ '+v.faltan.length+' faltan')}${chip('monto', r.monto.length, 'warn', '≠ '+r.monto.length+' monto')}${chip('nombre', v.nombre.length, 'warn', '? '+v.nombre.length+' nombre')}${chip('sumados', r.sumados.length, 'ok', 'Σ '+r.sumados.length+' sumados')}${chip('sobran', v.sobran.length, 'bad', '− '+v.sobran.length+' sobran')}${chip('coinciden', nCoin, 'ok', '✓ '+nCoin+' coinciden')}${chip('cajitas', (r.cajitas||[]).length, '', (r.cajitas||[]).length+' de '+(((r.cajitas||[])[0]||{}).internoDe||'Cajita')+', no cuentan')}
     </div>
     ${!v.faltan.length && !r.monto.length && !v.nombre.length && !r.sumados.length && !v.sobran.length ? `<div class="conc-todo-ok">${ico('check','icon-sm')} Todo lo del estado ya está en la app.</div>` : ''}
     ${sec('faltan', '+ Faltan en la app', 'conc-faltan', v.faltan.length, 'Vienen marcados para agregarse. Cambia la categoría o de quién es aquí mismo.', `<div class="conc-masivo"><button type="button" class="link-quiet" id="concTodosFaltan">${ico('check','icon-xs')} Agregar todos</button><button type="button" class="link-quiet" id="concNingunoFaltan">${ico('x','icon-xs')} Ninguno</button></div>` + v.faltan.map(htmlFalta).join(''))}
@@ -7164,6 +7165,23 @@ function htmlFiltroCuenta(){
   return `<div class="cta-filtro"><span class="cta-filtro-lbl">${ico('card','icon-xs')} ¿En qué cuenta se ve?</span>
     <div class="cta-filtro-ops">${op.map(([k,l])=>`<button type="button" class="cta-op cta-op-${k} ${movCuentaFiltro===k?'on':''}" data-mov-cuenta="${k}" aria-pressed="${movCuentaFiltro===k}">${k==='todas'?'':`<i class="cta-dot"></i>`}${l}</button>`).join('')}</div></div>`;
 }
+// v19 etapa 11: al seleccionar movimientos se ve cuánto suman (en pesos): lo que sale, lo que entra y el neto.
+function sumaSeleccion(lista){
+  const r = {n:0, sale:0, entra:0, neutro:0};
+  (lista||[]).forEach(m=>{ if(!movSel.has(claveLineaMov(m))) return; const v = vistaMov(m), mx = Math.abs(Number(v.montoMXN)||0); r.n++;
+    if(v.neutro) r.neutro += mx; else if(v.signo>0) r.entra += mx; else r.sale += mx; });
+  ['sale','entra','neutro'].forEach(k=>{ r[k] = Math.round(r[k]*100)/100; }); r.neto = Math.round((r.entra - r.sale)*100)/100;
+  return r;
+}
+function htmlSumaSeleccion(lista){
+  const r = sumaSeleccion(lista); if(!r.n) return '<span class="sel-suma" id="selSuma"></span>';
+  const partes = [];
+  if(r.sale) partes.push(`<span class="gasto">−${fmt(r.sale,'MXN')}</span>`);
+  if(r.entra) partes.push(`<span class="income">+${fmt(r.entra,'MXN')}</span>`);
+  if(r.neutro) partes.push(`<span class="neutro">↔ ${fmt(r.neutro,'MXN')}</span>`);
+  const neto = r.sale && r.entra ? ` · <b>neto ${r.neto<0?'−':'+'}${fmt(Math.abs(r.neto),'MXN')}</b>` : '';
+  return `<span class="sel-suma" id="selSuma" title="Suma de lo seleccionado, en pesos">${ico('layers','icon-xs')} Suman ${partes.join(' ')}${neto}</span>`;
+}
 function renderMovLine(m){
   const v = vistaMov(m);
   const isIncome = v.signo>0;
@@ -8118,7 +8136,7 @@ function renderMovimientosBase(){
     ${movSelModo ? `<div class="sel-top"><button class="link-quiet" id="movSelTodos">${filtered.every(m=>movSel.has(claveLineaMov(m)))?'Quitar todos':'Seleccionar todos ('+filtered.length+')'}</button><span class="small-note" style="margin:0;">Toca los movimientos para marcarlos.</span></div>` : ''}
     ${porRegistro && filtered.length ? `<div class="small-note">${ico('clock','icon-xs')} Del último que registraste al más viejo. Lo registrado antes de la versión 18.5 sale en orden aproximado.</div>${filtered.filter(m=>!m.estanciaParte).slice(0, movLimiteRegistro).map(renderMovLine).join('')}${filtered.length > movLimiteRegistro ? `<button class="btn btn-outline btn-sm btn-block" id="movMasRegistro" style="margin-top:8px;">${ico('chevdown','icon-sm')} Ver más</button>` : ''}` : filtered.length ? listaPorDia(filtered, renderMovLine) : emptyMini(filtrosActivos() ? 'Nada coincide con esos filtros.' : 'Sin movimientos con este filtro todavía.','wallet')}
   </div>
-  ${movSelModo ? `<div class="sel-bar" role="toolbar"><span id="selCuenta"><b>${movSel.size}</b> seleccionado${movSel.size===1?'':'s'}</span>
+  ${movSelModo ? `<div class="sel-bar" role="toolbar"><span id="selCuenta"><b>${movSel.size}</b> seleccionado${movSel.size===1?'':'s'}</span>${htmlSumaSeleccion(filtered)}
     <button class="btn btn-outline btn-sm" id="selCampo" ${movSel.size?'':'disabled'}>${ico('edit','icon-sm')} Cambiar un campo</button>
     <button class="btn btn-sm sel-borrar" id="selBorrar" ${movSel.size?'':'disabled'}>${ico('trash','icon-sm')} Eliminar</button>
     <button class="btn btn-ghost btn-sm" id="selCancelar">Cancelar</button></div>` : ''}
@@ -9987,7 +10005,7 @@ function ecParseCSV(texto, banco, monedaDef){
   return {filas: out, omitidos};
 }
 const EC_SALTAR = /saldo anterior|saldo inicial|saldo final|saldo al corte|saldo actual|saldo promedio|total de|totales|pago minimo|pago para no generar|fecha limite|fecha de corte|limite de credito|credito disponible|subtotal|resumen|periodo del|previous balance|new balance|minimum payment|closing date|payment due|opening balance|closing balance/;
-const EC_ABONO = /\babono\b|deposito|pago recibido|su pago|gracias por su pago|payment received|reembolso|devolucion|bonificacion|cashback|refund|transferencia recibida|spei recibido|received|recibido de|\bcr\b|money in|nomina|salario|transfer from|payment from|money added|transferencia de\b|deposito de|interes(es)? ganado|interest earned/;
+const EC_ABONO = /\babono\b|interes neto pagado|intereses? pagados?|interest paid|interest earned|rendimientos? (generados?|pagados?|diarios? del)|deposito|pago recibido|su pago|gracias por su pago|payment received|reembolso|devolucion|bonificacion|cashback|refund|transferencia recibida|spei recibido|received|recibido de|\bcr\b|money in|nomina|salario|transfer from|payment from|money added|transferencia de\b|deposito de|interes(es)? ganado|interest earned/;
 function ecParseTexto(texto, banco, monedaDef){
   const lineas = String(texto||'').replace(/\r\n?/g,'\n').split('\n').map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean);
   const orden = ecOrdenFechas(lineas);
@@ -10014,6 +10032,11 @@ function ecParseTexto(texto, banco, monedaDef){
       const cod = (antes.match(/(EUR|USD|MXN|GBP|MN|€|£)\s*\(?\s*$/i) || despues.match(/^\s*\)?\s*(EUR|USD|MXN|GBP|MN|€|£)\b/i) || m[0].match(/(€|£)/) || [])[1];
       return {t:m[0], i:m.index, cur: cod ? MON[cod.toUpperCase()] || MON[cod] : null, tc: /(\bt\.?\s?c\.?|tipo de cambio|exchange rate|\brate|@)\s*:?\s*$/i.test(antes)};
     }).filter(x=>!x.tc);
+    // v19 etapa 11: marca de columna detrás de cada cantidad (⟪x⟫ salió · ⟪e⟫ entró · ⟪s⟫ es el saldo, no un movimiento)
+    montos.forEach(x=>{ x.marca = (resto.slice(x.i + x.t.length, x.i + x.t.length + 12).match(/^[\s)\-]*(?:MXN|EUR|USD|MN)?\s*⟪([vnexs])⟫/i) || [])[1] || null; });
+    const saldoCol = montos.find(x=>x.marca==='s');
+    const hayColumnas = montos.some(x=>x.marca==='x' || x.marca==='e');
+    if(saldoCol && montos.length>1){ const i0 = montos.indexOf(saldoCol); montos.splice(i0, 1); }
     if(!montos.length){ omitidos++; return; }
     // Si hay un monto en otra moneda Y uno en la moneda de la cuenta, se usa el de la cuenta (lo que de verdad te cobraron).
     const extranjeros = montos.filter(x=>x.cur && x.cur!==monedaDef);
@@ -10023,7 +10046,10 @@ function ecParseTexto(texto, banco, monedaDef){
     // Tarjeta de crédito: el cargo es el último monto de la línea. Débito: el primero (el último suele ser el saldo).
     const elegido = cargoPositivo ? pool[pool.length-1] : pool[0];
     const tok = elegido.t;
-    const marca = (resto.slice(elegido.i + tok.length, elegido.i + tok.length + 12).match(/^[\s)\-]*(?:MXN|EUR|USD|MN)?\s*⟪([vn])⟫/i) || [])[1] || null;
+    const marcaCol = elegido.marca==='x' || elegido.marca==='e' ? elegido.marca : null;
+    const marca = elegido.marca==='v' || elegido.marca==='n' ? elegido.marca : null;
+    // Saldo de la línea (para deducir si entró o salió cuando no hay signo): el de la columna «Saldo» o, en débito, el último monto.
+    const saldoTok = saldoCol || (!cargoPositivo && !hayColumnas && montos.length>=2 && montos[montos.length-1]!==elegido ? montos[montos.length-1] : null);
     let v = ecParseMonto(tok);
     if(v===null || !v){ omitidos++; return; }
     const explicitoNeg = v<0, explicitoPos = /^\s*\+/.test(tok);
@@ -10037,7 +10063,8 @@ function ecParseTexto(texto, banco, monedaDef){
     // v18.4: si el PDF trae color (Nu), el color manda: verde = pago/reembolso/entra dinero, negro = cargo/gasto.
     // Solo si el signo escrito Y la descripción dicen lo contrario al color, se respeta el signo (y se avisa).
     let choca = false;
-    if(marca){
+    if(marcaCol) signo = marcaCol==='e' ? +1 : -1; // la columna manda
+    else if(marca){
       const porColor = marca==='v' ? +1 : -1;
       const porSigno = (explicitoNeg || explicitoPos) ? signo : 0;
       const porTexto = esAbono ? +1 : 0;
@@ -10045,13 +10072,32 @@ function ecParseTexto(texto, banco, monedaDef){
       else signo = porColor;
     }
     let desc = resto.replace(EC_RE_MARCA, ' ');
-    montos.forEach(m=>{ desc = desc.replace(m.t, ' '); });
+    montos.forEach(m=>{ desc = desc.replace(m.t, ' '); }); if(saldoCol) desc = desc.replace(saldoCol.t, ' '); // el saldo tampoco es parte del nombre
     desc = desc.replace(/\b(MXN|EUR|USD|GBP|MN|CR)\b|[€£]/g,' ').replace(/(\bt\.?\s?c\.?|tipo de cambio|exchange rate)\s*:?\s*[\d.,]*/gi,' ').replace(/\(\s*\)|\(\s*$/g,' ').replace(/\s+/g,' ').replace(/^[\s\-–·|:(]+|[\s\-–·|:(]+$/g,'').trim();
     let moneda = elegido.cur || (extranjeros.length ? monedaDef : ecDetectarMoneda(c.texto, monedaDef));
     if(usarLocal) desc += ' · ' + Math.abs(ecParseMonto(extranjeros[0].t)||0).toFixed(2) + ' ' + extranjeros[0].cur;
-    out.push({fecha:c.fecha, desc: desc || '(sin descripción)', montoSigno: signo*Math.abs(v), moneda, tipoBanco:'', neutral:false, porColor: marca && !choca ? marca : null, colorChoca: choca || undefined, nuCredito: nuCredito || undefined});
+    out.push({fecha:c.fecha, desc: desc || '(sin descripción)', montoSigno: signo*Math.abs(v), moneda, tipoBanco:'', neutral:false, porColor: marca && !choca ? marca : null, colorChoca: choca || undefined, nuCredito: nuCredito || undefined,
+      porColumna: marcaCol || undefined, saldoLinea: saldoTok ? ecParseMonto(saldoTok.t) : undefined, signoSeguro: !!(marcaCol || marca || explicitoNeg || explicitoPos)});
   });
+  // v19 etapa 11: si el texto se pegó sin columnas pero cada línea trae el saldo, el cambio de saldo dice si entró o salió.
+  ecSignoPorSaldo(out);
   return {filas: out, omitidos};
+}
+function ecSignoPorSaldo(filas){
+  const conSaldo = filas.filter(f=>typeof f.saldoLinea==='number' && isFinite(f.saldoLinea));
+  if(conSaldo.length < 2) return;
+  const cuadra = (a, b, f)=>{ const d = Math.round((b - a)*100)/100, m = Math.abs(f.montoSigno); return Math.abs(Math.abs(d) - m) < 0.015 ? Math.sign(d) : 0; };
+  // ¿El más viejo va arriba o abajo? Se ve en cuántos renglones cuadra el saldo de cada forma.
+  let asc = 0, desc = 0;
+  for(let i=1;i<conSaldo.length;i++){ if(cuadra(conSaldo[i-1].saldoLinea, conSaldo[i].saldoLinea, conSaldo[i])) asc++; if(cuadra(conSaldo[i].saldoLinea, conSaldo[i-1].saldoLinea, conSaldo[i-1])) desc++; }
+  if(!asc && !desc) return;
+  const ascendente = asc >= desc;
+  conSaldo.forEach((f, i)=>{
+    if(f.signoSeguro) return;
+    const ant = ascendente ? conSaldo[i-1] : conSaldo[i+1]; // el renglón de antes en el tiempo
+    const sg = ant ? cuadra(ant.saldoLinea, f.saldoLinea, f) : 0;
+    if(sg){ f.montoSigno = sg*Math.abs(f.montoSigno); f.porSaldo = true; }
+  });
 }
 // Categoría sugerida por la descripción
 const EC_CATEGORIAS = [
@@ -10072,6 +10118,10 @@ const EC_GUSTOS = /netflix|spotify|cine|cinema|concert|concierto|disney|hbo|max\
 const EC_CAJITA = /\bcajitas?\b/, EC_CAJITA_MOV = /deposito|retiro|guardad|guardaste|movid|moviste|envio|enviaste|transferencia|traspaso|apartad|\ba tu\b|\bde tu\b|\ben tu\b|desde|hacia/, EC_CAJITA_GANA = /rendimiento|interes|ganancia|ganaste|generad|\bisr\b|retencion/;
 function ecEsMovCajita(desc){ const d = sinAcentos(desc); return EC_CAJITA.test(d) && EC_CAJITA_MOV.test(d) && !EC_CAJITA_GANA.test(d); }
 function ecEsCajita(f){ return !!(f && f.cajita && !f.cajitaCuenta); }
+// v19 etapa 11: en Revolut, pasar dinero a o desde «Rendimientos Diarios» es igual: no entra ni sale dinero. Los intereses sí cuentan.
+const EC_REND_DIARIOS = /rendimientos? diarios?|daily (savings|yield|interest)/;
+function ecEsMovRendDiarios(desc){ const d = sinAcentos(desc); return EC_REND_DIARIOS.test(d) && !/interes|interest|ganancia|\bisr\b|retencion|impuesto|tax/.test(d); }
+function ecNombreInterno(banco){ return banco==='revolut' ? 'Rendimientos Diarios' : 'Cajita'; }
 const EC_ATM = /\batm\b|cajero|cash withdrawal|retiro en cajero|retiro de efectivo|disposicion de efectivo|bankomat/;
 const EC_ENTRE = /top.?up|recarga|transfer to|transferencia a (mi|tu|cuenta propia)|entre cuentas|to eur\b|to mxn\b|exchanged|conversion|converted|cambio de divisa|\bwise\b|(transferencia|envio|a|hacia|to|desde|from) (mi |tu )?revolut\b|pago a (tu|la) tarjeta|pago tarjeta|pago tdc/;
 // v18.9: pago a tu propia tarjeta de crédito (en un estado de débito). Ej. "Pago a tu tarjeta de crédito Nu".
@@ -10193,8 +10243,11 @@ function ecPrepararFilas(leidas, banco, cuentaForzada){
   return leidas.map((r, i)=>{
     const d = sinAcentos(r.desc + ' ' + (r.tipoBanco||''));
     const fila = {i, signo: r.montoSigno<0 ? -1 : 1, fecha:r.fecha, desc:r.desc, monto: Math.round(Math.abs(r.montoSigno)*100)/100, moneda: r.moneda||'MXN', tipo: r.montoSigno<0 ? 'gasto' : 'ingreso', incluir:true, avisos:[], cat:'', quien:'yo', cuenta:'', rate:null, rateEditado:false, signo: r.montoSigno<0 ? -1 : 1, paseCon: ecPaseCon(r.desc), paseCons: ecPasesCon(r.desc)};
-    if(banco==='nu' && cuentaDef!=='credito' && ecEsMovCajita(r.desc + ' ' + (r.tipoBanco||''))){
-      fila.cajita = true; fila.incluir = false; fila.avisos = ['Movimiento de Cajita: es dentro de Nu, no entra ni sale dinero (no cuenta)'];
+    const internoNu = banco==='nu' && cuentaDef!=='credito' && ecEsMovCajita(r.desc + ' ' + (r.tipoBanco||''));
+    const internoRev = banco==='revolut' && ecEsMovRendDiarios(r.desc + ' ' + (r.tipoBanco||''));
+    if(internoNu || internoRev){
+      fila.cajita = true; fila.incluir = false; fila.internoDe = internoRev ? 'Rendimientos Diarios' : 'Cajita';
+      fila.avisos = [internoRev ? 'Movimiento de Rendimientos Diarios: es dentro de Revolut, no entra ni sale dinero (no cuenta)' : 'Movimiento de Cajita: es dentro de Nu, no entra ni sale dinero (no cuenta)'];
       if(fila.moneda==='MXN') fila.rate = 1;
       return fila;
     }
@@ -10287,7 +10340,7 @@ async function ecTextoDePDF(buffer, bancoElegido){
         if(pos>=0){ color = mapa.colores[pos + buscado.length - 1]; cursor = pos + buscado.length; }
       }
       const esCant = EC_RE_CANTIDAD.test(it.str) && !/^\s*\d{1,2}[./-]\d{1,2}[./-]\d{2,4}\s*$/.test(it.str);
-      items.push({x: it.transform[4], y: it.transform[5], s: it.str, color, esCant});
+      items.push({x: it.transform[4], y: it.transform[5], w: Number(it.width)||0, s: it.str, color, esCant});
     });
     paginas.push(items);
   }
@@ -10296,21 +10349,49 @@ async function ecTextoDePDF(buffer, bancoElegido){
   paginas.forEach(items=>{
     const grupos = [];
     items.forEach(it=>{ let g = grupos.find(g=>Math.abs(g.y-it.y)<=2.5); if(!g){ g = {y:it.y, items:[]}; grupos.push(g); } g.items.push(it); });
-    grupos.sort((a,b)=>b.y-a.y).forEach(g=>{ const its = g.items.sort((a,b)=>a.x-b.x); renglones.push({its, texto: its.map(i=>i.s).join(' ')}); });
+    grupos.sort((a,b)=>b.y-a.y).forEach(g=>{ const its = g.items.sort((a,b)=>a.x-b.x); renglones.push({its, texto: its.map(i=>i.s).join(' '), pag: paginas.indexOf(items)}); });
   });
+  // v19 etapa 11: estados con dos columnas de monto (Revolut: «Dinero saliente» / «Dinero entrante» + «Saldo»).
+  // La columna en la que cae cada cantidad dice si salió o entró dinero (no hay colores ni signos).
+  const cols = ecColumnasMonto(renglones);
   const textoPlano = renglones.map(r=>r.texto).join('\n');
   const orden = ecOrdenFechas(renglones.map(r=>r.texto));
   renglones.forEach(r=>{ r.mov = !!ecParseFecha(r.texto.slice(0,32), orden, true); if(r.mov) r.its.forEach(i=>{ if(i.esCant && i.color){ if(ecEsVerde(i.color)) hayVerde = true; else if(ecEsOscuro(i.color)) hayOscuro = true; } }); });
   // Solo Nu (ingresos en verde, gastos en negro) y solo si hay cantidades verdes Y negras en los movimientos.
   const esNu = bancoElegido==='nu' || ((!bancoElegido || bancoElegido==='auto') && ecDetectarBanco(textoPlano)==='nu');
   const usarColor = esNu && hayVerde && hayOscuro;
+  if(cols.length && !usarColor) return renglones.map(r=>{
+    const c = r.mov && cols.find(c=>c.pag===r.pag && c.y > r.its[0].y); // el encabezado de columnas de esa página, arriba del renglón
+    if(!c) return r.texto;
+    return r.its.map(i=>{ if(!i.esCant) return i.s; const k = ecColumnaDe(c, i); return i.s + (k==='sale' ? '⟪x⟫' : k==='entra' ? '⟪e⟫' : k==='saldo' ? '⟪s⟫' : ''); }).join(' ');
+  }).join('\n');
   if(!usarColor) return textoPlano;
   return renglones.map(r=>!r.mov ? r.texto : r.its.map(i=>{
     if(i.esCant && i.color) return i.s + (ecEsVerde(i.color) ? '⟪v⟫' : (ecEsOscuro(i.color) ? '⟪n⟫' : ''));
     return i.s;
   }).join(' ')).join('\n');
 }
-const EC_RE_MARCA = /⟪[vn]⟫/g;
+const EC_RE_MARCA = /⟪[vnexs]⟫/g;
+const EC_COL_SALE = /^(dinero saliente|money out|paid out|cargos?|retiros?|debe|debitos?|debits?|withdrawals?|salidas?)$/, EC_COL_ENTRA = /^(dinero entrante|money in|paid in|abonos?|depositos?|haber|creditos?|credits?|deposits?|entradas?)$/, EC_COL_SALDO = /^(saldo|balance)$/;
+// Busca el renglón de encabezado que tiene una columna de salida Y una de entrada; devuelve el centro de cada columna.
+function ecColumnasMonto(renglones){
+  const out = [];
+  renglones.forEach(r=>{
+    const its = r.its, pos = {};
+    for(let i=0;i<its.length;i++){ for(let n=1;n<=3 && i+n<=its.length;n++){
+      const grupo = its.slice(i, i+n), t = sinAcentos(grupo.map(x=>x.s).join(' ')).replace(/\s+/g,' ').trim();
+      const x0 = grupo[0].x, x1 = grupo[n-1].x + (grupo[n-1].w || grupo[n-1].s.length*5), cx = (x0+x1)/2;
+      if(EC_COL_SALE.test(t) && pos.sale==null) pos.sale = cx; else if(EC_COL_ENTRA.test(t) && pos.entra==null) pos.entra = cx; else if(EC_COL_SALDO.test(t) && pos.saldo==null) pos.saldo = cx;
+    } }
+    if(pos.sale!=null && pos.entra!=null && Math.abs(pos.sale-pos.entra) > 20) out.push(Object.assign({y: its[0].y, pag: r.pag}, pos));
+  });
+  return out;
+}
+function ecColumnaDe(c, it){
+  const cx = it.x + (it.w || it.s.length*5)/2;
+  let mejor = null, d = Infinity; ['sale','entra','saldo'].forEach(k=>{ if(c[k]==null) return; const dd = Math.abs(c[k]-cx); if(dd<d){ d = dd; mejor = k; } });
+  return mejor;
+}
 async function ecTextoDeExcel(buffer){
   await ecCargarScript(EC_LIBS.xlsx);
   const wb = window.XLSX.read(buffer, {type:'array', cellDates:true, dateNF:'yyyy-mm-dd'});
@@ -10753,7 +10834,7 @@ function ecResumen(){
   const pg = sel.filter(f=>ecEsPagoRealFila(ecEstado, f)).length, dv = sel.filter(f=>ecEsDevolucionFila(ecEstado, f)).length, ps = sel.filter(f=>f.tipo==='pase').length, o = sel.length-g-i-pg-dv-ps;
   const dups = vis.filter(f=>f.dup && !f.dupResuelto).length;
   const partes = [g ? g+' gasto'+(g===1?'':'s') : '', i ? i+' ingreso'+(i===1?'':'s') : '', pg ? pg+' pago'+(pg===1?'':'s')+' de tarjeta' : '', dv ? dv+(dv===1?' devolución':' devoluciones') : '', ps ? ps+(ps===1?' pase':' pases')+' entre ustedes' : '', o ? o+' retiro'+(o===1?'':'s') : ''].filter(Boolean);
-  return `${ecEstado.invertido ? 'Parece un estado de tarjeta de crédito: los cargos se tomaron como gastos (si no, usa "Invertir"). ' : ''}${vis.length} leídos · <b>${sel.length} elegidos para guardar</b>${partes.length?` (${partes.join(', ')})`:''}${dups?` · <b style="color:var(--amber);">${dups} posible${dups===1?'':'s'} duplicado${dups===1?'':'s'} por revisar</b>`:''}${ecEstado.omitidos?' · '+ecEstado.omitidos+' líneas sin movimiento ignoradas':''}. Nada se guarda hasta que lo elijas.${(()=>{ const nc = ecEstado.filas.filter(f=>!f.quitada && ecEsCajita(f)).length; return nc ? ` · ${nc} de Cajita (no cuentan)` : ''; })()}`;
+  return `${ecEstado.invertido ? 'Parece un estado de tarjeta de crédito: los cargos se tomaron como gastos (si no, usa "Invertir"). ' : ''}${vis.length} leídos · <b>${sel.length} elegidos para guardar</b>${partes.length?` (${partes.join(', ')})`:''}${dups?` · <b style="color:var(--amber);">${dups} posible${dups===1?'':'s'} duplicado${dups===1?'':'s'} por revisar</b>`:''}${ecEstado.omitidos?' · '+ecEstado.omitidos+' líneas sin movimiento ignoradas':''}. Nada se guarda hasta que lo elijas.${(()=>{ const lc = ecEstado.filas.filter(f=>!f.quitada && ecEsCajita(f)), nc = lc.length; return nc ? ` · ${nc} de ${(lc[0].internoDe||'Cajita')} (no cuentan)` : ''; })()}`;
 }
 function ecFechaCorta(iso){ try{ return new Date(iso+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric', month:'short'}).replace('.',''); }catch(e){ return iso; } }
 function ecAvisosFila(f){ return (f.avisos||[]).filter(a=>!/^Posible duplicado/.test(a)); }
@@ -10805,20 +10886,21 @@ function ecHtmlFila(e, f){
           <div class="ec-cta-sel" ${ctaAbierta?'':'hidden'}><label class="ec-campo"><span>${ico('card','icon-xs')} Solo en este renglón</span><select data-ec="cuenta">${ecOpcionesCuentaFila(e, f)}</select></label></div>
           ${cuenta==='otro' ? `<label class="ec-campo ec-otro-fila"><span>${ico('users','icon-xs')} ¿Quién lo pagó?</span><input type="text" data-ec="otroNombre" list="ecOtrosLista" value="${escHtml(f.otroNombre||'')}" placeholder="${escHtml(e.otroNombre ? 'Igual que arriba: '+e.otroNombre : 'Ej. Ana, mamá de Isa…')}"></label>` : ''}
           ${avisos.length ? `<div class="ec-avisos">${avisos.map(a=>`<div>${ico('alert','icon-xs')} ${escHtml(a)}</div>`).join('')}</div>` : ''}
-          ${f.cajita ? `<button type="button" class="link-quiet" data-ec-cajita-no="${f.i}">${ico('wallet','icon-xs')} Es de Cajita: no cuenta</button>` : ''}
+          ${f.cajita ? `<button type="button" class="link-quiet" data-ec-cajita-no="${f.i}">${ico('wallet','icon-xs')} Es de ${escHtml(f.internoDe||'Cajita')}: no cuenta</button>` : ''}
         </div>
       </div>`;
 }
 // v19 etapa 10: grupo plegado con lo de Cajita (no cuenta). «Sí cuenta» lo regresa a la lista normal.
 function ecHtmlCajitas(lista, pref){
   if(!lista.length) return '';
-  return `<details class="ec-cajitas" id="${pref}Cajitas"><summary>${ico('wallet','icon-xs')} ${lista.length} movimiento${lista.length===1?'':'s'} de Cajita · no cuenta${lista.length===1?'':'n'}</summary>
-    <div class="small-note">Meter o sacar dinero de una Cajita pasa dentro de Nu: no entra ni sale dinero, así que no se guarda ni se compara. Los rendimientos que te da la Cajita sí cuentan (no salen aquí).</div>
+  const nom = lista[0].internoDe || 'Cajita', bancoN = nom==='Cajita' ? 'Nu' : 'Revolut';
+  return `<details class="ec-cajitas" id="${pref}Cajitas"><summary>${ico('wallet','icon-xs')} ${lista.length} movimiento${lista.length===1?'':'s'} de ${escHtml(nom)} · no cuenta${lista.length===1?'':'n'}</summary>
+    <div class="small-note">Meter o sacar dinero de ${nom==='Cajita' ? 'una Cajita' : escHtml(nom)} pasa dentro de ${bancoN}: no entra ni sale dinero, así que no se guarda ni se compara. Los rendimientos o intereses que te da sí cuentan (no salen aquí).</div>
     ${lista.map(f=>`<div class="ec-cajita-l"><span class="ec-cajita-t"><b>${escHtml(f.desc)}</b><small>${escHtml(fmtDate(f.fecha))}</small></span><span class="ec-cajita-m">${f.signo<0?'−':'+'}${fmt(f.monto, f.moneda)}</span><button type="button" class="link-quiet" data-${pref}-cajita-cuenta="${f.i}">Sí cuenta</button></div>`).join('')}
   </details>`;
 }
 function ecCajitaSiCuenta(f){
-  if(!f) return; f.cajitaCuenta = true; f.avisos = ['Dijiste que este movimiento de Cajita sí cuenta: revisa qué es'];
+  if(!f) return; f.cajitaCuenta = true; f.avisos = ['Dijiste que este movimiento de '+(f.internoDe||'Cajita')+' sí cuenta: revisa qué es'];
   if(!f.tipo) f.tipo = f.signo<0 ? 'gasto' : 'ingreso';
   if(f.tipo==='gasto' && !f.cat) f.cat = ecSugerirCategoria(f.desc) || (subcatV15(state, 'Otros')||{}).id;
 }
@@ -10914,7 +10996,7 @@ function openRevisionEstado(){
   $('ecOtro').addEventListener('input', ()=>{ ecEstado.otroNombre = $('ecOtro').value; });
   $('ecOtro').addEventListener('change', ()=>{ ecEstado.otroNombre = $('ecOtro').value; ecRefrescarResumenes(); });
   document.querySelectorAll('[data-ec-cajita-cuenta]').forEach(b=>b.addEventListener('click', ()=>{ ecCajitaSiCuenta(e.filas.find(x=>x.i===Number(b.getAttribute('data-ec-cajita-cuenta')))); e._yaEstaKey = null; openRevisionEstado(); }));
-  document.querySelectorAll('[data-ec-cajita-no]').forEach(b=>b.addEventListener('click', (ev)=>{ ev.stopPropagation(); const f = e.filas.find(x=>x.i===Number(b.getAttribute('data-ec-cajita-no'))); if(f){ f.cajitaCuenta = false; f.incluir = false; f.avisos = ['Movimiento de Cajita: es dentro de Nu, no entra ni sale dinero (no cuenta)']; } e._yaEstaKey = null; openRevisionEstado(); }));
+  document.querySelectorAll('[data-ec-cajita-no]').forEach(b=>b.addEventListener('click', (ev)=>{ ev.stopPropagation(); const f = e.filas.find(x=>x.i===Number(b.getAttribute('data-ec-cajita-no'))); if(f){ f.cajitaCuenta = false; f.incluir = false; f.avisos = [f.internoDe==='Rendimientos Diarios' ? 'Movimiento de Rendimientos Diarios: es dentro de Revolut, no entra ni sale dinero (no cuenta)' : 'Movimiento de Cajita: es dentro de Nu, no entra ni sale dinero (no cuenta)']; } e._yaEstaKey = null; openRevisionEstado(); }));
   $('ecTodos').addEventListener('click', ()=>{ ecFilasVisibles().forEach(f=>{ if(ecPuedeMarcar(f)) f.incluir=true; }); openRevisionEstado(); });
   if($('ecTodosGastos')) $('ecTodosGastos').addEventListener('click', ()=>{ ecFilasVisibles().forEach(f=>{ if(f.tipo==='gasto' && ecPuedeMarcar(f)) f.incluir=true; }); openRevisionEstado(); });
   if($('ecTodosPagos')) $('ecTodosPagos').addEventListener('click', ()=>{ ecFilasVisibles().forEach(f=>{ if(ecEsPagoRealFila(ecEstado, f) && ecPuedeMarcar(f)) f.incluir=true; }); openRevisionEstado(); });
