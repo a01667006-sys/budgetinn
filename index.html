@@ -569,7 +569,7 @@
   .bt-suma{margin-top:4px;}
   .card-title-acts{display:flex;align-items:center;gap:12px;}
   body.sel-activo .fab, body.sel-activo .fab-sync{display:none !important;}
-  body.sel-activo .appcontent{padding-bottom:190px !important;}
+  body.sel-activo .appcontent, body.gsel-activo .appcontent{padding-bottom:190px !important;}
   .sel-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-4px 0 8px;}
   .exp-line.sel-modo{gap:10px;}
   .sel-chk{width:22px;height:22px;border-radius:7px;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;}
@@ -577,6 +577,25 @@
   .exp-line.sel-on .sel-chk{background:var(--teal);border-color:var(--teal);}
   .sel-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:60;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;background:var(--card);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.18);border-radius:18px;padding:10px 12px;width:min(560px, calc(100% - 24px));box-sizing:border-box;}
   .sel-bar #selCuenta{margin-right:auto;font-size:13px;color:var(--ink-soft);}
+  /* v19 etapa 13: grupos de deudas */
+  .nos-gr-barra{display:flex;align-items:center;gap:8px;margin:2px 0 8px;} .nos-gr-barra .chiprow{flex:1;min-width:0;margin:0;}
+  .nos-gr-acc{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;} .nos-gr-acc .btn{width:auto;flex:0 0 auto;}
+  .nos-gr-barra .chip{padding:7px 13px;min-height:36px;font-size:13.5px;} .nos-gr-marcar .link-quiet{font-size:13px;padding:5px 10px;min-height:32px;}
+  .nos-gr{border:1.5px solid var(--line);border-radius:16px;margin:10px 0;overflow:hidden;}
+  .nos-gr-cab{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;min-height:52px;background:linear-gradient(135deg,color-mix(in srgb,var(--gr) 18%,transparent),transparent);}
+  .nos-gr-dot{width:12px;height:12px;border-radius:50%;background:var(--gr);flex:none;} .nos-gr-t{flex:1;min-width:0;display:flex;flex-direction:column;} .nos-gr-t b{font-size:15px;overflow-wrap:anywhere;} .nos-gr-t small{font-size:12.5px;color:var(--ink-soft);} .nos-gr-tot{font-size:15px;white-space:nowrap;}
+  .nos-gr-cuerpo{padding:0 10px 6px;} .nos-gr-marcar{display:flex;justify-content:flex-end;margin:2px 0;} .nos-gr-sin{border-style:dashed;}
+  body.nossel-activo .bnav{display:none !important;} body.nossel-activo .fab, body.nossel-activo .fab-sync{display:none !important;} body.nossel-activo .appcontent{padding-bottom:200px !important;}
+  .nos-sel-bar{z-index:950;}
+  .gr-colores{display:flex;gap:8px;flex-wrap:wrap;} .gr-color{width:34px;height:34px;border-radius:50%;border:3px solid transparent;cursor:pointer;} .gr-color.on{border-color:var(--ink);box-shadow:0 0 0 2px var(--card) inset;}
+  .gr-lista{display:flex;flex-direction:column;gap:8px;} .gr-opcion{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:14px;border-radius:14px;border:1.5px solid var(--line);cursor:pointer;min-height:52px;background:linear-gradient(135deg,color-mix(in srgb,var(--gr) 16%,transparent),transparent);}
+  .gr-org{border:1.5px solid var(--line);border-radius:14px;padding:10px;margin-bottom:10px;} .gr-org-acc{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+  /* v19 etapa 13: selección en cualquier lista */
+  .gsel-cab{display:flex;justify-content:flex-end;margin:-2px 0 4px;} .gsel-toggle{display:inline-flex;align-items:center;gap:4px;min-height:36px;font-weight:700;}
+  [data-gsel].gsel-on{position:relative;padding-left:40px !important;cursor:pointer;} [data-gsel].gsel-on::before{content:'';position:absolute;left:8px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:7px;border:2px solid var(--line);background:var(--card);}
+  [data-gsel].gsel-sel{background:color-mix(in srgb,var(--plum) 10%,transparent);border-radius:12px;} [data-gsel].gsel-sel::before{background:var(--plum);border-color:var(--plum);box-shadow:inset 0 0 0 3px var(--card);}
+  [data-gsel].gsel-on button, [data-gsel].gsel-on a{pointer-events:none;}
+  .gsel-bar{z-index:950;} body.gsel-activo .fab, body.gsel-activo .fab-sync{opacity:0;pointer-events:none;}
   .sel-bar .sel-suma{flex-basis:100%;order:-1;text-align:center;font-size:13.5px;font-weight:700;display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;} .sel-bar .sel-suma:empty{display:none;} .sel-suma .gasto{color:var(--brick);} .sel-suma .income{color:var(--teal-deep);} .sel-suma .neutro{color:var(--ink-soft);}
   .sel-borrar{background:var(--brick);color:#fff;border:0;}
   .sel-bar button[disabled]{opacity:.45;}
@@ -1641,7 +1660,7 @@
     .bnav-b span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
     .bnav-b.on{background:var(--btn-bg);color:var(--btn-fg);} .bnav-b.on svg{color:var(--btn-fg);}
     body.fab-oculto .bnav{transform:none;opacity:1;}
-    body.sel-activo .bnav{display:none;}
+    body.sel-activo .bnav, body.gsel-activo .bnav{display:none;}
   }
   @media (max-width:420px){ .fab .fab-txt{display:none;} .fab{padding:0;width:58px;} }
 
@@ -2786,7 +2805,7 @@ function duenasRegistro(col, r){
     if(g.quien==='abuelo') return [];
     if(g.pagadoCon==='otro') return g.quien==='ambas' ? [] : uno(g.quien);
     if(g.quien==='ambas') return g.pagadoPor==='ambas' ? ['jen','isa'] : uno(g.pagadoPor || 'jen'); // "ambas" que pagó una: solo su cuenta
-    return uno(g.quien);
+    return uno(pagadorFisico(g)); // v19 etapa 13: si lo pagó la otra, son sus cuentas
   }
   if(col==='series') return uno((r.plantilla||{}).persona || (r.plantilla||{}).quien);
   if(col==='pagosEntre'){ const out = []; if(['debito','bote','efectivo','arq'].includes(r.sale) || esDebito(r.sale)) out.push(...uno(r.de)); if(['debito','bote','efectivo','arq'].includes(r.entra) || esDebito(r.entra)) out.push(...uno(r.a)); return [...new Set(out)]; }
@@ -4335,9 +4354,7 @@ function miGastoBoteMXN(persona, ym){
   const todos = [...state.subcats.flatMap(s=>s.gastos), ...state.gustosGastos];
   const gastos = todos.filter(cuentaEnBote).reduce((acc,g)=>{
     const m = montoEnMesMXN(g, ym);
-    if(g.quien===persona) return acc + m;
-    if(g.quien==='ambas') return acc + m/2;
-    return acc;
+    return acc + m*parteConsumo(g, persona); // v19 etapa 13: lo que le toca (50/50 o lo anotado)
   },0);
   const delMes = (state.pagosEntre||[]).filter(p=>ymDe(p.fecha)===ym && (p.de===persona || p.a===persona));
   const xbPorPago = delMes.length ? porcionBudgetDePagos() : {};
@@ -4358,7 +4375,7 @@ function budgetRealMesMXN(p, ym){ return miIngresoMXN(p, ym) - budgetGastoRealMX
 // v18.13.1: pases entre ustedes que entraron (+) o salieron (−) del Budget de p en el mes.
 function pasesBudgetNetoMXN(p, ym){ ym = ym || mesActual(); return (state.pagosEntre||[]).filter(x=>ymDe(x.fecha||'')===ym).reduce((a,x)=>{ const m = mxnOf(x); if(x.a===p && x.entra==='bote') a += m; if(x.de===p && x.sale==='bote') a -= m; return a; }, 0); }
 // v18.13.1: lo que le toca a cada una de los gastos del Budget (lo suyo + la mitad de lo de ambas), sin importar quién pagó: así se ve el 50/50.
-function parteConsumoMesMXN(p, ym){ ym = ym || mesActual(); return gastosCategoria().filter(cuentaEnBote).reduce((a,g)=>{ const m = montoEnMesMXN(g, ym); if(g.quien===p) return a + m; if(g.quien==='ambas') return a + m*0.5; return a; }, 0); }
+function parteConsumoMesMXN(p, ym){ ym = ym || mesActual(); return gastosCategoria().filter(cuentaEnBote).reduce((a,g)=>{ const m = montoEnMesMXN(g, ym); return a + m*parteConsumo(g, p); }, 0); }
 // v18.5: cuánto de cada pago entre ustedes saldó gastos que se pagaron con el Budget.
 function porcionBudgetDePagos(){
   const out = {};
@@ -5148,9 +5165,9 @@ function renderPagosPorHacer(donde){
   const vis = donde==='inicio' ? lista.slice(0, 4) : lista;
   const hechos = donde==='inicio' ? [] : pagosProgramados(true).filter(r=>r.estado==='pagado').sort((a,b)=>(b.fechaPago||'').localeCompare(a.fechaPago||'')).slice(0, 10);
   return `<div class="card card-prog" id="cardPagosPorHacer">
-    <div class="card-title"><h2>${ico('calendar','icon-sm')} Pagos por hacer</h2><span class="hint" data-open="pagoProgramado">+ agregar</span></div>
+    <div class="card-title"><h2>${ico('calendar','icon-sm')} Pagos por hacer</h2><span class="card-title-acts">${donde!=='inicio' && vis.length ? gselBoton('prog') : ''}<span class="hint" data-open="pagoProgramado">+ agregar</span></span></div>
     ${ap > 0.004 ? `<div class="small-note" style="margin-top:-4px;">Apartado del Budget: <b>${fmt(ap,'MXN')}</b>${Math.abs(apYo-ap)>0.004 ? ' (de tu Budget '+fmt(apYo,'MXN')+')' : ''}. Ya no cuenta como disponible; no se mueve de tus cuentas hasta que lo pagues.</div>` : ''}
-    ${vis.length ? vis.map(lineaProgramado).join('') : `<div class="small-note">No hay pagos por hacer. Agrega lo que vas a pagar más adelante (renta, vuelos, una reservación…).</div>`}
+    ${vis.length ? vis.map(r=>donde==='inicio' ? lineaProgramado(r) : gselMarcar(lineaProgramado(r), gselAttrs('prog', r.id, -(toMXN(Number(r.monto)||0, r.moneda||'MXN')||0)))).join('') : `<div class="small-note">No hay pagos por hacer. Agrega lo que vas a pagar más adelante (renta, vuelos, una reservación…).</div>`}
     ${donde==='inicio' && lista.length > vis.length ? `<button type="button" class="btn btn-outline btn-sm btn-block" data-goto-mov="porHacer">Ver los ${lista.length}</button>` : ''}
     ${hechos.length ? `<div class="bp-tit" style="margin-top:12px;">Ya pagados</div>${hechos.map(r=>`<div class="small-note" style="margin:4px 0;">${ico('check','icon-xs')} ${escHtml(r.nombre||'Pago')} · ${fmt(Number(r.monto)||0, r.moneda||'MXN')} · pagado ${escHtml(fmtDate(r.fechaPago||r.fecha))}</div>`).join('')}` : ''}
   </div>`;
@@ -5167,8 +5184,8 @@ function renderEsperadosPorHacer(){
       <span class="rt-main"><b>${ico('clock','icon-sm')} Ingresos esperados</b><small>${lineas.length ? `Por llegar ${fmt(tot,'MXN')} · ${lineas.length} ${lineas.length===1?'ingreso':'ingresos'}: ${escHtml(lineas.slice(0,3).map(({e})=>e.nombre).join(', '))}${lineas.length>3?'…':''}${tarde ? ` · <span class="esp-tarde">${tarde} ${tarde===1?'atrasado':'atrasados'}</span>` : ''}` : 'No hay ingresos pendientes de llegar'}</small></span>
       ${ico(esperadosAbierto?'chevdown':'chevright','icon-sm')}
     </button>
-    ${esperadosAbierto ? `<div class="esp-cuerpo"><div class="esp-acc"><button type="button" class="hint" data-open="esperado">+ agregar</button></div>
-      ${lineas.length ? lineas.map(({e,m})=>(m!==ym?`<div class="bt-sub">${escHtml(nombreMesLargo(m))}</div>`:'')+lineaEsperado(e, m)).join('') : `<div class="small-note">Agrega lo que esperan recibir (mamá, papá, un trabajo…).</div>`}</div>` : ''}
+    ${esperadosAbierto ? `<div class="esp-cuerpo"><div class="esp-acc">${lineas.length ? gselBoton('esp') : ''}<button type="button" class="hint" data-open="esperado">+ agregar</button></div>
+      ${lineas.length ? lineas.map(({e,m})=>(m!==ym?`<div class="bt-sub">${escHtml(nombreMesLargo(m))}</div>`:'')+gselMarcar(lineaEsperado(e, m), gselAttrs('esp', e.clave+'|'+m, toMXN(e.esperadoMes||0, e.monedaMes||'MXN')||0))).join('') : `<div class="small-note">Agrega lo que esperan recibir (mamá, papá, un trabajo…).</div>`}</div>` : ''}
   </div>`;
 }
 function avisosEsperados(){
@@ -5315,8 +5332,15 @@ function wirePagosProgramados(){
 function fueraDelBote(g){ return g.pagadoCon==='efectivo' || g.pagadoCon==='debito' || g.pagadoCon==='credito' || g.pagadoCon==='personal' || g.pagadoCon==='otro'; }
 function pagadorFisico(g){
   if(g.quien==='ambas') return g.pagadoPor || 'jen';
+  if(esPagadoPorOtra(g)) return g.pagadoPor; // v19 etapa 13: lo pagó una y le tocaba a la otra
   return g.quien;
 }
+// v19 etapa 13: gasto que le tocaba a una sola pero lo pagó la otra (sale de las cuentas de quien pagó y la otra le debe el 100%).
+// Lo registrado antes (sin pagadoPor) no cambia: se queda en las cuentas de a quien le tocaba.
+function esPagadoPorOtra(g){ return !!(g && (g.quien==='jen' || g.quien==='isa') && (g.pagadoPor==='jen' || g.pagadoPor==='isa') && g.pagadoPor!==g.quien && g.pagadoCon!=='otro'); }
+// v19 etapa 13: cuánto le toca a cada una de un gasto de ambas (0..1); por omisión la mitad.
+function consumoJenDe(g){ const f = Number(g && g.parteConsumoJen); return g && g.parteConsumoJen!=null && g.parteConsumoJen!=='' && isFinite(f) ? Math.min(1, Math.max(0, f)) : 0.5; }
+function parteConsumo(g, p){ if(!g) return 0; if(g.quien===p) return 1; if(g.quien==='ambas') return p==='jen' ? consumoJenDe(g) : 1 - consumoJenDe(g); return 0; }
 // v16: parte del gasto que puso cada una (0..1). Con "Ambas" pagaron las dos:
 // 50/50 o personalizado (parteJen). Con una sola persona, 1 o 0.
 function parteJenDe(g){ const f = Number(g && g.parteJen); return isFinite(f) && g.parteJen!==null && g.parteJen!=='' ? Math.min(1, Math.max(0, f)) : 0.5; }
@@ -5333,12 +5357,15 @@ function deudaDeGastoAmbas(g){
   // v18.13: si no se anotó quién pagó, pagó quien lo tiene en sus cuentas (Jen por omisión, igual que en sus saldos) y la otra le debe la mitad.
   const pp = (g.pagadoPor==='jen' || g.pagadoPor==='isa') ? g.pagadoPor : (g.pagadoPor==='ambas' ? 'ambas' : pagadorFisico(g));
   if(pp==='jen' || pp==='isa'){
-    // v18.13: devolución (monto negativo) de un gasto de ambas: a quien le regresaron el dinero le debe la mitad a la otra.
-    if(total < 0) return {acreedor:otraPersona(pp), deudor:pp, monto: -total/2};
-    return {acreedor:pp, deudor:otraPersona(pp), monto: total/2};
+    // v18.13: devolución (monto negativo) de un gasto de ambas: a quien le regresaron el dinero le debe la parte de la otra.
+    // v19 etapa 13: la parte de la otra es lo que le toca (50/50 o lo que se anotó).
+    const parteOtra = parteConsumo(g, otraPersona(pp));
+    if(!(parteOtra > 0.00001)) return null;
+    if(total < 0) return {acreedor:otraPersona(pp), deudor:pp, monto: -total*parteOtra};
+    return {acreedor:pp, deudor:otraPersona(pp), monto: total*parteOtra};
   }
   if(g.pagadoPor==='ambas'){
-    const dif = total*(parteJenDe(g) - 0.5); // >0: Jen puso de más
+    const dif = total*(parteJenDe(g) - consumoJenDe(g)); // >0: Jen puso más de lo que le tocaba
     if(Math.abs(dif) < 0.005) return null;
     return dif>0 ? {acreedor:'jen', deudor:'isa', monto:dif} : {acreedor:'isa', deudor:'jen', monto:-dif};
   }
@@ -5835,6 +5862,7 @@ function render(){
   // v19: si estabas escribiendo en un buscador, al volver a pintar (sincronización, etc.) sigues escribiendo ahí.
   const _ae = document.activeElement, _bid = _ae && /^(movSearch|compBuscar|nosBuscar)$/.test(_ae.id||'') ? _ae.id : null, _bpos = _bid ? _ae.selectionStart : 0;
   renderInterno();
+  try{ aplicarGsel(); }catch(e){} // v19 etapa 13
   if(_bid){ const n = document.getElementById(_bid); if(n && document.activeElement!==n){ n.focus({preventScroll:true}); try{ n.setSelectionRange(_bpos,_bpos); }catch(e){} } }
 }
 function renderInterno(){
@@ -7059,6 +7087,7 @@ function signoBudget(m, persona){
     return e > 0.004 ? -1 : (e < -0.004 ? +1 : 0);
   }
   if((m.tipo==='gasto-generales'||m.tipo==='gasto-gustos') && !fueraDelBote(m) && m.quien!=='abuelo'){
+    if(esPagadoPorOtra(m)) return m.pagadoPor===persona ? -1 : 0; // v19 etapa 13: sale del Budget de quien pagó
     return (m.quien===persona || m.quien==='ambas') ? -1 : 0;
   }
   return 0;
@@ -7089,7 +7118,8 @@ function vistaMov(m){
   } else if(movFiltro==='budget'){
     signo = signoBudget(m, perfil);
     if(m.tipo==='ingreso' && m.netoMXN!==m.montoMXN){ monto = m.netoMXN; moneda = 'MXN'; montoMXN = m.netoMXN; nota = 'neto de ahorro'; }
-    if(m.quien==='ambas' && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')){ monto = m.monto/2; montoMXN = m.montoMXN/2; nota = 'tu mitad'; }
+    if(m.quien==='ambas' && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')){ const f = parteConsumo(m, perfil); monto = m.monto*f; montoMXN = m.montoMXN*f; nota = Math.abs(f-0.5)<0.0001 ? 'tu mitad' : 'tu parte'; }
+    if(esPagadoPorOtra(m) && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')) nota = m.pagadoPor===perfil ? 'le tocaba a '+nombrePersona(m.quien)+' (te lo debe)' : 'lo pagó '+nombrePersona(m.pagadoPor);
   } else if(movFiltro==='efectivo'){
     signo = signoEfectivo(m, perfil);
     if(m.quien==='ambas' && m.pagadoPor==='ambas' && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')){ const f = partePago(m, perfil); monto = m.monto*f; montoMXN = m.montoMXN*f; nota = 'tu parte'; }
@@ -7105,6 +7135,7 @@ function vistaMov(m){
     signo = m.tipo==='pago-entre' ? (m.a===perfil ? +1 : -1)
       : ((m.tipo==='ingreso' || m.tipo==='personal-ganancia' || m.tipo==='retiro-efectivo' || m.tipo==='ajuste-efectivo') ? +1 : -1);
   }
+  if(!nota && esPagadoPorOtra(m) && (m.tipo==='gasto-generales'||m.tipo==='gasto-gustos')) nota = m.pagadoPor===perfil ? 'le tocaba a '+nombrePersona(m.quien)+' (te lo debe)' : 'lo pagó '+nombrePersona(m.pagadoPor)+' (le debes)';
   if(Number(monto) < 0){ signo = -(signo>=0?1:-1); monto = -monto; montoMXN = -montoMXN; if(m.traspaso==='sobrante') nota = 'reponer lo que se debía'; }
   return {signo: signo>=0?+1:-1, monto, moneda, montoMXN, nota, neutro:false};
 }
@@ -7160,7 +7191,8 @@ function htmlCuentaMov(m){
 const FILTRO_CUENTA_KEY = 'budgetin_filtro_cuenta';
 let movCuentaFiltro = (()=>{ try{ const v = localStorage.getItem(FILTRO_CUENTA_KEY); return v==='jen' || v==='isa' ? v : 'todas'; }catch(e){ return 'todas'; } })();
 function setMovCuentaFiltro(v){ movCuentaFiltro = v==='jen' || v==='isa' ? v : 'todas'; try{ localStorage.setItem(FILTRO_CUENTA_KEY, movCuentaFiltro); }catch(e){} }
-function pasaFiltroCuenta(m){ return movCuentaFiltro==='todas' || cuentaDondeSeVe(m).personas.includes(movCuentaFiltro); }
+function pasaFiltroCuenta(m){ return movFiltro==='abuelo' || movCuentaFiltro==='todas' || // v19 etapa 13: «Abuelo» es solo del Abuelo: ese filtro no aplica
+   cuentaDondeSeVe(m).personas.includes(movCuentaFiltro); }
 function htmlFiltroCuenta(){
   const op = [['todas','Todas'],['jen','Jen'],['isa','Isa']];
   return `<div class="cta-filtro"><span class="cta-filtro-lbl">${ico('card','icon-xs')} ¿En qué cuenta se ve?</span>
@@ -7206,6 +7238,45 @@ function renderMovLine(m){
 }
 // Fichas de Tarjeta de débito / crédito (Mi dinero aparte).
 let fichaAbierta = null, personalesResumenAbierto = true, deudasOtrosAbierto = false, meDebenAbierto = false;
+/* v19 etapa 13 — SELECCIONAR EN CUALQUIER LISTA (fichas de Mi dinero, Movimientos de tu Budget, Historial de Nosotras, Por hacer).
+   Cada renglón lleva data-gsel (lista), data-gsel-k (clave) y data-gsel-mxn (+ entra / − sale, en pesos). Una barra abajo suma lo marcado. */
+let gselGrupo = null, gselKeys = new Set();
+function gselBoton(grupo, txt){ return `<button type="button" class="link-quiet gsel-toggle" data-gsel-toggle="${escHtml(grupo)}">${ico(gselGrupo===grupo?'check':'layers','icon-xs')} ${gselGrupo===grupo ? 'Listo' : (txt||'Seleccionar')}</button>`; }
+function gselAttrs(grupo, k, mxn, neutro){ return ` data-gsel="${escHtml(grupo)}" data-gsel-k="${escHtml(String(k))}" data-gsel-mxn="${Math.round((Number(mxn)||0)*100)/100}"${neutro?' data-gsel-neutro="1"':''}`; }
+function gselMarcar(html, attrs){ return String(html).replace(/<div /, '<div'+attrs+' '); }
+function aplicarGsel(){
+  try{ document.body.classList.toggle('nossel-activo', !!document.getElementById('nosSelBar')); }catch(e){}
+  let bar = document.getElementById('gselBar');
+  const els = gselGrupo ? [...document.querySelectorAll('[data-gsel]')].filter(el=>el.getAttribute('data-gsel')===gselGrupo) : [];
+  document.querySelectorAll('[data-gsel].gsel-on').forEach(el=>{ if(el.getAttribute('data-gsel')!==gselGrupo) el.classList.remove('gsel-on','gsel-sel'); });
+  if(gselGrupo && !els.length){ gselGrupo = null; gselKeys = new Set(); }
+  if(!gselGrupo){ if(bar) bar.remove(); document.body.classList.remove('gsel-activo'); return; }
+  const vivos = new Set(els.map(el=>el.getAttribute('data-gsel-k'))); gselKeys = new Set([...gselKeys].filter(k=>vivos.has(k)));
+  let sale = 0, entra = 0, neutro = 0;
+  els.forEach(el=>{ const k = el.getAttribute('data-gsel-k'), on = gselKeys.has(k); el.classList.add('gsel-on'); el.classList.toggle('gsel-sel', on);
+    if(on){ const v = Number(el.getAttribute('data-gsel-mxn'))||0; if(el.getAttribute('data-gsel-neutro')) neutro += Math.abs(v); else if(v>0) entra += v; else sale += -v; } });
+  if(!bar){ bar = document.createElement('div'); bar.id = 'gselBar'; bar.className = 'sel-bar gsel-bar'; bar.setAttribute('role','toolbar'); document.body.appendChild(bar); }
+  document.body.classList.add('gsel-activo');
+  const n = gselKeys.size, partes = [];
+  if(sale>0.004) partes.push(`<span class="gasto">−${fmt(sale,'MXN')}</span>`);
+  if(entra>0.004) partes.push(`<span class="income">+${fmt(entra,'MXN')}</span>`);
+  if(neutro>0.004) partes.push(`<span class="neutro">↔ ${fmt(neutro,'MXN')}</span>`);
+  const neto = sale>0.004 && entra>0.004 ? ` · <b>neto ${entra-sale<0?'−':'+'}${fmt(Math.abs(entra-sale),'MXN')}</b>` : '';
+  bar.innerHTML = `<span class="sel-suma" id="gselSuma">${n ? `${ico('layers','icon-xs')} <b>${n}</b> seleccionado${n===1?'':'s'} · suman ${partes.join(' ')}${neto}` : 'Toca los renglones para sumarlos'}</span>
+    <button type="button" class="btn btn-outline btn-sm" id="gselTodos">${n===els.length ? 'Ninguno' : 'Todos'}</button><button type="button" class="btn btn-primary btn-sm" id="gselListo">Listo</button>`;
+  bar.querySelector('#gselTodos').onclick = ()=>{ gselKeys = n===els.length ? new Set() : new Set(els.map(el=>el.getAttribute('data-gsel-k'))); aplicarGsel(); };
+  bar.querySelector('#gselListo').onclick = ()=>{ gselGrupo = null; gselKeys = new Set(); render(); };
+}
+document.addEventListener('click', (e)=>{
+  const t = e.target && e.target.closest ? e.target : null; if(!t) return;
+  const tg = t.closest('[data-gsel-toggle]');
+  if(tg){ e.preventDefault(); e.stopPropagation(); const g = tg.getAttribute('data-gsel-toggle'); gselGrupo = gselGrupo===g ? null : g; gselKeys = new Set(); if(gselGrupo){ movSelModo = false; movSel = new Set(); } render(); return; }
+  if(!gselGrupo) return;
+  const el = t.closest('[data-gsel]'); if(!el || el.getAttribute('data-gsel')!==gselGrupo) return;
+  e.preventDefault(); e.stopPropagation();
+  const k = el.getAttribute('data-gsel-k'); if(gselKeys.has(k)) gselKeys.delete(k); else gselKeys.add(k);
+  aplicarGsel();
+}, true);
 function lineaFicha(m, signo){
   const extra = m.subId || m.persona || '';
   const key = [m.tipo, m.id, extra].join('|');
@@ -7711,8 +7782,8 @@ function listaFichaCuenta(persona, cta){
   if(!movs.length) return `<div class="small-note">Sin movimientos todavía.</div>`;
   const neto = {}; flujosCuentas().forEach(x=>{ if(x.p===persona && x.cta===cta) neto[x.id] = (neto[x.id]||0) + x.mxn; });
   const signoEn = (m)=>Math.abs(neto[m.id]||0) < 0.005 ? 0 : ((neto[m.id]||0) > 0 ? +1 : -1); // v18.6: 0 = no cambia lo que hay (p. ej. lo del Budget que pasa a ser tuyo)
-  const vis = movs.slice(0, fichaLimite);
-  return listaPorDia(vis.map(m=>Object.assign({}, m, {_signo: signoEn(m)})), m=>lineaFicha(m, m._signo))
+  const vis = movs.slice(0, fichaLimite), grupo = 'ficha:'+persona+':'+cta;
+  return `<div class="gsel-cab">${gselBoton(grupo)}</div>` + listaPorDia(vis.map(m=>Object.assign({}, m, {_signo: signoEn(m)})), m=>gselMarcar(lineaFicha(m, m._signo), gselAttrs(grupo, claveLineaMov(m), neto[m.id]||0, Math.abs(neto[m.id]||0)<0.005)))
     + (movs.length > vis.length ? `<button class="btn btn-outline btn-sm btn-block" data-ficha-mas style="margin-top:8px;">${ico('chevdown','icon-sm')} Ver más (${movs.length - vis.length} más)</button>` : '');
 }
 let fichaLimite = 40;
@@ -8123,7 +8194,7 @@ function renderMovimientosBase(){
   <div class="chiprow chiprow-scroll" style="margin-bottom:12px;">
     ${chips.map(([id,label])=>`<button class="chip chip-ico ${movFiltro===id?'on':''}" data-mov-chip="${id}">${ico(ICONO_CHIP[id]||'layers','icon-xs')}${label}</button>`).join('')}
   </div>
-  ${htmlFiltroCuenta()}
+  ${movFiltro==='abuelo' ? '' : htmlFiltroCuenta()}
   ${fechaVistaActiva ? '' : renderCardPendientesMov()}
   ${resumenCard}
   ${movFiltro==='total' ? renderTotalAcumuladoCard('total') : ''}
@@ -8425,8 +8496,9 @@ function htmlMovimientosBudget(p){
   const L = movimientosBudgetMes(p);
   if(!L.length) return '';
   const ent = L.filter(x=>x.v>0).reduce((a,x)=>a+x.v,0), sal = L.filter(x=>x.v<0).reduce((a,x)=>a-x.v,0);
-  return `<details class="bp-movs"><summary>${ico('layers','icon-xs')} Movimientos de tu Budget este mes <span class="muted">· ${L.length} · entró ${fmt(ent,'MXN')} · salió ${fmt(sal,'MXN')}</span></summary>
-    ${L.map(x=>`<div class="bp-cl bp-mov-${x.tipo}"><span><i></i>${escHtml(fmtDate(x.fecha))} · ${escHtml(x.txt)}</span><b style="${x.v<0?'color:var(--brick);':'color:var(--teal-deep);'}">${x.v<0?'−':'+'}${fmt(Math.abs(x.v),'MXN')}</b></div>`).join('')}
+  return `<details class="bp-movs" ${gselGrupo==='bpmovs:'+p ? 'open' : ''}><summary>${ico('layers','icon-xs')} Movimientos de tu Budget este mes <span class="muted">· ${L.length} · entró ${fmt(ent,'MXN')} · salió ${fmt(sal,'MXN')}</span></summary>
+    <div class="gsel-cab">${gselBoton('bpmovs:'+p)}</div>
+    ${L.map((x, ix)=>`<div${gselAttrs('bpmovs:'+p, ix+'|'+x.fecha+'|'+x.v, x.v)} class="bp-cl bp-mov-${x.tipo}"><span><i></i>${escHtml(fmtDate(x.fecha))} · ${escHtml(x.txt)}</span><b style="${x.v<0?'color:var(--brick);':'color:var(--teal-deep);'}">${x.v<0?'−':'+'}${fmt(Math.abs(x.v),'MXN')}</b></div>`).join('')}
   </details>`;
 }
 // Lo acumulado de cada una en un mes cerrado (para el desglose).
@@ -8709,7 +8781,7 @@ function borrarCopiasLocales(){
 function vistasAlInicio(){
   activeTab = 'inicio'; catMes = null; movFiltro = 'todos'; movBusqueda = ''; movMes = null; movMesTotal = null; movSel = new Set(); movSelModo = false;
   fichaAbierta = null; personalesResumenAbierto = true; deudasOtrosAbierto = false; meDebenAbierto = false; acumAbierto = null; destinoVerId = null; nosHistLimite = 20;
-  movFDesde = ''; movFHasta = ''; movFTipo = 'todos'; movFPago = ''; movFCuenta = ''; movOrden = 'fecha';
+  movFDesde = ''; movFHasta = ''; movFTipo = 'todos'; movFPago = ''; movFCuenta = ''; movOrden = 'fecha'; movFOtra = false;
 }
 function estadoReiniciado(){
   const nuevo = migrateState(defaultState());
@@ -9024,9 +9096,14 @@ function mesesElegidos(){
   const sm = document.getElementById('gastoMeses'); if(!sm) return 0;
   return sm.value==='otro' ? Math.round(Number((document.getElementById('gastoMesesOtro')||{}).value)||0) : Number(sm.value)||0;
 }
+function notaGastoDeOtra(pago){
+  const otra = nombrePersona(otraPersona(perfil));
+  const como = pago==='bote' ? 'Como sale de tu Budget, '+otra+' se lo repone a tu Budget.' : (pago ? 'Como no sale del Budget, es una deuda personal (también si fue en efectivo).' : '');
+  return `<b>Lo pagas tú y le toca a ${escHtml(otra)}:</b> sale de tus cuentas y ${escHtml(otra)} te debe el 100%. ${como}`;
+}
 function notaPagadoPor(v){
   if(v==='ambas') return 'Pusieron dinero las dos. Con 50/50 nadie le debe a nadie; si una puso más, la otra le debe la diferencia.';
-  return 'Se reparte a la mitad — la otra persona le queda debiendo su parte.';
+  return 'La otra persona le queda debiendo lo que le toca (abajo: 50/50 o lo que pongas).';
 }
 function openGasto(cat, subId, editRef, pagoPreset, ctaPreset){
   cat = cat||'generales';
@@ -9052,6 +9129,9 @@ function openGasto(cat, subId, editRef, pagoPreset, ctaPreset){
   // Un gasto de ambas viejo sin "quién puso el dinero" se queda así al editarlo (no crea deuda sola).
   const pagadoPorSel = existing ? (existing.quien==='ambas' && !existing.pagadoPor ? '' : (existing.pagadoPor || perfil)) : perfil;
   const repartoSel = existing && existing.pagadoPor==='ambas' && Math.abs(parteJenDe(existing)-0.5)>0.00001 ? 'custom' : 'mitad';
+  const consumoSel = existing && existing.quien==='ambas' && Math.abs(consumoJenDe(existing)-0.5)>0.00001 ? 'custom' : 'mitad'; // v19 etapa 13
+  const otraP = otraPersona(perfil);
+  const legadoOtra = !!(existing && existing.quien===otraP && !existing.pagadoPor); // registrado antes: se queda en sus cuentas
   const subSel = subInicial || (existing && editRef && editRef.subId ? state.subcats.find(s=>s.id===editRef.subId) : null) || null;
   void arrancaCompartido;
   const mostrarEstancia = cat==='generales' && esSubAlojamiento(subSel);
@@ -9103,11 +9183,12 @@ function openGasto(cat, subId, editRef, pagoPreset, ctaPreset){
       </div>
       <div class="small-note" id="estanciaNota" style="margin-top:6px;">Así la app sabe hasta cuándo ya está pagado y el monto se reparte parejo por noche en esas fechas (no cuenta todo el día que lo pagas).</div>
     </div>
+    <div class="note-box" id="gastoDeOtraNota" data-legado="${legadoOtra?'1':''}" style="${quienSel===otraP && !legadoOtra && pagoSel!=='abuelo' && pagoSel!=='otro' ? '' : 'display:none'}">${ico('users','icon-sm')}<div>${notaGastoDeOtra(pagoSel)}</div></div>
+    ${legadoOtra ? `<div class="small-note">Este gasto se registró antes: se queda en las cuentas de ${escHtml(nombrePersona(otraP))}, como estaba.</div>` : ''}
     <div class="field" id="pagadoPorWrap" style="${quienSel==='ambas' && pagoSel!=='abuelo'?'':'display:none'}">
       <label>¿Quién puso el dinero?</label>
       <div class="seg">
-        <button type="button" class="${pagadoPorSel==='jen'?'on':''}" data-pagadopor="jen">Jen</button>
-        <button type="button" class="${pagadoPorSel==='isa'?'on':''}" data-pagadopor="isa">Isa</button>
+        ${['jen','isa'].filter(p=>p===perfil || pagadoPorSel===p).map(p=>`<button type="button" class="${pagadoPorSel===p?'on':''}" data-pagadopor="${p}">${nombrePersona(p)}${p===perfil?' (yo)':''}</button>`).join('')}
         <button type="button" class="${pagadoPorSel==='ambas'?'on':''}" data-pagadopor="ambas">Ambas</button>
       </div>
       <input type="hidden" id="gastoPagadoPor" value="${pagadoPorSel}">
@@ -9123,6 +9204,18 @@ function openGasto(cat, subId, editRef, pagoPreset, ctaPreset){
         </div>
       </div>
       <div class="small-note" id="pagadoPorNota" style="margin-top:6px;">${notaPagadoPor(pagadoPorSel)}</div>
+      <div class="reparto-wrap" id="consumoWrap" style="margin-top:12px;">
+        <label>${ico('users','icon-xs')} ¿Cuánto le toca a cada una?</label>
+        <div class="seg seg-sm">
+          <button type="button" class="${consumoSel==='mitad'?'on':''}" data-consumo="mitad">50/50</button>
+          <button type="button" class="${consumoSel==='custom'?'on':''}" data-consumo="custom">Personalizado</button>
+        </div>
+        <input type="hidden" id="gastoConsumo" value="${consumoSel}">
+        <div class="field-row" id="consumoCustomWrap" style="margin-top:8px;${consumoSel==='custom'?'':'display:none'}">
+          <div class="field" style="margin-bottom:0;"><label>A Jen le toca</label><input type="number" step="0.01" min="0" id="gastoTocaJen" value="${consumoSel==='custom'?Math.round((Number(existing.monto)||0)*consumoJenDe(existing)*100)/100:''}" placeholder="0"></div>
+          <div class="field" style="margin-bottom:0;"><label>A Isa le toca</label><input type="number" step="0.01" min="0" id="gastoTocaIsa" value="${consumoSel==='custom'?Math.round((Number(existing.monto)||0)*(1-consumoJenDe(existing))*100)/100:''}" placeholder="0"></div>
+        </div>
+      </div>
       <div class="deuda-tipo-wrap" id="deudaTipoWrap">
         <label class="deuda-tipo-lbl">Lo que se deban por este gasto va en</label>
         <div class="seg seg-sm" id="deudaTipoSeg"><button type="button" data-deuda-tipo="budget">Dentro del Budget</button><button type="button" data-deuda-tipo="personal">Personal</button></div>
@@ -9278,10 +9371,10 @@ function crearGastoSimple(o){
   const pagoPartes = String(o.pago||'').split('|'); const pago = pagoPartes[0], ctaSel = pagoPartes[1]||'';
   const quien = pago==='abuelo' ? 'abuelo' : o.quien;
   const repartoAbuelo = pago==='abuelo' ? (o.quien==='ambas' ? 'ambas' : 'jen') : null;
-  const pagadoPor = quien==='ambas' ? perfil : null;
+  const pagadoPor = quien==='ambas' ? perfil : ((quien==='jen' || quien==='isa') && quien!==perfil && pago!=='otro' ? perfil : null); // v19 etapa 13: le toca a la otra → lo pagaste tú
   const pagadoCon = pago==='abuelo' ? 'bote' : pago;
   let rate = null;
-  if(pago==='arq' && o.moneda==='EUR'){ const pag = quien==='ambas' ? perfil : (quien==='abuelo' ? 'jen' : quien); const t = tasaArq(pag, o.monto, null); if(t) rate = t; }
+  if(pago==='arq' && o.moneda==='EUR'){ const pag = quien==='ambas' ? perfil : (quien==='abuelo' ? 'jen' : (pagadoPor||quien)); const t = tasaArq(pag, o.monto, null); if(t) rate = t; }
   const st = stampRates(o.monto, o.moneda, rate);
   const signo = o.devolucion ? -1 : 1;
   const g = {id:uid(), monto: signo*o.monto, moneda:o.moneda, fecha:o.fecha, quien, pagadoPor, nota:o.nota||'', pagadoCon, rateMXN: st.rateMXN, montoMXN: signo*st.montoMXN, rateEURMXN: st.rateEURMXN, montoEUR: signo*st.montoEUR};
@@ -11926,7 +12019,7 @@ function deudaItems(){
   const items = [];
   // (Gustos ya no existe desde v15; si llegara algo ahí, igual cuenta.)
   [...state.subcats, {id:'gustos', nombre:'Otros', gastos: state.gustosGastos||[]}].forEach(sb=>(sb.gastos||[]).forEach(g=>{
-    let deudor = null, acreedor = null, mitad = 0, viaAbuelo = false;
+    let deudor = null, acreedor = null, mitad = 0, viaAbuelo = false, porOtra = false;
     if(g.quien==='abuelo'){
       if(g.repartoAbuelo!=='ambas') return;
       deudor='isa'; acreedor='jen'; mitad = mxnOf(g)/2; viaAbuelo = true;
@@ -11934,10 +12027,16 @@ function deudaItems(){
     } else if(g.quien==='ambas'){
       const dd = deudaDeGastoAmbas(g); if(!dd) return;
       acreedor = dd.acreedor; deudor = dd.deudor; mitad = dd.monto;
+    } else if(esPagadoPorOtra(g)){
+      // v19 etapa 13: lo pagó una y le tocaba a la otra: le debe el 100% (con Budget se repone al Budget; si no, es personal, también en efectivo)
+      if(g.deudaTipo==='ninguna') return;
+      const total = mxnOf(g); acreedor = g.pagadoPor; deudor = g.quien; mitad = total;
+      if(mitad < 0){ acreedor = g.quien; deudor = g.pagadoPor; mitad = -mitad; }
+      porOtra = true;
     } else return;
     if(!(mitad>0)) return;
     const sep = viaAbuelo ? 'personal' : tipoDeudaGasto(g);
-    items.push({k:'gastos:'+g.id, id:g.id, subId:sb.id, fecha:g.fecha, nota:g.nota||sb.nombre, subNombre:sb.nombre, deudor, acreedor, mitad, viaAbuelo, dosPusieron: g.pagadoPor==='ambas', pagado:0, pagos:[], delBudget: sep==='budget', sep, devolucion: mxnOf(g) < 0});
+    items.push({k:'gastos:'+g.id, id:g.id, subId:sb.id, fecha:g.fecha, nota:g.nota||sb.nombre, subNombre:sb.nombre, deudor, acreedor, mitad, viaAbuelo, dosPusieron: g.pagadoPor==='ambas', porOtra, pagado:0, pagos:[], delBudget: sep==='budget', sep, devolucion: mxnOf(g) < 0});
   }));
   const porK = {}; items.forEach(it=>{ porK[it.k] = it; });
   // v18.13: cada separación (Budget / personal) se salda aparte: lo que sobra de un pago va a las deudas de SU separación.
@@ -12580,6 +12679,7 @@ function listaPorDia(movs, pintar){
 
 /* ---------- Filtros de movimientos ---------- */
 let movLimiteRegistro = 60;
+let movFOtra = false; // v19 etapa 13: solo los gastos que le tocaban a la otra
 let movFDesde = '', movFHasta = '', movFTipo = 'todos', movFPago = '', movFCuenta = '', movFiltrosAbiertos = false, movMesTotal = null, movMes = null, movOrden = 'fecha';
 // Último mes al que se puede avanzar: el actual o el último con algo registrado (p. ej. cobros que vienen).
 function mesMaxMov(){ let max = mesActual(); collectMovimientos().forEach(m=>{ const k = ymMov(m); if(k && k>max) max = k; }); return max; }
@@ -12597,7 +12697,7 @@ function pagoDeMov(m){
   if(m.tipo==='transferencia') return 'debito';
   return '';
 }
-function filtrosActivos(){ return (movFDesde?1:0) + (movFHasta?1:0) + (movFTipo!=='todos'?1:0) + (movFPago?1:0) + (movFCuenta && movFiltro==='personales'?1:0) + (movOrden==='registro'?1:0); }
+function filtrosActivos(){ return (movFOtra?1:0) + (movFDesde?1:0) + (movFHasta?1:0) + (movFTipo!=='todos'?1:0) + (movFPago?1:0) + (movFCuenta && movFiltro==='personales'?1:0) + (movOrden==='registro'?1:0); }
 // v18.5: cuándo se registró un movimiento (lo viejo, aproximado).
 function creadoDeMov(m){
   const r = registroDeMov(m.tipo, m.id, m.subId || m.persona);
@@ -12623,6 +12723,7 @@ function renderFiltrosMov(){
     ${movFiltro==='personales' ? `<div class="field" style="margin-bottom:0;"><label>${ico('card','icon-xs')} ¿De qué cuenta?</label>${pickerHtml('movFCuenta', [{v:'', label:'Todas'}, {v:'debito', label:'Tarjeta de débito', glyph:'tarjeta'}, {v:'credito', label:'Tarjeta de crédito', glyph:'credito'}, ...Object.keys(CUENTAS).map(k=>({v:k, label:CUENTAS[k].corto, glyph:CUENTAS[k].glyph})), {v:'otro', label:'Otra persona (le debo)', glyph:'persona'}], movFCuenta, 'Todas')}</div>` : ''}
     ${conPago ? `<div class="field" style="margin-bottom:0;"><label>${ico('wallet','icon-xs')} Origen del pago</label>${pickerHtml('movFPago', pagos.map(([k,l])=>({v:k, label:l, glyph: GLYPH_FILTRO_PAGO[k]})), movFPago, 'Todas')}</div>` : ''}
     </div>
+    <label class="rec-chk" style="margin:4px 0 0;"><input type="checkbox" id="movFOtra" style="width:auto;" ${movFOtra?'checked':''}> Solo gastos que le tocaban a la otra (una pagó y la otra le debe)</label>
     <div class="filtros-actions"><button type="button" class="btn btn-outline btn-sm" id="movRevisarDup">${ico('layers','icon-sm')} Revisar duplicados</button></div>
   </div>` : ''}`;
 }
@@ -12717,6 +12818,7 @@ function aplicarFiltrosMov(lista){
   return lista.filter(m=>{
     if(movFDesde && (m.fecha||'') < movFDesde) return false;
     if(movFHasta && (m.fecha||'') > movFHasta) return false;
+    if(movFOtra && !esPagadoPorOtra(m)) return false;
     if(movFTipo!=='todos'){
       const v = vistaMov(m);
       if(v.neutro) return false;
@@ -13191,7 +13293,7 @@ function openCambiarCampo(keys){
   const aplican = gastos.filter(g=>aplicaCampoLote(g, campo));
   const valorUI = {
     quien: `<div class="seg" id="loteQuienSeg">${[['jen','Solo Jen'],['isa','Solo Isa'],['ambas','Ambas']].map(([k,l],i)=>`<button type="button" class="${i===0?'on':''}" data-lote-v="${k}">${l}</button>`).join('')}</div>`,
-    pagadoPor: `<div class="seg" id="lotePpSeg">${[['jen','Jen'],['isa','Isa'],['mitad','Ambas 50/50'],['custom','Personalizado']].map(([k,l],i)=>`<button type="button" class="${i===0?'on':''}" data-lote-v="${k}">${l}</button>`).join('')}</div>
+    pagadoPor: `<div class="seg" id="lotePpSeg">${[[perfil, nombrePersona(perfil)+' (yo)'],['mitad','Ambas 50/50'],['custom','Personalizado']].map(([k,l],i)=>`<button type="button" class="${i===0?'on':''}" data-lote-v="${k}">${l}</button>`).join('')}</div>
       <div class="field" id="lotePctWrap" style="display:none;margin-top:8px;"><label>¿Qué % puso Jen? (Isa el resto)</label><input type="number" id="lotePct" min="0" max="100" step="1" value="50"></div>`,
     pagadoCon: pickerHtml('lotePago', opcionesLotePago(), '', 'Elige con qué se pagó'),
     subId: pickerHtml('loteSub', opcionesSubcatV15(), '', 'Elige la categoría'),
@@ -13258,7 +13360,7 @@ function aplicarCampoLote(g, campo, v, pct){
   if(campo==='quien'){
     const antes = g.quien;
     if(v==='ambas'){ if(antes!=='ambas'){ g.pagadoPor = (antes==='jen'||antes==='isa') ? antes : perfil; delete g.parteJen; } }
-    else { g.pagadoPor = null; delete g.parteJen; }
+    else { const payer = pagadorFisico(g); g.pagadoPor = (payer==='jen' || payer==='isa') && payer!==v && g.pagadoCon!=='otro' ? payer : null; delete g.parteJen; delete g.parteConsumoJen; } // v19 etapa 13: el cargo se queda en las cuentas de quien pagó
     g.quien = v;
   } else if(campo==='pagadoPor'){
     if(v==='jen' || v==='isa'){ g.pagadoPor = v; delete g.parteJen; }
@@ -13590,6 +13692,94 @@ function htmlHerramientasNosotras(){
 
 /* ---------- Pestaña Nosotras ---------- */
 let nosotrasVer = null, nosotrasBusqueda = '', nosotrasSel = {}, nosotrasSaldados = false, nosHistLimite = 20, nosotrasSep = 'budget';
+/* v19 etapa 13 — GRUPOS DE DEUDAS (compartidos: viajan como configuración). Una deuda va en un solo grupo.
+   state.gruposDeuda = {lista:[{id, nombre, emoji, color}], de:{'gastos:ID': grupoId}} */
+let nosVerPor = 'grupos', nosGrupoCerrado = {};
+const GRUPO_COLORES = ['#e5484d','#f5a623','#12a594','#2f6bff','#8a4dff','#e93d82','#6b7280'];
+function gruposDeuda(){ const g = state.gruposDeuda && typeof state.gruposDeuda==='object' ? state.gruposDeuda : {}; return {lista: Array.isArray(g.lista) ? g.lista : [], de: g.de && typeof g.de==='object' ? g.de : {}}; }
+function guardarGruposDeuda(g){ state.gruposDeuda = JSON.parse(JSON.stringify({lista:g.lista, de:g.de})); persist(); }
+function grupoDeDeuda(k){ const g = gruposDeuda(), id = g.de[k]; return id ? g.lista.find(x=>x.id===id) || null : null; }
+function htmlPendAgrupado(pend, lineaItem, sald){
+  const g = gruposDeuda(), secciones = [];
+  if(nosVerPor==='categoria' || nosVerPor==='mes'){
+    const por = {};
+    pend.forEach(i=>{ const k = nosVerPor==='mes' ? ymDe(i.fecha||'') : (i.subNombre||'Otros'); (por[k] = por[k] || []).push(i); });
+    Object.keys(por).sort((a,b)=>nosVerPor==='mes' ? b.localeCompare(a) : a.localeCompare(b)).forEach(k=>secciones.push({key:nosVerPor+':'+k, nombre: nosVerPor==='mes' ? nombreMesLargo(k) : k, color:'var(--ink-soft)', items:por[k]}));
+  } else {
+    g.lista.forEach(gr=>{ const its = pend.filter(i=>g.de[i.k]===gr.id); const tuvo = (sald||[]).some(i=>g.de[i.k]===gr.id); // ya se pagaron las de esta vista (no cuenta las de la otra separación)
+      secciones.push({key:'g:'+gr.id, id:gr.id, nombre:(gr.emoji ? gr.emoji+' ' : '')+(gr.nombre||'Grupo'), color:gr.color||GRUPO_COLORES[6], items:its, pagado: !its.length && tuvo, vacio: !its.length && !tuvo}); });
+    const sin = pend.filter(i=>!g.de[i.k] || !g.lista.some(x=>x.id===g.de[i.k]));
+    if(sin.length || !g.lista.length) secciones.push({key:'g:sin', nombre: g.lista.length ? 'Sin grupo' : 'Todas', color:'var(--ink-soft)', items:sin, sin:true});
+  }
+  const chips = [['grupos','Mis grupos'],['categoria','Categoría'],['mes','Mes']].map(([k,l])=>`<button type="button" class="chip ${nosVerPor===k?'on':''}" data-nos-verpor="${k}">${l}</button>`).join('');
+  return `<div class="nos-grupos">
+    <div class="nos-gr-barra"><span class="small-note" style="margin:0;">Ver por:</span><div class="chiprow chiprow-scroll">${chips}</div></div>
+    ${nosVerPor==='grupos' ? `<div class="nos-gr-acc"><button type="button" class="btn btn-outline btn-sm" id="nosGrupoNuevo">${ico('plus','icon-xs')} Nuevo grupo</button>${g.lista.length ? `<button type="button" class="btn btn-ghost btn-sm" id="nosGruposOrg">${ico('edit','icon-xs')} Ordenar</button>` : ''}</div>` : ''}
+    ${secciones.map(sec=>{ const tot = sec.items.reduce((a,i)=>a+i.restante,0), cerrado = !!nosGrupoCerrado[sec.key];
+      const todosMarcados = sec.items.length && sec.items.every(i=>nosotrasSel[i.k]!==undefined);
+      return `<div class="nos-gr ${sec.sin?'nos-gr-sin':''}" style="--gr:${sec.color};">
+        <button type="button" class="nos-gr-cab" data-nos-gr-toggle="${escHtml(sec.key)}" aria-expanded="${!cerrado}">
+          <span class="nos-gr-dot"></span>
+          <span class="nos-gr-t"><b>${escHtml(sec.nombre)}</b><small>${sec.pagado ? 'Pagado ✓' : sec.vacio ? (Object.values(g.de).includes(sec.id) ? 'Nada pendiente aquí · tiene deudas en la otra vista' : 'Sin deudas todavía · selecciónalas y «Mover a grupo»') : sec.items.length+' '+(sec.items.length===1?'deuda':'deudas')}</small></span>
+          <b class="nos-gr-tot">${sec.pagado ? ico('check','icon-sm') : fmt(tot,'MXN')}</b>${ico(cerrado?'chevright':'chevdown','icon-sm')}
+        </button>
+        ${!cerrado && sec.items.length ? `<div class="nos-gr-cuerpo"><div class="nos-gr-marcar"><button type="button" class="link-quiet" data-nos-gr-marcar="${escHtml(sec.key)}">${ico(todosMarcados?'x':'check','icon-xs')} ${todosMarcados?'Desmarcar':'Marcar'} ${sec.sin?'todas':'el grupo'}</button></div>${sec.items.map(i=>lineaItem(i, true)).join('')}</div>` : ''}
+      </div>`; }).join('')}
+  </div>`;
+}
+function htmlBarraNosSel(pend){
+  const ks = Object.keys(nosotrasSel).filter(k=>pend.some(i=>i.k===k)); if(!ks.length || gselGrupo) return '';
+  const tot = pend.reduce((a,i)=>a+(nosotrasSel[i.k]!==undefined ? Math.min(i.restante, Math.max(0, Number(nosotrasSel[i.k])||0)) : 0), 0);
+  const g = gruposDeuda(), enGrupo = ks.some(k=>g.de[k]);
+  return `<div class="sel-bar nos-sel-bar" id="nosSelBar" role="toolbar"><span class="sel-suma">${ico('layers','icon-xs')} <b>${ks.length}</b> seleccionada${ks.length===1?'':'s'} · suman <span class="gasto">${fmt(tot,'MXN')}</span></span>
+    <button type="button" class="btn btn-outline btn-sm" id="nosMoverGrupo">${ico('layers','icon-xs')} Mover a grupo</button>${enGrupo ? `<button type="button" class="btn btn-ghost btn-sm" id="nosQuitarGrupo">Quitar del grupo</button>` : ''}
+    <button type="button" class="btn btn-primary btn-sm" id="nosPagarBarra">${ico('check','icon-xs')} Pagar estas</button><button type="button" class="btn btn-ghost btn-sm" id="nosSelLimpiar">${ico('x','icon-xs')}</button></div>`;
+}
+function openNuevoGrupoDeuda(asignar){
+  openSheet(`${sheetHeader('Nuevo grupo de deudas', 'Para organizarlas como quieras')}
+    <div class="field"><label>Nombre</label><input type="text" id="grNombre" placeholder="Ej. Prioridad alta, Vuelos, Noviembre…" maxlength="40"></div>
+    <div class="field"><label>Emoji (opcional)</label><input type="text" id="grEmoji" placeholder="🔥" maxlength="4" style="max-width:90px;"></div>
+    <div class="field"><label>Color</label><div class="gr-colores">${GRUPO_COLORES.map((c,i)=>`<button type="button" class="gr-color ${i===0?'on':''}" data-gr-color="${c}" style="background:${c};" aria-label="Color ${i+1}"></button>`).join('')}</div></div>
+    ${asignar && asignar.length ? `<div class="small-note">Se van a meter las ${asignar.length} deudas seleccionadas.</div>` : ''}
+    <button class="btn btn-primary btn-block" id="grCrear">${ico('check','icon-sm')} Crear grupo</button>`);
+  let color = GRUPO_COLORES[0];
+  document.querySelectorAll('[data-gr-color]').forEach(b=>b.addEventListener('click', ()=>{ color = b.getAttribute('data-gr-color'); document.querySelectorAll('[data-gr-color]').forEach(x=>x.classList.toggle('on', x===b)); }));
+  document.getElementById('grCrear').addEventListener('click', ()=>{
+    const nombre = document.getElementById('grNombre').value.trim(); if(!nombre){ marcarFaltante('grNombre'); alert('Escribe el nombre del grupo.'); return; }
+    const g = gruposDeuda(); const gr = {id:uid(), nombre, emoji:document.getElementById('grEmoji').value.trim(), color};
+    g.lista.push(gr); (asignar||[]).forEach(k=>{ g.de[k] = gr.id; });
+    guardarGruposDeuda(g); if(asignar && asignar.length) nosotrasSel = {};
+    closeSheet(); render(); mostrarToast('Grupo «'+nombre+'» creado.', 'ok');
+  });
+}
+function openMoverAGrupo(keys){
+  const g = gruposDeuda();
+  openSheet(`${sheetHeader('Mover a grupo', keys.length+' '+(keys.length===1?'deuda':'deudas'))}
+    <div class="gr-lista">${g.lista.map(gr=>`<button type="button" class="gr-opcion" data-gr-a="${gr.id}" style="--gr:${gr.color||GRUPO_COLORES[6]};"><span class="nos-gr-dot"></span><b>${escHtml((gr.emoji?gr.emoji+' ':'')+gr.nombre)}</b></button>`).join('') || '<div class="small-note">Todavía no hay grupos.</div>'}</div>
+    <button type="button" class="btn btn-outline btn-block" id="grNuevoDesdeMover" style="margin-top:10px;">${ico('plus','icon-sm')} Nuevo grupo con estas</button>`);
+  document.querySelectorAll('[data-gr-a]').forEach(b=>b.addEventListener('click', ()=>{ const gg = gruposDeuda(), id = b.getAttribute('data-gr-a'); keys.forEach(k=>{ gg.de[k] = id; }); guardarGruposDeuda(gg); nosotrasSel = {}; closeSheet(); render(); const gr = gg.lista.find(x=>x.id===id); mostrarToast('Se movieron a «'+(gr?gr.nombre:'')+'».', 'ok'); }));
+  document.getElementById('grNuevoDesdeMover').addEventListener('click', ()=>openNuevoGrupoDeuda(keys));
+}
+function openOrganizarGrupos(){
+  const g = gruposDeuda();
+  openSheet(`${sheetHeader('Ordenar y renombrar grupos', 'Los ven las dos')}
+    ${g.lista.map((gr, ix)=>`<div class="gr-org" data-gr-org="${gr.id}">
+      <div class="field-row" style="margin-bottom:6px;"><div class="field" style="flex:0 0 70px;margin-bottom:0;"><input type="text" data-gr-emoji="${gr.id}" value="${escHtml(gr.emoji||'')}" maxlength="4" aria-label="Emoji"></div>
+        <div class="field" style="margin-bottom:0;"><input type="text" data-gr-nombre="${gr.id}" value="${escHtml(gr.nombre||'')}" maxlength="40" aria-label="Nombre"></div></div>
+      <div class="gr-org-acc"><div class="gr-colores">${GRUPO_COLORES.map(c=>`<button type="button" class="gr-color ${gr.color===c?'on':''}" data-gr-setcolor="${gr.id}|${c}" style="background:${c};" aria-label="Color"></button>`).join('')}</div>
+        <span><button type="button" class="btn btn-ghost btn-sm" data-gr-mover="${gr.id}|-1" ${ix===0?'disabled':''} aria-label="Subir">↑</button><button type="button" class="btn btn-ghost btn-sm" data-gr-mover="${gr.id}|1" ${ix===g.lista.length-1?'disabled':''} aria-label="Bajar">↓</button><button type="button" class="btn btn-ghost btn-sm" data-gr-borrar="${gr.id}" style="color:var(--brick);">${ico('trash','icon-xs')}</button></span></div>
+    </div>`).join('')}
+    <div class="small-note">Al borrar un grupo, sus deudas pasan a «Sin grupo» (no se borra ninguna deuda).</div>
+    <button type="button" class="btn btn-primary btn-block" id="grOrgListo" style="margin-top:10px;">Listo</button>`);
+  const upd = (fn)=>{ const gg = gruposDeuda(); fn(gg); guardarGruposDeuda(gg); };
+  document.querySelectorAll('[data-gr-nombre]').forEach(inp=>inp.addEventListener('change', ()=>upd(gg=>{ const gr = gg.lista.find(x=>x.id===inp.getAttribute('data-gr-nombre')); if(gr && inp.value.trim()) gr.nombre = inp.value.trim(); })));
+  document.querySelectorAll('[data-gr-emoji]').forEach(inp=>inp.addEventListener('change', ()=>upd(gg=>{ const gr = gg.lista.find(x=>x.id===inp.getAttribute('data-gr-emoji')); if(gr) gr.emoji = inp.value.trim(); })));
+  document.querySelectorAll('[data-gr-setcolor]').forEach(b=>b.addEventListener('click', ()=>{ const [id, c] = b.getAttribute('data-gr-setcolor').split('|'); upd(gg=>{ const gr = gg.lista.find(x=>x.id===id); if(gr) gr.color = c; }); openOrganizarGrupos(); }));
+  document.querySelectorAll('[data-gr-mover]').forEach(b=>b.addEventListener('click', ()=>{ const [id, d] = b.getAttribute('data-gr-mover').split('|'); upd(gg=>{ const i = gg.lista.findIndex(x=>x.id===id), j = i + Number(d); if(i<0 || j<0 || j>=gg.lista.length) return; const t = gg.lista[i]; gg.lista[i] = gg.lista[j]; gg.lista[j] = t; }); openOrganizarGrupos(); }));
+  document.querySelectorAll('[data-gr-borrar]').forEach(b=>b.addEventListener('click', ()=>{ const id = b.getAttribute('data-gr-borrar'), gr = gruposDeuda().lista.find(x=>x.id===id); if(!confirm('¿Borrar el grupo «'+(gr?gr.nombre:'')+'»? Sus deudas pasan a «Sin grupo».')) return;
+    upd(gg=>{ gg.lista = gg.lista.filter(x=>x.id!==id); Object.keys(gg.de).forEach(k=>{ if(gg.de[k]===id) delete gg.de[k]; }); }); openOrganizarGrupos(); }));
+  document.getElementById('grOrgListo').addEventListener('click', ()=>{ closeSheet(); render(); });
+}
 // v18: de qué cuenta a qué cuenta fue un pago entre ustedes.
 function cuentaPagoTxt(persona, k, cta){
   if(k==='compensacion') return 'compensación';
@@ -13770,7 +13960,7 @@ function renderNosotras(){
     <div class="exp-line nos-item ${i.saldado?'saldado':''}">
       ${conSel ? `<label class="nos-chk"><input type="checkbox" data-nos-sel="${escHtml(i.k)}" ${nosotrasSel[i.k]!==undefined?'checked':''}></label>` : ''}
       ${micoHtml(iconoMov({tipo:'gasto-generales', subId:i.subId}),'sm')}
-      <div class="desc"><div data-mov-open="gasto-generales|${i.id}|${i.subId}"><div class="n">${escHtml(i.nota)}</div><div class="d">${fmtDate(i.fecha)} · ${escHtml(i.subNombre)} · ${i.viaAbuelo?'Tarjeta del Abuelo':(i.dosPusieron ? 'pusieron las dos, '+nombrePersona(i.acreedor)+' de más' : 'puso '+nombrePersona(i.acreedor))}${i.pagado>0.005 && !i.saldado?` · ya pagó ${fmt(i.pagado,'MXN')}`:''}</div></div>${i.saldado ? htmlPagosDeItem(i) : ''}</div>
+      <div class="desc"><div data-mov-open="gasto-generales|${i.id}|${i.subId}"><div class="n">${escHtml(i.nota)}</div><div class="d">${fmtDate(i.fecha)} · ${escHtml(i.subNombre)} · ${i.viaAbuelo?'Tarjeta del Abuelo':(i.porOtra ? 'le tocaba a '+nombrePersona(i.deudor)+', pagó '+nombrePersona(i.acreedor) : (i.dosPusieron ? 'pusieron las dos, '+nombrePersona(i.acreedor)+' de más' : 'puso '+nombrePersona(i.acreedor)))}${i.pagado>0.005 && !i.saldado?` · ya pagó ${fmt(i.pagado,'MXN')}`:''}</div></div>${i.saldado ? htmlPagosDeItem(i) : ''}</div>
       <div class="amt ${i.saldado?'':'gasto'}">${i.saldado ? 'Saldado' : fmt(i.restante,'MXN')}${!i.saldado && i.pagado>0.005 ? `<span class="est">de ${fmt(i.mitad,'MXN')}</span>` : ''}</div>
     </div>
     ${conSel && nosotrasSel[i.k]!==undefined ? `<div class="nos-parcial"><label>¿Cuánto paga de este? (MXN)</label><input type="number" step="0.01" data-nos-monto="${escHtml(i.k)}" value="${nosotrasSel[i.k]}" max="${i.restante}"></div>` : ''}`;
@@ -13798,7 +13988,8 @@ function renderNosotras(){
       <div id="nosLibrePrev">${renderPrevPagoLibre(deudora)}</div>
     </div>` : ''}
     ${pend.length ? `<div class="small-note" style="margin:-4px 0 6px;">O marca los gastos que ${nombrePersona(deudora)} va a pagar. Puedes pagar solo una parte: el gasto sigue apareciendo con lo que falta.</div>` : ''}
-    ${pend.length ? pend.map(i=>lineaItem(i, true)).join('') : (extraVer ? '' : `<div class="small-note">${nombrePersona(deudora)} no le debe nada a ${nombrePersona(ver)}. 🎉</div>`)}
+    ${pend.length ? htmlPendAgrupado(pend, lineaItem, sald) : (extraVer ? '' : `<div class="small-note">${nombrePersona(deudora)} no le debe nada a ${nombrePersona(ver)}. 🎉</div>`)}
+    ${htmlBarraNosSel(pend)}
     ${extraVer ? `<div class="exp-line nos-item"><span class="nos-chk"></span>${micoHtml(iconoMov({tipo:'pago-entre'}),'sm')}<div class="desc"><div class="n">Pagado de más por ${nombrePersona(ver)}</div><div class="d">${nombrePersona(ver)} le pagó de más o pagó algo por ${nombrePersona(deudora)} (p. ej. un vuelo); ${nombrePersona(deudora)} se lo regresa</div></div><div class="amt gasto">${fmt(extraVer,'MXN')}</div></div>` : ''}
     ${(pend.length || extraVer) ? `<div class="det-actions" style="margin-top:12px;">
       <button class="btn btn-primary" id="nosPagarSel" ${selTotal>0?'':'disabled'}>Pagar lo marcado${selTotal>0?' · '+fmt(selTotal,'MXN'):''}</button>
@@ -13807,15 +13998,15 @@ function renderNosotras(){
     ${sald.length ? `<button class="link-quiet" id="nosVerSaldados" style="margin-top:10px;">${nosotrasSaldados?'Ocultar':'Ver'} saldados (${sald.length})</button>${nosotrasSaldados ? sald.map(i=>lineaItem(i,false)).join('') : ''}` : ''}
   </div>
   <div class="card">
-    <div class="card-title"><h2>${ico('clock','icon-sm')} Historial completo</h2><span class="hint" data-open="pagoEntre" data-persona="${perfil}">+ pago</span></div>
+    <div class="card-title"><h2>${ico('clock','icon-sm')} Historial completo</h2><span class="card-title-acts">${gselBoton('noshist')}<span class="hint" data-open="pagoEntre" data-persona="${perfil}">+ pago</span></span></div>
     <input type="text" class="mov-search" id="nosBuscar" placeholder="Buscar por nombre o categoría..." value="${escHtml(nosotrasBusqueda)}">
     ${historial.length ? listaPorDia(historial.slice(0, nosHistLimite), x=> x.tipo==='item' ? `
-      <div class="exp-line clickable" data-mov-open="gasto-generales|${x.i.id}|${x.i.subId}">
+      <div${gselAttrs('noshist', 'i:'+x.i.k, x.i.acreedor===perfil ? x.i.mitad : -x.i.mitad)} class="exp-line clickable" data-mov-open="gasto-generales|${x.i.id}|${x.i.subId}">
         ${micoHtml(iconoMov({tipo:'gasto-generales', subId:x.i.subId}),'sm')}
         <div class="desc"><div class="n">${escHtml(x.i.nota)}</div><div class="d">${escHtml(x.i.subNombre)} · ${nombrePersona(x.i.deudor)} le debe a ${nombrePersona(x.i.acreedor)} · <span class="sep-tag sep-${x.i.sep}">${x.i.sep==='budget'?'Budget':'Personal'}</span>${x.i.devolucion?' · devolución':''}</div></div>
         <div class="amt ${x.i.saldado?'':'gasto'}">${fmt(x.i.mitad,'MXN')}${x.i.saldado?'<span class="est">saldado</span>':(x.i.pagado>0.005?`<span class="est">faltan ${fmt(x.i.restante,'MXN')}</span>`:'')}</div>
       </div>` : `
-      <div class="exp-line clickable" data-mov-open="pago-entre|${x.p.id}|">
+      <div${gselAttrs('noshist', 'p:'+x.p.id, x.p.sale==='compensacion' ? resumenComp(x.p).m : (x.p.a===perfil ? mxnOf(x.p) : -mxnOf(x.p)), x.p.sale==='compensacion')} class="exp-line clickable" data-mov-open="pago-entre|${x.p.id}|">
         ${micoHtml(iconoMov({tipo:'pago-entre'}),'sm')}
         <div class="desc"><div class="n">${x.p.compensacion ? (()=>{ const r = resumenComp(x.p); return 'Compensación · '+r.n+' '+(r.n===1?'renglón':'renglones'); })() : escHtml(x.p.nota||'Pago entre nosotras')}</div><div class="d">${x.p.sale==='compensacion' ? 'se cancelaron deudas, no se movió dinero · toca para ver el detalle' : 'pago · de '+escHtml(cuentaPagoTxt(x.p.de, x.p.sale, x.p.ctaSale))+' a '+escHtml(cuentaPagoTxt(x.p.a, x.p.entra, x.p.ctaEntra))+(x.p.noDeuda ? ' · no es deuda' : ' · <span class="sep-tag sep-'+saldaPago(x.p)+'">'+(saldaPago(x.p)==='budget'?'Budget':'Personal')+'</span>')}${!x.p.compensacion && Array.isArray(x.p.aplica)&&x.p.aplica.length?' · '+x.p.aplica.length+' '+(x.p.aplica.length===1?'gasto':'gastos'):''}</div></div>
         <div class="amt ${x.p.sale==='compensacion'?'neutro':'income'}">${x.p.sale==='compensacion'?'↔ '+fmt(resumenComp(x.p).m,'MXN') : fmt(x.p.monto, x.p.moneda||'MXN')}</div>
@@ -14079,11 +14270,12 @@ function wireV15Events(){
   const msb = document.getElementById('selBorrar'); if(msb) msb.addEventListener('click', ()=>borrarSeleccion());
   const msf = document.getElementById('selCampo'); if(msf) msf.addEventListener('click', ()=>openCambiarCampo([...movSel]));
   const fb = document.getElementById('movFiltrosBtn'); if(fb) fb.addEventListener('click', ()=>{ movFiltrosAbiertos = !movFiltrosAbiertos; render(); });
-  const fl = document.getElementById('movFiltrosLimpiar'); if(fl) fl.addEventListener('click', ()=>{ movFDesde=''; movFHasta=''; movFTipo='todos'; movFPago=''; movFCuenta=''; movOrden='fecha'; render(); });
+  const fl = document.getElementById('movFiltrosLimpiar'); if(fl) fl.addEventListener('click', ()=>{ movFDesde=''; movFHasta=''; movFTipo='todos'; movFPago=''; movFCuenta=''; movOrden='fecha'; movFOtra=false; render(); });
   const mrd = document.getElementById('movRevisarDup'); if(mrd) mrd.addEventListener('click', openRevisarDuplicados);
   const mrdq = document.getElementById('movRevisarDupQuick'); if(mrdq) mrdq.addEventListener('click', openRevisarDuplicados);
   on('[data-mov-orden]', 'click', (el)=>{ movOrden = el.getAttribute('data-mov-orden'); movLimiteRegistro = 60; render(); });
   const mmr = document.getElementById('movMasRegistro'); if(mmr) mmr.addEventListener('click', ()=>{ movLimiteRegistro += 100; render(); });
+  { const fo = document.getElementById('movFOtra'); if(fo) fo.addEventListener('change', ()=>{ movFOtra = fo.checked; render(); }); }
   const fcu = document.getElementById('movFCuenta'); if(fcu) fcu.addEventListener('change', ()=>{ movFCuenta = fcu.value; render(); });
   const prb = document.getElementById('personalesResumenBtn'); if(prb) prb.addEventListener('click', ()=>{ personalesResumenAbierto = !personalesResumenAbierto; render(); });
   try{ const v = document.querySelector('.dest-list .dest-pill.viendo'); if(v && v.parentElement && v.offsetLeft) v.parentElement.scrollLeft = Math.max(0, v.offsetLeft - 16); }catch(e){} // v19: en teléfono la ruta empieza en el destino que estás viendo
@@ -14125,6 +14317,20 @@ function wireV15Events(){
   // Nosotras
   on('[data-nos-ver]', 'click', (el)=>{ nosotrasVer = el.getAttribute('data-nos-ver'); nosotrasSel = {}; render(); });
   on('[data-nos-sep]', 'click', (el)=>{ nosotrasSep = el.getAttribute('data-nos-sep')==='personal' ? 'personal' : 'budget'; nosotrasVer = null; nosotrasSel = {}; nosotrasSaldados = false; render(); });
+  on('[data-nos-verpor]', 'click', (el)=>{ nosVerPor = el.getAttribute('data-nos-verpor'); render(); });
+  on('[data-nos-gr-toggle]', 'click', (el)=>{ const k = el.getAttribute('data-nos-gr-toggle'); nosGrupoCerrado[k] = !nosGrupoCerrado[k]; render(); });
+  on('[data-nos-gr-marcar]', 'click', (el)=>{
+    const caja = el.closest('.nos-gr'); if(!caja) return; const its = deudaItems().items;
+    const ks = [...caja.querySelectorAll('[data-nos-sel]')].map(c=>c.getAttribute('data-nos-sel'));
+    const todos = ks.length && ks.every(k=>nosotrasSel[k]!==undefined);
+    ks.forEach(k=>{ if(todos) delete nosotrasSel[k]; else if(nosotrasSel[k]===undefined){ const it = its.find(i=>i.k===k); nosotrasSel[k] = it ? it.restante : 0; } }); render();
+  });
+  { const b = document.getElementById('nosGrupoNuevo'); if(b) b.addEventListener('click', ()=>openNuevoGrupoDeuda(Object.keys(nosotrasSel))); }
+  { const b = document.getElementById('nosGruposOrg'); if(b) b.addEventListener('click', ()=>openOrganizarGrupos()); }
+  { const b = document.getElementById('nosMoverGrupo'); if(b) b.addEventListener('click', ()=>openMoverAGrupo(Object.keys(nosotrasSel))); }
+  { const b = document.getElementById('nosQuitarGrupo'); if(b) b.addEventListener('click', ()=>{ const g = gruposDeuda(); Object.keys(nosotrasSel).forEach(k=>{ delete g.de[k]; }); guardarGruposDeuda(g); nosotrasSel = {}; render(); }); }
+  { const b = document.getElementById('nosPagarBarra'); if(b) b.addEventListener('click', ()=>{ const ps = document.getElementById('nosPagarSel'); if(ps) ps.click(); }); }
+  { const b = document.getElementById('nosSelLimpiar'); if(b) b.addEventListener('click', ()=>{ nosotrasSel = {}; render(); }); }
   on('[data-nos-sel]', 'change', (el)=>{
     const k = el.getAttribute('data-nos-sel');
     if(el.checked){ const it = deudaItems().items.find(i=>i.k===k); nosotrasSel[k] = it ? it.restante : 0; } else delete nosotrasSel[k];
@@ -14809,6 +15015,16 @@ function wireSheetEvents(){
   };
   document.querySelectorAll('[data-deuda-tipo]').forEach(el=>el.addEventListener('click', ()=>{ const h = document.getElementById('gastoDeudaTipo'); if(h) h.value = el.getAttribute('data-deuda-tipo'); refrescarDeudaTipo(); }));
   { const gp = document.getElementById('gastoPago'); if(gp) gp.addEventListener('change', refrescarDeudaTipo); refrescarDeudaTipo(); }
+  // v19 etapa 13: cuánto le toca a cada una (50/50 o personalizado)
+  document.querySelectorAll('[data-consumo]').forEach(el=>el.addEventListener('click', ()=>{
+    document.querySelectorAll('[data-consumo]').forEach(b=>b.classList.remove('on')); el.classList.add('on');
+    const v = el.getAttribute('data-consumo'), h = document.getElementById('gastoConsumo'); if(h) h.value = v;
+    const w = document.getElementById('consumoCustomWrap'); if(w) w.style.display = v==='custom' ? '' : 'none';
+    if(v==='custom'){ const tot = Number((document.getElementById('gastoMonto')||{}).value)||0, j = document.getElementById('gastoTocaJen'), i = document.getElementById('gastoTocaIsa'); if(j && !j.value && tot){ j.value = Math.round(tot*50)/100; i.value = Math.round((tot - Number(j.value))*100)/100; } }
+  }));
+  { const j = document.getElementById('gastoTocaJen'), i = document.getElementById('gastoTocaIsa');
+    const otro = (a, b)=>()=>{ const tot = Number((document.getElementById('gastoMonto')||{}).value)||0; if(tot && a.value!=='') b.value = Math.round((tot - Number(a.value))*100)/100; };
+    if(j && i){ j.addEventListener('input', otro(j, i)); i.addEventListener('input', otro(i, j)); } }
   // "Ambas": 50/50 o personalizado (lo que puso cada una; la otra parte se calcula sola)
   document.querySelectorAll('[data-reparto]').forEach(el=>{
     el.addEventListener('click', ()=>{
@@ -14908,6 +15124,8 @@ function wireSheetEvents(){
     }
     const wrap = document.getElementById('pagadoPorWrap');
     if(wrap && gastoQuienSel) wrap.style.display = (!esAbuelo && gastoQuienSel.value==='ambas') ? '' : 'none';
+    { const no = document.getElementById('gastoDeOtraNota'); const ex = !!document.querySelector('#gastoEditRef') && (document.getElementById('gastoEditRef').value) && no && no.dataset.legado==='1';
+      if(no && gastoQuienSel){ const pv = gastoPagoSel ? gastoPagoSel.value : ''; const ver = !esAbuelo && gastoQuienSel.value===otraPersona(perfil) && pv!=='otro' && !ex; no.style.display = ver ? '' : 'none'; if(ver) no.querySelector('div').innerHTML = notaGastoDeOtra(pv); } }
     const n = document.getElementById('gastoPagoNota');
     if(n && gastoPagoSel) n.textContent = notaPago(gastoPagoSel.value, (document.getElementById('gastoCuenta')||{}).value);
     const ow = document.getElementById('gastoOtroWrap');
@@ -14966,7 +15184,18 @@ function wireSheetEvents(){
     const quien = pago==='abuelo' ? 'abuelo' : quienSelVal;
     const repartoAbuelo = pago==='abuelo' ? (quienSelVal==='ambas' ? 'ambas' : 'jen') : null;
     const pagadoPorEl = document.getElementById('gastoPagadoPor');
-    const pagadoPor = quien==='ambas' ? (pagadoPorEl ? (pagadoPorEl.value || null) : perfil) : null;
+    // v19 etapa 13: si le toca solo a la otra, lo pagaste tú (sale de tus cuentas y te debe el 100%). Lo registrado antes se queda como estaba.
+    const prevG = (()=>{ try{ const er = document.getElementById('gastoEditRef'); const r = er && er.value ? JSON.parse(er.value.replace(/&apos;/g,"'")) : null; if(!r) return null; return gastosCategoria().find(x=>x.id===r.id) || (state.gustosGastos||[]).find(x=>x.id===r.id) || null; }catch(e){ return null; } })();
+    const legado = !!(prevG && prevG.quien===quien && quien!=='ambas' && !prevG.pagadoPor);
+    const pagadoPor = quien==='ambas' ? (pagadoPorEl ? (pagadoPorEl.value || null) : perfil)
+      : ((quien==='jen' || quien==='isa') && quien!==perfil && pago!=='otro' && !legado ? (prevG && prevG.quien===quien && prevG.pagadoPor && prevG.pagadoPor!==quien ? prevG.pagadoPor : perfil) : null);
+    let parteConsumoJen = null;
+    if(quien==='ambas' && (document.getElementById('gastoConsumo')||{}).value==='custom'){
+      const tj = Number((document.getElementById('gastoTocaJen')||{}).value), ti = Number((document.getElementById('gastoTocaIsa')||{}).value);
+      const tot = Math.abs(monto);
+      if(!(tj>=0) || !(ti>=0) || Math.abs(tj+ti-tot) > 0.011){ marcarFaltante('gastoTocaJen'); alert('Lo que le toca a Jen más lo que le toca a Isa tiene que dar el total ('+tot+').'); return; }
+      parteConsumoJen = tot>0 ? tj/tot : 0.5;
+    }
     const deudaTipoEl = document.getElementById('gastoDeudaTipo');
     const deudaTipo = quien==='ambas' && deudaTipoEl && (deudaTipoEl.value==='budget'||deudaTipoEl.value==='personal') && deudaTipoEl.value!==tipoDeudaGasto({pagadoCon: pago==='abuelo' ? 'bote' : pago, quien}) ? deudaTipoEl.value : null;
     let parteJen = null;
@@ -14992,7 +15221,7 @@ function wireSheetEvents(){
     const rateInput = document.getElementById('gastoRate');
     let rateUsar = rateInput?rateInput.value:null;
     { const erA = document.getElementById('gastoEditRef'); const refA = erA && erA.value ? JSON.parse(erA.value.replace(/&apos;/g,"'")) : null;
-      if(pago==='arq' && moneda==='EUR'){ const pag = quien==='ambas' ? (pagadoPor||perfil) : (quien==='abuelo' ? 'jen' : quien); const t = tasaArq(pag, monto, refA ? refA.id : null); if(t) rateUsar = t; } }
+      if(pago==='arq' && moneda==='EUR'){ const pag = quien==='ambas' ? (pagadoPor||perfil) : (quien==='abuelo' ? 'jen' : (pagadoPor||quien)); const t = tasaArq(pag, monto, refA ? refA.id : null); if(t) rateUsar = t; } }
     const stamp = stampRates(monto, moneda, rateUsar);
     const editRefEl = document.getElementById('gastoEditRef');
     const editRef = editRefEl && editRefEl.value ? JSON.parse(editRefEl.value.replace(/&apos;/g,"'")) : null;
@@ -15036,6 +15265,7 @@ function wireSheetEvents(){
       state.gustosGastos = state.gustosGastos.filter(g=>g.id!==existing.id);
       Object.assign(existing, {monto, moneda, fecha, quien, pagadoPor, nota, pagadoCon, ...stamp});
       if(parteJen!==null) existing.parteJen = parteJen; else delete existing.parteJen;
+      if(parteConsumoJen!==null) existing.parteConsumoJen = parteConsumoJen; else delete existing.parteConsumoJen;
       if(deudaTipo) existing.deudaTipo = deudaTipo; else delete existing.deudaTipo;
       if(devOrig) copiarDeCompra(existing, devOrig); else if(!esDevolucion || !devDeId) delete existing.devDe;
       if(repartoAbuelo) existing.repartoAbuelo = repartoAbuelo; else delete existing.repartoAbuelo;
@@ -15070,6 +15300,7 @@ function wireSheetEvents(){
     const stampGuardar = planMeses ? stampRates(montoGuardar, moneda, rateUsar) : stamp;
     const gasto = {id:uid(), monto:montoGuardar, moneda, fecha, quien, pagadoPor, nota, pagadoCon, ...stampGuardar};
     if(parteJen!==null) gasto.parteJen = parteJen;
+    if(parteConsumoJen!==null) gasto.parteConsumoJen = parteConsumoJen;
     if(deudaTipo) gasto.deudaTipo = deudaTipo;
     if(repartoAbuelo) gasto.repartoAbuelo = repartoAbuelo;
     if(devOrig) copiarDeCompra(gasto, devOrig);
